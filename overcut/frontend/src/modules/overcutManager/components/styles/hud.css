@@ -1,0 +1,217 @@
+/*
+ * HUD-3 (F1M24-GAMEPLAY §2.12.1): the event banner, the pit-stop widget, the driver panel's
+ * tabs and telemetry, and the pit dialog. Tokens from the Manager's theme (OvercutManager.css);
+ * every state has its words, never a colour alone (RNF-09); with prefers-reduced-motion nothing
+ * animates.
+ */
+
+.lv-eventbanner {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mn-s-3);
+  max-width: min(560px, 100%);
+  padding: var(--mn-s-2) var(--mn-s-4);
+  overflow: hidden;
+  border: 1px solid var(--mn-hairline-strong);
+  border-radius: var(--mn-r-2);
+  background: var(--lv-glass);
+  font-size: var(--mn-fs-14);
+  animation: lv-eventbanner-in 200ms ease-out;
+}
+
+.lv-eventbanner strong {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.lv-eventbanner span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lv-eventbanner[data-own] {
+  border-color: var(--mn-gold, var(--mn-hairline-strong));
+}
+
+.lv-eventbanner[data-kind="fastest"] strong {
+  color: var(--mn-best);
+}
+
+.lv-eventbanner[data-kind="drs"] strong {
+  color: var(--mn-pos);
+}
+
+.lv-eventbanner[data-kind="contact"] strong,
+.lv-eventbanner[data-kind="penalty"] strong {
+  color: var(--mn-neg);
+}
+
+.lv-eventbanner__rule {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: currentColor;
+  opacity: 0.5;
+  transform-origin: left;
+  animation: lv-eventbanner-rule 600ms ease-out;
+}
+
+@keyframes lv-eventbanner-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes lv-eventbanner-rule {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.lv-pittimer {
+  position: absolute;
+  bottom: var(--mn-s-3);
+  left: var(--mn-s-3);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-1);
+  pointer-events: none;
+}
+
+.lv-pittimer__car {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  align-items: baseline;
+  gap: var(--mn-s-1) var(--mn-s-3);
+  padding: var(--mn-s-2) var(--mn-s-3);
+  border: 1px solid var(--mn-hairline-strong);
+  border-radius: var(--mn-r-2);
+  background: var(--lv-glass);
+  font-size: var(--mn-fs-14);
+  font-variant-numeric: tabular-nums;
+}
+
+.lv-pittimer__stop {
+  grid-column: 1 / -1;
+}
+
+.lv-pittimer__stop.is-live {
+  color: var(--mn-neg);
+  font-weight: 700;
+}
+
+.lv-card__tabs {
+  margin: var(--mn-s-1) 0 var(--mn-s-2);
+}
+
+.lv-card__tabs .mn-tabs {
+  overflow-x: auto;
+}
+
+.lv-tele {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+  gap: var(--mn-s-2);
+  margin: 0;
+}
+
+.lv-tele div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lv-tele dt {
+  color: var(--mn-text-2, inherit);
+  font-size: var(--mn-fs-12, 12px);
+}
+
+.lv-tele dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.lv-pitdlg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mn-s-4);
+}
+
+.lv-pitdlg__tyres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mn-s-2);
+}
+
+.lv-pitdlg__tyre {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mn-s-2);
+  padding: var(--mn-s-2) var(--mn-s-3);
+  border: 1px solid var(--mn-hairline-strong);
+  border-radius: var(--mn-r-2);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.lv-pitdlg__tyre[aria-checked="true"] {
+  border-color: var(--mn-gold, currentColor);
+  box-shadow: inset 0 0 0 1px var(--mn-gold, currentColor);
+}
+
+.lv-pitdlg__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--mn-s-3);
+  margin: 0;
+}
+
+.lv-pitdlg__facts dt {
+  font-size: var(--mn-fs-12, 12px);
+}
+
+.lv-pitdlg__facts dd {
+  margin: 0;
+  font-size: var(--mn-fs-16, 16px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.lv-pitdlg__warn {
+  margin: 0;
+  color: var(--mn-neg);
+}
+
+.lv-pitdlg__note {
+  margin: 0;
+  font-size: var(--mn-fs-12, 12px);
+}
+
+.lv-pitdlg__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--mn-s-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lv-eventbanner,
+  .lv-eventbanner__rule {
+    animation: none;
+  }
+}

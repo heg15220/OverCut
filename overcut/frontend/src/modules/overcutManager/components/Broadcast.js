@@ -21,6 +21,9 @@
  *   Feed          the engineer on the radio and the commentary (RF-CMD-03),
  *                 filterable.
  *   Dots          a level picked from a row of steps - pace, mixture, battery.
+ *   EventBanner   HUD-3: the event banner up now (passes, incidents, fastest lap,
+ *                 DRS, laps to go), one at a time.
+ *   PitTimer      HUD-3: your cars' stops as they happen - lane, stationary, total.
  */
 
 import React, { useRef, useState } from "react";
@@ -29,9 +32,11 @@ import { IconArrowDown, IconArrowUp, IconChevronLeft, IconChevronRight, IconFlag
 import { IconCamera, IconCloud, IconDroplet, IconPause, IconRain, IconSun, IconThermometer, IconTimer } from "./icons";
 import { t } from "./texts";
 import { headerFlagOf, sectorTone } from "./tower";
+import { bannerText } from "./hudBanners";
 import "./styles/weekend.css";
 import "./styles/playback.css";
 import "./styles/tower.css";
+import "./styles/hud.css";
 
 const MOVE_MS = 3000;
 
@@ -376,6 +381,68 @@ export const Dots = ({ value, options, onChange, label }) => {
         />
       ))}
       <small>{options[index]?.label}</small>
+    </div>
+  );
+};
+
+/**
+ * HUD-3 (event-banners): the banner up now, top centre, one at a time (hudBanners.js queue).
+ * `banner` is { key, kind, own, ... } or null; `names` id → name; `onReplay(banner)` (optional,
+ * HUD-4) adds "watch the replay" when the replay buffer covers it. Words always, never a
+ * colour alone (RNF-09); no animation with prefers-reduced-motion (playback.css).
+ */
+export const EventBanner = ({ banner, names = {}, onReplay = null }) => {
+  if (!banner) return null;
+  const words = bannerText(banner, names);
+  return (
+    <div className="lv-eventbanner" role="status" aria-live="polite" data-kind={banner.kind} data-own={banner.own ? "" : undefined} key={banner.key}>
+      <strong>{words.title}</strong>
+      {words.line && <span>{words.line}</span>}
+      {onReplay && (
+        <button type="button" className="mn-btn mn-btn--sm mn-btn--ghost" onClick={() => onReplay(banner)}>
+          {t("Ver repetición", "Watch replay")}
+        </button>
+      )}
+      <i className="lv-eventbanner__rule" aria-hidden="true" />
+    </div>
+  );
+};
+
+const seconds = (value) => (Number.isFinite(value) ? `${value.toFixed(1)} s` : "—");
+
+/**
+ * HUD-3 (pit-widget-and-dialog): the stop of each of your cars as it happens - time in the lane
+ * from the entry line, time standing (in red, with its words), leaving, and the total frozen at
+ * the exit line, with the position live. `entries` are { id, code, position, clock } where
+ * `clock` is pitTimer.stepPitClock's state.
+ */
+export const PitTimer = ({ entries = [] }) => {
+  if (!entries.length) return null;
+  const stateWord = (state) =>
+    ({
+      lane: () => t("En el pit", "In the pit lane"),
+      stationary: () => t("Parado", "Stationary"),
+      leaving: () => t("Saliendo", "Leaving"),
+      done: () => t("Total", "Total"),
+    })[state]?.() ?? "";
+  return (
+    <div className="lv-pittimer" role="group" aria-label={t("Parada en boxes", "Pit stop")}>
+      {entries.map(({ id, code, position, clock }) => (
+        <div key={id} className="lv-pittimer__car" data-state={clock.state}>
+          <b>
+            P{position} · {code}
+          </b>
+          <span className="lv-pittimer__state">{stateWord(clock.state)}</span>
+          <span className="lv-pittimer__lane" title={t("Tiempo en el pit lane", "Time in the pit lane")}>
+            {seconds(clock.state === "done" ? clock.totalSec : clock.laneSec)}
+          </span>
+          {clock.stationarySec !== null && (
+            <span className={`lv-pittimer__stop${clock.state === "stationary" ? " is-live" : ""}`} title={t("Tiempo parado", "Stationary time")}>
+              {t("Parado", "Stopped")} {seconds(clock.stationarySec)}
+            </span>
+          )}
+        </div>
+      ))}
     </div>
   );
 };

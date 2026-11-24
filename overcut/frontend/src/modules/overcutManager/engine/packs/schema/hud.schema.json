@@ -3,7 +3,7 @@
   "$comment": "RNF-07: esquema de data/balance/hud.json (presentación del HUD de sesión y de carrera; RF-3D-04, RF-CMD-04, RF-WKD-07, RNF-09). Esquema completo desde HUD-1, también para las claves de HUD-2..HUD-7 y WKD-1 (F1M24-GAMEPLAY §3.2). Lo comprueba components/playback.test.js.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["$comment", "version", "speedCallout", "carStep", "tower", "banners", "start", "transitionSec"],
+  "required": ["$comment", "version", "speedCallout", "carStep", "tower", "banners", "driverPanel", "pitDialog", "pitTimer", "start", "transitionSec"],
   "definitions": {
     "status": {
       "enum": ["behaviour", "pending", "measured", "NV"]
@@ -18,6 +18,22 @@
     },
     "flagKind": {
       "enum": ["green", "yellow", "sc", "vsc", "red", "chequered", "session"]
+    },
+    "bannerKind": {
+      "enum": ["pass", "mistake", "contact", "investigation", "penalty", "fastest", "drs", "lapsToGo", "lastLap"]
+    },
+    "panelTab": {
+      "enum": ["status", "tactics", "telemetry", "pit"]
+    },
+    "pendingSwitch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "enabled"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "enabled": { "type": "boolean" }
+      }
     }
   },
   "properties": {
@@ -147,10 +163,7 @@
         "kinds": {
           "type": "array",
           "uniqueItems": true,
-          "items": {
-            "type": "string",
-            "minLength": 1
-          }
+          "items": { "$ref": "#/definitions/bannerKind" }
         },
         "durationSec": {
           "type": ["number", "null"],
@@ -165,6 +178,146 @@
             "minimum": 1,
             "maximum": 100
           }
+        },
+        "queueMax": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "staleSimSec": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 600
+        },
+        "byKind": {
+          "type": "object",
+          "propertyNames": { "$ref": "#/definitions/bannerKind" },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "scope": { "enum": ["all", "own", "top"] },
+              "top": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 30
+              },
+              "priority": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 5
+              },
+              "durationSec": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 30
+              },
+              "kinds": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": { "enum": ["spin", "wide", "lockup"] }
+              }
+            }
+          }
+        },
+        "activeAero": { "$ref": "#/definitions/pendingSwitch" },
+        "replay": { "$ref": "#/definitions/pendingSwitch" }
+      }
+    },
+    "driverPanel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "tabs", "defaultTab", "tyreLife", "fuel", "engineTemp", "stopWindow"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "tabs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/definitions/panelTab" }
+        },
+        "defaultTab": { "$ref": "#/definitions/panelTab" },
+        "tyreLife": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["warnBelow", "badBelow"],
+          "properties": {
+            "warnBelow": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "badBelow": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "fuel": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["warnLaps"],
+          "properties": {
+            "warnLaps": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10
+            }
+          }
+        },
+        "engineTemp": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "enabled"],
+          "properties": {
+            "status": { "$ref": "#/definitions/status" },
+            "enabled": { "type": "boolean" }
+          }
+        },
+        "stopWindow": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "source"],
+          "properties": {
+            "status": { "$ref": "#/definitions/status" },
+            "source": { "type": "string" }
+          }
+        }
+      }
+    },
+    "pitDialog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "pauseOnOpen", "quickCall", "lapPicker"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "pauseOnOpen": { "type": "boolean" },
+        "quickCall": { "type": "boolean" },
+        "lapPicker": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "enabled"],
+          "properties": {
+            "status": { "$ref": "#/definitions/status" },
+            "enabled": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "pitTimer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "holdRealSec"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "holdRealSec": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 30
         }
       }
     },

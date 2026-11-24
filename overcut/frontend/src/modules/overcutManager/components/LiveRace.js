@@ -27,6 +27,12 @@
  * incidents, out and in laps and the flag, and a header tinted by the flag with its words -
  * a yellow says its sector. The TV follows the car you pick in the tower or on the map
  * (components/director/directorState, CAM-1); "follow the action" is broadcast.json's.
+ *
+ * Banners, panel and stop (HUD-3): one event banner at a time over the picture (passes,
+ * incidents, the fastest lap, DRS by the era's rule, laps to go; hudBanners.js), each of your
+ * cars' panel in tabs with its units (status, tactics, telemetry, pit), the pit dialog
+ * (PitDialog: engine/sim/pitLane.js previewPit) that holds the session while it is open, and
+ * the pit widget (pitTimer.js) reading the engine's pit phase. All from hud.json.
  */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -39,8 +45,12 @@ import { applyTick, createRaceClient, mirrorOf } from "../engine/worker/raceClie
 import { circuitFor } from "../engine/venue";
 import { poseAt } from "../engine/trackGeometry";
 import { useManager } from "./context";
-import { Meter, Segmented, Tyre, readableOn } from "./atoms";
-import { Dots, Feed, PlaybackBar, SectorBars, SpeedCallout, StatusStrip, TimingTower } from "./Broadcast";
+import { Meter, Segmented, Tabs, Tyre, readableOn } from "./atoms";
+import { Dots, EventBanner, Feed, PitTimer, PlaybackBar, SectorBars, SpeedCallout, StatusStrip, TimingTower } from "./Broadcast";
+import { createBannerQueue, currentBanner, drsBanners, drsCalls, eventBanners, lapCallouts, offerBanners } from "./hudBanners";
+import { createPitClock, stepPitClock } from "./pitTimer";
+import PitDialog from "./PitDialog";
+import RACE_ERAS from "../data/balance/race-eras.json";
 import { tvShotOf } from "./tvDirector";
 import { hasSectorTimes, incidentOf, lapSectorsOf, lastLapOf, raceInLap, raceOutLap, stopsOf, towerModeName, towerModesFor, yellowFlag } from "./tower";
 import { HUD, LIVE_VIEW, cameraModeOf, cameraName, camerasOf, cycle, defaultCameraOf, defaultSpeedOf, defaultViewOf, engineChunk, raceTriggers, reasonText, speedsOf, stepCar, viewName, viewsOf } from "./playback";
@@ -320,6 +330,14 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   // The director's last shot (directorState keeps its camera and its follow-the-action hold).
   const director = useRef(null);
   const finishedRef = useRef(false);
+  // HUD-3: the pit dialog of one of your cars; while it is open the session is held (pauseOn).
+  const [pitDialogId, setPitDialogId] = useState(null);
+  const { hold, release } = auto;
+  useEffect(() => {
+    if (!pitDialogId || !HUD.pitDialog.pauseOnOpen) return undefined;
+    hold("pitDialog");
+    return () => release("pitDialog");
+  }, [pitDialogId, hold, release]);
   // The loop reads the auto-speed machine itself (a drop lands on the very next frame).
   const playRef = useRef({ playing, auto });
   playRef.current = { playing: playing && !auto.held, auto };
@@ -355,7 +373,8 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
           tau.current = source.limit(tau.current + dt * rate);
         }
       }
-      if (introDone.current && !finishedRef.current) source.advance(tau.current, rate);
+      // Paused (or held by an open dialog, HUD-3 PitDialog): the engine is asked for nothing.
+      if (isPlaying && introDone.current && !finishedRef.current) source.advance(tau.current, rate);
       // The 3D view samples the clock itself every frame; the data around it
       // only needs repainting a dozen times a second.
       if (!in3DRef.current || time - lastPaint >= 90) {
@@ -626,6 +645,47 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     .sort((a, b) => (b.at ?? 0) - (a.at ?? 0))
     .slice(0, 24);
 
+  // ---- HUD-3 event banners: one at a time, at the race time the engine gives (hudBanners.js)
+  const bannerQueue = useRef(null);
+  if (!bannerQueue.current) bannerQueue.current = createBannerQueue();
+  const leaderEnds = (leader?.car.history || []).filter((entry) => !entry.retired).map((entry) => entry.end);
+  const drsPlan = useMemo(
+    () => drsCalls(rulesOf(current.era, current.year), { laps: current.laps, wetness: current.weather.wetness, zones: current.track?.drs ?? 0, restartLap: current.restartLap || 0 }),
+    [current.era, current.year, current.laps, current.weather.wetness, current.track, current.restartLap],
+  );
+  let banner = null;
+  if (introDone.current) {
+    offerBanners(
+      bannerQueue.current,
+      [
+        ...eventBanners({ events: visibleEvents, timeOf: (event) => event.at ?? source.eventTime(event, leaderId), positions, isUser: (id) => Boolean(byId[id]?.isUser) }),
+        ...lapCallouts({ laps: current.laps, ends: leaderEnds }),
+        ...drsBanners(drsPlan, { ends: leaderEnds }),
+      ],
+      tau.current,
+    );
+    banner = leaderFinished ? null : currentBanner(bannerQueue.current, now() / 1000, tau.current);
+  }
+
+  // ---- HUD-3 pit widget: your cars' stops from the engine's pit phase (pitTimer.js)
+  const pitClocks = useRef(new Map());
+  const pitEntries = userCars
+    .map((car) => {
+      const row = rowOf[car.id];
+      if (!pitClocks.current.has(car.id)) pitClocks.current.set(car.id, createPitClock());
+      const clockState = row && !row.out ? stepPitClock(pitClocks.current.get(car.id), row.pose, tau.current, now() / 1000) : null;
+      return clockState ? { id: car.id, code: code(car.name), position: row.position, clock: clockState } : null;
+    })
+    .filter(Boolean);
+  const pitCar = pitDialogId ? byId[pitDialogId] : null;
+  const pitRow = pitCar ? rowOf[pitCar.id] : null;
+  const closePitDialog = () => setPitDialogId(null);
+  // A car that retires or finishes takes its dialog (and the hold) with it.
+  const pitGone = Boolean(pitDialogId && (!pitCar || pitCar.status !== "running"));
+  useEffect(() => {
+    if (pitGone) setPitDialogId(null);
+  }, [pitGone]);
+
   // ---- the flag state over the picture (RF-SIM-10): colour and words, never colour alone
   const flag = redFlag
     ? { kind: "red", label: t("Bandera roja", "Red flag") }
@@ -698,7 +758,9 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
               {t("Bandera a cuadros", "Chequered flag")} · {leader?.car.name}
             </div>
           )}
+          <EventBanner banner={banner} names={names} />
         </div>
+        <PitTimer entries={pitEntries} />
         <SpeedCallout callout={auto.callout} reasonText={reasonText} />
         {!leaderFinished && battles[0] && cameraMode !== "tv" && (
           <div className="lv-chip">
@@ -746,10 +808,37 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
               pitThisLap={(((rowOf[car.id]?.pose?.progress ?? 0) % 1) + 1) % 1 < circuit.pit.entry}
               focused={focusId === car.id}
               onFocus={() => setFocusId(car.id)}
+              onPitDialog={() => setPitDialogId(car.id)}
             />
           </React.Fragment>
         ))}
       </section>
+
+      {pitCar && (
+        <PitDialog
+          open={Boolean(pitCar && pitCar.status === "running")}
+          onClose={closePitDialog}
+          car={pitCar}
+          state={current}
+          rules={towerRules}
+          commands={commands}
+          circuit={circuit}
+          share={pitRow ? (((pitRow.pose.progress ?? 0) % 1) + 1) % 1 : null}
+          position={pitRow && !pitRow.out ? pitRow.position : null}
+          tyreLife={Math.max(0, 1 - tyreLifeUsed(pitCar, towerRules))}
+          pitThisLap={(((pitRow?.pose?.progress ?? 0) % 1) + 1) % 1 < circuit.pit.entry}
+          defaultFuel={pitFuelDefault(current, pitCar)}
+          maxFuel={Math.max(1, current.laps - current.lap + 1)}
+          onConfirm={(compound, options) => {
+            command("requestPit", pitCar.id, compound, options);
+            closePitDialog();
+          }}
+          onCancelCall={() => {
+            command("cancelPit", pitCar.id);
+            closePitDialog();
+          }}
+        />
+      )}
 
       <aside className="lv-side" aria-label={t("Pista", "Track")}>
         {cameraMode !== "map" && <MiniMap circuit={circuit} cars={stageCars} focusId={tvSubjectId} label={t("Minimapa", "Mini map")} />}
@@ -788,43 +877,79 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   );
 }
 
-const TEMP_LABEL = (temp) => (temp < 0.4 ? { label: t("Fríos", "Cold"), tone: "info" } : temp > 0.72 ? { label: t("Sobrecalentados", "Overheating"), tone: "neg" } : { label: t("En ventana", "In window"), tone: "pos" });
+/** The tyre's heat against the engine's own window (race-eras.json tyres.thermal, 0..1 scale; RNF-07). */
+const THERMAL = RACE_ERAS.tyres.thermal;
+const TEMP_LABEL = (temp) => (temp < THERMAL.coldBelow ? { label: t("Fríos", "Cold"), tone: "info" } : temp > THERMAL.overheatAbove ? { label: t("Sobrecalentados", "Overheating"), tone: "neg" } : { label: t("En ventana", "In window"), tone: "pos" });
+
+/** RF-CMD-02: the next planned stop of a car (one already made is not "next"). */
+const nextStopOf = (state, car) => car.plan.stops.find((lap) => lap >= state.lap && !(car.lastPitLap >= lap));
+
+/** A stop called now replaces the next planned one: fuel (laps) to the stop after it, or to the flag. */
+const pitFuelDefault = (state, car) => {
+  const remaining = Math.max(0, state.laps - state.lap);
+  const after = car.plan.stops.find((lap) => lap > (nextStopOf(state, car) ?? state.lap));
+  return Math.max(1, Math.min(remaining + 1, (after ?? state.laps) - state.lap));
+};
+
+/** The panel's tab names (HUD-3 driver-panel-units, hud.json driverPanel.tabs). */
+const PANEL_TAB = {
+  status: () => t("Estado", "Status"),
+  tactics: () => t("Tácticas", "Tactics"),
+  telemetry: () => t("Telemetría", "Telemetry"),
+  pit: () => t("Boxes", "Pit"),
+};
 
 /**
- * One of the player's cars on the pit wall: position and name, then one row per order
- * the era allows (RF-CMD-01, commandsFor): tyres and pace, fuel and its mixture when
- * there is no refuelling, the battery when the era has KERS or ERS, defence and
- * overtaking risk in a step race, and the stop call underneath (RF-CMD-02: compounds,
- * or fuel only when tyres may not be changed). Every order goes through `command`
- * (the race worker for a step race).
+ * One of the player's cars on the pit wall: position and name, then the panel in tabs
+ * (HUD-3 driver-panel-units, hud.json driverPanel.tabs):
+ *   status     tyre life in % and its heat against the engine's window (°C only when the
+ *              engine gives car.tyreC, SIM-6), fuel margin in laps and kg (no margin in a
+ *              refuelling era), the battery in % (only when the era has KERS or ERS)
+ *   tactics    every order the era allows (RF-CMD-01, commandsFor): pace, mixture, energy
+ *              mode, and defence and overtaking risk in a step race
+ *   telemetry  speed, gear, rpm, throttle and brake from the step engine's pose (RF-SIM-01/02)
+ *   pit        the plan (delay or drop the next stop), the stop window when the strategist
+ *              publishes one (RF-SIM-13), the two-compound rule's count
+ * Under the tabs the stop call is always there (RF-CMD-02: compounds, or fuel only when tyres
+ * may not be changed) and "Pit options" opens the pit dialog (PitDialog, which pauses the
+ * session). Every order goes through `command` (the race worker for a step race).
  */
-function DriverCard({ car, row, state, commands, energy, command, steps, pitThisLap, focused, onFocus }) {
+function DriverCard({ car, row, state, commands, energy, command, steps, pitThisLap, focused, onFocus, onPitDialog }) {
+  const PANEL = HUD.driverPanel;
+  const tabs = PANEL.tabs.filter((tab) => tab !== "telemetry" || steps);
+  const [tabPick, setTab] = useState(PANEL.defaultTab);
+  const tab = tabs.includes(tabPick) ? tabPick : tabs[0];
   const [fuelLoad, setFuelLoad] = useState(null);
   const running = car.status === "running";
   const rules = rulesOf(state.era, state.year);
   const refuel = commands.pit.fuel;
   const life = Math.max(0, 1 - tyreLifeUsed(car, rules));
   const temp = TEMP_LABEL(car.tyreTemp ?? 0.5);
+  const tyreC = car.tyreC && Number.isFinite(car.tyreC.surface) ? car.tyreC : null;
   const remaining = Math.max(0, state.laps - state.lap);
   const burn = mixEffect(car.fuelMode).burn;
   const fuelMargin = refuel ? null : car.fuel / burn - remaining;
   // RF-SIM-04: kg on board - live from the step sim, or the ledger (laps of fuel x kg a lap).
-  const fuelKg = car.fuelLive ? car.fuelLive.kg : state.fuelSpec ? car.fuel * state.fuelSpec.kgPerLap : null;
+  const kgPerLap = state.fuelSpec?.kgPerLap ?? null;
+  const fuelKg = car.fuelLive ? car.fuelLive.kg : kgPerLap ? car.fuel * kgPerLap : null;
+  const marginKg = fuelMargin !== null && kgPerLap ? fuelMargin * burn * kgPerLap : null;
   // RF-SIM-05: the store in MJ and whether the deployment is clipping now (step race only).
   const store = car.energyLive;
   const position = row && !row.out ? row.position : car.position;
+  const pose = row?.pose || {};
   const drs = running && drsOpen(rules, { lap: state.lap, wetness: state.weather.wetness[Math.min(state.lap, state.laps)] ?? 0, zones: state.track?.drs ?? 0, restartLap: state.restartLap || 0, gapAhead: car.gapAhead });
   const paceKeys = commands.pace.filter((key) => MODE[key]);
   const mixKeys = commands.fuelMix.filter((key) => MIX[key]);
   const energyModes = commands.energy.filter((key) => ERS[key]);
   const hasBattery = car.battery !== null && car.battery !== undefined && energyModes.length > 0;
-  // RF-CMD-02: the next stop of the plan (delay it a lap or drop it) and, with refuelling, the load.
-  // A stop the car has already made (car.lastPitLap) is not "next", even before the leader's lap moves on.
-  const nextStop = car.plan.stops.find((lap) => lap >= state.lap && !(car.lastPitLap >= lap));
+  const nextStop = nextStopOf(state, car);
   const nextCompound = car.plan.compounds[Math.min(car.plan.compounds.length - 1, (car.stint ?? 0) + 1)];
-  // A stop called now replaces the next planned one: fuel to the stop after it, or to the flag.
-  const after = car.plan.stops.find((lap) => lap > (nextStop ?? state.lap));
-  const defaultFuel = Math.max(1, Math.min(remaining + 1, (after ?? state.laps) - state.lap));
+  const defaultFuel = pitFuelDefault(state, car);
+  const stopWindow = car.plan.window && Number.isFinite(car.plan.window.open) ? car.plan.window : null;
+  const mandatory = rules.tyres?.mandatoryDryCompounds ?? 0;
+  const dryUsed = new Set((car.compoundsUsed || []).concat(car.compound ? [car.compound] : []).filter((value) => value && value !== "inter" && value !== "wet")).size;
+  const lifeClass = life < PANEL.tyreLife.badBelow ? "is-bad" : life < PANEL.tyreLife.warnBelow ? "is-warn" : "";
+  const percent = (value) => (Number.isFinite(value) ? `${Math.round(value * 100)}%` : "—");
   return (
     <section className={`lv-card${running ? "" : " is-out"}${focused ? " is-focus" : ""}`} aria-label={car.name}>
       <button type="button" className="lv-card__head" onClick={onFocus}>
@@ -836,73 +961,176 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
       </button>
       {running ? (
         <>
-          <div className="lv-ctl">
-            <span>{t("Neumático", "Tyre")}</span>
-            <div className="lv-ctl__value" title={temp.label}>
-              <Tyre compound={car.compound} age={car.tyreAge} size={20} />
-              <b className={life < 0.2 ? "is-bad" : life < 0.4 ? "is-warn" : ""}>{Math.round(life * 100)}%</b>
-              <Meter value={Math.round((car.tyreTemp ?? 0.5) * 100)} tone={temp.tone} label={t("Temperatura", "Temperature")} />
-              <small>{temp.label}</small>
-            </div>
+          <div className="lv-card__tabs">
+            <Tabs label={t(`Panel de ${car.name}`, `${car.name} panel`)} value={tab} onChange={setTab} options={tabs.map((value) => ({ value, label: PANEL_TAB[value]() }))} />
           </div>
-          <div className="lv-ctl">
-            <span>{t("Ritmo", "Pace")}</span>
-            <Dots label={t("Ritmo", "Pace")} value={car.mode} onChange={(mode) => command("setMode", car.id, mode)} options={paceKeys.map((mode) => ({ value: mode, label: MODE[mode]() }))} />
-          </div>
-          <div className="lv-ctl">
-            <span>{t("Combustible", "Fuel")}</span>
-            <div className="lv-ctl__value">
-              {fuelMargin !== null ? (
-                <b className={fuelMargin < 0 ? "is-bad" : fuelMargin < 0.6 ? "is-warn" : "is-good"}>
-                  {fuelMargin >= 0 ? "+" : ""}
-                  {fuelMargin.toFixed(2)} {t("v", "laps")}
-                </b>
-              ) : (
-                <b>
-                  {Math.max(0, Math.round(car.fuel))} {t("v", "laps")}
-                </b>
-              )}
-              <Meter value={Math.round(Math.min(1, car.fuel / Math.max(1, refuel ? 30 : state.fuelStart)) * 100)} tone="accent" label={t("Combustible", "Fuel")} />
-              {fuelKg !== null && <small>{fuelKg.toFixed(1)} kg</small>}
-              {refuel && <small>{t("Repostaje en cada parada", "Refuel at every stop")}</small>}
-            </div>
-          </div>
-          {mixKeys.length > 0 && (
-            <div className="lv-ctl">
-              <span>{t("Mezcla", "Fuel mix")}</span>
-              <Dots label={t("Mezcla", "Fuel mix")} value={car.fuelMode} onChange={(mix) => command("setMix", car.id, mix)} options={mixKeys.map((mix) => ({ value: mix, label: MIX[mix]() }))} />
-            </div>
-          )}
-          {hasBattery ? (
-            <div className="lv-ctl">
-              <span>{energy === "kers" ? "KERS" : "ERS"}</span>
-              <div className="lv-ctl__value">
-                <b>{Math.round(store ? store.share * 100 : car.battery)}%</b>
-                {store && <small>{store.soc.toFixed(2)} MJ{store.clipping ? ` · ${t("recorte", "clipping")}` : store.harvestKw > 0 ? ` · ${t("recarga", "harvest")}` : store.deployKw > 0 ? ` · ${t("despliegue", "deploy")}` : ""}</small>}
-                <Dots label={energy === "kers" ? "KERS" : "ERS"} value={car.ersMode} onChange={(mode) => command("setErs", car.id, mode)} options={energyModes.map((mode) => ({ value: mode, label: ERS[mode]() }))} />
-              </div>
-            </div>
-          ) : (
-            <div className="lv-ctl">
-              <span>{t("Plan", "Plan")}</span>
-              <div className="lv-ctl__value">
-                <b>
-                  {car.stops} {t("paradas", "stops")}
-                </b>
-                <small>{car.plan.stops.filter((lap) => lap > state.lap).map((lap) => `${t("V", "L")}${lap}`).join(" · ") || "—"}</small>
-              </div>
-            </div>
-          )}
-          {steps && (
+          {tab === "status" && (
             <>
               <div className="lv-ctl">
-                <span>{t("Defensa", "Defence")}</span>
-                <Dots label={t("Defensa", "Defence")} value={car.defence} onChange={(style) => command("setDefence", car.id, style)} options={DEFENCE_KEYS.map((style) => ({ value: style, label: DEFENCE[style]() }))} />
+                <span>{t("Neumático", "Tyre")}</span>
+                <div className="lv-ctl__value" title={temp.label}>
+                  <Tyre compound={car.compound} age={car.tyreAge} size={20} />
+                  <b className={lifeClass}>{Math.round(life * 100)}%</b>
+                  {tyreC ? (
+                    <small>
+                      {Math.round(tyreC.surface)} °C{Number.isFinite(tyreC.carcass) ? ` · ${t("carcasa", "carcass")} ${Math.round(tyreC.carcass)} °C` : ""}
+                    </small>
+                  ) : (
+                    <Meter value={Math.round((car.tyreTemp ?? 0.5) * 100)} tone={temp.tone} label={t("Temperatura", "Temperature")} />
+                  )}
+                  <small>{temp.label}</small>
+                </div>
               </div>
               <div className="lv-ctl">
-                <span>{t("Ataque", "Attack")}</span>
-                <Dots label={t("Riesgo al adelantar", "Overtaking risk")} value={car.overtakeRisk} onChange={(level) => command("setOvertakeRisk", car.id, level)} options={RISK_KEYS.map((level) => ({ value: level, label: RISK[level]() }))} />
+                <span>{t("Combustible", "Fuel")}</span>
+                <div className="lv-ctl__value">
+                  {fuelMargin !== null ? (
+                    <b className={fuelMargin < 0 ? "is-bad" : fuelMargin < PANEL.fuel.warnLaps ? "is-warn" : "is-good"}>
+                      {fuelMargin >= 0 ? "+" : ""}
+                      {fuelMargin.toFixed(2)} {t("v", "laps")}
+                      {marginKg !== null ? ` · ${marginKg >= 0 ? "+" : ""}${marginKg.toFixed(1)} kg` : ""}
+                    </b>
+                  ) : (
+                    <b>
+                      {Math.max(0, Math.round(car.fuel))} {t("v", "laps")}
+                    </b>
+                  )}
+                  <Meter value={Math.round(Math.min(1, car.fuel / Math.max(1, refuel ? 30 : state.fuelStart)) * 100)} tone="accent" label={t("Combustible", "Fuel")} />
+                  {fuelKg !== null && <small>{fuelKg.toFixed(1)} kg</small>}
+                  {refuel && <small>{t("Repostaje en cada parada", "Refuel at every stop")}</small>}
+                </div>
               </div>
+              {hasBattery ? (
+                <div className="lv-ctl">
+                  <span>{energy === "kers" ? "KERS" : "ERS"}</span>
+                  <div className="lv-ctl__value">
+                    <b>{Math.round(store ? store.share * 100 : car.battery)}%</b>
+                    <small>
+                      {ERS[car.ersMode] ? ERS[car.ersMode]() : ""}
+                      {store ? ` · ${store.soc.toFixed(2)} MJ${store.clipping ? ` · ${t("recorte", "clipping")}` : store.harvestKw > 0 ? ` · ${t("recarga", "harvest")}` : store.deployKw > 0 ? ` · ${t("despliegue", "deploy")}` : ""}` : ""}
+                    </small>
+                  </div>
+                </div>
+              ) : (
+                <div className="lv-ctl">
+                  <span>{t("Plan", "Plan")}</span>
+                  <div className="lv-ctl__value">
+                    <b>
+                      {car.stops} {t("paradas", "stops")}
+                    </b>
+                    <small>{car.plan.stops.filter((lap) => lap > state.lap).map((lap) => `${t("V", "L")}${lap}`).join(" · ") || "—"}</small>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+          {tab === "tactics" && (
+            <>
+              <div className="lv-ctl">
+                <span>{t("Ritmo", "Pace")}</span>
+                <Dots label={t("Ritmo", "Pace")} value={car.mode} onChange={(mode) => command("setMode", car.id, mode)} options={paceKeys.map((mode) => ({ value: mode, label: MODE[mode]() }))} />
+              </div>
+              {mixKeys.length > 0 && (
+                <div className="lv-ctl">
+                  <span>{t("Mezcla", "Fuel mix")}</span>
+                  <Dots label={t("Mezcla", "Fuel mix")} value={car.fuelMode} onChange={(mix) => command("setMix", car.id, mix)} options={mixKeys.map((mix) => ({ value: mix, label: MIX[mix]() }))} />
+                </div>
+              )}
+              {hasBattery && (
+                <div className="lv-ctl">
+                  <span>{energy === "kers" ? "KERS" : "ERS"}</span>
+                  <Dots label={energy === "kers" ? "KERS" : "ERS"} value={car.ersMode} onChange={(mode) => command("setErs", car.id, mode)} options={energyModes.map((mode) => ({ value: mode, label: ERS[mode]() }))} />
+                </div>
+              )}
+              {steps && (
+                <>
+                  <div className="lv-ctl">
+                    <span>{t("Defensa", "Defence")}</span>
+                    <Dots label={t("Defensa", "Defence")} value={car.defence} onChange={(style) => command("setDefence", car.id, style)} options={DEFENCE_KEYS.map((style) => ({ value: style, label: DEFENCE[style]() }))} />
+                  </div>
+                  <div className="lv-ctl">
+                    <span>{t("Ataque", "Attack")}</span>
+                    <Dots label={t("Riesgo al adelantar", "Overtaking risk")} value={car.overtakeRisk} onChange={(level) => command("setOvertakeRisk", car.id, level)} options={RISK_KEYS.map((level) => ({ value: level, label: RISK[level]() }))} />
+                  </div>
+                </>
+              )}
+            </>
+          )}
+          {tab === "telemetry" && (
+            <dl className="lv-tele" aria-label={t("Telemetría", "Telemetry")}>
+              <div>
+                <dt>{t("Velocidad", "Speed")}</dt>
+                <dd>{Number.isFinite(pose.v) ? `${Math.round(pose.v * 3.6)} km/h` : "—"}</dd>
+              </div>
+              <div>
+                <dt>{t("Marcha", "Gear")}</dt>
+                <dd>{Number.isFinite(pose.gear) && pose.gear > 0 ? pose.gear : "—"}</dd>
+              </div>
+              <div>
+                <dt>rpm</dt>
+                <dd>{Number.isFinite(pose.rpm) && pose.rpm > 0 ? pose.rpm.toLocaleString() : "—"}</dd>
+              </div>
+              <div>
+                <dt>{t("Acelerador", "Throttle")}</dt>
+                <dd>{percent(pose.throttle)}</dd>
+              </div>
+              <div>
+                <dt>{t("Freno", "Brake")}</dt>
+                <dd>{percent(pose.brake)}</dd>
+              </div>
+              {commands.drs && (
+                <div>
+                  <dt>DRS</dt>
+                  <dd>{drs ? t("En rango", "In range") : t("No", "No")}</dd>
+                </div>
+              )}
+            </dl>
+          )}
+          {tab === "pit" && (
+            <>
+              {nextStop !== undefined && !car.pitRequest ? (
+                <div className="lv-box lv-box--plan">
+                  <span>{t("Plan", "Plan")}</span>
+                  <small>
+                    {t(`Parada prevista V${nextStop}`, `Planned stop L${nextStop}`)}
+                    {nextCompound && commands.pit.tyres ? ` · ${COMPOUND[nextCompound]()}` : ""}
+                  </small>
+                  <button type="button" className="mn-btn mn-btn--sm mn-btn--ghost" onClick={() => command("delayStop", car.id)} disabled={nextStop + 1 >= state.laps}>
+                    {t("Retrasar 1 v", "Delay 1 lap")}
+                  </button>
+                  <button type="button" className="mn-btn mn-btn--sm mn-btn--ghost" onClick={() => command("skipStop", car.id)}>
+                    {t("Quitar", "Drop")}
+                  </button>
+                </div>
+              ) : (
+                <div className="lv-box lv-box--plan">
+                  <span>{t("Plan", "Plan")}</span>
+                  <small>{car.pitRequest ? t("Parada pedida", "Stop called") : t("Sin más paradas previstas", "No more planned stops")}</small>
+                </div>
+              )}
+              {stopWindow && (
+                <div className="lv-ctl">
+                  <span>{t("Ventana", "Window")}</span>
+                  <div className="lv-ctl__value">
+                    <b>
+                      {t("V", "L")}
+                      {stopWindow.open}–{stopWindow.close}
+                    </b>
+                    {Number.isFinite(stopWindow.optimal) && <small>{t(`óptima V${stopWindow.optimal}`, `optimal L${stopWindow.optimal}`)}</small>}
+                  </div>
+                </div>
+              )}
+              {mandatory >= 2 && commands.pit.tyres && (
+                <div className="lv-ctl">
+                  <span>{t("Compuestos", "Compounds")}</span>
+                  <div className="lv-ctl__value">
+                    <b className={dryUsed < mandatory ? "is-warn" : "is-good"}>
+                      {Math.min(dryUsed, mandatory)}/{mandatory}
+                    </b>
+                    <small>{t("en seco", "in the dry")}</small>
+                  </div>
+                </div>
+              )}
             </>
           )}
           <div className="lv-box">
@@ -910,7 +1138,7 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
               <button type="button" className="mn-btn mn-btn--sm lv-box__called" onClick={() => command("cancelPit", car.id)}>
                 {`${pitThisLap ? t("Box esta vuelta", "Box this lap") : t("Box la próxima vuelta", "Box next lap")} · ${commands.pit.tyres ? COMPOUND[car.pitRequest.compound || car.compound]() : t("combustible", "fuel")}${Number.isFinite(car.pitRequest.fuel) ? ` · ${car.pitRequest.fuel} v` : ""} · ${t("cancelar", "cancel")}`}
               </button>
-            ) : commands.pit.tyres ? (
+            ) : HUD.pitDialog.quickCall && commands.pit.tyres ? (
               <>
                 <span>{pitThisLap ? t("Box esta vuelta", "Box this lap") : t("Box la próxima", "Box next lap")}</span>
                 {commands.pit.compounds.map((compound) => (
@@ -919,15 +1147,15 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
                   </button>
                 ))}
               </>
-            ) : (
+            ) : HUD.pitDialog.quickCall ? (
               <>
                 <span>{t("Parada", "Pit stop")}</span>
                 <button type="button" className="mn-btn mn-btn--sm" onClick={() => command("requestPit", car.id, car.compound, refuel ? { fuel: fuelLoad ?? defaultFuel, replace: true } : { replace: true })}>
                   {pitThisLap ? t("Box esta vuelta: combustible", "Box this lap: fuel") : t("Box la próxima: combustible", "Box next lap: fuel")}
                 </button>
               </>
-            )}
-            {refuel && !car.pitRequest && (
+            ) : null}
+            {refuel && !car.pitRequest && HUD.pitDialog.quickCall && (
               <div className="lv-step" role="group" aria-label={t("Combustible a cargar", "Fuel to load")}>
                 <button type="button" className="mn-icon-btn" onClick={() => setFuelLoad(Math.max(1, (fuelLoad ?? defaultFuel) - 1))} aria-label={t("Menos combustible", "Less fuel")}>
                   −
@@ -941,23 +1169,13 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
                 </button>
               </div>
             )}
+            {onPitDialog && (
+              <button type="button" className="mn-btn mn-btn--sm mn-btn--ghost" onClick={onPitDialog}>
+                {t("Opciones de parada", "Pit options")}
+              </button>
+            )}
             {car.issue ? <em className="lv-box__issue">{t("Problema", "Issue")} +{car.issue.toFixed(1)} s</em> : null}
           </div>
-          {nextStop !== undefined && !car.pitRequest && (
-            <div className="lv-box lv-box--plan">
-              <span>{t("Plan", "Plan")}</span>
-              <small>
-                {t(`Parada prevista V${nextStop}`, `Planned stop L${nextStop}`)}
-                {nextCompound && commands.pit.tyres ? ` · ${COMPOUND[nextCompound]()}` : ""}
-              </small>
-              <button type="button" className="mn-btn mn-btn--sm mn-btn--ghost" onClick={() => command("delayStop", car.id)} disabled={nextStop + 1 >= state.laps}>
-                {t("Retrasar 1 v", "Delay 1 lap")}
-              </button>
-              <button type="button" className="mn-btn mn-btn--sm mn-btn--ghost" onClick={() => command("skipStop", car.id)}>
-                {t("Quitar", "Drop")}
-              </button>
-            </div>
-          )}
         </>
       ) : (
         <p className="lv-card__status">{car.status === "finished" ? t("Terminado", "Finished") : STATUS[car.retireReason] ? STATUS[car.retireReason]() : ""}</p>
