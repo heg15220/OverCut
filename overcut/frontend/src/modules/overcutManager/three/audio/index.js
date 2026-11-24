@@ -265,6 +265,20 @@ export const useRaceAudio = ({ seed, year }) => {
     setEnabled(ok);
     return ok;
   }, []);
+
+  // Browsers only let audio start inside a gesture: the viewer's first click or key in the
+  // live view turns the sound on (their saved mix, mute included, still applies).
+  useEffect(() => {
+    if (enabled || !audioSupported() || typeof window === "undefined") return undefined;
+    const onGesture = () => enable();
+    const opts = { once: true, capture: true };
+    window.addEventListener("pointerdown", onGesture, opts);
+    window.addEventListener("keydown", onGesture, opts);
+    return () => {
+      window.removeEventListener("pointerdown", onGesture, opts);
+      window.removeEventListener("keydown", onGesture, opts);
+    };
+  }, [enabled, enable]);
   const update = useCallback((patch) => setLocal(ref.current.setSettings(patch)), []);
   const frame = useCallback((data) => ref.current.frame(data), []);
   return { settings, update, enabled, enable, frame, supported: audioSupported() };

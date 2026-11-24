@@ -131,33 +131,47 @@ const gripLabel = (wet, rubber) => (wet > 0.55 ? t("Muy bajo", "Very low") : wet
 /**
  * The strip over the picture. `flag` is { kind: green|yellow|sc|vsc|red|chequered|session, label }.
  */
-export const StatusStrip = ({ flag, clock, airTemp, rainChance, change, trackTemp, wetness = 0, rubber = 0 }) => (
+export const StatusStrip = ({ flag, clock, airTemp, rainChance, change, trackTemp, wetness = 0, rubber = 0, notes = null }) => (
   <div className="lv-status" data-flag={flag.kind} role="status" aria-label={t("Estado de la pista", "Track status")}>
-    <span className="lv-status__flag">
-      <i aria-hidden="true" />
-      {flag.label}
-    </span>
-    <span className="lv-status__item is-mono">{clock}</span>
-    <span className="lv-status__spacer" />
-    <span className="lv-status__item" title={t("Aire", "Air")}>
-      {wetness > 0.2 ? <IconRain size={16} /> : rainChance > 30 ? <IconCloud size={16} /> : <IconSun size={16} />}
-      <b>{airTemp.toFixed(0)} °C</b>
-    </span>
-    <span className="lv-status__item" title={t("Pista", "Track")}>
-      <IconThermometer size={16} />
-      {t("Pista", "Track")} <b>{trackTemp.toFixed(0)} °C</b>
-    </span>
-    <span className={`lv-status__item${wetness > 0.05 ? " is-wet" : ""}`} title={t("Probabilidad de lluvia", "Chance of rain")}>
-      <IconDroplet size={16} />
-      <b>{wetness > 0.05 ? `${(wetness * 3).toFixed(1)} mm` : `${rainChance}%`}</b>
-    </span>
-    <span className="lv-status__item is-extra">{change}</span>
-    <span className="lv-status__item is-extra">
-      {t("Goma", "Rubber")} <b>{rubberLabel(rubber)}</b>
-    </span>
-    <span className="lv-status__item">
-      {t("Agarre", "Grip")} <b>{gripLabel(wetness, rubber)}</b>
-    </span>
+    <div className="lv-status__top">
+      <span className="lv-status__flag">
+        <i aria-hidden="true" />
+        {flag.label}
+      </span>
+      <span className="lv-status__clock">{clock}</span>
+    </div>
+    <dl className="lv-status__grid">
+      <div title={t("Aire", "Air")}>
+        <dt>
+          {wetness > 0.2 ? <IconRain size={16} /> : rainChance > 30 ? <IconCloud size={16} /> : <IconSun size={16} />}
+          {t("Aire", "Air")}
+        </dt>
+        <dd>{airTemp.toFixed(0)} °C</dd>
+      </div>
+      <div>
+        <dt>
+          <IconThermometer size={16} />
+          {t("Pista", "Track")}
+        </dt>
+        <dd>{trackTemp.toFixed(0)} °C</dd>
+      </div>
+      <div className={wetness > 0.05 ? "is-wet" : ""}>
+        <dt>
+          <IconDroplet size={16} />
+          {wetness > 0.05 ? t("Agua", "Water") : t("Lluvia", "Rain")}
+        </dt>
+        <dd>{wetness > 0.05 ? `${(wetness * 3).toFixed(1)} mm` : `${rainChance}%`}</dd>
+      </div>
+      <div>
+        <dt>{t("Goma", "Rubber")}</dt>
+        <dd>{rubberLabel(rubber)}</dd>
+      </div>
+      <div>
+        <dt>{t("Agarre", "Grip")}</dt>
+        <dd>{gripLabel(wetness, rubber)}</dd>
+      </div>
+    </dl>
+    {(change || notes) && <p className="lv-status__note">{[change, notes].filter(Boolean).join(" · ")}</p>}
   </div>
 );
 

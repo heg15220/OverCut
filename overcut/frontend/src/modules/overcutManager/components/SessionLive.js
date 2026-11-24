@@ -24,6 +24,8 @@ import { carAt } from "./raceClock";
 import RaceStage, { MiniMap } from "./RaceStage";
 import { COMPOUND, PROGRAM, QUALI_STYLE, lapTime, t } from "./texts";
 import { canRender3D } from "../three/support";
+import { useRaceAudio } from "../three/audio";
+import SoundControl from "../three/audio/SoundControl";
 import "./styles/weekend.css";
 
 const Race3D = React.lazy(() => import("../three/Race3D"));
@@ -197,6 +199,7 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
         status: "session",
         compound: "soft",
         boxSlot: teamOrder.indexOf(byId[car.id]?.teamId) / Math.max(1, teamOrder.length - 1),
+        garageBay: entrants.filter((entry) => entry.teamId === byId[car.id]?.teamId).findIndex((entry) => entry.id === car.id),
       })),
     // A new segment gives every car a new history array.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -321,6 +324,23 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
     });
 
   const sample = useCallback((car, at) => carAt(car, at, circuit, baseLap), [circuit, baseLap]);
+
+  // RF-3D-04: the same engines and ambience as the race, one frame per repaint.
+  const audio = useRaceAudio({ seed: `${options?.seed ?? year}::${kind}`, year });
+  useEffect(() => {
+    if (!audio.enabled) return;
+    audio.frame({
+      tau: tau.current,
+      playing: playing && !engine.over,
+      mode: cameraMode,
+      focusId,
+      cars: stageCars.map((item) => ({ id: item.car.id, teamId: item.car.teamId, pose: item.pose })),
+      wetness: engine.wetness || 0,
+      events: [],
+      started: false,
+    });
+  });
+
   const lastSegment = engine.segment >= engine.segments.length - 1;
   const advance = () => {
     if (!lastSegment) {
@@ -437,17 +457,11 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
             </div>
           )}
         </div>
-        {cameraMode !== "map" && <MiniMap circuit={circuit} cars={stageCars} focusId={focusId} label={t("Minimapa", "Mini map")} />}
       </div>
 
       <TimingTower label={t("Torre de tiempos", "Timing tower")} title={sessionTitle} subtitle={<b>{remaining}</b>} modes={null} rows={rows} onPick={setFocusId} />
 
-      <aside className="lv-orders" aria-label={t("Tus pilotos", "Your drivers")}>
-        <header className="lv-orders__head">
-          <strong>{t("Tus pilotos", "Your drivers")}</strong>
-          <small>{formatNote}</small>
-        </header>
-        <div className="lv-orders__cards">
+      <section className="lv-cards" aria-label={t("Tus pilotos", "Your drivers")}>
           {users.map((user) => (
             <RunCard
               key={user.id}
@@ -470,7 +484,10 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
               now={now}
             />
           ))}
-        </div>
+      </section>
+
+      <aside className="lv-side" aria-label={t("Pista", "Track")}>
+        {cameraMode !== "map" && <MiniMap circuit={circuit} cars={stageCars} focusId={focusId} label={t("Minimapa", "Mini map")} />}
         <Feed entries={feedRef.current.slice(0, 24).map((entry) => ({ ...entry, lap: null }))} title={t("Radio y pista", "Radio and track")} />
       </aside>
 
@@ -490,6 +507,7 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
             {kind === "practice" ? t("Simular el resto", "Simulate the rest") : t(`Simular el resto de ${sessionTitle}`, `Simulate the rest of ${sessionTitle}`)}
           </button>
         )}
+        <SoundControl audio={audio} />
       </PlaybackBar>
     </div>
   );

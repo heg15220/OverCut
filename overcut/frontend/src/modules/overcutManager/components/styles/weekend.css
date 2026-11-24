@@ -897,32 +897,15 @@
 /* ============================================================ live session */
 
 .lv {
-  --lv-tower: 300px;
-  --lv-orders: 340px;
   --lv-glass: rgba(14, 21, 32, 0.92);
   position: relative;
   display: grid;
-  grid-template-columns: var(--lv-tower) minmax(0, 1fr) var(--lv-orders);
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  grid-template-areas:
-    "tower status orders"
-    "tower stage orders"
-    "tower play orders";
-  height: 100%;
-  min-height: 520px;
+  grid-template-columns: minmax(0, 1fr);
   background: var(--mn-bg);
   color: var(--mn-text);
 }
 
-.lv.is-compact {
-  --lv-tower: 268px;
-  --lv-orders: 300px;
-  height: 540px;
-  min-height: 0;
-  overflow: hidden;
-  border: 1px solid var(--mn-hairline);
-  border-radius: var(--mn-r-3);
-}
+/* The layout itself lives in "broadcast HUD" at the end of this file. */
 
 /* ---- tower */
 
@@ -1157,30 +1140,6 @@
 .lv-status[data-flag="chequered"] {
   --flag: var(--mn-text);
   border-top-color: var(--mn-text);
-}
-
-.lv-status__item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.lv-status__item b {
-  font-weight: 500;
-  color: var(--mn-text);
-}
-
-.lv-status__item.is-mono {
-  font-family: var(--mn-mono);
-  color: var(--mn-text);
-}
-
-.lv-status__item.is-wet b {
-  color: var(--mn-info);
-}
-
-.lv-status__spacer {
-  flex: 1;
 }
 
 /* ---- stage */
@@ -1565,44 +1524,6 @@
 
 /* ---- orders, radio and commentary */
 
-.lv-orders {
-  grid-area: orders;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  border-left: 1px solid var(--mn-hairline);
-  background: var(--mn-surface-0);
-}
-
-.lv-orders__head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--mn-s-3);
-  padding: var(--mn-s-4) var(--mn-s-4) var(--mn-s-3);
-}
-
-.lv-orders__head strong {
-  font-size: var(--mn-fs-16);
-  font-weight: 600;
-}
-
-.lv-orders__head small {
-  font-size: var(--mn-fs-12);
-  color: var(--mn-text-3);
-}
-
-.lv-orders__cards {
-  display: flex;
-  flex-direction: column;
-  flex: 0 1 auto;
-  gap: var(--mn-s-3);
-  min-height: 0;
-  padding: 0 var(--mn-s-3) var(--mn-s-3);
-  overflow-y: auto;
-  scrollbar-width: thin;
-}
-
 .lv-card {
   display: flex;
   flex-direction: column;
@@ -1919,10 +1840,6 @@
     display: none;
   }
 
-  .lv {
-    --lv-tower: 260px;
-    --lv-orders: 300px;
-  }
 }
 
 @media (max-width: 1200px) {
@@ -1959,8 +1876,7 @@
     aspect-ratio: 16 / 9;
   }
 
-  .lv-tower,
-  .lv-orders {
+  .lv-tower {
     border-top: 1px solid var(--mn-hairline);
   }
 
@@ -2062,10 +1978,6 @@
   }
 
   .lv-status__spacer,
-  .lv-status__item.is-extra {
-    display: none;
-  }
-
   .lv-stage {
     order: 2;
   }
@@ -2106,10 +2018,6 @@
     display: none;
   }
 
-  .lv-orders {
-    order: 5;
-    border-left: 0;
-  }
 
   .lv-feed {
     flex: none;
@@ -2167,10 +2075,6 @@
 }
 
 @media (max-width: 1599px) {
-  .lv-status__item.is-extra {
-    display: none;
-  }
-
   .lv-play__skips .wk-hide-md {
     display: none;
   }
@@ -2451,11 +2355,489 @@
 
 @media (max-width: 760px) {
   /* In a session your cars' plans come right under the picture; the tower after them. */
-  .lv--session .lv-orders {
+  .lv--session .lv-cards {
     order: 4;
   }
 
   .lv--session .lv-tower {
     order: 5;
+  }
+}
+
+/* ============================================================ broadcast HUD (2026-11-24)
+ * The circuit fills the whole wall; the tower, the conditions, the playback, the map
+ * and your drivers float over it as solid ink panels. OverCut's signature is the cut
+ * of its logo: your drivers carry a gold edge cut at 12 degrees and the counter that
+ * matters sits in a gold parallelogram. Below 1101px the wall stacks, picture first.
+ */
+
+.lv {
+  --hud-ink: rgba(9, 13, 21, 0.94);
+  --hud-ink-2: rgba(19, 28, 43, 0.96);
+  --hud-gap: var(--mn-s-3);
+}
+
+/* ---- conditions panel (was the strip) */
+.lv-status {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--mn-hairline);
+  border-top: 2px solid var(--flag, var(--mn-flag-green));
+  white-space: normal;
+}
+
+.lv-status__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mn-s-3);
+  min-height: 40px;
+  padding: 0 var(--mn-s-4);
+  border-bottom: 1px solid var(--mn-hairline);
+}
+
+.lv-status__clock {
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-13);
+  color: var(--mn-text);
+}
+
+.lv-status__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  padding: var(--mn-s-1) 0;
+}
+
+.lv-status__grid > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mn-s-2);
+  min-height: 28px;
+  padding: 0 var(--mn-s-4);
+}
+
+.lv-status__grid dt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+}
+
+.lv-status__grid dd {
+  margin: 0;
+  font-family: var(--mn-mono);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text);
+}
+
+.lv-status__grid .is-wet dd {
+  color: var(--mn-info);
+}
+
+.lv-status__note {
+  margin: 0;
+  padding: var(--mn-s-2) var(--mn-s-4);
+  border-top: 1px solid var(--mn-hairline);
+  font-size: var(--mn-fs-12);
+  line-height: 1.4;
+  color: var(--mn-text-2);
+}
+
+/* ---- side: the map over the radio */
+.lv-side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-gap);
+  min-height: 0;
+  overflow: hidden;
+  container-name: lv-side;
+}
+
+/* Short screens: the radio gives way to the map, and the map to the picture. */
+@container lv-side (max-height: 248px) {
+  .lv-side .lv-feed {
+    display: none;
+  }
+}
+
+@container lv-side (max-height: 104px) {
+  .lv-side .lv-minimap {
+    display: none;
+  }
+}
+
+.lv-side .lv-minimap {
+  position: static;
+  display: flex;
+  flex: 0 1 auto;
+  justify-content: center;
+  min-height: 0;
+  width: 100%;
+  padding: var(--mn-s-3);
+  border-radius: var(--mn-r-3);
+  background: var(--hud-ink);
+}
+
+.lv-feed li.lv-feed__empty {
+  display: block;
+  border-bottom: 0;
+}
+
+.lv-side .lv-minimap svg {
+  width: auto;
+  max-width: 100%;
+  height: 100%;
+  max-height: 128px;
+  min-height: 0;
+}
+
+.lv-side .lv-feed {
+  flex: 1 1 0;
+  min-height: 96px; /* the map gives way first */
+  border: 1px solid var(--mn-hairline);
+  border-radius: var(--mn-r-3);
+  background: var(--hud-ink);
+}
+
+/* ---- your drivers */
+.lv-cards {
+  grid-area: cards;
+  display: grid;
+  grid-template-columns: minmax(0, 560px) minmax(0, 1fr) minmax(0, 560px);
+  align-items: end;
+  gap: var(--hud-gap);
+  min-height: 0;
+}
+
+.lv-cards > .lv-card:first-child {
+  grid-column: 1;
+}
+
+.lv-cards > .lv-card:last-child:not(:first-child) {
+  grid-column: 3;
+}
+
+.lv-cards__mid {
+  grid-column: 2;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.lv-cards .lv-orders__team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--mn-s-2);
+  padding: var(--mn-s-2) var(--mn-s-3);
+  border: 1px solid var(--mn-hairline);
+  border-radius: var(--mn-r-3);
+  background: var(--hud-ink);
+  font-size: var(--mn-fs-12);
+  color: var(--mn-text-3);
+}
+
+.lv-cards .lv-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: var(--mn-s-2) var(--mn-s-4);
+  max-height: 100%;
+  padding: 0 var(--mn-s-4) var(--mn-s-3);
+  overflow-y: auto;
+  border: 1px solid var(--mn-hairline);
+  border-radius: var(--mn-r-3);
+  background: var(--hud-ink);
+  scrollbar-width: thin;
+}
+
+.lv-cards .lv-card > * {
+  min-width: 0;
+}
+
+.lv-cards .lv-card > .lv-card__head,
+.lv-cards .lv-card > .lv-box,
+.lv-cards .lv-card > .lv-sectors,
+.lv-cards .lv-card > .lv-card__status,
+.lv-cards .lv-card > p {
+  grid-column: 1 / -1;
+}
+
+/* The head: a band across the card with the gold cut edge on its left. */
+.lv-cards .lv-card__head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  min-height: 44px;
+  margin: 0 calc(var(--mn-s-4) * -1);
+  padding: 0 var(--mn-s-4);
+  border-bottom: 1px solid var(--mn-hairline);
+  background: var(--hud-ink-2);
+}
+
+.lv-cards .lv-card__head::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 8px;
+  background: var(--mn-accent);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.lv-cards .lv-card.is-focus {
+  border-color: var(--mn-accent-line);
+}
+
+.lv-cards .lv-card .lv-ctl {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: var(--mn-s-1);
+}
+
+.lv-cards .lv-card .mn-seg button {
+  white-space: nowrap;
+}
+
+.lv-cards .lv-card .lv-box {
+  padding-top: var(--mn-s-2);
+  border-top: 1px solid var(--mn-hairline);
+}
+
+/* ---- tower: the lap or clock in the gold parallelogram, your rows with the cut edge */
+.lv-tower__head {
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--mn-s-3) 0 var(--mn-s-4);
+}
+
+.lv-tower__sub {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 var(--mn-s-3);
+  background: var(--mn-accent);
+  color: var(--mn-accent-ink);
+  font-weight: 600;
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+}
+
+.lv-tower__sub b {
+  color: inherit;
+}
+
+.lv-row {
+  position: relative;
+  height: 28px;
+}
+
+.lv-row.is-user {
+  box-shadow: none;
+}
+
+.lv-row.is-user::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 8px;
+  background: var(--mn-accent);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+/* ---- the wall over the picture (desktop) */
+@media (min-width: 1101px) {
+  .wk-body.is-live {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .wk-body.is-live > .lv {
+    flex: 1;
+  }
+
+  .lv,
+  .lv.is-compact {
+    --lv-tower: 264px;
+    --lv-side: 300px;
+    grid-template-columns: var(--lv-tower) minmax(0, 1fr) var(--lv-side);
+    grid-template-rows: auto minmax(0, 1fr) minmax(0, auto);
+    grid-template-areas:
+      "tower play status"
+      "tower .    side"
+      "tower cards cards";
+    gap: var(--hud-gap);
+    height: 100%;
+    min-height: 560px;
+    padding: var(--hud-gap);
+    overflow: hidden;
+    border: 0;
+    border-radius: 0;
+    background: #0a0f17;
+  }
+
+  /* Practice sits on top of its setup bench: the wall takes the first screen. */
+  .lv.is-compact {
+    height: calc(100dvh - var(--mn-site-top, 0px) - var(--mn-ad-space, 0px) - 66px);
+  }
+
+  .lv-stage {
+    grid-area: 1 / 1 / -1 / -1;
+    margin: calc(var(--hud-gap) * -1);
+    z-index: 0;
+  }
+
+  .lv > :not(.lv-stage) {
+    z-index: 1;
+  }
+
+  .lv-side {
+    container-type: size;
+  }
+
+  .lv-cards {
+    max-height: min(44vh, 360px);
+  }
+
+  .lv-cards > .lv-card,
+  .lv-cards__mid {
+    max-height: min(44vh, 360px);
+  }
+
+  .lv-cards > .lv-card {
+    align-self: end;
+  }
+
+  .lv-tower {
+    align-self: start;
+    max-height: 100%;
+    overflow: hidden;
+    border: 1px solid var(--mn-hairline);
+    border-radius: var(--mn-r-3);
+    background: var(--hud-ink);
+  }
+
+  .lv-status {
+    grid-area: status;
+    border-radius: var(--mn-r-3);
+    background: var(--hud-ink);
+  }
+
+  .lv-play {
+    grid-area: play;
+    justify-self: center;
+    align-self: start;
+    flex-wrap: nowrap;
+    min-height: 48px;
+    max-width: 100%;
+    padding: var(--mn-s-1) var(--mn-s-2);
+    border: 1px solid var(--mn-hairline);
+    border-radius: var(--mn-r-3);
+    background: var(--hud-ink);
+  }
+
+  .lv-play__spacer {
+    display: none;
+  }
+
+  .lv-play__skips .wk-hide-md {
+    display: none;
+  }
+
+  .lv-overlay {
+    top: 96px;
+  }
+
+  .lv-chip {
+    top: 72px;
+    bottom: auto;
+    left: 50%;
+    max-width: 40%;
+    transform: translateX(-50%);
+  }
+}
+
+@media (min-width: 1101px) and (max-width: 1439px) {
+  .lv,
+  .lv.is-compact {
+    --lv-tower: 248px;
+    --lv-side: 264px;
+  }
+
+  .lv-tower__modes .mn-seg button {
+    padding: 0 6px;
+    white-space: nowrap;
+  }
+
+  .lv-cards .lv-orders__team .mn-seg {
+    flex-direction: column;
+  }
+
+  .lv-cards {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .lv-play__camera span {
+    min-width: 0;
+  }
+}
+
+/* ---- stacked (tablet and phone): picture, playback, drivers, then tower and track */
+@media (max-width: 1100px) {
+  .lv {
+    grid-template-areas:
+      "status status"
+      "stage stage"
+      "play play"
+      "cards cards"
+      "tower side";
+    grid-template-rows: auto auto auto auto auto;
+  }
+
+  .lv-cards {
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--mn-s-3);
+  }
+
+  .lv-cards > .lv-card:first-child,
+  .lv-cards > .lv-card:last-child:not(:first-child),
+  .lv-cards__mid {
+    grid-column: 1;
+  }
+
+  .lv-side {
+    padding: var(--mn-s-3);
+  }
+
+  .lv-side .lv-feed {
+    min-height: 240px;
+  }
+}
+
+@media (max-width: 760px) {
+  .lv {
+    grid-template-areas:
+      "status"
+      "stage"
+      "play"
+      "cards"
+      "tower"
+      "side";
+  }
+
+  .lv-cards .lv-card {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

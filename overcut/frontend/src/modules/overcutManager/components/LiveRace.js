@@ -588,7 +588,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
 
   return (
     <div className={`lv lv--race${in3D ? " is-3d" : ""}`} data-engine={source.kind}>
-      <StatusStrip flag={flag} clock={clock} airTemp={trackTemp * 0.62 + 4} rainChance={current.weather.forecast ?? 0} change={change} trackTemp={trackTemp} wetness={wetness} rubber={rubber} />
+      <StatusStrip flag={flag} clock={clock} airTemp={trackTemp * 0.62 + 4} rainChance={current.weather.forecast ?? 0} change={change} trackTemp={trackTemp} wetness={wetness} rubber={rubber} notes={[current.year, ...eraNotes].join(" · ")} />
 
       <div className="lv-stage">
         {in3D ? (
@@ -646,7 +646,6 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
             {t(`Lucha por P${battles[0].position}`, `Battle for P${battles[0].position}`)} · <b>{code(battles[0].attacker.car.name)}</b> → <b>{code(battles[0].defender.car.name)}</b> · {battles[0].gap.toFixed(1)} s
           </div>
         )}
-        {cameraMode !== "map" && <MiniMap circuit={circuit} cars={stageCars} focusId={cameraMode === "tv" ? director.current.id : focusId} label={t("Minimapa", "Mini map")} />}
       </div>
 
       <TimingTower
@@ -662,24 +661,20 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
         onPick={setFocusId}
       />
 
-      <aside className="lv-orders" aria-label={t("Órdenes", "Orders")}>
-        <header className="lv-orders__head">
-          <strong>{t("Órdenes", "Orders")}</strong>
-          <small>
-            {current.year}
-            {eraNotes.length ? ` · ${eraNotes.join(" · ")}` : ""}
-          </small>
-        </header>
-        {userCars.length === 2 && !current.finished && !commands.teamOrdersBanned && (
-          <div className="lv-orders__team">
-            <span>{t("Órdenes de equipo", "Team orders")}</span>
-            <Segmented label={t("Órdenes de equipo", "Team orders")} value={current.teamOrders[userTeam] || "free"} onChange={(value) => command("setTeamOrder", userTeam, value)} options={orderOptions.map((value) => ({ value, label: ORDER_LABEL[value] }))} />
-          </div>
-        )}
-        <div className="lv-orders__cards">
-          {userCars.map((car) => (
+      <section className="lv-cards" aria-label={t("Órdenes", "Orders")}>
+        {userCars.map((car, index) => (
+          <React.Fragment key={car.id}>
+            {index === 1 && (
+              <div className="lv-cards__mid">
+                {!current.finished && !commands.teamOrdersBanned && (
+                  <div className="lv-orders__team">
+                    <span>{t("Órdenes de equipo", "Team orders")}</span>
+                    <Segmented label={t("Órdenes de equipo", "Team orders")} value={current.teamOrders[userTeam] || "free"} onChange={(value) => command("setTeamOrder", userTeam, value)} options={orderOptions.map((value) => ({ value, label: ORDER_LABEL[value] }))} />
+                  </div>
+                )}
+              </div>
+            )}
             <DriverCard
-              key={car.id}
               car={car}
               row={rowOf[car.id]}
               state={current}
@@ -691,8 +686,12 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
               focused={focusId === car.id}
               onFocus={() => setFocusId(car.id)}
             />
-          ))}
-        </div>
+          </React.Fragment>
+        ))}
+      </section>
+
+      <aside className="lv-side" aria-label={t("Pista", "Track")}>
+        {cameraMode !== "map" && <MiniMap circuit={circuit} cars={stageCars} focusId={cameraMode === "tv" ? director.current.id : focusId} label={t("Minimapa", "Mini map")} />}
         <Feed entries={feedEntries} />
       </aside>
 

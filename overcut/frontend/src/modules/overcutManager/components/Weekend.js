@@ -349,7 +349,7 @@ function Practice({ rules }) {
     act((c) => commitPracticeSession(c, result, programmes));
   };
   return (
-    <div className="wk-page">
+    <>
       <div className="wk-live-slot">
         <SessionLive
           kind="practice"
@@ -366,39 +366,41 @@ function Practice({ rules }) {
           onDone={onDone}
         />
       </div>
-      <div className="wk-c7">
-        <Panel title={t("Puesta a punto", "Setup")} meta={t("Solo con el coche en el garaje", "Only with the car in the garage")}>
-          {drivers.map((driver) => (
-            <SetupBench key={driver.id} driver={driver} color={color} phase={phases[driver.id]} />
-          ))}
-          <div className="wk-actions">
-            <p className="mn-hint">{t("Sin salir a pista, los ingenieros montan su propia puesta a punto.", "Skip the running and the engineers fit their own setup.")}</p>
-            <button type="button" className="mn-btn" onClick={() => act((c) => runPractice(c, Object.fromEntries(drivers.map((driver) => [driver.id, "setup"]))))}>
-              <IconFastForward size={16} />
-              {t("Saltar los libres", "Skip practice")}
-            </button>
-          </div>
-        </Panel>
+      <div className="wk-page">
+        <div className="wk-c7">
+          <Panel title={t("Puesta a punto", "Setup")} meta={t("Solo con el coche en el garaje", "Only with the car in the garage")}>
+            {drivers.map((driver) => (
+              <SetupBench key={driver.id} driver={driver} color={color} phase={phases[driver.id]} />
+            ))}
+            <div className="wk-actions">
+              <p className="mn-hint">{t("Sin salir a pista, los ingenieros montan su propia puesta a punto.", "Skip the running and the engineers fit their own setup.")}</p>
+              <button type="button" className="mn-btn" onClick={() => act((c) => runPractice(c, Object.fromEntries(drivers.map((driver) => [driver.id, "setup"]))))}>
+                <IconFastForward size={16} />
+                {t("Saltar los libres", "Skip practice")}
+              </button>
+            </div>
+          </Panel>
+        </div>
+        <div className="wk-c5 wk-stack">
+          <Panel title={t("Previsión y carácter", "Forecast and character")}>
+            <div className="wk-tiles">
+              <StatTile label={t("Lluvia el domingo", "Rain on Sunday")} value={forecast ?? "—"} unit="%" hint={t("previsión del equipo", "team forecast")} />
+              <StatTile label={t("Vuelta de referencia", "Reference lap")} value={lapTime(race.baseLap)} hint={t("en seco, coche medio", "dry, average car")} />
+              <StatTile label={t("Adelantar", "Overtaking")} value={overtaking} hint={race.profile.overtaking < 0.4 ? t("la clasificación decide", "qualifying decides") : t("la estrategia remonta", "strategy makes up places")} />
+              <StatTile label={t("Premia", "Rewards")} value={race.profile.power > race.profile.aero ? t("Motor", "Power") : t("Aerodinámica", "Downforce")} hint={t("perfil del circuito", "circuit profile")} />
+            </div>
+          </Panel>
+          <Panel title={t("Programas", "Programmes")}>
+            {PRACTICE_PROGRAMS.map((program) => (
+              <p key={program} className="wk-note">
+                <b>{PROGRAM[program]()}</b> · {PROGRAM_HINT[program]()}
+              </p>
+            ))}
+            <p className="wk-note">{rules.drs.enabled ? t("Zonas de DRS abiertas en libres.", "DRS zones open in practice.") : t("Sin DRS en esta época.", "No DRS in this era.")}</p>
+          </Panel>
+        </div>
       </div>
-      <div className="wk-c5 wk-stack">
-        <Panel title={t("Previsión y carácter", "Forecast and character")}>
-          <div className="wk-tiles">
-            <StatTile label={t("Lluvia el domingo", "Rain on Sunday")} value={forecast ?? "—"} unit="%" hint={t("previsión del equipo", "team forecast")} />
-            <StatTile label={t("Vuelta de referencia", "Reference lap")} value={lapTime(race.baseLap)} hint={t("en seco, coche medio", "dry, average car")} />
-            <StatTile label={t("Adelantar", "Overtaking")} value={overtaking} hint={race.profile.overtaking < 0.4 ? t("la clasificación decide", "qualifying decides") : t("la estrategia remonta", "strategy makes up places")} />
-            <StatTile label={t("Premia", "Rewards")} value={race.profile.power > race.profile.aero ? t("Motor", "Power") : t("Aerodinámica", "Downforce")} hint={t("perfil del circuito", "circuit profile")} />
-          </div>
-        </Panel>
-        <Panel title={t("Programas", "Programmes")}>
-          {PRACTICE_PROGRAMS.map((program) => (
-            <p key={program} className="wk-note">
-              <b>{PROGRAM[program]()}</b> · {PROGRAM_HINT[program]()}
-            </p>
-          ))}
-          <p className="wk-note">{rules.drs.enabled ? t("Zonas de DRS abiertas en libres.", "DRS zones open in practice.") : t("Sin DRS en esta época.", "No DRS in this era.")}</p>
-        </Panel>
-      </div>
-    </div>
+    </>
   );
 }
 

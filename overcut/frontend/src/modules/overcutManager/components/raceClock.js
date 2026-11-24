@@ -55,6 +55,9 @@ const lapShareAt = (entry, tau) => {
  * Where a car is at race time `tau` (seconds since the lights went out).
  * Returns a pose plus `progress` (laps covered, fractional) and flags.
  */
+/** Distance between the two bays of a team's garage (a car is ~5 m long). */
+const GARAGE_BAY_METRES = 6.5;
+
 export const carAt = (car, tau, circuit, lapRef = 90) => {
   const history = car.history || [];
   const length = circuit.length;
@@ -66,7 +69,10 @@ export const carAt = (car, tau, circuit, lapRef = 90) => {
   // Garages on the side the pit lane really runs (from the mesh on calibrated circuits), else inside the loop.
   const inside = circuit.pit?.side ?? (circuit.clockwise ? 1 : -1);
   const inGarage = () => {
-    const pose = lateral(pitPoseAt(circuit, pitBox), inside * 11.5);
+    const lane = pitPoseAt(circuit, pitBox);
+    // Team-mates share the team's box: the second car sits in the next bay along the lane.
+    const bay = (car.garageBay || 0) * GARAGE_BAY_METRES;
+    const pose = lateral({ ...lane, x: lane.x + Math.cos(lane.heading) * bay, y: lane.y + Math.sin(lane.heading) * bay }, inside * 11.5);
     return { ...pose, heading: pose.heading - inside * (Math.PI / 2), progress: 0, laps: 0, inPit: true, stopped: true, stopLeft: 0, garage: true };
   };
 
