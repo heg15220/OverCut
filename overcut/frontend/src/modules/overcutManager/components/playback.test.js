@@ -10,7 +10,7 @@
 
 import React from "react";
 import Ajv from "ajv";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import liveViewSchema from "../engine/packs/schema/live-view.schema.json";
 import hudSchema from "../engine/packs/schema/hud.schema.json";
 import LIVE_VIEW from "../data/balance/live-view.json";
@@ -195,7 +195,7 @@ describe("HUD-1 · user-camera-lock (RF-3D-04, RNF-09)", () => {
         onCamera={onCamera}
       />,
     );
-    expect(screen.getByRole("radiogroup", { name: /Velocidad|Speed/ }).querySelectorAll('[role="radio"]')).toHaveLength(5);
+    expect(within(screen.getByRole("radiogroup", { name: /Velocidad|Speed/ })).getAllByRole("radio")).toHaveLength(5);
     fireEvent.click(screen.getByRole("radio", { name: "Mapa" }));
     expect(onView).toHaveBeenCalledWith("map");
     fireEvent.click(screen.getByRole("button", { name: /Coche siguiente|Next car/ }));

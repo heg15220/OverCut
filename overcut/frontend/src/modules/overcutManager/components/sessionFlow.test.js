@@ -8,7 +8,7 @@
 
 import React from "react";
 import Ajv from "ajv";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { fallbackBootstrap } from "../../overcutTrayectoria/data/fallbackBootstrap";
 import { reference } from "../data/reference";
 import balance from "../data/balance/weekend-ui.json";
@@ -57,8 +57,8 @@ describe("Transition (session-options-transition, RNF-09)", () => {
     setMotion(true);
     expect(prefersReducedMotion()).toBe(true);
     const onDone = jest.fn();
-    const { container } = render(<Transition label="Qualifying" onDone={onDone} />);
-    expect(container.querySelector(".wk-transition")).toBeNull();
+    render(<Transition label="Qualifying" onDone={onDone} />);
+    expect(screen.queryByTestId("session-transition")).toBeNull();
     expect(onDone).toHaveBeenCalledTimes(1);
   });
 
@@ -70,13 +70,13 @@ describe("Transition (session-options-transition, RNF-09)", () => {
     setMotion(false);
     jest.useFakeTimers();
     const onDone = jest.fn();
-    const { container } = render(<Transition label="Qualifying" onDone={onDone} />);
+    render(<Transition label="Qualifying" onDone={onDone} />);
     const timing = transitionTimings();
-    expect(container.querySelector(".wk-transition.is-in")).not.toBeNull();
+    expect(screen.getByTestId("session-transition")).toHaveClass("wk-transition", "is-in");
     act(() => jest.advanceTimersByTime(timing.in));
-    expect(container.querySelector(".wk-transition.is-hold")).not.toBeNull();
+    expect(screen.getByTestId("session-transition")).toHaveClass("is-hold");
     act(() => jest.advanceTimersByTime(timing.hold));
-    expect(container.querySelector(".wk-transition.is-out")).not.toBeNull();
+    expect(screen.getByTestId("session-transition")).toHaveClass("is-out");
     expect(onDone).not.toHaveBeenCalled();
     act(() => jest.advanceTimersByTime(timing.out + 10));
     expect(onDone).toHaveBeenCalledTimes(1);
@@ -205,10 +205,13 @@ describe("unified results (session-results-unified, RF-WKD-07)", () => {
     expect(table.rows.length).toBe(entrantsFor(career).length);
     const onContinue = jest.fn();
     const { container } = render(<SessionResults table={table} teams={career.world.teams} onContinue={onContinue} />);
-    expect(container.querySelectorAll("tbody tr").length).toBe(Math.min(balance.results.pageSize, table.rows.length));
+    const bodyRows = () => within(within(screen.getByRole("table")).getAllByRole("rowgroup")[1]).getAllByRole("row").length;
+    expect(bodyRows()).toBe(Math.min(balance.results.pageSize, table.rows.length));
+    // El mejor tiempo solo se marca con clase (morado), sin rol accesible propio.
+    // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
     expect(container.querySelectorAll(".wk-res__best").length).toBe(1);
     fireEvent.click(screen.getByRole("button", { name: /next page/i }));
-    expect(container.querySelectorAll("tbody tr").length).toBe(Math.min(balance.results.pageSize, table.rows.length - balance.results.pageSize));
+    expect(bodyRows()).toBe(Math.min(balance.results.pageSize, table.rows.length - balance.results.pageSize));
     const ownCount = table.rows.filter((row) => row.own).length;
     expect(ownCount).toBe(2);
     fireEvent.click(screen.getByRole("button", { name: /^continue$/i }));
