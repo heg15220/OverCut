@@ -212,7 +212,25 @@
       "collision": { "from": 1950, "investigate": 0.55, "guilty": 0.55, "penalties": ["time10", "driveThrough", "stopGo"] },
       "pitSpeeding": { "from": 1994, "chancePerStop": 0.005, "penalties": ["time5", "driveThrough"] },
       "unsafeRelease": { "from": 2011, "chancePerStop": 0.003, "chanceStacked": 0.06, "penalties": ["time5", "driveThrough"] },
-      "jumpStart": { "from": 1950, "chancePerCar": 0.002, "penalties": ["time5", "driveThrough", "postRaceTime"], "postRaceSeconds": 60 }
+      "jumpStart": { "from": 1950, "chancePerCar": 0.002, "penalties": ["time5", "driveThrough", "postRaceTime"], "postRaceSeconds": 60 },
+      "pitExitLine": {
+        "$comment": "PIT-2 (incorporacion-pit, docs/manager/F1M24-GAMEPLAY.md §2.2): pisar con un neumático la línea blanca de la salida del pit lane. Regla: FIA ISC Anexo L, cap. IV, 6(c); en carrera 5 s o 10 s (FIA 2025 Formula 1 Penalty and Point Guidelines, 14-05-2025, https://www.fia.com/sites/default/files/2025_f1_guidelines_penalty_points_overview_-_14_may_clean_0.pdf, V). `from` pendiente: no se ha leído en qué año entra la línea de salida en el Anexo L ni en el reglamento deportivo de F1; mientras sea null nadie la juzga y engine/sim/pitLane.js exitLineOffence no tira ningún número (RNF-05: las semillas de antes no cambian). chancePerExit y aggressionPerZ: NV (orden de magnitud), por salida del pit lane, escalado por la agresividad del piloto (engine/drivers/skills.js skillZ).",
+        "from": null,
+        "fromStatus": "pending",
+        "chancePerExit": 0.002,
+        "aggressionPerZ": 0.5,
+        "chanceVer": "NV",
+        "penalties": ["time5", "time10", "driveThrough"]
+      },
+      "pitEntryLine": {
+        "$comment": "PIT-2: cruzar la línea (o saltarse el bolardo) de la entrada del pit lane. Regla: FIA ISC Anexo L, cap. IV, 4(d); en carrera 5 s o 10 s (misma guía FIA de 2025, V). `from` pendiente como pitExitLine; chancePerEntry y aggressionPerZ NV.",
+        "from": null,
+        "fromStatus": "pending",
+        "chancePerEntry": 0.002,
+        "aggressionPerZ": 0.5,
+        "chanceVer": "NV",
+        "penalties": ["time5", "time10", "driveThrough"]
+      }
     }
   }
 }

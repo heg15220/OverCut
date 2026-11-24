@@ -25,7 +25,24 @@ import { eraWithRegulations } from "../packs/packWorld";
 import { loadSeasonPack, seasonPackYears } from "../packs/seasonPacks";
 import { circuitFor } from "../venue";
 import bahrain2024 from "./__fixtures__/pit-bahrain-2024.json";
-import { PHASE, PIT_LANE_BALANCE, garageExitAt, garageExitProfile, laneGeometry, pitLaneFor, pitLossFor, previewPit } from "./pitLane";
+import raceErasBalance from "../../data/balance/race-eras.json";
+import splinesData from "../../data/splines.json";
+import { trackDataFor } from "../trackData";
+import {
+  PHASE,
+  PIT_LANE_BALANCE,
+  garageExitAt,
+  garageExitProfile,
+  laneGeometry,
+  pitExitLateral,
+  pitExitStep,
+  pitLaneFor,
+  pitLineOffence,
+  pitLineOffenceInForce,
+  pitLinesFor,
+  pitLossFor,
+  previewPit,
+} from "./pitLane";
 import { expectedStationary, stopEraFor } from "./pitStop";
 import { fromQuickRace, runStepToFinish, stepOnce, toRaceState } from "./index";
 
@@ -382,14 +399,19 @@ describe("PIT-1 · previewPit: what a stop costs now (RF-CMD-02, RF-SIM-12)", ()
 describe("PIT-1 · garageExitProfile: from the box out of the lane (RF-WKD-02, RF-SIM-12, SRS §6.2)", () => {
   const circuit = () => circuitFor({ layoutId: "bahrain-1", packCircuitId: "bahrain" }, 2024);
 
-  it("starts at rest at the team's box, keeps to the limit in the zone, ends at the lane's end without exitLineTo", () => {
+  // PIT-2 changed the end on purpose: with the white exit line known (pitLinesFor) the drive goes on
+  // along the track's pit-side edge to exitLineTo, as this function's contract always said.
+  it("starts at rest at the team's box, keeps to the limit in the zone, ends at the end of the white exit line", () => {
     const c = circuit();
     const geo = laneGeometry(c);
+    const lines = pitLinesFor(c);
     const exit = garageExitProfile(c, 2024, { slot: 3, slots: 10 }, { circuitId: "bahrain" });
     expect(exit.kmh).toBe(80);
-    expect(exit.marks).toBe("laneEnd");
+    expect(exit.marks).toBe("exitLine");
     expect(exit.v[0]).toBe(0);
-    expect(exit.toS).toBeCloseTo(geo.total, 0);
+    expect(exit.laneEndS).toBeCloseTo(geo.total, 0);
+    expect(Math.abs(exit.toS - (geo.total + lines.exit.pastLaneEnd))).toBeLessThanOrEqual(exit.step);
+    expect(exit.toLaneEnd).toBeLessThan(exit.T);
     const overLimit = [];
     const notIncreasing = [];
     for (let k = 0; k <= exit.N; k += 1) {
@@ -407,6 +429,11 @@ describe("PIT-1 · garageExitProfile: from the box out of the lane (RF-WKD-02, R
     expect(end.s).toBeCloseTo(exit.toS, 9);
     expect(end.v).toBe(exit.v[exit.N]);
     expect(end.done).toBe(true);
+    // Past the lane's end it is on the track, on lane PIT_EXIT, and ends at exitLineTo.
+    expect(end.onTrack).toBe(true);
+    expect(end.lane).toBe("PIT_EXIT");
+    expect(Math.abs(end.share - lines.exit.toShare) * lines.lapMetres).toBeLessThanOrEqual(exit.step);
+    expect(garageExitAt(exit, exit.toLaneEnd / 2).onTrack).toBe(false);
   });
 
   it("a garage nearer the exit is out sooner; no limit before 1994 is faster than 80 km/h", () => {
@@ -426,5 +453,200 @@ describe("PIT-1 · garageExitProfile: from the box out of the lane (RF-WKD-02, R
     expect(Array.from(a.v)).toEqual(Array.from(b.v));
     expect(a.T).toBe(b.T);
     expect(garageExitProfile({ pit: null }, 2024)).toBeNull();
+  });
+});
+
+describe("PIT-2 · the white lines and the merge out of the pit lane (RF-SIM-12, RF-SIM-10, RF-SIM-07, RF-3D-04)", () => {
+  const KMH = 1 / 3.6;
+  const DT = 0.25;
+  const frac = (x) => x - Math.floor(x);
+  const bahrain = () => circuitFor({ layoutId: "bahrain-1", packCircuitId: "bahrain" }, 2024);
+  const indexAt = (c, share) => {
+    const shares = c.distShare;
+    let lo = 0;
+    let hi = shares.length - 1;
+    while (hi - lo > 1) {
+      const mid = (lo + hi) >> 1;
+      if (shares[mid] <= share) lo = mid;
+      else hi = mid;
+    }
+    return lo;
+  };
+  /** The track's own speed at `share` (the trace), m/s. */
+  const trackV = (c, share) => {
+    const i = indexAt(c, frac(share));
+    const n = c.speed.length;
+    const span = c.distShare[i + 1] - c.distShare[i] || 1;
+    const k = Math.min(1, Math.max(0, (frac(share) - c.distShare[i]) / span));
+    return c.speed[i % n] + (c.speed[(i + 1) % n] - c.speed[i % n]) * k;
+  };
+  const accel = (v) => {
+    const r = v / (PIT_LANE_BALANCE.accel.topKmh * KMH);
+    return Math.max(0.5, PIT_LANE_BALANCE.accel.max * (1 - r * r));
+  };
+  const GAP = PIT_LANE_BALANCE.exitLine.mergeGapMetres;
+
+  /**
+   * A car leaves the lane where it meets the track and drives out at the traction limit (never
+   * above the track's speed, nor above a yield cap). `rival(me, along)` may put a car on the track
+   * (once) when the exiting car reaches `along` metres of the line. Every step is recorded.
+   */
+  const driveOut = (c, { rivalAt = null, rivalBehindMetres = 0 } = {}) => {
+    const lines = pitLinesFor(c);
+    const lap = lines.lapMetres;
+    const data = trackDataFor(c);
+    const me = { id: "out", share: lines.exit.fromShare, v: 80 * KMH, merged: false };
+    let rival = null;
+    const log = [];
+    for (let step = 0; step < 600 && !me.merged; step += 1) {
+      const along = frac(me.share - lines.exit.fromShare) * lap;
+      if (rivalAt !== null && !rival && along >= rivalAt) {
+        const share = frac(me.share - rivalBehindMetres / lap);
+        rival = { id: "rival", share, v: trackV(c, share) };
+      }
+      const traffic = rival ? [rival] : [];
+      const r = pitExitStep(c, me, traffic);
+      const i = indexAt(c, frac(me.share)) % c.points.length;
+      log.push({ ...r, share: me.share, along, line: data.line[i], rivalAhead: rival ? frac(rival.share - me.share) * lap : null });
+      if (r.merged) {
+        me.merged = true;
+        break;
+      }
+      const cap = r.vCap === null ? Infinity : r.vCap;
+      me.v = Math.min(trackV(c, me.share), me.v + accel(me.v) * DT, cap);
+      me.share = frac(me.share + (me.v * DT) / lap);
+      if (rival) {
+        rival.v = trackV(c, rival.share);
+        rival.share = frac(rival.share + (rival.v * DT) / lap);
+      }
+    }
+    return { lines, log, me, lap };
+  };
+
+  it("marks exitLineTo past the lane's end and the entry line, from splines.json or the geometry (data, not code)", () => {
+    const c = bahrain();
+    const lines = pitLinesFor(c);
+    expect(lines.source).toBe("derived");
+    expect(lines.side === 1 || lines.side === -1).toBe(true);
+    expect(lines.side).toBe(c.pit.side < 0 ? -1 : 1);
+    // fromShare (lane meets the edge) → laneEndShare (the lane's last point) → toShare (exitLineTo).
+    const lap = lines.lapMetres;
+    expect(frac(lines.exit.laneEndShare - lines.exit.fromShare) * lap).toBeLessThan(lap / 2);
+    expect(lines.exit.pastLaneEnd).toBeGreaterThanOrEqual(PIT_LANE_BALANCE.exitLine.minMetres);
+    expect(lines.exit.pastLaneEnd).toBeLessThanOrEqual(PIT_LANE_BALANCE.exitLine.maxMetres);
+    expect(lines.exit.metres).toBeGreaterThan(lines.exit.pastLaneEnd);
+    expect(lines.entry.fromShare).toBeCloseTo(c.pit.entry, 9);
+    expect(lines.entry.toLaneS).toBeGreaterThan(0);
+    expect(lines.entry.toLaneS).toBeLessThan(laneGeometry(c).limitFromS + 1e-9);
+    expect(pitLinesFor({ pit: null })).toBeNull();
+
+    // A reviewed exitLineTo in data/splines.json wins over the geometry.
+    const pit = splinesData.splines["bahrain-1"].pit;
+    const copy = { ...c };
+    pit.exitLineTo = frac(lines.exit.laneEndShare + 300 / lap);
+    try {
+      const reviewed = pitLinesFor(copy);
+      expect(reviewed.source).toBe("spline");
+      expect(reviewed.exit.pastLaneEnd).toBeCloseTo(300, 6);
+    } finally {
+      delete pit.exitLineTo;
+    }
+  });
+
+  it("no car leaving the lane takes the racing line before exitLineTo: lane PIT_EXIT on the pit-side edge", () => {
+    const c = bahrain();
+    const { lines, log } = driveOut(c);
+    const onLine = log.filter((r) => r.onLine);
+    expect(onLine.length).toBeGreaterThan(2);
+    const wrong = onLine.filter((r) => r.lane !== "PIT_EXIT" || r.merged || r.lateral !== pitExitLateral(c, r.share) || r.lateral * lines.side < r.line * lines.side - 1e-9);
+    expect(wrong).toEqual([]);
+    // Pinned to the measured pit-side edge, on the lane's side of the centreline.
+    expect(onLine.every((r) => Math.sign(r.lateral) === lines.side)).toBe(true);
+    // Nobody about: it takes the line the step it reaches exitLineTo, not before.
+    const merge = log[log.length - 1];
+    expect(merge.merged).toBe(true);
+    expect(merge.lane).toBe("RACING");
+    expect(merge.along).toBeGreaterThanOrEqual(lines.exit.metres);
+    const lastOnLine = onLine[onLine.length - 1];
+    expect(merge.along - lastOnLine.along).toBeLessThan(90 * DT + 1e-9);
+  });
+
+  it("yields when the car behind is closer than mergeGapMetres: lifts, lets it by, and slots in behind", () => {
+    const c = bahrain();
+    const { lines, log } = driveOut(c, { rivalAt: pitLinesFor(c).exit.metres, rivalBehindMetres: GAP / 2 });
+    const afterLine = log.filter((r) => !r.onLine);
+    const yielding = afterLine.filter((r) => !r.merged);
+    expect(yielding.length).toBeGreaterThan(0);
+    // While waiting: still PIT_EXIT on the edge, a speed cap, the car it yields to, the gap too small.
+    const badYield = yielding.filter((r) => r.lane !== "PIT_EXIT" || r.yieldTo !== "rival" || !(r.vCap >= 0) || !(r.gapBehind < GAP) || r.lateral * lines.side <= 0);
+    expect(badYield).toEqual([]);
+    const merge = log[log.length - 1];
+    expect(merge.merged).toBe(true);
+    // It merges behind the car it let by, never in front of a car inside the gap.
+    expect(merge.rivalAhead).toBeGreaterThan(0);
+    expect(merge.rivalAhead).toBeLessThan(lines.lapMetres / 2);
+    expect(merge.gapBehind === null || merge.gapBehind >= GAP).toBe(true);
+  });
+
+  it("merges at once, ahead, when the car behind is mergeGapMetres or more away", () => {
+    const c = bahrain();
+    const { lines, log } = driveOut(c, { rivalAt: pitLinesFor(c).exit.metres, rivalBehindMetres: GAP * 2.5 });
+    const firstOff = log.find((r) => !r.onLine);
+    expect(firstOff.merged).toBe(true);
+    expect(firstOff.gapBehind).toBeGreaterThanOrEqual(GAP);
+    expect(firstOff.rivalAhead).toBeGreaterThan(lines.lapMetres / 2); // the rival is behind
+  });
+
+  it("is pure (RNF-05): same inputs, same answer; a car already merged or a circuit without a lane is RACING", () => {
+    const c = bahrain();
+    const lines = pitLinesFor(c);
+    const me = { id: "a", share: frac(lines.exit.toShare + 1 / lines.lapMetres), v: 50, merged: false };
+    const traffic = [{ id: "b", share: frac(me.share - 10 / lines.lapMetres), v: 70 }];
+    const a = pitExitStep(c, me, traffic);
+    const b = pitExitStep(c, me, traffic);
+    expect(a).toEqual(b);
+    expect(a.yieldTo).toBe("b");
+    expect(me).toEqual({ id: "a", share: me.share, v: 50, merged: false });
+    expect(pitExitStep(c, { ...me, merged: true }, traffic).lane).toBe("RACING");
+    expect(pitExitStep({ pit: null }, me, traffic).merged).toBe(true);
+  });
+
+  it("the line offences are in race-eras.json with their FIA article and years pending: nobody is judged, no number is drawn", () => {
+    const { pitExitLine, pitEntryLine } = raceErasBalance.penalties.offences;
+    [pitExitLine, pitEntryLine].forEach((spec) => {
+      expect(spec.from).toBeNull();
+      expect(spec.fromStatus).toBe("pending");
+      expect(spec.penalties.length).toBeGreaterThan(0);
+      expect(spec.$comment).toMatch(/Anexo L/);
+    });
+    let draws = 0;
+    const stream = { next: () => { draws += 1; return 0; } };
+    [1976, 1994, 2012, 2024, 2026].forEach((year) => {
+      expect(pitLineOffenceInForce("pitExitLine", year)).toBe(false);
+      expect(pitLineOffence(stream, {}, year, "pitExitLine")).toBe(false);
+      expect(pitLineOffence(stream, {}, year, "pitEntryLine")).toBe(false);
+    });
+    expect(draws).toBe(0);
+  });
+
+  it("once a year is set, one draw per pass, likelier for an aggressive driver", () => {
+    const spec = raceErasBalance.penalties.offences.pitExitLine;
+    const saved = spec.from;
+    spec.from = 2000;
+    try {
+      let draws = 0;
+      const at = (value) => ({ next: () => { draws += 1; return value; } });
+      expect(pitLineOffenceInForce("pitExitLine", 1999)).toBe(false);
+      expect(pitLineOffence(at(0), {}, 1999)).toBe(false);
+      expect(draws).toBe(0);
+      const just = spec.chancePerExit * 1.01;
+      expect(pitLineOffence(at(just), {}, 2024)).toBe(false);
+      expect(draws).toBe(1);
+      expect(pitLineOffence(at(just), { skills: { aggression: 95 } }, 2024)).toBe(true);
+      expect(pitLineOffence(at(just * 0.5), { skills: { aggression: 5 } }, 2024)).toBe(false);
+      expect(draws).toBe(3);
+    } finally {
+      spec.from = saved;
+    }
   });
 });

@@ -30,6 +30,18 @@
       "crewMissChance": 0.06,
       "holdSeconds": 0.25
     },
+    "exitLine": {
+      "$comment": "PIT-2 (incorporacion-pit, docs/manager/F1M24-GAMEPLAY.md §2.2; RF-SIM-12, RF-SIM-10, RF-3D-04). Líneas blancas del pit lane (FIA ISC Anexo L, cap. IV, 4(d) entrada y 6(c) salida: no se pueden cruzar). La línea de salida va por el borde de la pista del lado del pit desde donde la calle toca la pista (exitBlend) hasta exitLineTo. exitLineTo sale de data/splines.json `pit.exitLineTo` (fracción de la vuelta, revisada a mano contra la pintura) si está; si no, se deriva de la geometría: desde el final de la calle se sigue la traza de velocidad hasta la primera frenada (la velocidad cae brakeDropKmh por debajo del máximo del tramo), entre minMetres y maxMetres. Hasta exitLineTo el coche que sale va en lane = PIT_EXIT, pegado al borde del lado del pit (media anchura medida de splines.json menos el margen del coche) y no entra en la trazada. Al acabar la línea entra solo si el coche más cercano por detrás en pista (hasta lookBehindMetres) está a mergeGapMetres o más; si no, levanta (velocidad del otro menos liftKmh) y entra detrás. Ningún valor de F1 Manager 24: el juego solo dio la idea.",
+      "mergeGapMetres": 40,
+      "mergeGapSource": "NV: ≈ 0,5 s a 290 km/h; pendiente de medir en salidas de boxes de 2023-24 con OpenF1 location (posición x, y a ~3,7 Hz)",
+      "lookBehindMetres": 250,
+      "liftKmh": 15,
+      "liftSource": "NV: lo justo para que el otro pase en 2-3 s con el hueco mínimo",
+      "minMetres": 60,
+      "maxMetres": 450,
+      "lengthSource": "NV: longitud de la línea pintada por circuito sin medir; la regla de la primera frenada sale de la traza del motor. Pendiente: medir la pintura en las mallas o en fotos aéreas y fijar pit.exitLineTo en data/splines.json",
+      "brakeDropKmh": 3
+    },
     "circuitAliases": {
       "$comment": "Referencias de los bocetos (layouts.js, estilo Ergast) → id de circuito de f1db, para las excepciones de límite por circuito.",
       "albert_park": "melbourne",
