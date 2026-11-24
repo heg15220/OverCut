@@ -6,23 +6,49 @@
     "dt": 0.5
   },
   "laps": {
-    "$comment": "Múltiplos de la vuelta de referencia del circuito: vuelta de salida desde el garaje, vuelta de enfriamiento entre intentos, resto de una vuelta abortada y vuelta de entrada hasta el box.",
+    "$comment": "Múltiplos de la vuelta de referencia del circuito: vuelta de salida desde el garaje, vuelta de enfriamiento entre intentos, resto de una vuelta abortada, vuelta de entrada hasta el box y vuelta de quemar combustible (burnLap: Q3 de 2006-2007, a ritmo cercano al de carrera sin cronometrar; NV).",
     "outLap": 1.3,
     "coolLap": 1.2,
     "abortRest": 1.25,
     "inLap": 1.24,
+    "burnLap": 1.04,
     "pitLaneSec": 14,
     "boxStopSec": 2
   },
   "garage": {
-    "$comment": "Segundos mínimos en el garaje entre dos tandas (cambio de neumáticos, ajustes) y aviso de los ingenieros.",
-    "turnaroundSec": 40
+    "$comment": "trabajo-garaje (F1M24-GAMEPLAY §2.12.3; RF-WKD-03, RF-STF-07): segundos de sesión que el coche pasa en el garaje entre dos tandas, por lo que se le hace. baseSec siempre (meterlo, levantarlo, mantas); tyreSec si sale con otro juego; fuelPerLapSec por cada vuelta de combustible que se añade; setup.baseSec + perPoint × puntos de reglaje movidos (engine/setup.js setupDistance, deslizadores 0-100) si cambia el reglaje. El total se escala con el equipo de boxes: 1 − crewPerPoint × (crew − crewRef), entre crewMin y crewMax. La primera salida de cada segmento no espera (el coche ya está preparado). Todo NV: comportamiento sin fuente (ni la FIA ni OpenF1 publican tiempos de trabajo en el garaje); el juego de referencia solo da la idea de que cada cambio cuesta tiempo, no sus valores. Sustituye a turnaroundSec 40 (igual para cualquier cambio).",
+    "status": "pending",
+    "work": {
+      "baseSec": 30,
+      "tyreSec": 15,
+      "fuelPerLapSec": 2,
+      "setup": { "baseSec": 90, "perPoint": 1.5 },
+      "crewRef": 60,
+      "crewPerPoint": 0.006,
+      "crewMin": 0.8,
+      "crewMax": 1.2
+    }
   },
   "evolution": {
-    "$comment": "La pista gana goma con cada vuelta que da el campo: s por vuelta completada por cualquier coche, con un tope. Se reinicia en cada sesión salvo una parte que se hereda entre segmentos.",
-    "perFieldLap": -0.0028,
-    "max": -0.8,
-    "carryBetweenSegments": 0.6
+    "$comment": "evolucion-q (F1M24-GAMEPLAY §2.12.3, §1.6; RF-WKD-02, RF-SIM-11): la pista gana con cada vuelta que da el campo (s por vuelta completada por cualquier coche, con un tope) y una parte se hereda de un segmento al siguiente. byEra calibrado para que la mejora mediana Q1→Q3 de los coches que llegan a Q3 caiga a ±0,15 s de la real de f1db (measured, scripts/measureEvolution.js; test en engine/sessionSim/session.test.js). Lo medido es todo lo que el campo gana entre segmentos (goma, temperatura, el esfuerzo y el combustible que se guardan para el final), no solo la goma: por eso es un número de la sesión jugable y no de la pista. startSec: lo que la pista verde cuesta al empezar cada sesión (el resto lo resta la goma); con él la pista de Q3 queda donde estaba antes de esta calibración, así la pole sigue anclada a la real (race.js qualifyingAnchorOf, test de refLaps). simYear: el pack con que se simula cada fila. Los 2006-2009 llevan además el combustible de carrera de Q3 (y en 2006-2007 la quema, laps.burnLap y ai.fuelBurnShare). default: años sin fila (antes de la eliminatoria, 1950-2005; sin dato de f1db por segmentos): los valores de antes, de memoria.",
+    "default": { "perFieldLap": -0.0028, "max": -0.8, "carryBetweenSegments": 0.6, "status": "pending" },
+    "byEra": [
+      { "from": 2006, "to": 2007, "simYear": 2006, "startSec": 1.3, "perFieldLap": -0.007, "max": -1.9, "carryBetweenSegments": 0.9, "status": "measured" },
+      { "from": 2008, "to": 2009, "simYear": 2008, "startSec": 0.4, "perFieldLap": -0.0035, "max": -1.0, "carryBetweenSegments": 0.9, "status": "measured" },
+      { "from": 2010, "to": 2013, "simYear": 2012, "startSec": 1.4, "perFieldLap": -0.0072, "max": -2.0, "carryBetweenSegments": 0.9, "status": "measured" },
+      { "from": 2014, "to": 2016, "simYear": 2014, "startSec": 1.1, "perFieldLap": -0.006, "max": -1.65, "carryBetweenSegments": 0.9, "status": "measured" },
+      { "from": 2017, "to": 2021, "simYear": 2019, "startSec": 0.8, "perFieldLap": -0.0045, "max": -1.3, "carryBetweenSegments": 0.9, "status": "measured" },
+      { "from": 2022, "to": 2026, "simYear": 2024, "startSec": 0.9, "perFieldLap": -0.005, "max": -1.4, "carryBetweenSegments": 0.9, "status": "measured" }
+    ],
+    "measured": {
+      "$comment": "f1db v2026.20.0 (qualifying_result q1/q2/q3, KNOCKOUT), clasificaciones en seco por la regla de refLaps, mediana por carrera de los que llegan a Q3 y mediana de carreras (scripts/measureEvolution.js --f1db). Faltan 2015 y 2017 (sin pack de temporada: la regla de seco necesita su refLaps). Referencia: Baréin 2024, pole Q1 1:30.031 → Q3 1:29.179 (0,85 s); el juego de referencia da 0,36 s (F1M24-GAMEPLAY §1.6), no se copia.",
+      "2006-2007": { "q1ToQ3": -0.017, "q1ToQ2": 0.687, "races": 34 },
+      "2008-2009": { "q1ToQ3": -1.191, "q1ToQ2": 0.454, "races": 33 },
+      "2010-2013": { "q1ToQ3": 1.007, "q1ToQ2": 0.752, "races": 73 },
+      "2014-2016": { "q1ToQ3": 0.824, "q1ToQ2": 0.573, "races": 35 },
+      "2017-2021": { "q1ToQ3": 0.75, "q1ToQ2": 0.467, "races": 74 },
+      "2022-2026": { "q1ToQ3": 0.748, "q1ToQ2": 0.498, "races": 102 }
+    }
   },
   "pace": {
     "$comment": "Intención del piloto por vuelta (sin coste en la clasificación rápida de race.js, que tiene la suya): s ganados o perdidos, probabilidad de error y su coste, y la dispersión vuelta a vuelta (x eraPaceVolatility x 0,042, como race.js).",
@@ -47,17 +73,22 @@
     "$comment": "Límites del plan que el jugador puede pedir.",
     "practiceLaps": [1, 15],
     "pushLaps": [1, 3],
-    "fuelLaps": [3, 40]
+    "fuelLaps": [3, 40],
+    "burnLaps": [0, 15]
   },
   "durations": {
-    "$comment": "Minutos por sesión y era. practice: una sesión de libres jugable. knockout: Q1, Q2, Q3 (2006-2007 con fase de quemar combustible en Q3). lapLimit: vueltas máximas por piloto y sesión cuando la regla existe.",
+    "$comment": "Minutos por sesión y era. practice: una sesión de libres jugable. knockout: Q1, Q2, Q3 (2006-2007 con fase de quemar combustible en Q3). breakMinutes (reloj-sesion, F1M24-GAMEPLAY §2.12.3): pausa entre el final de un segmento y el principio del siguiente; la sesión no la enseña pero el reloj local la cuenta (Q2 de Baréin 2024 empieza a las 19:25 locales). lapLimit: vueltas máximas por piloto y sesión cuando la regla existe. status source = verificado en el reglamento deportivo FIA del año con cita; pending = de memoria.",
     "practice": [
-      { "from": 1950, "to": 2026, "minutes": 60, "status": "pending" }
+      { "from": 1950, "to": 2023, "minutes": 60, "status": "pending" },
+      { "from": 2024, "to": 2024, "minutes": 60, "status": "source", "source": { "url": "https://www.fia.com/sites/default/files/fia_2024_formula_1_sporting_regulations_-_issue_4_-_2024-02-13.pdf", "quote": "38.2 a) Two (2) free practice sessions (P1 and P2), each lasting one (1) hour" } },
+      { "from": 2025, "to": 2026, "minutes": 60, "status": "pending" }
     ],
     "knockout": [
-      { "from": 2006, "to": 2007, "minutes": [15, 15, 20], "status": "pending" },
-      { "from": 2008, "to": 2015, "minutes": [20, 15, 10], "status": "pending" },
-      { "from": 2016, "to": 2026, "minutes": [18, 15, 12], "status": "pending" }
+      { "from": 2006, "to": 2007, "minutes": [15, 15, 20], "breakMinutes": [7, 8], "fuelBurnLast": true, "status": "pending", "note": "fuelBurnLast: el último segmento empieza con el combustible de carrera y se gasta rodando antes del intento (la FIA devolvía lo quemado para la carrera); de memoria, sin verificar en el reglamento de 2006-2007." },
+      { "from": 2008, "to": 2015, "minutes": [20, 15, 10], "breakMinutes": [7, 8], "status": "pending" },
+      { "from": 2016, "to": 2023, "minutes": [18, 15, 12], "breakMinutes": [7, 8], "status": "pending" },
+      { "from": 2024, "to": 2024, "minutes": [18, 15, 12], "breakMinutes": [7, 8], "status": "source", "source": { "url": "https://www.fia.com/sites/default/files/fia_2024_formula_1_sporting_regulations_-_issue_4_-_2024-02-13.pdf", "quote": "39.2 a) For the first eighteen (18) minutes of the session (Q1) [...] b) After a seven (7) minute break the session will resume for fifteen (15) minutes (Q2) [...] c) After an eight (8) minute break the session will resume for twelve (12) minutes (Q3)" } },
+      { "from": 2025, "to": 2026, "minutes": [18, 15, 12], "breakMinutes": [7, 8], "status": "pending" }
     ],
     "oneSession": [
       { "from": 1996, "to": 2002, "minutes": 60, "lapLimit": 12, "status": "pending" }
@@ -70,7 +101,9 @@
       { "from": 2003, "to": 2005, "spacingSec": 60, "status": "pending" }
     ],
     "sprintShootout": [
-      { "from": 2023, "to": 2026, "minutes": [12, 10, 8], "tyres": ["medium", "medium", "soft"], "status": "pending" }
+      { "from": 2023, "to": 2023, "minutes": [12, 10, 8], "breakMinutes": [7, 7], "tyres": ["medium", "medium", "soft"], "status": "pending" },
+      { "from": 2024, "to": 2024, "minutes": [12, 10, 8], "breakMinutes": [7, 7], "tyres": ["medium", "medium", "soft"], "status": "source", "source": { "url": "https://www.fia.com/sites/default/files/fia_2024_formula_1_sporting_regulations_-_issue_4_-_2024-02-13.pdf", "quote": "39.3 a) For the first twelve (12) minutes of the session (SQ1) [...] b) After a seven (7) minute break the session will resume for ten 10 minutes (SQ2) [...] c) After a seven (7) minute break the session will resume for eight 8 minutes (SQ3)" }, "note": "Los neumáticos por segmento siguen pending (art. 30, no verificado aquí)." },
+      { "from": 2025, "to": 2026, "minutes": [12, 10, 8], "breakMinutes": [7, 7], "tyres": ["medium", "medium", "soft"], "status": "pending" }
     ]
   },
   "allocation": {
@@ -86,7 +119,7 @@
     ]
   },
   "ai": {
-    "$comment": "Plan de la IA: cuándo sale cada tanda (fracción de la sesión), cuántas vueltas y con qué.",
+    "$comment": "Plan de la IA: cuándo sale cada tanda (fracción de la sesión), cuántas vueltas y con qué. fuelBurnShare: parte del último segmento con fuelBurnLast que la IA pasa quemando combustible antes de su intento (NV).",
     "practiceRuns": [0.05, 0.36, 0.68],
     "practiceSpread": 0.06,
     "practiceLaps": [4, 9],
@@ -95,10 +128,54 @@
     "twoPushChance": 0.25,
     "hourRuns": [0.12, 0.45, 0.76],
     "hourSpread": 0.06,
-    "raceFuelSpread": 3
+    "raceFuelSpread": 3,
+    "fuelBurnShare": 0.9
   },
   "sprint": {
     "$comment": "Distancia del sprint (2021-): unos 100 km.",
     "distanceKm": 100
+  },
+  "clock": {
+    "$comment": "reloj-sesion (F1M24-GAMEPLAY §2.12.3; RF-WKD-01, RF-SIM-11): hora local de cada sesión. Primero el pack: calendar[].sessions[] {kind, name, date, startLocal} sale de f1db (horas UTC de las sesiones, desde 2024) pasadas a hora local con la zona IANA de curated/circuit-timezones.json (generate_season_packs.py). Sin eso, la plantilla de la era: day = día respecto al de la carrera (-2 viernes, -1 sábado) y offsetHours = horas respecto a la hora local de salida de la carrera del circuito (data/weather/climate.json startHour, ERA5, que ya distingue las carreras de noche); fallbackRaceStartHour si el circuito no tiene climatología. Las plantillas son de memoria (status pending): verificarlas con el horario oficial de cada año. diurnal: la temperatura del aire a otra hora que la de salida, coseno de 24 h con máximo en peakHour y semiamplitud halfRangeC sobre el aire de climate.json a la hora de salida; NV (climate.json no guarda la curva horaria de ERA5; habría que añadirla en weather_climate_from_era5.py).",
+    "fallbackRaceStartHour": 14,
+    "templates": [
+      {
+        "from": 1950, "to": 1995, "status": "pending",
+        "sessions": [
+          { "kind": "practice", "name": "FP1", "day": -2, "offsetHours": -4 },
+          { "kind": "practice", "name": "FP2", "day": -1, "offsetHours": -4.5 },
+          { "kind": "qualifying", "name": "Q", "day": -2, "offsetHours": -1 }
+        ]
+      },
+      {
+        "from": 1996, "to": 2005, "status": "pending",
+        "sessions": [
+          { "kind": "practice", "name": "FP1", "day": -2, "offsetHours": -3 },
+          { "kind": "practice", "name": "FP2", "day": -2, "offsetHours": -1 },
+          { "kind": "practice", "name": "FP3", "day": -1, "offsetHours": -5 },
+          { "kind": "qualifying", "name": "Q", "day": -1, "offsetHours": -1 }
+        ]
+      },
+      {
+        "from": 2006, "to": 2021, "status": "pending",
+        "sessions": [
+          { "kind": "practice", "name": "FP1", "day": -2, "offsetHours": -4 },
+          { "kind": "practice", "name": "FP2", "day": -2, "offsetHours": 0 },
+          { "kind": "practice", "name": "FP3", "day": -1, "offsetHours": -3 },
+          { "kind": "qualifying", "name": "Q", "day": -1, "offsetHours": 0 }
+        ]
+      },
+      {
+        "from": 2022, "to": 2026, "status": "pending",
+        "sessions": [
+          { "kind": "practice", "name": "FP1", "day": -2, "offsetHours": -1.5 },
+          { "kind": "practice", "name": "FP2", "day": -2, "offsetHours": 2 },
+          { "kind": "practice", "name": "FP3", "day": -1, "offsetHours": -2.5 },
+          { "kind": "shootout", "name": "SQ", "day": -1, "offsetHours": -2.5 },
+          { "kind": "qualifying", "name": "Q", "day": -1, "offsetHours": 1 }
+        ]
+      }
+    ],
+    "diurnal": { "peakHour": 15, "halfRangeC": 4, "status": "pending" }
   }
 }

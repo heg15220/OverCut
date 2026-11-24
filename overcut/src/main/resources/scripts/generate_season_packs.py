@@ -19,7 +19,10 @@ if they disagree (criterio 7.2):
     dropped scores (best N, split seasons), best-car-only constructors and the
     curated adjustments (points taken away by the stewards or the FIA);
   - the engine formulas, the sprint weekends;
-  - events (round and date must exist) and car assets (team must exist).
+  - events (round and date must exist) and car assets (team must exist);
+  - session times (f1db, UTC, 2024-) need the circuit's IANA zone in
+    curated/circuit-timezones.json: each becomes calendar[].sessions[] in local
+    time (reloj-sesion, docs/manager/F1M24-GAMEPLAY.md §2.12.3; RF-WKD-01).
 
 Years without events or car assets are fine: the pack simply has none.
 
@@ -41,6 +44,8 @@ import os
 import sqlite3
 import statistics
 import sys
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import driver_attributes  # noqa: E402  RF-STF-02 / RF-STF-03
@@ -81,6 +86,42 @@ EPS = 1e-9
 def load_json(name):
     with open(os.path.join(CURATED_DIR, name), encoding="utf-8") as fh:
         return json.load(fh)
+
+
+# f1db session columns (date, time in UTC) -> (kind, name) of calendar[].sessions[] (RF-WKD-01).
+SESSION_COLUMNS = [
+    ("pre_qualifying", "prequalifying", "PQ"),
+    ("free_practice_1", "practice", "FP1"),
+    ("free_practice_2", "practice", "FP2"),
+    ("free_practice_3", "practice", "FP3"),
+    ("free_practice_4", "practice", "FP4"),
+    ("qualifying_1", "qualifying", "Q1"),
+    ("qualifying_2", "qualifying", "Q2"),
+    ("qualifying", "qualifying", "Q"),
+    ("sprint_qualifying", "shootout", "SQ"),
+    ("sprint_race", "sprint", "S"),
+    ("warming_up", "warmup", "WU"),
+    ("", "race", "R"),
+]
+
+
+def session_schedule(r, zones, year):
+    """The weekend's sessions in local time, from f1db's UTC date and time; None without times."""
+    out = []
+    for column, kind, name in SESSION_COLUMNS:
+        date = r[f"{column}_date" if column else "date"]
+        time = r[f"{column}_time" if column else "time"]
+        if not date or not time:
+            continue
+        zone = zones.get(r["circuit_id"])
+        if zone is None:
+            fail(f"{year}: f1db has session times at {r['circuit_id']}, which has no zone in curated/circuit-timezones.json")
+        utc = datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+        local = utc.astimezone(ZoneInfo(zone))
+        out.append({"kind": kind, "name": name, "date": local.strftime("%Y-%m-%d"), "startLocal": local.strftime("%H:%M"),
+                    "startUtc": utc.strftime("%Y-%m-%dT%H:%MZ")})
+    out.sort(key=lambda entry: entry["startUtc"])
+    return out or None
 
 
 def rows(con, sql, *args):
@@ -245,7 +286,12 @@ def build_pack(con, year, regs_cur, events_cur, assets_cur, skills=None):
         select r.id, r.round, r.date, r.grand_prix_id, gp.name as gp_name, r.official_name,
                r.qualifying_format, r.sprint_race_date, r.circuit_id, c.name as circuit_name,
                c.place_name, co.alpha2_code as country, r.circuit_layout_id, r.circuit_type,
-               r.direction, r.course_length, r.turns, r.laps, r.scheduled_laps, r.distance
+               r.direction, r.course_length, r.turns, r.laps, r.scheduled_laps, r.distance,
+               r.time, r.pre_qualifying_date, r.pre_qualifying_time, r.free_practice_1_date, r.free_practice_1_time,
+               r.free_practice_2_date, r.free_practice_2_time, r.free_practice_3_date, r.free_practice_3_time,
+               r.free_practice_4_date, r.free_practice_4_time, r.qualifying_1_date, r.qualifying_1_time,
+               r.qualifying_2_date, r.qualifying_2_time, r.qualifying_date, r.qualifying_time,
+               r.sprint_qualifying_date, r.sprint_qualifying_time, r.sprint_race_time, r.warming_up_date, r.warming_up_time
         from race r
         join grand_prix gp on gp.id = r.grand_prix_id
         join circuit c on c.id = r.circuit_id
@@ -442,6 +488,12 @@ def build_pack(con, year, regs_cur, events_cur, assets_cur, skills=None):
         "refLaps": ref_laps(con, r["id"], r["qualifying_format"]),
         "pitStops": pit_stops(con, r["id"]),
     } for r in races]
+    # reloj-sesion (RF-WKD-01): local session times where f1db has them (2024-); older packs keep their bytes.
+    zones = load_json("circuit-timezones.json")["circuits"]
+    for event, r in zip(calendar, races):
+        schedule = session_schedule(r, zones, year)
+        if schedule:
+            event["sessions"] = schedule
 
     # ---------------------------------------------------------------- standings
     def merge_rows(items, key):

@@ -24,15 +24,112 @@
  * one for the rival plan, lap ends processed in time order, orders taking effect at the
  * step boundary they arrive on and kept in a log. The same seed and the same orders at the
  * same session times give the same session byte for byte, however the view slices time.
+ *
+ * The weekend around it (F1M24-GAMEPLAY §2.12.3; RF-WKD-01/03, RF-SIM-11):
+ *   localClock   the local time of day of every instant: the session's start from the pack
+ *                (race.sessions, f1db) or the era's template, plus the segments and the
+ *                breaks between them (sessions.json durations.*.breakMinutes), which the
+ *                session does not play but the clock counts. Conditions by hour from
+ *                engine/weather hourlyConditions. Read-only: nothing here draws or moves a lap.
+ *   evolution    the rubber the field lays down, by era (sessions.json evolution.byEra),
+ *                calibrated on f1db's Q1->Q3 improvement (scripts/measureEvolution.js).
+ *   garage work  a car back in the garage leaves again only when the work its next plan asks
+ *                for is done: the base turnaround, another tyre set, the fuel added and a setup
+ *                change, scaled by the pit crew (sessions.json garage.work; garageWorkOf shows
+ *                it before the order is confirmed).
  */
 
 import { clamp, createStream } from "../../../overcutTrayectoria/engine/rng";
 import { fieldMomentsOf, qualifyingAnchorOf, qualifyingPaceOf, raceFuelOf, tyreTime } from "../race";
-import { rulesFor } from "../rules";
+import { byYear, rulesFor } from "../rules";
+import { setupDistance } from "../setup";
+import { climateFor, hourlyConditions } from "../weather";
 import { SESSION_BALANCE as B, sessionFormat, tyreAllocation } from "./formats";
 
 const EPS = 1e-9;
 const round3 = (value) => Math.round(value * 1000) / 1000;
+const DAY = 86400;
+
+// ------------------------------------------------------------------ era tables
+
+/** evolucion-q: the era's track evolution (sessions.json evolution.byEra, else its default). */
+export const evolutionOf = (year) => B.evolution.byEra.find((row) => year >= row.from && year <= row.to) || B.evolution.default;
+
+// ------------------------------------------------------------------ the local clock
+
+const hmToSec = (text) => {
+  const match = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(String(text || ""));
+  return match ? Number(match[1]) * 3600 + Number(match[2]) * 60 + Number(match[3] || 0) : null;
+};
+const dayIndex = (iso) => (typeof iso === "string" && /^\d{4}-\d{2}-\d{2}/.test(iso) ? Math.round(Date.UTC(Number(iso.slice(0, 4)), Number(iso.slice(5, 7)) - 1, Number(iso.slice(8, 10))) / (DAY * 1000)) : null);
+
+/**
+ * reloj-sesion (RF-WKD-01): when this session starts on the weekend's local clock. The pack's
+ * calendar[].sessions[] (f1db, local time) when the race carries them, the one named
+ * `sessionName` or the first of the kind; else the era's template (sessions.json clock) around
+ * the circuit's race start hour (climate.json startHour, ERA5). `day` counts from race day (-1 =
+ * the day before). Null when neither knows the session.
+ */
+export const sessionScheduleOf = ({ kind, race = {}, era, sessionName = null }) => {
+  const pick = (list) => (sessionName && list.find((entry) => entry.name === sessionName)) || list[0] || null;
+  const own = pick((Array.isArray(race?.sessions) ? race.sessions : []).filter((entry) => entry.kind === kind && hmToSec(entry.startLocal) !== null));
+  if (own) {
+    const a = dayIndex(own.date);
+    const b = dayIndex(race.date);
+    return { source: "pack", kind, name: own.name || null, day: a !== null && b !== null ? a - b : null, startSec: hmToSec(own.startLocal) };
+  }
+  const template = byYear(B.clock.templates, rulesFor(era).year);
+  const row = pick((template?.sessions || []).filter((entry) => entry.kind === kind));
+  if (!row) return null;
+  const climate = climateFor(race || {});
+  const raceHour = Number.isFinite(climate.startHour) ? climate.startHour : B.clock.fallbackRaceStartHour;
+  const startSec = Math.round((raceHour + row.offsetHours) * 3600);
+  return { source: "template", kind, name: row.name, day: row.day + Math.floor(startSec / DAY), startSec: ((startSec % DAY) + DAY) % DAY };
+};
+
+/** Each segment's start (s) and day offset after the session's start: segments, breaks, next days. */
+const segmentStartsOf = (segments) => {
+  let offset = 0;
+  let day = 0;
+  return segments.map((segment, index) => {
+    if (index > 0) {
+      const previous = segments[index - 1];
+      if (segment.nextDay) {
+        day += 1;
+        offset = 0;
+      } else offset += (previous.duration || 0) + (previous.breakAfter || 0);
+    }
+    return { offset, day };
+  });
+};
+
+/**
+ * The local clock at session time `tau` of segment `segmentIndex` (§1.7 contract `localClock`):
+ * {day, seconds (of the day), hour, label "HH:MM:SS", source}. Null without a schedule. Pure.
+ */
+export const localClockOf = (state, tau = state.clock, segmentIndex = state.segment) => {
+  const schedule = state.schedule;
+  if (!schedule) return null;
+  const starts = segmentStartsOf(state.segments);
+  const start = starts[Math.max(0, segmentIndex)] || { offset: 0, day: 0 };
+  const total = schedule.startSec + start.offset + Math.max(0, tau);
+  const seconds = ((Math.floor(total) % DAY) + DAY) % DAY;
+  const pad = (value) => String(value).padStart(2, "0");
+  return {
+    day: (schedule.day ?? 0) + start.day + Math.floor(total / DAY),
+    seconds,
+    hour: round3(seconds / 3600),
+    label: `${pad(Math.floor(seconds / 3600))}:${pad(Math.floor((seconds % 3600) / 60))}:${pad(seconds % 60)}`,
+    source: schedule.source,
+  };
+};
+
+/** The conditions at the local hour of `tau` (engine/weather hourlyConditions), or null without a clock. */
+export const sessionConditions = (state, tau = state.clock) => {
+  const clock = localClockOf(state, tau);
+  if (!clock) return null;
+  return { localClock: clock, ...hourlyConditions({ race: state.climateRace, hour: clock.seconds / 3600, diurnal: B.clock.diurnal }) };
+};
 
 // ------------------------------------------------------------------ set up
 
@@ -45,6 +142,7 @@ const round3 = (value) => Math.round(value * 1000) / 1000;
  */
 export const createSession = ({
   kind, entrants, race, era, seed, wetness = 0, practice = {}, raceFuel = {}, runOrder = null, sectorShares = [1 / 3, 2 / 3], pitEntryShare = 0.93, tyres = null,
+  sessionName = null, setups = null, crews = null,
 }) => {
   const rules = rulesFor(era);
   const format = sessionFormat({ kind, era, race, field: entrants.length });
@@ -63,6 +161,9 @@ export const createSession = ({
     declaredFuel: null,
     eliminated: false,
     results: [],
+    // trabajo-garaje: the setup on the car (sliders) and its crew rating, when the weekend gives them.
+    setup: setups?.[entrant.id] ? { ...setups[entrant.id] } : null,
+    crew: Number.isFinite(crews?.[entrant.teamId]) ? crews[entrant.teamId] : null,
   }));
   const state = {
     kind,
@@ -88,6 +189,9 @@ export const createSession = ({
     log: [],
     carry: 0,
     done: false,
+    evolution: evolutionOf(rules.year),
+    schedule: sessionScheduleOf({ kind, race, era, sessionName }),
+    climateRace: { date: race.date || null, packCircuitId: race.packCircuitId || null, circuitId: race.circuitId || null, circuit: race.circuit || null },
   };
   startSegment(state, 0);
   return state;
@@ -123,13 +227,15 @@ const startSegment = (state, index) => {
     car.bestSectors = null;
     car.run = null;
     car.runs = [];
-    car.readyAt = 0;
+    car.returnedAt = null;
+    car.lastRun = null;
     car.pending = null;
     car.auto = !car.isUser;
     car.stream = createStream(`${state.seed}::session::${state.kind}::${segment.name}::${car.id}`);
     car.aiPlans = car.eliminated ? [] : rivalPlans(state, car, segment);
     if (segment.singleLap && !car.eliminated) car.pending = { at: segment.slots[car.id] ?? 0, plan: null, slot: true };
   });
+  state.localClock = localClockOf(state);
 };
 
 // ---------------------------------------------------------------- rival plans
@@ -175,6 +281,12 @@ const rivalPlans = (state, car, segment) => {
     });
   }
   const isLast = state.segment === state.segments.length - 1;
+  if (segment.fuelBurn) {
+    // 2006-2007 Q3: out early on race fuel, burn laps at near race pace, then the attempt.
+    const at = stream.range(ai.lastSegmentRuns[0][0], ai.lastSegmentRuns[0][1]) * duration;
+    const burn = Math.max(0, Math.floor((duration * ai.fuelBurnShare - at) / (state.baseLap * B.laps.burnLap)) - 1);
+    return [{ at, plan: { programme: "quali", push: 1, burn, fuel: fuelFor(1), compound, set: "new", style: "normal" } }];
+  }
   const runs = isLast ? ai.lastSegmentRuns : ai.qualiRuns;
   return runs.map(([from, to]) => {
     const push = pushes();
@@ -197,12 +309,17 @@ export const sanitisePlan = (state, car, plan = {}) => {
   const [minFuel, maxFuel] = B.limits.fuelLaps;
   const laps = qualifying ? 0 : clamp(Math.round(plan.laps ?? spec.laps), minLaps, maxLaps);
   const push = qualifying ? clamp(Math.round(plan.push ?? 1), minPush, segment.singleLap ? 1 : maxPush) : 0;
-  const needed = qualifying ? 2 + push * 2 : laps + 2;
+  const burn = segment.fuelBurn ? clamp(Math.round(plan.burn ?? 0), B.limits.burnLaps[0], B.limits.burnLaps[1]) : 0;
+  const needed = qualifying ? 2 + push * 2 + burn : laps + 2;
   let fuel = clamp(Math.round(plan.fuel ?? needed + (spec.fuelExtra ?? 0)), Math.max(minFuel, Math.min(needed, maxFuel)), maxFuel);
   // Race fuel (2003-2009): declared on the first run, kept to the flag (parc fermé).
   if (segment.raceFuel) fuel = car.declaredFuel ?? clamp(Math.round(plan.fuel ?? car.raceFuel ?? needed), Math.max(minFuel, needed), maxFuel);
   const compound = segment.tyre || (car.tyres.some((set) => set.compound === plan.compound) ? plan.compound : defaultCompound(state));
-  return { programme, laps, push, fuel, compound, set: segment.newTyre ? "new" : plan.set === "used" ? "used" : "new", style: STYLES.includes(plan.style) ? plan.style : spec.style };
+  const out = { programme, laps, push, fuel, compound, set: segment.newTyre ? "new" : plan.set === "used" ? "used" : "new", style: STYLES.includes(plan.style) ? plan.style : spec.style };
+  if (segment.fuelBurn) out.burn = burn;
+  // trabajo-garaje: a setup asked for the run (sliders 0..100), kept as given.
+  if (plan.setup && typeof plan.setup === "object") out.setup = { ...plan.setup };
+  return out;
 };
 
 /** The tyre a plan starts with when none is given. */
@@ -232,15 +349,15 @@ const lapTimeOf = (state, car, kind) => {
   const set = car.run.set;
   const style = B.pace.styles[plan.style] || B.pace.styles.normal;
   const fuelCost = car.fuel * state.fuelPerLap;
-  if (kind === "out" || kind === "cool" || kind === "in") {
-    const factor = kind === "out" ? B.laps.outLap : kind === "cool" ? B.laps.coolLap : B.laps.inLap;
+  if (kind === "out" || kind === "cool" || kind === "in" || kind === "burn") {
+    const factor = kind === "out" ? B.laps.outLap : kind === "cool" ? B.laps.coolLap : kind === "burn" ? B.laps.burnLap : B.laps.inLap;
     const jitter = car.stream.normal(0, 0.6);
     return { time: state.baseLap * factor + fuelCost + jitter, sectors: null };
   }
   const wet = state.wetness;
   const ref = Math.min(...[...dryCompounds(rulesFor(state.era)), "inter", "wet"].map((compound) => tyreTime({ compound, age: 1, wetness: wet, era: state.era })));
   const tyre = tyreTime({ compound: set.compound, age: Math.max(1, set.laps), wetness: wet, era: state.era }) - ref;
-  const evolution = Math.max(B.evolution.max, state.carry + state.fieldLaps * B.evolution.perFieldLap);
+  const evolution = (state.evolution.startSec ?? 0) + Math.max(state.evolution.max, state.carry + state.fieldLaps * state.evolution.perFieldLap);
   const offset = B.programmes[plan.programme]?.offset ? B.pace[B.programmes[plan.programme].offset] : 0;
   const mistake = car.stream.chance(style.mistake * (1 + wet)) ? car.stream.range(B.pace.mistakeCost[0], B.pace.mistakeCost[1]) : 0;
   const noise = car.stream.normal(0, state.volatility * B.pace.noiseScale * (1 + wet));
@@ -288,9 +405,11 @@ const nextLapKind = (state, car, finished) => {
   const limitLeft = segment.lapLimit ? segment.lapLimit - car.laps : Infinity;
   if (car.boxRequest || state.flag || car.fuel < 1.5 || limitLeft <= 1) return "in";
   if (state.kind === "practice") return run.timed < run.plan.laps ? "timed" : "in";
+  // Fuel burn (2006-2007 Q3): the burn laps first, straight after the out-lap.
+  if ((finished.kind === "out" || finished.kind === "burn") && (run.burned ?? 0) < (run.plan.burn ?? 0)) return "burn";
   if (run.pushes >= run.plan.push) return "in";
   // Two pushes back to back only on the out-lap's heat; between attempts a cool-down lap.
-  if (finished.kind === "out" || finished.kind === "cool") return "push";
+  if (finished.kind === "out" || finished.kind === "cool" || finished.kind === "burn") return "push";
   return limitLeft <= 2 ? "in" : "cool";
 };
 
@@ -302,6 +421,7 @@ const endLap = (state, car) => {
   set.laps += 1;
   car.fuel = Math.max(0, car.fuel - 1);
   state.fieldLaps += 1;
+  if (record.kind === "burn") car.run.burned += 1;
   if (record.flying && !record.aborted) {
     if (record.kind === "push") car.run.pushes += 1;
     else car.run.timed += 1;
@@ -324,7 +444,8 @@ const endLap = (state, car) => {
     car.state = "garage";
     car.record = null;
     car.boxRequest = false;
-    car.readyAt = at + B.garage.turnaroundSec;
+    car.returnedAt = at;
+    car.lastRun = { setId: set.id, fuel: car.fuel, setup: car.setup ? { ...car.setup } : null };
     const times = car.run.times;
     const summary = {
       carId: car.id,
@@ -353,7 +474,8 @@ const leave = (state, car, plan, at) => {
   const segment = currentSegment(state);
   if (segment.raceFuel && car.declaredFuel === null) car.declaredFuel = plan.fuel;
   car.fuel = plan.fuel;
-  car.run = { plan, set, pushes: 0, timed: 0, times: [], from: round3(at) };
+  if (plan.setup) car.setup = { ...plan.setup };
+  car.run = { plan, set, pushes: 0, timed: 0, burned: 0, times: [], from: round3(at) };
   car.boxRequest = false;
   beginLap(state, car, "out", at);
   state.events.push({ t: round3(at), type: "out", carId: car.id, compound: set.compound, fuel: plan.fuel });
@@ -362,13 +484,48 @@ const leave = (state, car, plan, at) => {
 
 // ------------------------------------------------------------------ the clock
 
+/**
+ * trabajo-garaje (RF-WKD-03, RF-STF-07): the seconds of work in the garage before a car can
+ * leave with `plan` (sanitised), item by item: the base turnaround, another tyre set, the fuel
+ * added and a setup change, all scaled by the crew. Nothing before the first run of a segment.
+ */
+const workOf = (state, car, plan) => {
+  const w = B.garage.work;
+  const last = car.lastRun;
+  if (!last) return { total: 0, items: [], crewFactor: 1 };
+  const items = [{ kind: "base", sec: w.baseSec }];
+  const set = pickSet(car, plan.compound, plan.set);
+  if (set && set.id !== last.setId) items.push({ kind: "tyres", sec: w.tyreSec });
+  const fuel = Math.max(0, (plan.fuel ?? 0) - (last.fuel ?? 0));
+  if (fuel > 0) items.push({ kind: "fuel", sec: fuel * w.fuelPerLapSec, laps: fuel });
+  const points = plan.setup ? setupDistance(last.setup || car.setup, plan.setup) : 0;
+  if (points > 0) items.push({ kind: "setup", sec: w.setup.baseSec + w.setup.perPoint * points, points });
+  const crewFactor = car.crew === null || car.crew === undefined ? 1 : clamp(1 - w.crewPerPoint * (car.crew - w.crewRef), w.crewMin, w.crewMax);
+  const total = items.reduce((sum, item) => sum + item.sec, 0) * crewFactor;
+  return { total: round3(total), items: items.map((item) => ({ ...item, sec: round3(item.sec * crewFactor) })), crewFactor: round3(crewFactor) };
+};
+
+/** When the car can leave with `plan`: back in the garage plus the work it asks for. */
+const readyFor = (state, car, plan) => (car.returnedAt === null ? 0 : car.returnedAt + workOf(state, car, sanitisePlan(state, car, plan || {})).total);
+
+/**
+ * What the garage has to do before car `carId` leaves with `plan`, for the pit wall to see before
+ * it confirms (§2.12.3: the sum shown before the order): {total, items, crewFactor, readyAt}.
+ */
+export const garageWorkOf = (state, carId, plan = {}) => {
+  const car = carOf(state, carId);
+  if (!car) return null;
+  const work = workOf(state, car, sanitisePlan(state, car, plan));
+  return { ...work, readyAt: car.returnedAt === null ? 0 : round3(car.returnedAt + work.total) };
+};
+
 /** The next thing that happens to a car, and when (Infinity if nothing is due). */
 const nextDue = (state, car) => {
   if (car.eliminated) return Infinity;
   if (car.record) return car.record.end;
   if (state.flag) return Infinity;
-  if (car.pending) return Math.max(car.pending.at, car.readyAt);
-  if (car.auto && car.aiPlans.length) return Math.max(car.aiPlans[0].at, car.readyAt);
+  if (car.pending) return Math.max(car.pending.at, readyFor(state, car, car.pending.plan || car.nextPlan || (car.auto ? car.aiPlans[0]?.plan : null)));
+  if (car.auto && car.aiPlans.length) return Math.max(car.aiPlans[0].at, readyFor(state, car, car.aiPlans[0].plan));
   return Infinity;
 };
 
@@ -414,6 +571,7 @@ export const stepOnce = (state) => {
     handleDue(state, pick, Math.max(when, state.clock));
   }
   state.clock = to;
+  state.localClock = localClockOf(state);
   if (!state.flag && state.clock >= segment.duration) {
     state.flag = true;
     state.events.push({ t: round3(segment.duration), type: "flag", segment: state.segment });
@@ -468,7 +626,7 @@ export const nextSegment = (state) => {
     if (car.out !== undefined && car.out === state.segment) car.eliminated = true;
   });
   // The rubber stays, the evening cools a little of it off.
-  state.carry = Math.max(B.evolution.max, state.carry + state.fieldLaps * B.evolution.perFieldLap) * B.evolution.carryBetweenSegments;
+  state.carry = Math.max(state.evolution.max, state.carry + state.fieldLaps * state.evolution.perFieldLap) * state.evolution.carryBetweenSegments;
   if (currentSegment(state).singleLap) {
     // Aggregate (2005): the second session runs in reverse order of the first.
     state.runOrder = rankOf(state).map((car) => car.id).reverse();
@@ -625,7 +783,7 @@ export const carStatus = (state, carId, tau = state.clock) => {
     if (live.in) {
       const racing = live.end - live.start - live.pit.lane - live.pit.stationary;
       phase = tau - live.start > racing ? "pitlane" : "in";
-    } else phase = live.kind === "push" || live.kind === "timed" ? (live.aborted ? "cool" : "flying") : live.kind;
+    } else phase = live.kind === "push" || live.kind === "timed" ? (live.aborted ? "cool" : "flying") : live.kind === "burn" ? "cool" : live.kind;
   } else if (car.pending && !car.pending.slot) phase = "queued";
   const elapsed = live ? tau - live.start : null;
   // Sector lines passed on a timed lap.
@@ -734,4 +892,26 @@ export const sessionResult = (state) => {
     live: true,
     log: state.log.slice(),
   };
+};
+
+/**
+ * evolucion-q (RF-WKD-02, RF-SIM-11): a whole playable knockout qualifying from `options`
+ * (createSession's), the engineers driving every car, and the statistic scripts/measureEvolution.js
+ * measures in f1db: the median over the cars that reached the last segment of their Q1 best
+ * minus their best in the last segment (and in Q2). Nulls outside a three-segment knockout.
+ */
+export const evolutionImprovement = (options) => {
+  const state = runSessionToEnd(createSession(options));
+  const last = state.segments.length - 1;
+  if (state.combine !== "knockout" || last !== 2) return { q1ToQ3: null, q1ToQ2: null, cars: 0 };
+  const median = (values) => {
+    const sorted = [...values].sort((a, b) => a - b);
+    if (!sorted.length) return null;
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  };
+  const finalists = state.cars.filter((car) => car.out === undefined && Number.isFinite(car.results[0]?.best) && Number.isFinite(car.results[last]?.best));
+  const q3 = median(finalists.map((car) => car.results[0].best - car.results[last].best));
+  const q2 = median(finalists.filter((car) => Number.isFinite(car.results[1]?.best)).map((car) => car.results[0].best - car.results[1].best));
+  return { q1ToQ3: q3 === null ? null : round3(q3), q1ToQ2: q2 === null ? null : round3(q2), cars: finalists.length };
 };

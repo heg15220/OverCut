@@ -229,7 +229,44 @@
    "pitStops": {
     "median": 1.5,
     "cars": 16
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-03-06",
+     "startLocal": "12:30",
+     "startUtc": "2026-03-06T01:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-03-06",
+     "startLocal": "16:00",
+     "startUtc": "2026-03-06T05:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-03-07",
+     "startLocal": "12:30",
+     "startUtc": "2026-03-07T01:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-03-07",
+     "startLocal": "16:00",
+     "startUtc": "2026-03-07T05:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-03-08",
+     "startLocal": "15:00",
+     "startUtc": "2026-03-08T04:00Z"
+    }
+   ]
   },
   {
    "round": 2,
@@ -261,7 +298,44 @@
    "pitStops": {
     "median": 1,
     "cars": 15
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-03-13",
+     "startLocal": "11:30",
+     "startUtc": "2026-03-13T03:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2026-03-13",
+     "startLocal": "15:30",
+     "startUtc": "2026-03-13T07:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2026-03-14",
+     "startLocal": "11:00",
+     "startUtc": "2026-03-14T03:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-03-14",
+     "startLocal": "15:00",
+     "startUtc": "2026-03-14T07:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-03-15",
+     "startLocal": "15:00",
+     "startUtc": "2026-03-15T07:00Z"
+    }
+   ]
   },
   {
    "round": 3,
@@ -293,7 +367,44 @@
    "pitStops": {
     "median": 1,
     "cars": 20
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-03-27",
+     "startLocal": "11:30",
+     "startUtc": "2026-03-27T02:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-03-27",
+     "startLocal": "15:00",
+     "startUtc": "2026-03-27T06:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-03-28",
+     "startLocal": "11:30",
+     "startUtc": "2026-03-28T02:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-03-28",
+     "startLocal": "15:00",
+     "startUtc": "2026-03-28T06:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-03-29",
+     "startLocal": "14:00",
+     "startUtc": "2026-03-29T05:00Z"
+    }
+   ]
   },
   {
    "round": 4,
@@ -325,7 +436,44 @@
    "pitStops": {
     "median": 1,
     "cars": 18
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-05-01",
+     "startLocal": "12:00",
+     "startUtc": "2026-05-01T16:00Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2026-05-01",
+     "startLocal": "16:30",
+     "startUtc": "2026-05-01T20:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2026-05-02",
+     "startLocal": "12:00",
+     "startUtc": "2026-05-02T16:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-05-02",
+     "startLocal": "16:00",
+     "startUtc": "2026-05-02T20:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-05-03",
+     "startLocal": "13:00",
+     "startUtc": "2026-05-03T17:00Z"
+    }
+   ]
   },
   {
    "round": 5,
@@ -357,7 +505,44 @@
    "pitStops": {
     "median": 1,
     "cars": 16
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-05-22",
+     "startLocal": "12:30",
+     "startUtc": "2026-05-22T16:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2026-05-22",
+     "startLocal": "16:30",
+     "startUtc": "2026-05-22T20:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2026-05-23",
+     "startLocal": "12:00",
+     "startUtc": "2026-05-23T16:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-05-23",
+     "startLocal": "16:00",
+     "startUtc": "2026-05-23T20:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-05-24",
+     "startLocal": "16:00",
+     "startUtc": "2026-05-24T20:00Z"
+    }
+   ]
   },
   {
    "round": 6,
@@ -389,7 +574,44 @@
    "pitStops": {
     "median": 1,
     "cars": 15
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-06-05",
+     "startLocal": "13:30",
+     "startUtc": "2026-06-05T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-06-05",
+     "startLocal": "17:00",
+     "startUtc": "2026-06-05T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-06-06",
+     "startLocal": "12:30",
+     "startUtc": "2026-06-06T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-06-06",
+     "startLocal": "16:00",
+     "startUtc": "2026-06-06T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-06-07",
+     "startLocal": "15:00",
+     "startUtc": "2026-06-07T13:00Z"
+    }
+   ]
   },
   {
    "round": 7,
@@ -421,7 +643,44 @@
    "pitStops": {
     "median": 2,
     "cars": 17
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-06-12",
+     "startLocal": "13:30",
+     "startUtc": "2026-06-12T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-06-12",
+     "startLocal": "17:00",
+     "startUtc": "2026-06-12T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-06-13",
+     "startLocal": "12:30",
+     "startUtc": "2026-06-13T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-06-13",
+     "startLocal": "16:00",
+     "startUtc": "2026-06-13T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-06-14",
+     "startLocal": "15:00",
+     "startUtc": "2026-06-14T13:00Z"
+    }
+   ]
   },
   {
    "round": 8,
@@ -453,7 +712,44 @@
    "pitStops": {
     "median": 2,
     "cars": 18
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-06-26",
+     "startLocal": "13:30",
+     "startUtc": "2026-06-26T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-06-26",
+     "startLocal": "17:00",
+     "startUtc": "2026-06-26T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-06-27",
+     "startLocal": "12:30",
+     "startUtc": "2026-06-27T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-06-27",
+     "startLocal": "16:00",
+     "startUtc": "2026-06-27T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-06-28",
+     "startLocal": "15:00",
+     "startUtc": "2026-06-28T13:00Z"
+    }
+   ]
   },
   {
    "round": 9,
@@ -485,7 +781,44 @@
    "pitStops": {
     "median": 2,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-07-03",
+     "startLocal": "12:30",
+     "startUtc": "2026-07-03T11:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2026-07-03",
+     "startLocal": "16:30",
+     "startUtc": "2026-07-03T15:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2026-07-04",
+     "startLocal": "12:00",
+     "startUtc": "2026-07-04T11:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-07-04",
+     "startLocal": "16:00",
+     "startUtc": "2026-07-04T15:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-07-05",
+     "startLocal": "15:00",
+     "startUtc": "2026-07-05T14:00Z"
+    }
+   ]
   },
   {
    "round": 10,
@@ -517,7 +850,44 @@
    "pitStops": {
     "median": 1,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-07-17",
+     "startLocal": "13:30",
+     "startUtc": "2026-07-17T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-07-17",
+     "startLocal": "17:00",
+     "startUtc": "2026-07-17T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-07-18",
+     "startLocal": "12:30",
+     "startUtc": "2026-07-18T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-07-18",
+     "startLocal": "16:00",
+     "startUtc": "2026-07-18T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-07-19",
+     "startLocal": "15:00",
+     "startUtc": "2026-07-19T13:00Z"
+    }
+   ]
   },
   {
    "round": 11,
@@ -549,7 +919,44 @@
    "pitStops": {
     "median": 2,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-07-24",
+     "startLocal": "13:30",
+     "startUtc": "2026-07-24T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-07-24",
+     "startLocal": "17:00",
+     "startUtc": "2026-07-24T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-07-25",
+     "startLocal": "12:30",
+     "startUtc": "2026-07-25T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-07-25",
+     "startLocal": "16:00",
+     "startUtc": "2026-07-25T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-07-26",
+     "startLocal": "15:00",
+     "startUtc": "2026-07-26T13:00Z"
+    }
+   ]
   },
   {
    "round": 12,
@@ -581,7 +988,44 @@
    "pitStops": {
     "median": 2,
     "cars": 17
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-08-21",
+     "startLocal": "12:30",
+     "startUtc": "2026-08-21T10:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2026-08-21",
+     "startLocal": "16:30",
+     "startUtc": "2026-08-21T14:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2026-08-22",
+     "startLocal": "12:00",
+     "startUtc": "2026-08-22T10:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-08-22",
+     "startLocal": "16:00",
+     "startUtc": "2026-08-22T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-08-23",
+     "startLocal": "15:00",
+     "startUtc": "2026-08-23T13:00Z"
+    }
+   ]
   },
   {
    "round": 13,
@@ -613,7 +1057,44 @@
    "pitStops": {
     "median": 0,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-09-04",
+     "startLocal": "12:30",
+     "startUtc": "2026-09-04T10:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-09-04",
+     "startLocal": "16:00",
+     "startUtc": "2026-09-04T14:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-09-05",
+     "startLocal": "12:30",
+     "startUtc": "2026-09-05T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-09-05",
+     "startLocal": "16:00",
+     "startUtc": "2026-09-05T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-09-06",
+     "startLocal": "15:00",
+     "startUtc": "2026-09-06T13:00Z"
+    }
+   ]
   },
   {
    "round": 14,
@@ -645,7 +1126,44 @@
    "pitStops": {
     "median": 1,
     "cars": 18
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-09-11",
+     "startLocal": "13:30",
+     "startUtc": "2026-09-11T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-09-11",
+     "startLocal": "17:00",
+     "startUtc": "2026-09-11T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-09-12",
+     "startLocal": "12:30",
+     "startUtc": "2026-09-12T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-09-12",
+     "startLocal": "16:00",
+     "startUtc": "2026-09-12T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-09-13",
+     "startLocal": "15:00",
+     "startUtc": "2026-09-13T13:00Z"
+    }
+   ]
   },
   {
    "round": 15,
@@ -677,7 +1195,44 @@
    "pitStops": {
     "median": 1,
     "cars": 16
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-09-24",
+     "startLocal": "12:30",
+     "startUtc": "2026-09-24T08:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-09-24",
+     "startLocal": "16:00",
+     "startUtc": "2026-09-24T12:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-09-25",
+     "startLocal": "12:30",
+     "startUtc": "2026-09-25T08:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-09-25",
+     "startLocal": "16:00",
+     "startUtc": "2026-09-25T12:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-09-26",
+     "startLocal": "15:00",
+     "startUtc": "2026-09-26T11:00Z"
+    }
+   ]
   },
   {
    "round": 16,
@@ -709,7 +1264,44 @@
    "pitStops": {
     "median": 3,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-10-02",
+     "startLocal": "12:30",
+     "startUtc": "2026-10-02T04:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-10-02",
+     "startLocal": "16:00",
+     "startUtc": "2026-10-02T08:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-10-03",
+     "startLocal": "12:30",
+     "startUtc": "2026-10-03T04:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-10-03",
+     "startLocal": "16:00",
+     "startUtc": "2026-10-03T08:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-10-04",
+     "startLocal": "15:00",
+     "startUtc": "2026-10-04T07:00Z"
+    }
+   ]
   },
   {
    "round": 17,
@@ -741,7 +1333,44 @@
    "pitStops": {
     "median": 1,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-10-09",
+     "startLocal": "16:30",
+     "startUtc": "2026-10-09T08:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2026-10-09",
+     "startLocal": "20:30",
+     "startUtc": "2026-10-09T12:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2026-10-10",
+     "startLocal": "17:00",
+     "startUtc": "2026-10-10T09:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-10-10",
+     "startLocal": "21:00",
+     "startUtc": "2026-10-10T13:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-10-11",
+     "startLocal": "20:00",
+     "startUtc": "2026-10-11T12:00Z"
+    }
+   ]
   },
   {
    "round": 18,
@@ -773,7 +1402,44 @@
    "pitStops": {
     "median": 1,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-10-23",
+     "startLocal": "12:30",
+     "startUtc": "2026-10-23T17:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-10-23",
+     "startLocal": "16:00",
+     "startUtc": "2026-10-23T21:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-10-24",
+     "startLocal": "12:30",
+     "startUtc": "2026-10-24T17:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-10-24",
+     "startLocal": "16:00",
+     "startUtc": "2026-10-24T21:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-10-25",
+     "startLocal": "15:00",
+     "startUtc": "2026-10-25T20:00Z"
+    }
+   ]
   },
   {
    "round": 19,
@@ -805,7 +1471,44 @@
    "pitStops": {
     "median": 2,
     "cars": 17
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-10-30",
+     "startLocal": "12:30",
+     "startUtc": "2026-10-30T18:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-10-30",
+     "startLocal": "16:00",
+     "startUtc": "2026-10-30T22:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-10-31",
+     "startLocal": "11:30",
+     "startUtc": "2026-10-31T17:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-10-31",
+     "startLocal": "15:00",
+     "startUtc": "2026-10-31T21:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-11-01",
+     "startLocal": "14:00",
+     "startUtc": "2026-11-01T20:00Z"
+    }
+   ]
   },
   {
    "round": 20,
@@ -837,7 +1540,44 @@
    "pitStops": {
     "median": 3,
     "cars": 20
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-11-06",
+     "startLocal": "12:30",
+     "startUtc": "2026-11-06T15:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-11-06",
+     "startLocal": "16:00",
+     "startUtc": "2026-11-06T19:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-11-07",
+     "startLocal": "11:30",
+     "startUtc": "2026-11-07T14:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-11-07",
+     "startLocal": "15:00",
+     "startUtc": "2026-11-07T18:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-11-08",
+     "startLocal": "14:00",
+     "startUtc": "2026-11-08T17:00Z"
+    }
+   ]
   },
   {
    "round": 21,
@@ -866,7 +1606,44 @@
     "fastestRaceLap": null,
     "winnerAvg": null
    },
-   "pitStops": null
+   "pitStops": null,
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-11-19",
+     "startLocal": "16:30",
+     "startUtc": "2026-11-20T00:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-11-19",
+     "startLocal": "20:00",
+     "startUtc": "2026-11-20T04:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-11-20",
+     "startLocal": "16:30",
+     "startUtc": "2026-11-21T00:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-11-20",
+     "startLocal": "20:00",
+     "startUtc": "2026-11-21T04:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-11-21",
+     "startLocal": "20:00",
+     "startUtc": "2026-11-22T04:00Z"
+    }
+   ]
   },
   {
    "round": 22,
@@ -895,7 +1672,44 @@
     "fastestRaceLap": null,
     "winnerAvg": null
    },
-   "pitStops": null
+   "pitStops": null,
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-11-27",
+     "startLocal": "16:30",
+     "startUtc": "2026-11-27T13:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-11-27",
+     "startLocal": "20:00",
+     "startUtc": "2026-11-27T17:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-11-28",
+     "startLocal": "17:30",
+     "startUtc": "2026-11-28T14:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-11-28",
+     "startLocal": "21:00",
+     "startUtc": "2026-11-28T18:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-11-29",
+     "startLocal": "19:00",
+     "startUtc": "2026-11-29T16:00Z"
+    }
+   ]
   },
   {
    "round": 23,
@@ -924,7 +1738,44 @@
     "fastestRaceLap": null,
     "winnerAvg": null
    },
-   "pitStops": null
+   "pitStops": null,
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2026-12-04",
+     "startLocal": "13:30",
+     "startUtc": "2026-12-04T09:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2026-12-04",
+     "startLocal": "17:00",
+     "startUtc": "2026-12-04T13:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2026-12-05",
+     "startLocal": "14:30",
+     "startUtc": "2026-12-05T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2026-12-05",
+     "startLocal": "18:00",
+     "startUtc": "2026-12-05T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2026-12-06",
+     "startLocal": "17:00",
+     "startUtc": "2026-12-06T13:00Z"
+    }
+   ]
   }
  ],
  "teams": [
