@@ -35,6 +35,13 @@ de engine/sim/speeds.test.js (mínima por curva numerada y marcha en el vértice
 `sessions`. Los vértices reales los saca el test de las muestras; aquí no se elabora nada.
 
     python overcut/src/main/resources/scripts/powertrain_from_openf1.py --corners [--cache DIR]
+
+Con --racelaps (F1M24-GAMEPLAY §2.3 `curvas-lentas`, paquete PT-3) solo rehace la clave `raceLaps`: las vueltas
+limpias del primer relevo del poleman en la carrera de Monza, Baréin y Hungaroring 2024 (sin parada ni SC/VSC,
+según `pit` y `race_control`), con el mismo formato que `sessions[].lap`. engine/sim/speeds.test.js las compara con
+la vuelta de pole para ver en qué banda se pierde el tiempo de carrera (race-physics.json `budget.sensitivity`).
+
+    python overcut/src/main/resources/scripts/powertrain_from_openf1.py --racelaps [--cache DIR]
 """
 
 import collections
@@ -154,9 +161,9 @@ def main():
         print(f"{year} {circuit}…", file=sys.stderr)
         out["sessions"].append({"year": year, "circuit": ref, "openf1": circuit,
                                 "lap": pole_lap(year, circuit, pole), "start": race_start(year, circuit, starter)})
-    # Las claves de --shifts y --corners se conservan: este modo solo rehace `sessions`.
+    # Las claves de --shifts, --corners y --racelaps se conservan: este modo solo rehace `sessions`.
     previous = load_fixture()
-    for key in ("shifts", "corners"):
+    for key in ("shifts", "corners", "raceLaps"):
         if key in previous:
             out[key] = previous[key]
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
@@ -349,6 +356,84 @@ def corners_main():
     print(OUT)
 
 
+# --racelaps (F1M24-GAMEPLAY §2.3 curvas-lentas, paquete PT-3): vueltas de carrera del poleman en su primer relevo
+# (año, circuit_short_name, circuito del Manager, poleman, primera y última vuelta). Mismo coche y piloto que la
+# vuelta de pole de `sessions` / `corners`, para medir dónde se pierde el tiempo de carrera frente a la pole:
+# el reparto por banda del presupuesto de la vuelta (race-physics.json budget.sensitivity).
+RACE_LAP_SESSIONS = [
+    (2024, "Monza", "monza", 4, 3, 8),
+    (2024, "Sakhir", "bahrain", 1, 3, 8),
+    (2024, "Hungaroring", "hungaroring", 4, 3, 8),
+]
+
+
+def neutral_spells(session_key):
+    """Every SC or VSC spell (race_control): from DEPLOYED to the end message, as timestamps."""
+    spells, opened = [], None
+    for message in get(f"race_control?session_key={session_key}", missing_ok=True):
+        text = (message.get("message") or "").upper()
+        when = dt.datetime.fromisoformat(message["date"]).timestamp()
+        if "SAFETY CAR DEPLOYED" in text:
+            opened = when
+        elif opened is not None and ("ENDING" in text or "IN THIS LAP" in text):
+            spells.append((opened, when + 120))
+            opened = None
+    if opened is not None:
+        spells.append((opened, float("inf")))
+    return spells
+
+
+def race_laps(year, circuit, driver, first, last):
+    session = session_key(year, circuit, "Race")
+    key = session["session_key"]
+    spells = neutral_spells(key)
+    pits = get(f"pit?session_key={key}&driver_number={driver}", missing_ok=True)
+    pit_laps = {stop["lap_number"] for stop in pits}
+    laps = []
+    for lap in get(f"laps?session_key={key}&driver_number={driver}"):
+        number = lap["lap_number"]
+        if not (first <= number <= last) or not lap.get("lap_duration") or lap.get("is_pit_out_lap"):
+            continue
+        # Clean laps only: no stop on it or the next one (in-lap), no SC/VSC while it runs.
+        if number in pit_laps or number + 1 in pit_laps:
+            continue
+        start = dt.datetime.fromisoformat(lap["date_start"])
+        end = start + dt.timedelta(seconds=lap["lap_duration"])
+        if any(lo <= end.timestamp() and start.timestamp() <= hi for lo, hi in spells):
+            continue
+        rows = get(f"car_data?session_key={key}&driver_number={driver}"
+                   f"&date>={iso(start - dt.timedelta(seconds=1))}&date<={iso(end + dt.timedelta(seconds=1))}")
+        samples = []
+        for row in rows:
+            t = (dt.datetime.fromisoformat(row["date"]) - start).total_seconds()
+            if 0 <= t <= lap["lap_duration"]:
+                samples.append([round(t, 3), row["speed"], row["rpm"], row["n_gear"], row["throttle"], row["brake"]])
+        laps.append({"lap": number, "lapTime": lap["lap_duration"], "samples": samples})
+    return {"year": year, "circuit": None, "openf1": circuit, "sessionKey": key, "driver": driver, "laps": laps}
+
+
+def racelaps_main():
+    fixture = load_fixture()
+    sessions = []
+    for year, circuit, ref, pole, first, last in RACE_LAP_SESSIONS:
+        print(f"{year} {circuit} (carrera, vueltas {first}-{last})…", file=sys.stderr)
+        session = race_laps(year, circuit, pole, first, last)
+        session["circuit"] = ref
+        sessions.append(session)
+    fixture["raceLaps"] = {
+        "$comment": "Generado por powertrain_from_openf1.py --racelaps (F1M24-GAMEPLAY §2.3 curvas-lentas, PT-3): "
+                    "vueltas limpias del primer relevo (sin parada, sin SC ni VSC) del poleman en la carrera del mismo "
+                    "GP, mismo formato de muestras que sessions[].lap. engine/sim/speeds.test.js mide con ellas dónde "
+                    "pierde tiempo la vuelta de carrera frente a la de pole (race-physics.json budget.sensitivity).",
+        "sessions": sessions,
+    }
+    with open(OUT, "w", encoding="utf-8") as handle:
+        json.dump(fixture, handle, separators=(",", ":"))
+    for session in sessions:
+        print(session["year"], session["openf1"], [(lap["lap"], lap["lapTime"], len(lap["samples"])) for lap in session["laps"]])
+    print(OUT)
+
+
 if __name__ == "__main__":
     if "--cache" in sys.argv:
         CACHE = sys.argv[sys.argv.index("--cache") + 1]
@@ -357,5 +442,7 @@ if __name__ == "__main__":
         shifts_main()
     elif "--corners" in sys.argv:
         corners_main()
+    elif "--racelaps" in sys.argv:
+        racelaps_main()
     else:
         main()
