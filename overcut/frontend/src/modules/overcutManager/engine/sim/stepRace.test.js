@@ -14,7 +14,9 @@ import balance from "../../data/balance/race-sim.json";
 import {
   ROLE, airEffect, createStepRace, fromQuickRace, requestPit, runStepToFinish, setDefence, setMode, setOvertakeRisk, snapshot, stepFor, stepOnce, toRaceState,
 } from "./index";
+import { skipFormation, startOf } from "./stepRace";
 import { weekend } from "./simTestKit";
+import eraDefaults from "../../data/seasons/curated/era-defaults.json";
 
 const stepRaceOf = (options) => {
   const w = weekend(options);
@@ -25,6 +27,8 @@ const KNOWN_EVENTS = new Set([
   "pass", "mistake", "issue", "lead", "pit", "dnf", "sc", "vsc", "sc-in", "rain", "drying", "fastest", "contact", "swap", "flag", "call",
   // RF-SIM-10 race control, shared with the quick mode.
   "yellow", "investigation", "no-action", "penalty", "penalty-served", "penalty-applied", "red", "restart", "grid-penalty",
+  // SIM-3 (F1M24-GAMEPLAY §1.7): the lights going out and each car's flag.
+  "lightsOut", "finished",
 ]);
 
 describe("RF-SIM-01 a race in fixed steps on the circuit", () => {
@@ -256,6 +260,157 @@ describe("RNF-01 performance", () => {
     const step = createStepRace(args);
     expect(step.cars.map((car) => car.id)).toEqual(quick.cars.map((car) => car.id));
     expect(step.weather).toEqual(quick.weather);
+  });
+});
+
+/**
+ * SIM-3 (F1M24-GAMEPLAY §2.13 salida-carrera y vuelta-enfriamiento; RF-SIM-10, RF-SIM-15, RF-WKD-07, RNF-05,
+ * RNF-07): the PRE_START phase (formation lap, grid, the era's lights, the seeded wait), the `finished`
+ * event and the cooldown lap.
+ */
+describe("SIM-3 the start and the finish", () => {
+  const PRE_EVENTS = new Set(["formation", "grid", "light", "lightsOut"]);
+  const fiveRed = balance.start.procedures.fiveRed;
+
+  /** A step race of `seed` (2024 unless `year`) with the PRE_START `preStart` (null = none). */
+  const raceOf = (seed, preStart, year) => {
+    const w = weekend({ seed, ...(year ? { year } : {}) });
+    return fromQuickRace(w.make(), { race: w.race, preStart });
+  };
+  /** Run the PRE_START up to (not into) lights out, recording the start snapshot after every step. */
+  const runPre = (state) => {
+    const seen = [];
+    while (state._sim.pre.k < state._sim.pre.kOut) {
+      stepOnce(state);
+      seen.push({ ...snapshot(state).start, P: Array.from(state._sim.P) });
+    }
+    return seen;
+  };
+  /** Everything the race produced but the PRE_START's own events. */
+  const raceOutput = (state) =>
+    JSON.stringify({
+      rows: classificationOf(state),
+      history: state.cars.map((car) => car.history),
+      events: state.events.filter((event) => !PRE_EVENTS.has(event.type)),
+      duels: state.duels,
+      radio: state.radio,
+      fastest: state.fastestLap,
+    });
+
+  it("lights one a second, then a seeded wait: the same seed gives the same lights, another seed another wait", () => {
+    const lightsOf = (seed) => {
+      const state = raceOf(seed, { formation: "skip" });
+      runPre(state);
+      stepOnce(state);
+      return state.events.filter((event) => event.type === "light" || event.type === "lightsOut");
+    };
+    const first = lightsOf("lights-a");
+    expect(lightsOf("lights-a")).toEqual(first);
+    const lit = first.filter((event) => event.type === "light");
+    expect(lit.map((event) => event.n)).toEqual([1, 2, 3, 4, 5]);
+    for (let k = 1; k < lit.length; k += 1) expect(lit[k].t - lit[k - 1].t).toBeCloseTo(fiveRed.lightIntervalSec, 3);
+    const out = first.find((event) => event.type === "lightsOut");
+    const hold = out.t - lit[4].t;
+    expect(hold).toBeGreaterThanOrEqual(fiveRed.holdSec.min - 1e-3);
+    expect(hold).toBeLessThanOrEqual(fiveRed.holdSec.max + 1e-3);
+    const holds = ["lights-b", "lights-c", "lights-d"].map((seed) => {
+      const events = lightsOf(seed);
+      return events.find((event) => event.type === "lightsOut").t - events.filter((event) => event.type === "light")[4].t;
+    });
+    expect(new Set([hold, ...holds].map((h) => h.toFixed(3))).size).toBeGreaterThan(1);
+  });
+
+  it("drives the formation lap without overtaking, stops on the grid, then lights and out (snapshot.start)", () => {
+    const state = raceOf("formation", { formation: "drive" });
+    expect(startOf(state)).toMatchObject({ phase: "formation", lights: 0, procedure: "fiveRed", formation: true });
+    const seen = runPre(state);
+    const phases = seen.map((s) => s.phase).filter((phase, k, all) => k === 0 || all[k - 1] !== phase);
+    expect(phases).toEqual(["formation", "grid", "lights"]);
+    const lights = seen.filter((s) => s.phase === "lights").map((s) => s.lights);
+    expect(Math.max(...lights)).toBe(5);
+    for (let k = 1; k < lights.length; k += 1) expect(lights[k]).toBeGreaterThanOrEqual(lights[k - 1]);
+    // The pole car comes round in formation.lapFactor base laps; the field keeps its order on the road.
+    const gridAt = seen.find((s) => s.phase === "grid").t;
+    const running = state.cars.map((car, i) => i).filter((i) => state.cars[i].status === "running");
+    expect(gridAt).toBeGreaterThan(state.race.baseLap * balance.start.formation.lapFactor);
+    seen.forEach((s) => {
+      for (let k = 1; k < running.length; k += 1) expect(s.P[running[k]]).toBeLessThan(s.P[running[k - 1]]);
+    });
+    // On the grid nobody moves.
+    const grid = seen.filter((s) => s.phase !== "formation");
+    grid.forEach((s) => expect(s.P).toEqual(grid[0].P));
+    expect(snapshot(state).start.phase).toBe("lights");
+    stepOnce(state);
+    expect(snapshot(state).start).toMatchObject({ phase: "out", lights: 0 });
+    const out = state.events.find((event) => event.type === "lightsOut");
+    expect(out.t).toBeCloseTo(seen[seen.length - 1].t, 2);
+    expect(state.clock).toBeCloseTo(state._sim.dt, 9);
+  });
+
+  it("changes nothing in the race: none, skipped or driven formation lap give the same race (RNF-05)", () => {
+    const none = raceOf("same-race", null);
+    runStepToFinish(none);
+    const skipped = raceOf("same-race", { formation: "skip" });
+    runStepToFinish(skipped);
+    const driven = raceOf("same-race", { formation: "drive" });
+    stepFor(driven, 30);
+    skipFormation(driven); // skipped half way: still the same race
+    runStepToFinish(driven);
+    const reference = raceOutput(none);
+    expect(raceOutput(skipped)).toBe(reference);
+    expect(raceOutput(driven)).toBe(reference);
+    expect(none.events.find((event) => event.type === "lightsOut")).toMatchObject({ lap: 1, t: 0 });
+  });
+
+  it("ninguna regla fuera de su era: every year has its procedure, red-green before 1996, five reds after", () => {
+    for (let year = 1950; year <= 2026; year += 1) {
+      const procedure = rulesFor(year).regulations.startProcedure;
+      expect(balance.start.procedures[procedure.lights]).toBeDefined();
+      expect(procedure.lights).toBe(year < 1996 ? "redGreen" : "fiveRed");
+    }
+    eraDefaults.fields.startProcedure.forEach((entry) => {
+      if (entry.status !== "source") expect(entry.status).toBe("pending");
+    });
+    const old = raceOf("lights-1988", { formation: "skip" }, 1988);
+    expect(startOf(old).procedure).toBe("redGreen");
+    const seen = runPre(old);
+    expect(Math.max(...seen.map((s) => s.lights))).toBe(1);
+    expect(old.events.filter((event) => event.type === "light")).toHaveLength(1);
+  });
+
+  it("flags every finisher once with its place on the road, then drives a cooldown lap that moves no result", () => {
+    const state = raceOf("finish", null);
+    runStepToFinish(state);
+    const sim = state._sim;
+    const flags = state.events.filter((event) => event.type === "finished");
+    const finishers = state.cars.filter((car) => car.status === "finished");
+    expect(flags).toHaveLength(finishers.length);
+    expect(flags.map((event) => event.pos)).toEqual(finishers.map((car, k) => k + 1));
+    for (let k = 1; k < flags.length; k += 1) expect(flags[k].t).toBeGreaterThanOrEqual(flags[k - 1].t);
+    flags.forEach((event) => {
+      const car = state.cars.find((entry) => entry.id === event.carId);
+      expect(event.t).toBeCloseTo(car.history[car.history.length - 1].end, 2);
+      expect(event.lap).toBe(state.laps);
+    });
+    expect(state.events[state.events.length - 1].type).toBe("flag");
+    // The last finishers are still on their cooldown lap at the flag; the view may keep watching them.
+    const before = raceOutput(state);
+    const P = Array.from(sim.P);
+    const cooling = state.cars.map((car, i) => i).filter((i) => snapshot(state)[i].cooldown);
+    expect(cooling.length).toBeGreaterThan(0);
+    const from = cooling.map((i) => snapshot(state)[i].progress);
+    stepFor(state, 20);
+    cooling.forEach((i, k) => expect(snapshot(state)[i].progress).toBeGreaterThan(from[k]));
+    stepFor(state, state.race.baseLap * balance.cooldown.lapFactor * 2);
+    expect(sim.cooling).toBe(0);
+    state.cars.forEach((car, i) => {
+      const shot = snapshot(state)[i];
+      expect(shot.cooldown).toBe(false);
+      if (car.status === "finished") expect(shot.progress).toBeCloseTo(state.laps + 1, 9);
+    });
+    // Nothing the race or the career reads moved: positions at the line, classification, events.
+    expect(Array.from(sim.P)).toEqual(P);
+    expect(raceOutput(state)).toBe(before);
   });
 });
 
