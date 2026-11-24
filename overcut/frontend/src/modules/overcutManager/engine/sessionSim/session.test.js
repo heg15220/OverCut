@@ -607,7 +607,7 @@ describe("SES-3: local yellows in the session (F1M24-GAMEPLAY §1.5, §1.7 yello
           expect(event.sector).toBeLessThanOrEqual(circuit.sectors.length);
           // circuit.sectors' own sector of the place (what the view's sectorOfShare reads too).
           expect(event.sector).toBe(sectorOfShare(circuit, event.s));
-          if (event.corner !== null) expect(numbers.has(event.corner)).toBe(true);
+          expect(event.corner === null || numbers.has(event.corner)).toBe(true);
           expect(event.marshalPost).toBe(event.corner);
           const spread = event.double ? Y.durationSec.double : Y.durationSec.single;
           expect(event.until - event.t).toBeGreaterThanOrEqual(spread.p10 - 0.002);

@@ -60,10 +60,9 @@ describe("broadcast.json sequences and pitRig (RNF-07)", () => {
     PIT_SEQUENCE_NAMES.forEach((name) => {
       broadcast.sequences[name].shots.forEach((shot, k) => {
         const [kind, value] = shot.trigger.split(":");
-        if (kind === "pitPhase") expect(phases.has(value)).toBe(true);
-        else if (kind === "runPhase") expect(runPhases.has(value)).toBe(true);
-        else expect(shot.trigger === "next" && k > 0).toBe(true);
-        if (shot.maxSec !== undefined) expect(shot.maxSec).toBeGreaterThanOrEqual(shot.minSec ?? 0);
+        const known = kind === "pitPhase" ? phases.has(value) : kind === "runPhase" ? runPhases.has(value) : shot.trigger === "next" && k > 0;
+        expect(known).toBe(true);
+        expect(shot.maxSec ?? Infinity).toBeGreaterThanOrEqual(shot.minSec ?? 0);
       });
     });
     expect(PIT.crewLeadSec).toBeGreaterThan(0);
@@ -187,12 +186,15 @@ describe("directorState runs the sequence over the zones (F1M24-GAMEPLAY §2.5 s
   it("films the subject's stop with the pit cameras whatever happens to other cars, and the TV comes back after", () => {
     let prev = null;
     const cams = [];
+    const inStop = [];
     for (let tau = 0; tau <= 45; tau += 0.25) {
       const events = tau > 15 && tau < 16 ? [{ type: "pass", carId: "lead", otherId: "x", at: tau }] : [];
       prev = directorState("me", rowsAt(tau), events, RIG, { now: tau, tau, prev, seed: 3 });
       if (cams[cams.length - 1] !== prev.cameraId) cams.push(prev.cameraId);
-      if (tau > 10.5 && tau < 34) expect(prev).toMatchObject({ shotKind: "pit", camType: "pit", subjectIds: ["me"] });
+      if (tau > 10.5 && tau < 34) inStop.push(prev);
     }
+    expect(inStop.length).toBeGreaterThan(0);
+    inStop.forEach((state) => expect(state).toMatchObject({ shotKind: "pit", camType: "pit", subjectIds: ["me"] }));
     expect(cams).toEqual(["corner-0", ...PIT.shots.map((shot) => shot.cam), "corner-0"]);
   });
 });

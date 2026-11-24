@@ -61,7 +61,7 @@ export default function ReplayOverlay({ plan, elapsed = 0, names = {}, onSkip })
   return (
     <div className={`mn-replay is-${frame.phase}${reduced ? " is-still" : ""}`} data-testid="replay-overlay" style={{ "--mn-replay-sting": `${Math.round((plan.stingSec || 0) * 1000)}ms` }}>
       {sting && (
-        <div className="mn-replay__sting" aria-hidden="true">
+        <div className="mn-replay__sting" aria-hidden="true" data-testid="replay-sting">
           <img src={logo} alt="" />
         </div>
       )}

@@ -16,10 +16,10 @@ const names = { a: "Driver A", b: "Driver B" };
 
 describe("ReplayOverlay", () => {
   it("shows the sting first, then the label and the drivers, and nothing once it is done", () => {
-    const { rerender, container } = render(<ReplayOverlay plan={plan} elapsed={0} names={names} />);
-    expect(container.querySelector(".mn-replay__sting")).not.toBeNull();
+    const { rerender } = render(<ReplayOverlay plan={plan} elapsed={0} names={names} />);
+    expect(screen.getByTestId("replay-sting")).toBeInTheDocument();
     rerender(<ReplayOverlay plan={plan} elapsed={plan.stingSec + 1} names={names} />);
-    expect(container.querySelector(".mn-replay__sting")).toBeNull();
+    expect(screen.queryByTestId("replay-sting")).toBeNull();
     expect(screen.getByRole("status").textContent).toContain(replayLabel("pass"));
     expect(screen.getByRole("status").textContent).toContain("Driver A · Driver B");
     rerender(<ReplayOverlay plan={plan} elapsed={plan.totalSec + 1} names={names} />);

@@ -369,7 +369,7 @@ describe("SIM-3 the start and the finish", () => {
       expect(procedure.lights).toBe(year < 1996 ? "redGreen" : "fiveRed");
     }
     eraDefaults.fields.startProcedure.forEach((entry) => {
-      if (entry.status !== "source") expect(entry.status).toBe("pending");
+      expect(["source", "pending"]).toContain(entry.status);
     });
     const old = raceOf("lights-1988", { formation: "skip" }, 1988);
     expect(startOf(old).procedure).toBe("redGreen");
@@ -406,7 +406,7 @@ describe("SIM-3 the start and the finish", () => {
     state.cars.forEach((car, i) => {
       const shot = snapshot(state)[i];
       expect(shot.cooldown).toBe(false);
-      if (car.status === "finished") expect(shot.progress).toBeCloseTo(state.laps + 1, 9);
+      expect(car.status === "finished" ? shot.progress : state.laps + 1).toBeCloseTo(state.laps + 1, 9);
     });
     // Nothing the race or the career reads moved: positions at the line, classification, events.
     expect(Array.from(sim.P)).toEqual(P);

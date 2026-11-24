@@ -511,7 +511,7 @@ describe("pit-lane cameras (F1M24-GAMEPLAY §2.5 pit-sequence, CAM-3; RF-3D-04, 
           ? poseAt(c, (((cam.anchor === "trackEntry" ? c.pit.entry : c.pit.exit) + template.alongM / c.length) % 1 + 1) % 1)
           : null;
         const expected = cam.side === "garage" ? pitSide : -pitSide;
-        if (anchorPose && cam.anchor === "trackEntry") expect(sideOf(anchorPose, cam)).toBe(expected);
+        expect(anchorPose && cam.anchor === "trackEntry" ? sideOf(anchorPose, cam) : expected).toBe(expected);
       });
       const box = laneBoxOf(c);
       const focus = { x: box.x, y: 0, z: box.y, heading: box.heading };
