@@ -39,6 +39,41 @@
         "defaultChoice": {"enum": ["manage", "simulate", "toRace"]},
         "confirm": {"type": "boolean"}
       }
+    },
+    "practiceSummary": {
+      "$comment": "WKD-2 practice-goals-summary (RF-WKD-03, RF-WKD-07): el resumen de los libres en SessionResults. Opcional: sin él no se pinta el panel.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["confidence"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "confidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["neutral", "levels", "status"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "neutral": {"type": "number", "minimum": 0, "maximum": 1},
+            "levels": {
+              "$comment": "RF-WKD-03: seis niveles, de menor a mayor; el primero empieza en 0.",
+              "type": "array",
+              "minItems": 6,
+              "maxItems": 6,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "from"],
+                "properties": {
+                  "id": {"enum": ["lost", "low", "unsure", "settled", "high", "peak"]},
+                  "from": {"type": "number", "minimum": 0, "maximum": 1}
+                }
+              }
+            },
+            "status": {"enum": ["design", "pending", "source"]},
+            "note": {"type": "string"}
+          }
+        }
+      }
     }
   }
 }

@@ -14,7 +14,7 @@ import {
 import { sessionScheduleOf } from "../engine/sessionSim/session";
 import { sprintLaps } from "../engine/sessionSim";
 import SessionGate, { clockText } from "./SessionGate";
-import SessionResults, { Move, SessionTable, sessionResultTable } from "./SessionResults";
+import SessionResults, { Move, SessionTable, practiceSummaryOf, sessionResultTable } from "./SessionResults";
 import Transition from "./Transition";
 import { FEELINGS, SLIDERS } from "../engine/setup";
 import CircuitCard from "./CircuitCard";
@@ -264,7 +264,9 @@ function WeekendResults({ kind, onContinue }) {
   const { career } = useManager();
   const segments = kind === "qualifying" || kind === "shootout" ? weekendSessionFormat(career, kind).segments.map((segment) => segment.name) : [];
   const table = sessionResultTable({ kind, weekend: career.weekend, entrants: entrantsFor(career), teamId: career.teamId, segmentNames: segments });
-  return <SessionResults table={table} teams={career.world.teams} meta={raceName(currentRace(career).name)} onContinue={onContinue} />;
+  // practice-goals-summary (WKD-2, RF-WKD-03): what practice left the player's drivers.
+  const summary = kind === "practice" ? practiceSummaryOf({ weekend: career.weekend, drivers: driversOf(career.world, career.teamId) }) : undefined;
+  return <SessionResults table={table} teams={career.world.teams} meta={raceName(currentRace(career).name)} summary={summary} onContinue={onContinue} />;
 }
 
 const SLIDER_TEXT = {

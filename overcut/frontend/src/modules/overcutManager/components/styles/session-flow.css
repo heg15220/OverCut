@@ -147,3 +147,43 @@
   border-top: 1px solid var(--mn-hairline);
   font-variant-numeric: tabular-nums;
 }
+
+/* WKD-2 practice-goals-summary: "what the session left" after practice (RF-WKD-03, RF-WKD-07). */
+
+.wk-sum + .wk-sum {
+  margin-top: var(--mn-s-3);
+  padding-top: var(--mn-s-3);
+  border-top: 1px solid var(--mn-hairline);
+}
+
+.wk-sum__head {
+  display: flex;
+  gap: var(--mn-s-2);
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--mn-s-2);
+}
+
+.wk-sum__facts {
+  display: grid;
+  gap: var(--mn-s-2);
+  margin: 0;
+}
+
+.wk-sum__facts dt {
+  color: var(--mn-text-3);
+  font-size: var(--mn-fs-12);
+}
+
+.wk-sum__facts dd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px var(--mn-s-2);
+  align-items: center;
+  margin: 2px 0 0;
+}
+
+.wk-sum__facts small {
+  flex-basis: 100%;
+  color: var(--mn-text-2);
+}
