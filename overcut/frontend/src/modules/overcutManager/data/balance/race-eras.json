@@ -1,7 +1,13 @@
 {
   "$comment": "RNF-07: números de equilibrio del motor de carrera (engine/race.js y el simulador por pasos) por era. Las reglas (qué existe en cada año) NO están aquí: vienen del pack de temporada o de data/seasons/curated/era-defaults.json a través de engine/rules.js. Los tramos {from, to} son años inclusivos; un año fuera de todos usa el más cercano. Los valores son los que race.js tenía en código antes de la fase 3, salvo los marcados 'new' (modelos nuevos de dirección de carrera RF-SIM-10 y energía RF-SIM-05), que se ajustan en las pruebas de balance (fase 5).",
   "version": 1,
-  "start": { "gridSpacing": 0.32 },
+  "start": {
+    "$comment": "RF-SIM-10 / RF-SIM-15 (rnf07-race, SIM-1): la salida en el modo rápido (race.js startTerm), vuelta 1 = normal(0, launchSd) − habilidad de salida + scrumSec + puesto × scrumPerSlotSec × scrumShare. Comportamiento propio de OverCut, sin fuente externa; mismos valores que tenía el código.",
+    "gridSpacing": 0.32,
+    "launchSd": 0.55,
+    "scrumSec": 1.5,
+    "scrumPerSlotSec": 0.22
+  },
   "tyres": {
     "$comment": "offset y wear en s por vuelta de edad; life en vueltas antes del cliff (RF-SIM-03). eraScale suaviza 1982-2006: dos compuestos más parecidos y más duraderos. 'dry' (antes de 1982) no se escala.",
     "dry": {
@@ -20,7 +26,27 @@
     "outLapTemp": [
       { "from": 1950, "to": 1994, "value": 0.22 },
       { "from": 1995, "to": 2026, "value": 0.36, "note": "mantas térmicas desde mediados de los 90" }
-    ]
+    ],
+    "thermal": {
+      "$comment": "RF-SIM-03 (rnf07-race, SIM-1): calor del neumático en escala 0..1 (race.js lapBudget y endLapWear). Ventana: frío por debajo de coldBelow, sobrecalentado por encima de overheatAbove. Desgaste × (1 + exceso × overheatWear + aire sucio × dirtyWear + ala negativa × negativeWingWear) × (1 + (pista − trackRefC) × trackWearPerC); con SC × scWear. Tiempo = frío × coldSecPerUnit + exceso × overheatSecPerUnit. Deriva al final de la vuelta hacia tempTarget[modo] + aire sucio × driftDirtyGain + (pista − trackRefC) / driftTrackDivisor − mojado × driftWetCool (con SC, scTarget), con relajación driftRelax y límites [min, max]. Escala adimensional propia, NV frente a °C reales (la térmica en °C es SIM-6, race-tyres.json); mismos valores que tenía el código.",
+      "overheatAbove": 0.72,
+      "coldBelow": 0.4,
+      "overheatWear": 2.2,
+      "dirtyWear": 0.18,
+      "negativeWingWear": 0.6,
+      "trackRefC": 30,
+      "trackWearPerC": 0.008,
+      "scWear": 0.35,
+      "coldSecPerUnit": 3.2,
+      "overheatSecPerUnit": 2.5,
+      "scTarget": 0.3,
+      "driftDirtyGain": 0.1,
+      "driftTrackDivisor": 220,
+      "driftWetCool": 0.12,
+      "driftRelax": 0.55,
+      "min": 0.1,
+      "max": 1
+    }
   },
   "modes": {
     "conserve": { "time": 0.75, "wear": 0.55, "risk": 0.5, "mistake": 0.45, "burn": 0.94 },
@@ -35,7 +61,30 @@
       "lean": { "time": 0.24, "burn": 0.93 },
       "standard": { "time": 0, "burn": 1 },
       "rich": { "time": -0.18, "burn": 1.07 }
-    }
+    },
+    "modeBurn": {
+      "$comment": "RF-SIM-04 (rnf07-race, SIM-1): consumo relativo de los ritmos que no lo fijan en modes[].burn (race.js endLapWear); el resto consume 1.",
+      "save": 0.97,
+      "push": 1.02
+    },
+    "scBurn": 0.62,
+    "scBurnNote": "Consumo relativo detrás del SC/VSC (fuera del repostaje). Valor de comportamiento que ya tenía el código; pendiente de contrastar con OpenF1 car_data bajo neutralización (2023+)."
+  },
+  "mistake": {
+    "$comment": "RF-SIM-09 (rnf07-race, SIM-1): error de pilotaje por vuelta en el modo rápido (race.js mistakeChanceOf y rollMistake; el modo por pasos lo reparte por la vuelta). Probabilidad = clamp(chancePerLap × piloto × modo × (1 + mojado/aquaplaning + frío × coldGain), min, max). Coste uniforme en [costSec[0], costSec[1]] s; tipo por coste: > spinAboveSec trompo, > wideAboveSec salida de pista, si no bloqueo, que suma lockupWearLaps vueltas de desgaste (plano). Comportamiento calibrado contra los errores por carrera del modo por pasos (mistakes.test.js); mismos valores que tenía el código.",
+    "chancePerLap": 0.006,
+    "coldGain": 2,
+    "min": 0.001,
+    "max": 0.2,
+    "costSec": [1.2, 5],
+    "spinAboveSec": 3.4,
+    "wideAboveSec": 2.2,
+    "lockupWearLaps": 0.8
+  },
+  "noise": {
+    "$comment": "RF-SIM-02 / RF-STF-02 (rnf07-race, SIM-1): dispersión vuelta a vuelta del piloto (race.js lapBudget) = vuelta base × lapShare × factor de precisión × (1 + mojado × wetGain). Mismos valores que tenía el código.",
+    "lapShare": 0.0036,
+    "wetGain": 0.6
   },
   "dirtyAir": {
     "$comment": "RF-SIM-06: s perdidos por vuelta por cada segundo de hueco por debajo de 1 s al coche de delante.",

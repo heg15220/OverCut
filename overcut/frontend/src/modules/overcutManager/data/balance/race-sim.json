@@ -183,5 +183,10 @@
     "carLength": 5.6,
     "halfWidth": 5.5,
     "rate": 2.0
+  },
+  "pitRelease": {
+    "$comment": "RF-SIM-12 / RF-STF-07 (rnf07-race, SIM-1): la probabilidad de que el equipo no vea un coche que viene por el carril rápido (stepRace.js advanceInLane) = race-pit.json unsafeRelease.crewMissChance × max(0, crewCeiling − crew / crewScale). Con crew 100 queda 0,4 de la base; con crew ≥ 140, nunca. Comportamiento propio; mismos valores que tenía el código.",
+    "crewCeiling": 1.4,
+    "crewScale": 100
   }
 }

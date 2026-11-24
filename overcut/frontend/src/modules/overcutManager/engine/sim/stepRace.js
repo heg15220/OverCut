@@ -1250,7 +1250,7 @@ const advanceInLane = (state, i) => {
 
   // The release (RF-SIM-10): the crew holds the car while one comes down the fast lane, unless it misses it.
   if (!stoppedNow && wasStopped && tStop >= 0 && carComing(state, i)) {
-    const miss = sim.streams.crew.next() < PIT_LANE_BALANCE.unsafeRelease.crewMissChance * Math.max(0, 1.4 - car.crew / 100);
+    const miss = sim.streams.crew.next() < PIT_LANE_BALANCE.unsafeRelease.crewMissChance * Math.max(0, sim.balance.pitRelease.crewCeiling - car.crew / sim.balance.pitRelease.crewScale);
     if (miss) {
       if (L.judgesRelease) investigateWithCause(state, car, "unsafeRelease", { metres: PIT_LANE_BALANCE.unsafeRelease.gapMetres });
     } else {

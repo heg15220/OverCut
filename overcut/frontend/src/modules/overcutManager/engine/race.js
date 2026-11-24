@@ -538,6 +538,18 @@ export const outLapTemp = (eraOrYear) => rulesFor(eraOrYear).tyres.outLapTemp;
 /** Where a tyre's temperature settles for each pace: 0.45-0.7 is the working window. */
 const TEMP_TARGET = BALANCE.tyres.tempTarget;
 
+/** RNF-07 (rnf07-race): the tyre's heat window, its wear and drift (race-eras.json tyres.thermal). */
+const THERMAL = BALANCE.tyres.thermal;
+/** RNF-07: a driver's mistakes (race-eras.json mistake), lap-to-lap scatter (noise) and the start (start). */
+const MISTAKE = BALANCE.mistake;
+const NOISE = BALANCE.noise;
+const START = BALANCE.start;
+/** RNF-07: the fuel of the paces without their own burn, and behind the safety car (race-eras.json fuel). */
+const MODE_BURN = BALANCE.fuel.modeBurn;
+const SC_BURN = BALANCE.fuel.scBurn;
+/** RNF-07 (RF-SIM-07): the pass chance's terms, the same block the step simulator's duel reads (race-sim.json duel). */
+const PASS = simBalance.duel;
+
 /** Share of the tyre's life used, 0..1+ (past 1 the tyre is on the cliff). Takes a year or an era. */
 export const tyreLifeUsed = (car, eraOrYear) => {
   if (isWetTyre(car.compound)) return clamp(car.tyreAge / BALANCE.tyres.wetLifeLaps, 0, 1.2);
@@ -1055,8 +1067,8 @@ export const mistakeChanceOf = ({ driver = 1, mode = "normal", compound, wetness
   const slip = wetness > WB.wetness.atSlickInter ? m.rubberSlip * Math.max(0, rubber) : 0;
   const mismatch = floating + wetOnDry + slip;
   // RF-STF-02: `driver` is the driver's factor (control, and adaptability in the wet: drivers/skills.js mistakeFactorOf).
-  const chance = 0.006 * driver * modeEffect(mode).mistake * (1 + mismatch + m.wetFactor * wetness * (1 - wing * 2) + cold * 2);
-  return clamp(chance, 0.001, 0.2);
+  const chance = MISTAKE.chancePerLap * driver * modeEffect(mode).mistake * (1 + mismatch + m.wetFactor * wetness * (1 - wing * 2) + cold * MISTAKE.coldGain);
+  return clamp(chance, MISTAKE.min, MISTAKE.max);
 };
 
 /**
@@ -1089,9 +1101,9 @@ export const passChanceOf = ({ overtaking = 0.55, delta, drs = 0, skill = 0, sty
   // RF-STF-02: `skill` is the drivers' share (drivers/skills.js passSkillTerm: overtaking, defending,
   // braking, aggression), `style` the defender's style and the attacker's risk order (RF-CMD-01).
   const chance = clamp(
-    0.01 + overtaking * 0.2 + (delta - 0.25) * 0.36 + drs + skill + style + (wetness > 0.3 ? 0.06 : 0) + attack - defend + (aheadColdTyre ? 0.12 : 0),
-    0.02,
-    0.9,
+    PASS.base + overtaking * PASS.overtaking + (delta - PASS.paceThreshold) * PASS.pace + drs + skill + style + (wetness > PASS.wetFrom ? PASS.wet : 0) + attack - defend + (aheadColdTyre ? PASS.coldTyre : 0),
+    PASS.min,
+    PASS.max,
   );
   return yellow ? chance * BALANCE.raceControl.yellow.passFactor : chance;
 };
@@ -1176,12 +1188,13 @@ export const lapBudget = (state, car, { lap = state.lap, wetness, sc = state.saf
   const pace = car.pace[climate] ?? car.pace.dry;
 
   // Tyres: their heat at the start of the lap decides how they grip and wear.
-  const overheat = Math.max(0, car.tyreTemp - 0.72);
-  const cold = Math.max(0, 0.4 - car.tyreTemp);
+  const overheat = Math.max(0, car.tyreTemp - THERMAL.overheatAbove);
+  const cold = Math.max(0, THERMAL.coldBelow - car.tyreTemp);
   const dirty = car.gapAhead !== null && car.gapAhead !== undefined && car.gapAhead < 1 && lap > 1 && !sc ? 1 - car.gapAhead : 0;
   const wing = car.wing ?? 0;
-  const wearRate = car.wearFactor * mode.wear * (1 + overheat * 2.2 + dirty * 0.18 + Math.max(0, -wing) * 0.6) * (1 + (trackTemp - 30) * 0.008);
-  car.tyreWear += wearRate * (sc ? 0.35 : 1);
+  const wearRate =
+    car.wearFactor * mode.wear * (1 + overheat * THERMAL.overheatWear + dirty * THERMAL.dirtyWear + Math.max(0, -wing) * THERMAL.negativeWingWear) * (1 + (trackTemp - THERMAL.trackRefC) * THERMAL.trackWearPerC);
+  car.tyreWear += wearRate * (sc ? THERMAL.scWear : 1);
   const tyre = isWetTyre(car.compound)
     ? tyreTime({ compound: car.compound, age: car.tyreAge, wetness, era: rules, baseLap })
     : tyreTime({ compound: car.compound, age: car.tyreWear, wetness, era: rules, wearFactor: 1, baseLap });
@@ -1200,12 +1213,12 @@ export const lapBudget = (state, car, { lap = state.lap, wetness, sc = state.saf
     energyTime = step.time;
   }
 
-  const thermal = cold * 3.2 + overheat * 2.5;
+  const thermal = cold * THERMAL.coldSecPerUnit + overheat * THERMAL.overheatSecPerUnit;
   // Dirty air, and in the wet the spray of the car ahead (race-weather.json spray; the step sim applies it by distance).
   const spray = sc || lap <= 1 ? 0 : sprayLossOf(depthOfWetness(wetness), car.gapAhead);
   const wake = dirty * rules.dirtyAir + spray;
   // RF-STF-02: accuracy sets the lap-to-lap scatter.
-  const volatility = baseLap * 0.0036 * volatilityFactorOf(car) * (1 + wetness * 0.6);
+  const volatility = baseLap * NOISE.lapShare * volatilityFactorOf(car) * (1 + wetness * NOISE.wetGain);
   // What the car would do with no scatter: the speed a following driver can actually use to pass.
   const expected =
     baseLap - pace * spp + tyre + fuel + mode.time + mix.time + energyTime + thermal + evolution + car.setup + car.damage + car.issue + (car.form || 0) * baseLap -
@@ -1220,7 +1233,7 @@ export const lapBudget = (state, car, { lap = state.lap, wetness, sc = state.saf
  * simulator keeps only `scrumShare` of the scrum, because its traffic is real.
  */
 export const startTerm = (car, gridIndex, stream, scrumShare = 1) =>
-  stream.normal(0, 0.55) - startSkillTime(car) + 1.5 + gridIndex * 0.22 * scrumShare;
+  stream.normal(0, START.launchSd) - startSkillTime(car) + START.scrumSec + gridIndex * START.scrumPerSlotSec * scrumShare;
 
 /**
  * A mistake this lap (RF-SIM-09): a lock-up, a trip wide, a spin. Sets
@@ -1229,10 +1242,10 @@ export const startTerm = (car, gridIndex, stream, scrumShare = 1) =>
  */
 export const rollMistake = (car, { wetness, wing, cold, rubber = 0 }, stream) => {
   const mistakeChance = mistakeChanceOf({ driver: mistakeFactorOf(car, wetness), mode: car.mode, compound: car.compound, wetness, wing, cold, rubber });
-  car.pendingMistake = stream.chance(mistakeChance) ? stream.range(1.2, 5) : 0;
+  car.pendingMistake = stream.chance(mistakeChance) ? stream.range(MISTAKE.costSec[0], MISTAKE.costSec[1]) : 0;
   if (!car.pendingMistake) return null;
-  const kind = car.pendingMistake > 3.4 ? "spin" : car.pendingMistake > 2.2 ? "wide" : "lockup";
-  if (kind === "lockup") car.tyreWear += 0.8;
+  const kind = car.pendingMistake > MISTAKE.spinAboveSec ? "spin" : car.pendingMistake > MISTAKE.wideAboveSec ? "wide" : "lockup";
+  if (kind === "lockup") car.tyreWear += MISTAKE.lockupWearLaps;
   return kind;
 };
 
@@ -1241,11 +1254,13 @@ export const endLapWear = (state, car, plan, { wetness, sc = state.safetyCar, ru
   const trackTemp = state.trackTemp ?? 30;
   car.tyreAge += 1;
   if (rules.refuelling) car.fuel = Math.max(0, car.fuel - 1);
-  else car.fuel -= plan.mix.burn * (MODES[car.mode]?.burn ?? (car.mode === "push" ? 1.02 : car.mode === "save" ? 0.97 : 1)) * (sc ? 0.62 : 1);
+  else car.fuel -= plan.mix.burn * (MODES[car.mode]?.burn ?? MODE_BURN[car.mode] ?? 1) * (sc ? SC_BURN : 1);
 
   // Temperature drifts toward what the driving asks of it.
-  const target = sc ? 0.3 : TEMP_TARGET[car.mode] + plan.dirty * 0.1 + (trackTemp - 30) / 220 - wetness * 0.12;
-  car.tyreTemp = clamp(car.tyreTemp + (target - car.tyreTemp) * 0.55, 0.1, 1);
+  const target = sc
+    ? THERMAL.scTarget
+    : TEMP_TARGET[car.mode] + plan.dirty * THERMAL.driftDirtyGain + (trackTemp - THERMAL.trackRefC) / THERMAL.driftTrackDivisor - wetness * THERMAL.driftWetCool;
+  car.tyreTemp = clamp(car.tyreTemp + (target - car.tyreTemp) * THERMAL.driftRelax, THERMAL.min, THERMAL.max);
 };
 
 /** Race control watches the lights (RF-SIM-10): a jump start is investigated. */
