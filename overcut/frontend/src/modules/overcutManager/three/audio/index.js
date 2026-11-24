@@ -10,6 +10,14 @@
  * rpm/gear when the engine has a powertrain), the wetness and the race log. Audio never
  * writes back to the race. Randomness (crackle, noise) only from a seeded stream
  * (RF-SIM-15, RNF-05): no unseeded randomness and no wall clock.
+ *
+ * Per view (AUD-2, F1M24-GAMEPLAY §2.1): the frame may name the screen's view (`replay`,
+ * `menu`; a stopped clock is `paused`, the map camera `map`) and the mix crossfades to its
+ * snapshot; the TV and helicopter ear sits on the camera on air (`camera`, or the hook's
+ * `cameraBus` ref that Race3D fills), the virtual post when there is none. The cars without a
+ * voice of their own sound as the field bed, and the focus car's kerbs (data/circuits/
+ * <splineId>/kerbs.json, with `circuit`) rumble under it. Everything optional: a frame
+ * without them sounds as before.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -17,11 +25,14 @@ import { createStream } from "../../../overcutTrayectoria/engine/rng";
 import { loadSeasonPack } from "../../engine/packs/seasonPacks";
 import audioData from "../../data/balance/audio.json";
 import { createEngineVoice, driveStep, engineSpecFor } from "./engineSynth";
-import { assignVoices, cameraMix, createMixer, distanceGain, dopplerFactor, listenerFor, loadSettings, saveSettings, selectVoices } from "./mixer";
-import { airGunsOn, createAmbience, crowdLevel, makeNoiseBuffer, rainOf, squeals, swellFor, windOf } from "./ambience";
+import { assignVoices, blendMix, cameraListener, cameraUsable, createMixer, distanceGain, dopplerFactor, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, viewMix } from "./mixer";
+import { airGunsOn, createAmbience, crowdLevel, fieldBedOf, kerbRumble, makeNoiseBuffer, rainOf, squeals, swellFor, windOf } from "./ambience";
+import { firingFrequency } from "./engineSynth";
+import { kerbZonesFor, onKerb } from "./kerbs";
 
 export { engineSpecFor, eraFor, firingFrequency, nextGear, parseFormula } from "./engineSynth";
-export { cameraMix, distanceGain, dopplerFactor, loadSettings, saveSettings, sliderToGain } from "./mixer";
+export { blendMix, cameraMix, distanceGain, dopplerFactor, loadSettings, resolveView, saveSettings, sliderToGain, viewMix } from "./mixer";
+export { mixLevels } from "./levels";
 
 const KMH = 3.6;
 const VOICING = audioData.voicing;
@@ -48,7 +59,7 @@ export const audioSupported = () => Boolean(audioContextClass());
  * The controller. `start()` must run inside a user gesture; until then `frame()` is a
  * no-op, so the view can call it from the first render.
  */
-export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circuitId = null, date = null } = {}) => {
+export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circuitId = null, date = null, cameraBus = null, circuit = null } = {}) => {
   let ctx = null;
   let mixer = null;
   let ambience = null;
@@ -66,6 +77,12 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
   let lastTau = null;
   let lastTime = null;
   let post = null;
+  let ear = null;
+  let fade = null;
+  let shownMix = null;
+  let kerbCircuit = circuit;
+  let kerbZones = kerbZonesFor(circuit);
+  const VIEWS = audioData.mixer.views;
   const random = createStream(`${seed}::audio`).next;
 
   const specOf = (teamId) => {
@@ -97,7 +114,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       ctx = new Ctx();
       mixer = createMixer(ctx);
       const noise = makeNoiseBuffer(ctx, random);
-      ambience = createAmbience(ctx, mixer.ambience, noise);
+      ambience = createAmbience(ctx, mixer.ambience, noise, mixer.engine);
       const size = audioData.mixer.maxVoices;
       voices = Array.from({ length: size }, () => createEngineVoice(ctx, noise, random));
       panners = voices.map((voice) => {
@@ -124,7 +141,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
      * One view frame: { tau, playing, mode, focusId, cars: [{ id, teamId, pose }],
      * wetness, events, started }.
      */
-    frame({ tau = 0, playing = true, mode = "tv", focusId = null, cars = [], wetness = 0, events = [], started: lightsOut = false }) {
+    frame({ tau = 0, playing = true, mode = "tv", focusId = null, cars = [], wetness = 0, events = [], started: lightsOut = false, view = null, camera, circuit: frameCircuit }) {
       if (!ctx || ctx.state === "closed") return;
       const now = ctx.currentTime;
       const dt = lastTime === null ? 0 : Math.max(0, now - lastTime);
@@ -136,7 +153,23 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         drive.clear();
         dtau = 0;
       }
-      const mix = cameraMix(mode);
+      if (frameCircuit !== undefined && frameCircuit !== kerbCircuit) {
+        kerbCircuit = frameCircuit;
+        kerbZones = kerbZonesFor(frameCircuit);
+      }
+      // The view's snapshot on the camera's mix, crossfaded on a cut or a change of view.
+      const viewName = resolveView({ view, playing, mode });
+      const target = viewMix(mode, viewName);
+      const onAir = camera !== undefined ? camera : cameraBus ? cameraBus.current : null;
+      const useCamera = cameraUsable(onAir, mode, target);
+      const fadeKey = `${target.group}|${viewName || ""}|${useCamera ? onAir.id ?? "" : ""}`;
+      if (!fade || fade.key !== fadeKey) {
+        const viewChanged = fade && fade.view !== viewName;
+        fade = { key: fadeKey, view: viewName, from: shownMix, at: now, ms: viewChanged ? VIEWS.snapshotFadeMs : VIEWS.crossfadeMs };
+      }
+      const mix = blendMix(fade.from, target, fade.ms > 0 ? ((now - fade.at) * 1000) / fade.ms : 1);
+      shownMix = mix;
+      mixer.applyView(mix, now);
 
       // Every car's drivetrain, cheap pure maths (22 cars).
       const placed = [];
@@ -150,9 +183,19 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       });
       const byId = new Map(placed.map((car) => [car.id, car]));
       const focus = byId.get(focusId) || placed[0];
-      const listener = listenerFor(mix, focus ? { ...focus.pose, v: focus.state.v } : null, post);
-      post = listener.post;
-      const heading = mix.listener === "post" && focus ? Math.atan2(focus.y - listener.y, focus.x - listener.x) : focus?.pose.heading || 0;
+      let listener;
+      let heading;
+      if (useCamera) {
+        // The ear on the camera that is on screen (cameraBus, §1.7): what is left of the picture is on the left.
+        listener = cameraListener(onAir, ear, dtau);
+        heading = listener.heading;
+        ear = listener;
+      } else {
+        listener = listenerFor(mix, focus ? { ...focus.pose, v: focus.state.v } : null, post);
+        post = listener.post;
+        ear = null;
+        heading = mix.listener === "post" && focus ? Math.atan2(focus.y - listener.y, focus.x - listener.x) : focus?.pose.heading || 0;
+      }
       mixer.setListener(listener, heading, now);
 
       // Voices: the focus car and the loudest others, kept on their voice.
@@ -176,7 +219,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         const crackle = overrun && random() < VOICING.crackleRatePerSec * car.spec.crackle * Math.max(dt, 0.016) ? 1 : 0;
         voice.update(
           { ...car.state },
-          { gain: playing ? share : 0, doppler, interior: atEar ? mix.interior : 0, lowpassHz: mix.lowpassHz, time: now, crackle },
+          { gain: share, doppler, interior: atEar ? mix.interior : 0, lowpassHz: mix.lowpassHz, time: now, crackle },
         );
       });
 
@@ -206,7 +249,19 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       });
 
       const focusKmh = focus ? focus.state.v * KMH : 0;
+      // The field bed: the cars near the ear without a voice, at their mean firing frequency.
+      const bed = fieldBedOf(
+        placed.map((car) => ({ id: car.id, x: car.x, y: car.y, gone: car.gone, firingHz: firingFrequency(car.state.rpm, car.spec.engine.cylinders) })),
+        listener,
+        slots,
+      );
+      // The kerb under the focus car (only when it is heard up close: its gain goes with the distance).
+      const kerbOn = Boolean(focus && playing && !focus.pose.inPit && onKerb(kerbZones, focus.pose.progress, focus.pose.lateral, audioData.ambience.kerb.reachM));
+      const rumble = kerbRumble(focusKmh, kerbOn);
+      const kerbNear = mix.listener === "car" || !focus ? 1 : distanceGain(Math.hypot(focus.x - listener.x, focus.y - listener.y, listener.z || 0));
       ambience.update({
+        bed: { level: bed.level * mix.field, hz: bed.hz },
+        kerb: { gain: rumble.gain * mix.focus * kerbNear, hz: rumble.hz },
         time: now,
         crowd: crowdLevel(swells, now),
         crowdShare: mix.crowd,
@@ -232,9 +287,11 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
  * React hook for LiveRace: one controller per race, the season's f1db engines from its
  * pack, the viewer's mix, and `enable()` for the sound button's click.
  */
-export const useRaceAudio = ({ seed, year, circuitId = null, date = null }) => {
+export const useRaceAudio = ({ seed, year, circuitId = null, date = null, circuit = null }) => {
   const ref = useRef(null);
-  if (!ref.current) ref.current = createRaceAudio({ seed, year, circuitId, date });
+  // The camera on air: the view hands this ref to Race3D (its `cameraBus` prop, §1.7) and the TV ear sits on it.
+  const cameraBus = useRef(null);
+  if (!ref.current) ref.current = createRaceAudio({ seed, year, circuitId, date, cameraBus, circuit });
   const [settings, setLocal] = useState(() => ref.current.settings);
   const [enabled, setEnabled] = useState(false);
 
@@ -281,5 +338,5 @@ export const useRaceAudio = ({ seed, year, circuitId = null, date = null }) => {
   }, [enabled, enable]);
   const update = useCallback((patch) => setLocal(ref.current.setSettings(patch)), []);
   const frame = useCallback((data) => ref.current.frame(data), []);
-  return { settings, update, enabled, enable, frame, supported: audioSupported() };
+  return { settings, update, enabled, enable, frame, cameraBus, supported: audioSupported() };
 };

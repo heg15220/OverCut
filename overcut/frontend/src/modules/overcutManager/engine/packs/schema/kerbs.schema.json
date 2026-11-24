@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "data/circuits/<splineId>/kerbs.json (kerbs-wind, RF-3D-03, RF-3D-04): pianos sacados de la malla GLB por tools/assets/blender/extract_kerbs.py. Lo lee three/audio/kerbs.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["generator", "splineId", "source", "frame", "lengthM", "kerbs", "quality"],
+  "properties": {
+    "$comment": {"type": "string"},
+    "generator": {"type": "string", "pattern": "^extract_kerbs\\.py v[0-9]+$"},
+    "splineId": {"type": "string", "minLength": 1},
+    "source": {"type": "string", "minLength": 1},
+    "frame": {"type": "string", "minLength": 1},
+    "lengthM": {"type": "number", "exclusiveMinimum": 0},
+    "kerbs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["fromM", "toM", "side", "edgeM"],
+        "properties": {
+          "fromM": {"type": "number", "minimum": 0},
+          "toM": {"type": "number", "minimum": 0},
+          "side": {"enum": ["left", "right"]},
+          "edgeM": {"type": "number", "exclusiveMinimum": 0, "maximum": 40}
+        }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rows", "kerbRows", "kerbMetres"],
+      "properties": {
+        "rows": {"type": "integer", "minimum": 1},
+        "kerbRows": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["left", "right"],
+          "properties": {"left": {"type": "integer", "minimum": 0}, "right": {"type": "integer", "minimum": 0}}
+        },
+        "kerbMetres": {"type": "number", "minimum": 0}
+      }
+    }
+  }
+}

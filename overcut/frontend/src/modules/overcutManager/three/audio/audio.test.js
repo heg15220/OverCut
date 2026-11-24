@@ -15,9 +15,13 @@ import {
   cycleFrequency, driveStep, engineSpecFor, eraFor, firingFrequency, gearSpeeds, harmonicWeights, hybridTones, loadFromAccel, nextGear, parseFormula, rpmByYear,
   shiftCutGain, shiftEnvelope, shiftProfileFor, pitLimiterFor, pitHoldKmh, limiterDepthOf, rpmInGear, createEngineVoice,
 } from "./engineSynth";
-import { assignVoices, busGains, cameraMix, distanceGain, dopplerFactor, listenerFor, loadSettings, saveSettings, selectVoices, sliderToGain } from "./mixer";
-import { crowdLevel, rainOf, swellFor, windOf, airGunsOn, squeals } from "./ambience";
+import { assignVoices, blendMix, busGains, cameraListener, cameraMix, cameraUsable, distanceGain, dopplerFactor, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, sliderToGain, viewMix } from "./mixer";
+import { crowdLevel, rainOf, swellFor, windOf, airGunsOn, squeals, fieldBedOf, kerbRumble } from "./ambience";
 import { createRaceAudio, teamEnginesOf } from "./index";
+import { mixLevels } from "./levels";
+import { KERB_FILES, kerbZonesFor, onKerb } from "./kerbs";
+import kerbsSchema from "../../engine/packs/schema/kerbs.schema.json";
+import splinesData from "../../data/splines.json";
 
 const SEASONS = path.join(__dirname, "../../data/seasons");
 const packYears = fs
@@ -345,6 +349,10 @@ class FakeContext {
   createPanner() {
     return node({ positionX: param(), positionY: param(), positionZ: param() });
   }
+  createDelay() {
+    this.delays = (this.delays || 0) + 1;
+    return node({ delayTime: param() });
+  }
   createDynamicsCompressor() {
     return node({ threshold: param(), knee: param(), ratio: param() });
   }
@@ -386,7 +394,7 @@ describe("race audio controller (mocked Web Audio)", () => {
   });
 
   test("seeded: no Math.random or Date in the audio code (RF-SIM-15, RNF-05)", () => {
-    ["engineSynth.js", "mixer.js", "ambience.js", "index.js"].forEach((file) => {
+    ["engineSynth.js", "mixer.js", "ambience.js", "index.js", "levels.js", "kerbs.js"].forEach((file) => {
       const text = fs.readFileSync(path.join(__dirname, file), "utf8");
       expect(text).not.toMatch(/Math\.random|Date\.now|new Date/);
     });
@@ -621,5 +629,218 @@ describe("engine voice automation (mocked Web Audio)", () => {
     voice.update({ gear: 8, rpm: 15000, load: 1, shifted: false, limiter: true }, mix(4));
     expect(lfo.frequency.setTargetAtTime).toHaveBeenLastCalledWith(audioData.voicing.limiterHz, 4, audioData.voicing.smoothingSec);
     voice.stop();
+  });
+});
+
+// ------------------------------------------------------------------ AUD-2: mix per view, field bed, kerbs and wind
+
+describe("mix per view (mix-snapshots-per-view, RF-3D-04, RNF-02, RNF-07, RNF-09)", () => {
+  test("the view: the screen's own, paused while stopped, the map camera's; live cameras keep their mix", () => {
+    expect(resolveView({ view: "replay", mode: "tcam" })).toBe("replay");
+    expect(resolveView({ view: "menu", playing: false, mode: "tv" })).toBe("menu");
+    expect(resolveView({ playing: false, mode: "tv" })).toBe("paused");
+    expect(resolveView({ mode: "map" })).toBe("map");
+    expect(resolveView({ mode: "tv" })).toBeNull();
+    expect(resolveView({ view: "no-such-view", mode: "chase" })).toBeNull();
+    ["map", "paused", "replay", "menu"].forEach((name) => expect(audioData.mixer.views.snapshots[name]).toBeDefined());
+    // A snapshot only overrides what it names: the replay keeps the onboard's own shares.
+    const replay = viewMix("tcam", "replay");
+    expect(replay.focus).toBe(cameraMix("tcam").focus);
+    expect(replay.engineDb).toBe(audioData.mixer.views.snapshots.replay.engineDb);
+    expect(viewMix("tv", null)).toMatchObject({ engineDb: 0, bedDb: 0, view: null });
+  });
+
+  test("a cut crossfades: from the old mix at 0, the new at 1, between in between (lowpass in log)", () => {
+    const a = viewMix("tv");
+    const b = viewMix("tcam");
+    expect(blendMix(null, b, 0)).toBe(b);
+    expect(blendMix(a, b, 0).focus).toBeCloseTo(a.focus, 9);
+    expect(blendMix(a, b, 1)).toBe(b);
+    const half = blendMix(a, b, 0.5);
+    expect(half.crowd).toBeCloseTo((a.crowd + b.crowd) / 2, 9);
+    expect(half.lowpassHz).toBeCloseTo(Math.sqrt(a.lowpassHz * b.lowpassHz), 6);
+    expect(half.listener).toBe(b.listener);
+  });
+
+  test("the TV ear is the camera on air: three.js (x, height, z) to the mixer's (x, y, up), height over the target", () => {
+    const tv = viewMix("tv");
+    const camera = { id: "t3", kind: "tower", mode: "tv", position: { x: 120, y: 58, z: -40 }, target: { x: 0, y: 50, z: 0 } };
+    expect(cameraUsable(camera, "tv", tv)).toBe(true);
+    expect(cameraUsable({ ...camera, mode: "chase" }, "tv", tv)).toBe(false); // left over from another camera
+    expect(cameraUsable(camera, "tcam", viewMix("tcam"))).toBe(false); // onboards ride with the car
+    expect(cameraUsable(null, "tv", tv)).toBe(false);
+    const ear = cameraListener(camera);
+    expect(ear).toMatchObject({ x: 120, y: -40, vx: 0, vy: 0, id: "t3" });
+    expect(ear.z).toBeCloseTo(8 + audioData.mixer.views.cameraListener.sourceUpM, 9); // the circuit's altitude does not count
+    // Same camera panning along: a velocity; a cut: a still ear.
+    const next = cameraListener({ ...camera, position: { x: 130, y: 58, z: -40 } }, ear, 0.5);
+    expect(next.vx).toBeCloseTo(20, 9);
+    const cut = cameraListener({ ...camera, id: "t4", position: { x: 400, y: 58, z: -40 } }, ear, 0.5);
+    expect(cut.vx).toBe(0);
+    const flung = cameraListener({ ...camera, position: { x: 2000, y: 58, z: -40 } }, ear, 0.1);
+    expect(Math.hypot(flung.vx, flung.vy)).toBeCloseTo(audioData.mixer.views.cameraListener.maxSpeed, 6);
+  });
+
+  // §2.1 (reference video, conf. A): only the relations between views are the target, never the game's dBFS.
+  const field = (n = 20) => Array.from({ length: n }, (_, i) => ({ id: `c${i}`, x: -i * 45, y: (i % 2) * 3, heading: 0, v: 70, firingHz: 1000 }));
+  const farTv = { id: "t9", kind: "tower", mode: "tv", position: { x: 0, y: 8, z: 150 }, target: { x: 0, y: 0.5, z: 0 } };
+  const level = (scene) => mixLevels({ focusId: "c0", cars: field(), kmh: 250, ...scene }).totalDb;
+
+  test("offline mix: onboard 12-15 dB over the far TV camera, the map at least 15 dB under TV", () => {
+    const onboard = level({ mode: "tcam" });
+    const tv = level({ mode: "tv", camera: farTv });
+    const map = level({ mode: "map" });
+    expect(onboard - tv).toBeGreaterThanOrEqual(12);
+    expect(onboard - tv).toBeLessThanOrEqual(15);
+    expect(tv - map).toBeGreaterThanOrEqual(15);
+  });
+
+  test("offline mix: pause and menus drop the engines to a low bed; the replay sounds like its camera, a little lower", () => {
+    const onboard = level({ mode: "tcam" });
+    const map = level({ mode: "map" });
+    const paused = mixLevels({ focusId: "c0", cars: field(), mode: "tcam", playing: false, kmh: 250 });
+    const menu = mixLevels({ focusId: "c0", cars: field(), mode: "tv", view: "menu", camera: farTv, kmh: 250 });
+    expect(paused.view).toBe("paused");
+    expect(paused.engineDb).toBeLessThan(-60);
+    expect(menu.engineDb).toBeLessThan(-60);
+    expect(paused.totalDb).toBeLessThan(map);
+    expect(menu.totalDb).toBeLessThan(map);
+    const replay = level({ mode: "tcam", view: "replay" });
+    expect(onboard - replay).toBeGreaterThan(0);
+    expect(onboard - replay).toBeLessThanOrEqual(6);
+  });
+
+  test("offline mix: the TV ear on the real camera is loud when that camera is close; the post still works without one", () => {
+    const near = { ...farTv, position: { x: 10, y: 3, z: 15 } };
+    expect(level({ mode: "tv", camera: near })).toBeGreaterThan(level({ mode: "tv", camera: farTv }) + 6);
+    expect(Number.isFinite(level({ mode: "tv" }))).toBe(true);
+  });
+});
+
+describe("field bed (field-bed-start, RF-3D-04, RNF-02, RNF-07)", () => {
+  const ear = { x: 0, y: 0, z: 1 };
+  const pack = (n, spacing) => Array.from({ length: n }, (_, i) => ({ id: `c${i}`, x: 20 + i * spacing, y: 0, firingHz: 900 + i * 10 }));
+  test("louder with more cars near and none of the voiced ones; silent with nobody near", () => {
+    const bed = audioData.ambience.fieldBed;
+    const voiced = ["c0", "c1", "c2", "c3", "c4", "c5"];
+    const grid = fieldBedOf(pack(22, 8), ear, voiced);
+    const strung = fieldBedOf(pack(22, 120), ear, voiced);
+    expect(grid.level).toBeGreaterThan(strung.level * 2);
+    expect(grid.cars).toBe(16);
+    expect(grid.level).toBeLessThanOrEqual(bed.maxLevel);
+    expect(fieldBedOf(pack(6, 8), ear, voiced).level).toBe(0);
+    expect(fieldBedOf(pack(3, bed.nearbyMetres), { x: -bed.nearbyMetres * 2, y: 0 }, []).level).toBe(0);
+    expect(grid.hz).toBeGreaterThanOrEqual(bed.minHz);
+    expect(grid.hz).toBeLessThanOrEqual(bed.maxHz);
+    expect(fieldBedOf(pack(22, 8).map((car) => ({ ...car, gone: true })), ear, []).level).toBe(0);
+  });
+
+  test("the start is the loudest track mix: the whole pack together over the same cars strung out", () => {
+    const grid = Array.from({ length: 22 }, (_, i) => ({ id: `c${i}`, x: -Math.floor(i / 2) * 8, y: (i % 2 ? -1 : 1) * 2.6, heading: 0, v: 20, firingHz: 600 }));
+    const strung = grid.map((car, i) => ({ ...car, x: -i * 180 }));
+    const camera = { id: "g", mode: "tv", position: { x: 30, y: 6, z: 20 }, target: { x: 0, y: 0.5, z: 0 } };
+    const start = mixLevels({ mode: "tv", focusId: "c0", cars: grid, camera });
+    const later = mixLevels({ mode: "tv", focusId: "c0", cars: strung, camera });
+    expect(start.engineDb).toBeGreaterThan(later.engineDb + 3);
+  });
+});
+
+describe("kerbs and wind (kerbs-wind, RF-3D-03, RF-3D-04, RNF-07)", () => {
+  test("wind reaches 8 kHz at full speed (the 2-8 kHz band on board)", () => {
+    expect(audioData.ambience.wind.highHz).toBe(8000);
+    expect(windOf(audioData.ambience.wind.fullKmh, 1).hz).toBe(8000);
+  });
+
+  test("every kerbs.json passes its schema and matches its calibrated spline", () => {
+    const validate = new Ajv({ allErrors: true, strict: true }).compile(kerbsSchema);
+    const files = Object.values(KERB_FILES);
+    expect(files.length).toBe(Object.keys(splinesData.splines).length);
+    files.forEach((data) => {
+      expect(validate(data) ? null : validate.errors).toBeNull();
+      const spline = splinesData.splines[data.splineId];
+      expect(spline).toBeDefined();
+      expect(Math.abs(data.lengthM - spline.lengthM) / spline.lengthM).toBeLessThan(0.01);
+      data.kerbs.forEach((kerb) => {
+        expect(kerb.fromM).toBeLessThan(data.lengthM + 1);
+        expect(kerb.toM).toBeLessThanOrEqual(data.lengthM + 2);
+      });
+      expect(data.kerbs.length).toBeGreaterThan(5);
+    });
+  });
+
+  test("on a kerb inside a zone and near that side's edge; the sign is splines.json's (+ = right)", () => {
+    const zones = kerbZonesFor({ splineId: "x" }, { x: { splineId: "x", lengthM: 1000, kerbs: [{ fromM: 100, toM: 140, side: "right", edgeM: 6 }, { fromM: 980, toM: 20, side: "left", edgeM: 5 }] } });
+    expect(zones).toHaveLength(2);
+    const reach = audioData.ambience.kerb.reachM;
+    expect(onKerb(zones, 3.12, 6 - reach + 0.1, reach)).toBe(true); // lap 3, 120 m, on the right edge
+    expect(onKerb(zones, 3.12, -(6 - reach + 0.1), reach)).toBe(false); // wrong side
+    expect(onKerb(zones, 3.12, 0, reach)).toBe(false); // mid track
+    expect(onKerb(zones, 3.2, 6, reach)).toBe(false); // outside the zone
+    expect(onKerb(zones, 4.005, -5, reach)).toBe(true); // across the line, left
+    expect(onKerb(zones, 4.005, undefined, reach)).toBe(false); // quick mode: no lateral
+    expect(kerbZonesFor({ id: "procedural" })).toEqual([]);
+    expect(kerbZonesFor(null)).toEqual([]);
+    expect(kerbZonesFor({ id: "spline:bahrain-1" }).length).toBe(KERB_FILES["bahrain-1"].kerbs.length);
+  });
+
+  test("the rumble follows the speed over the bumps and is silent off the kerb or slow", () => {
+    const kerb = audioData.ambience.kerb;
+    expect(kerbRumble(200, false).gain).toBe(0);
+    expect(kerbRumble(kerb.minKmh - 1, true).gain).toBe(0);
+    const fast = kerbRumble(200, true);
+    expect(fast.gain).toBe(kerb.gain);
+    expect(fast.hz).toBeCloseTo(200 / 3.6 / kerb.stripeM, 6);
+    expect(kerbRumble(120, true).hz).toBeLessThan(fast.hz);
+    expect(kerb.stripeStatus).toBe("pending");
+  });
+});
+
+describe("AUD-2 controller (mocked Web Audio)", () => {
+  afterEach(() => {
+    delete window.AudioContext;
+  });
+
+  test("camera bus, views, cuts and the kerb in a 22-car race stay cheap (RNF-02)", () => {
+    window.AudioContext = FakeContext;
+    const cameraBus = { current: null };
+    const data = KERB_FILES["bahrain-1"];
+    const kerb = data.kerbs.find((k) => k.side === "right");
+    const share = (kerb.fromM + 1) / data.lengthM;
+    const audio = createRaceAudio({ seed: "aud2", year: 2012, cameraBus, circuit: { splineId: "bahrain-1" } });
+    expect(audio.start()).toBe(true);
+    const cars = Array.from({ length: 22 }, (_, i) => ({ id: `c${i}`, teamId: "t", pose: { x: -i * 10, y: 0, heading: 0, v: 60, progress: 2 + share, lateral: i === 0 ? kerb.edgeM : 0 } }));
+    const begin = process.hrtime.bigint();
+    for (let f = 0; f < 300; f += 1) {
+      cameraBus.current = { id: f < 150 ? "t1" : "t2", kind: "tower", mode: "tv", position: { x: 77 + f, y: 9, z: -33 }, target: { x: 0, y: 0.5, z: 0 } };
+      const view = f < 100 ? null : f < 200 ? "replay" : "menu";
+      audio.frame({ tau: f / 10, playing: f < 250, mode: f % 50 < 40 ? "tv" : "map", focusId: "c0", cars, view });
+    }
+    const ms = Number(process.hrtime.bigint() - begin) / 1e6;
+    expect(ms / 300).toBeLessThan(2);
+    audio.dispose();
+  });
+
+  test("the listener sits on the camera on air in TV and on the virtual post without one", () => {
+    let made = null;
+    class Spy extends FakeContext {
+      constructor() {
+        super();
+        made = this;
+      }
+    }
+    window.AudioContext = Spy;
+    const cars = [{ id: "c0", teamId: "t", pose: { x: 0, y: 0, heading: 0, v: 60 } }];
+    const withCamera = createRaceAudio({ seed: "aud2", year: 2012 });
+    withCamera.start();
+    withCamera.frame({ tau: 0, mode: "tv", focusId: "c0", cars, camera: { id: "t1", mode: "tv", position: { x: 1234, y: 9, z: -33 }, target: { x: 0, y: 0, z: 0 } } });
+    expect(made.listener.positionX.setTargetAtTime).toHaveBeenLastCalledWith(1234, expect.any(Number), expect.any(Number));
+    expect(made.listener.positionZ.setTargetAtTime).toHaveBeenLastCalledWith(-33, expect.any(Number), expect.any(Number));
+    expect(made.delays).toBe(audioData.ambience.fieldBed.combs.length);
+    withCamera.dispose();
+    const post = createRaceAudio({ seed: "aud2", year: 2012 });
+    post.start();
+    post.frame({ tau: 0, mode: "tv", focusId: "c0", cars });
+    expect(made.listener.positionX.setTargetAtTime).toHaveBeenLastCalledWith(audioData.mixer.cameras.mix.tv.ahead, expect.any(Number), expect.any(Number));
+    post.dispose();
   });
 });

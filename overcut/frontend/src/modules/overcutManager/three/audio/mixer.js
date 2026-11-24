@@ -4,8 +4,13 @@
  * get one of the pooled engine voices. All numbers in data/balance/audio.json `mixer`
  * (RNF-07). The pure parts are tested in audio.test.js.
  *
- * Graph: voices ► panner ► engine bus ┐
- *        ambience ──────► ambience bus ┼► master ► compressor ► destination
+ * Graph: voices > panner > engine bus > view trim -+
+ *        field bed ------> engine bus            |
+ *        ambience -----> ambience bus > view trim -+> master > compressor > destination
+ *
+ * Per view (F1M24-GAMEPLAY §2.1, mix-snapshots-per-view): a snapshot (map, paused, replay,
+ * menu) on top of the camera's mix, crossfaded on every cut, and the TV and helicopter ear
+ * on the camera on air (Race3D `cameraBus`), the virtual post staying as the 2D fallback.
  */
 
 import audioData from "../../data/balance/audio.json";
@@ -104,6 +109,82 @@ export const listenerFor = (mix, focus, post = null) => {
   return { x: focus.x - fx * back + rx * side, y: focus.y - fy * back + ry * side, z: mix.up, vx: fx * v, vy: fy * v, post: null };
 };
 
+// ------------------------------------------------------------------ views (mix-snapshots-per-view)
+
+const VIEWS = MIXER.views;
+/** The fields a snapshot or a crossfade moves (lowpassHz in log, the rest linearly). */
+const BLENDED = ["focus", "field", "interior", "crowd", "wind", "lowpassHz", "engineDb", "bedDb"];
+
+/**
+ * Which view snapshot applies (F1M24-GAMEPLAY §2.1): the screen's own (`replay`, `menu`)
+ * when it names one; otherwise `paused` while the clock is stopped and the camera group's
+ * (`map`); null is the live camera mix as it is.
+ */
+export const resolveView = ({ view = null, playing = true, mode = "tv" } = {}, views = VIEWS) => {
+  if (view && views.snapshots[view]) return view;
+  if (!playing) return "paused";
+  return views.byGroup[cameraMix(mode).group] || null;
+};
+
+/** The camera's mix with the view snapshot on top: { ...cameraMix, engineDb, bedDb, view }. */
+export const viewMix = (mode, view = null, views = VIEWS) => {
+  const snapshot = view ? views.snapshots[view] : null;
+  return { ...cameraMix(mode), engineDb: 0, bedDb: 0, ...(snapshot || {}), view: snapshot ? view : null };
+};
+
+/** A crossfade between two mixes at k (0..1): numbers blend, the rest (listener, offsets) are the target's. */
+export const blendMix = (from, to, k) => {
+  const f = clamp(Number.isFinite(k) ? k : 1, 0, 1);
+  if (!from || f >= 1) return to;
+  const out = { ...to };
+  BLENDED.forEach((key) => {
+    const a = from[key];
+    const b = to[key];
+    if (!Number.isFinite(a) || !Number.isFinite(b)) return;
+    out[key] = key === "lowpassHz" && a > 0 && b > 0 ? a * (b / a) ** f : a + (b - a) * f;
+  });
+  return out;
+};
+
+/** dB to a linear gain (the snapshots' bus trims). */
+export const dbToGain = (db) => (Number.isFinite(db) ? 10 ** (db / 20) : 1);
+
+/**
+ * Is the camera on air (Race3D `cameraBus`, §1.7) usable as the ear for this mix? Only for
+ * mixes marked `useCamera` (TV, helicopter), with a position, and from the same camera mode
+ * (a bus left over from another view is ignored: the virtual post stays the 2D fallback).
+ */
+export const cameraUsable = (camera, mode, mix) =>
+  Boolean(mix && mix.useCamera && camera && camera.position && Number.isFinite(camera.position.x) && Number.isFinite(camera.position.z) && (camera.mode == null || camera.mode === mode));
+
+/**
+ * The ear on the camera on air. three.js is Y up (x, height, z); the mixer's scene is x, y on
+ * the ground and z up, as the cars' poses (Race3D draws a pose at (x, height, y)). The height
+ * is the camera's above what it looks at, plus the source's own (`sourceUpM`), so a circuit's
+ * altitude does not count. Its velocity, for the Doppler, from its last position in race
+ * seconds while the same camera stays on air (a cut is a still ear).
+ */
+export const cameraListener = (camera, previous = null, dtau = 0, cfg = VIEWS.cameraListener) => {
+  const p = camera.position;
+  const t = camera.target && Number.isFinite(camera.target.y) ? camera.target : p;
+  const x = p.x;
+  const y = p.z;
+  const z = Math.max(cfg.minUpM, (Number.isFinite(p.y) ? p.y : 0) - (Number.isFinite(t.y) ? t.y : 0) + cfg.sourceUpM);
+  let vx = 0;
+  let vy = 0;
+  if (previous && previous.id === camera.id && dtau > 0) {
+    vx = (x - previous.x) / dtau;
+    vy = (y - previous.y) / dtau;
+    const speed = Math.hypot(vx, vy);
+    if (speed > cfg.maxSpeed) {
+      vx *= cfg.maxSpeed / speed;
+      vy *= cfg.maxSpeed / speed;
+    }
+  }
+  const heading = Math.atan2((camera.target?.z ?? p.z) - p.z, (camera.target?.x ?? p.x) - p.x);
+  return { x, y, z, vx, vy, post: null, id: camera.id ?? null, heading };
+};
+
 /** Web Audio's 'inverse' distance law (what the PannerNode applies): g = ref / (ref + rolloff·(max(d, ref) − ref)). */
 export const distanceGain = (metres, distance = MIXER.distance) => {
   const d = clamp(metres, distance.refDistance, distance.maxDistance);
@@ -169,8 +250,11 @@ export const createMixer = (ctx) => {
   master.connect(comp).connect(ctx.destination);
   const engine = ctx.createGain();
   const ambience = ctx.createGain();
-  engine.connect(master);
-  ambience.connect(master);
+  // The view snapshot's trims (engineDb, bedDb) sit after the viewer's own bus volumes.
+  const engineView = ctx.createGain();
+  const ambienceView = ctx.createGain();
+  engine.connect(engineView).connect(master);
+  ambience.connect(ambienceView).connect(master);
 
   const panner = () => {
     const node = ctx.createPanner();
@@ -223,6 +307,11 @@ export const createMixer = (ctx) => {
       master.gain.setTargetAtTime(gains.master, at, 0.05);
       engine.gain.setTargetAtTime(gains.engine, at, 0.05);
       ambience.gain.setTargetAtTime(gains.ambience, at, 0.05);
+    },
+    /** The view snapshot's bus trims (already crossfaded by the caller). */
+    applyView(mix, at) {
+      engineView.gain.setTargetAtTime(dbToGain(mix.engineDb), at, 0.03);
+      ambienceView.gain.setTargetAtTime(dbToGain(mix.bedDb), at, 0.03);
     },
     disconnect() {
       master.disconnect();

@@ -2,12 +2,14 @@
  * Ambience of the live race (RF-3D-04): a crowd bed that swells on passes, a new leader,
  * the start and the flag; wind with the focus car's speed; rain with the track's wetness;
  * the pit lane (air guns while the wheels are changed); tyre squeal on a lock-up or a
- * spin (engine `incident`); a thump on contact. Synthesised from one shared noise
+ * spin (engine `incident`); a thump on contact; the field bed of the cars without a voice
+ * and the kerb rumble under the focus car (AUD-2), both on the engine bus. Synthesised from one shared noise
  * buffer, no recordings. Numbers in data/balance/audio.json `ambience` (RNF-07); the
  * envelopes and curves are pure and tested (audio.test.js).
  */
 
 import audioData from "../../data/balance/audio.json";
+import { distanceGain } from "./mixer";
 
 const AMB = audioData.ambience;
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
@@ -48,6 +50,39 @@ export const windOf = (kmh, share, wind = AMB.wind) => {
 /** Rain gain from the track's wetness 0..1 (nothing under the threshold). */
 export const rainOf = (wetness, rain = AMB.rain) => (wetness <= rain.threshold ? 0 : rain.gain * Math.sqrt(clamp((wetness - rain.threshold) / (1 - rain.threshold), 0, 1)));
 
+/**
+ * The field bed (field-bed-start): the cars near the ear that have no voice of their own
+ * (`voiced` ids), not gone, within `nearbyMetres`, summed as power through the mixer's
+ * distance law, times `gain`, up to `maxLevel`. Returns { level, hz } where hz is the mean
+ * firing frequency of those cars (their `firingHz`), clamped to the comb range; 0 without any.
+ * `cars` are { id, x, y, gone, firingHz }.
+ */
+export const fieldBedOf = (cars, listener, voiced = [], bed = AMB.fieldBed) => {
+  const skip = new Set(voiced.filter(Boolean));
+  let power = 0;
+  let hzSum = 0;
+  let count = 0;
+  cars.forEach((car) => {
+    if (car.gone || skip.has(car.id)) return;
+    const metres = Math.hypot(car.x - listener.x, car.y - listener.y, listener.z || 0);
+    if (metres > bed.nearbyMetres) return;
+    power += distanceGain(metres) ** 2;
+    if (Number.isFinite(car.firingHz) && car.firingHz > 0) {
+      hzSum += car.firingHz;
+      count += 1;
+    }
+  });
+  const level = Math.min(bed.maxLevel, bed.gain * Math.sqrt(power));
+  const hz = count ? clamp(hzSum / count, bed.minHz, bed.maxHz) : 0;
+  return { level, hz, cars: count };
+};
+
+/** Kerb rumble (kerbs-wind): the bumps of the kerb pass under the wheel at v / stripeM Hz; nothing slower than minKmh. */
+export const kerbRumble = (kmh, onKerb, kerb = AMB.kerb) => {
+  if (!onKerb || !(kmh >= kerb.minKmh)) return { gain: 0, hz: kerb.minHz };
+  return { gain: kerb.gain, hz: clamp(kmh / 3.6 / kerb.stripeM, kerb.minHz, kerb.maxHz) };
+};
+
 /** Is a stop stage one where the air guns run? */
 export const airGunsOn = (stage) => Boolean(stage) && AMB.pit.stages.includes(stage);
 
@@ -67,7 +102,7 @@ export const makeNoiseBuffer = (ctx, random, seconds = 2) => {
  * The ambience graph on `bus`: crowd, wind and rain beds always running (gain-driven),
  * the air guns as a gated loop, and one-shot squeal and impact voices.
  */
-export const createAmbience = (ctx, bus, noise) => {
+export const createAmbience = (ctx, bus, noise, engineBus = bus) => {
   const loop = (type, hz, q) => {
     const src = ctx.createBufferSource();
     src.buffer = noise;
@@ -101,6 +136,53 @@ export const createAmbience = (ctx, bus, noise) => {
   rattleDepth.gain.value = 0;
   rattle.connect(rattleDepth).connect(guns.gain.gain);
   rattle.start();
+
+  // The field bed: band-passed noise, some of it straight and the rest through two or three
+  // detuned combs (a delay of one period fed back), on the engine bus. Without DelayNode
+  // (an old browser) only the noise sounds.
+  const BED = AMB.fieldBed;
+  const bedSrc = ctx.createBufferSource();
+  bedSrc.buffer = noise;
+  bedSrc.loop = true;
+  const bedBand = ctx.createBiquadFilter();
+  bedBand.type = "bandpass";
+  bedBand.frequency.value = BED.bandHz;
+  bedBand.Q.value = BED.q;
+  const bedGain = ctx.createGain();
+  bedGain.gain.value = 0;
+  bedSrc.connect(bedBand);
+  const bedDry = ctx.createGain();
+  bedDry.gain.value = BED.noiseShare;
+  bedBand.connect(bedDry).connect(bedGain);
+  const combs = typeof ctx.createDelay === "function"
+    ? BED.combs.map((comb) => {
+        const delay = ctx.createDelay(1 / BED.minHz);
+        delay.delayTime.value = 1 / BED.maxHz;
+        const feedback = ctx.createGain();
+        feedback.gain.value = comb.feedback;
+        const out = ctx.createGain();
+        out.gain.value = (1 - BED.noiseShare) / BED.combs.length;
+        bedBand.connect(delay);
+        delay.connect(feedback).connect(delay);
+        delay.connect(out).connect(bedGain);
+        return { delay, ratio: comb.ratio };
+      })
+    : [];
+  bedGain.connect(engineBus);
+  bedSrc.start();
+
+  // The kerb rumble: a square wave at v / stripeM through a low-pass, gated by its gain.
+  const KERB = AMB.kerb;
+  const kerbOsc = ctx.createOscillator();
+  kerbOsc.type = "square";
+  kerbOsc.frequency.value = KERB.minHz;
+  const kerbFilter = ctx.createBiquadFilter();
+  kerbFilter.type = "lowpass";
+  kerbFilter.frequency.value = KERB.lowpassHz;
+  const kerbGain = ctx.createGain();
+  kerbGain.gain.value = 0;
+  kerbOsc.connect(kerbFilter).connect(kerbGain).connect(engineBus);
+  kerbOsc.start();
 
   const set = (param, value, at, tc = 0.08) => param.setTargetAtTime(value, at, tc);
 
@@ -152,9 +234,18 @@ export const createAmbience = (ctx, bus, noise) => {
   };
 
   return {
-    /** `frame`: { time, crowd (0..1), crowdShare, wind {gain, hz}, rain, guns (0..1) }. */
+    /**
+     * `frame`: { time, crowd (0..1), crowdShare, wind {gain, hz}, rain, guns (0..1) } and,
+     * optional, bed { level, hz } (the field bed) and kerb { gain, hz } (the rumble).
+     */
     update(frame) {
       const at = frame.time;
+      const bed = frame.bed || { level: 0, hz: 0 };
+      set(bedGain.gain, bed.level, at, BED.smoothingSec);
+      if (bed.hz > 0) combs.forEach((comb) => set(comb.delay.delayTime, 1 / clamp(bed.hz * comb.ratio, BED.minHz, BED.maxHz), at, BED.smoothingSec));
+      const kerb = frame.kerb || { gain: 0, hz: KERB.minHz };
+      set(kerbGain.gain, kerb.gain, at, 0.03);
+      set(kerbOsc.frequency, kerb.hz, at, 0.05);
       const level = frame.crowd * frame.crowdShare;
       set(crowd.gain.gain, level, at, 0.15);
       set(lfoDepth.gain, level * AMB.crowd.lfoDepth, at, 0.3);
@@ -168,7 +259,7 @@ export const createAmbience = (ctx, bus, noise) => {
     squeal,
     impact,
     stop() {
-      [crowd.src, wind.src, rain.src, guns.src, lfo, rattle].forEach((node) => {
+      [crowd.src, wind.src, rain.src, guns.src, lfo, rattle, bedSrc, kerbOsc].forEach((node) => {
         try {
           node.stop();
         } catch (error) {

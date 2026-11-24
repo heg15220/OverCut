@@ -322,18 +322,55 @@
       "$comment": "NV: mezcla por cámara de LiveRace (RF-3D-04). Oyente: 'car' va con el coche enfocado (offset en metros: atrás, lado, alto); 'post' es un poste de TV junto a la pista delante del coche que se recoloca cuando el coche lo pasa; 'above' sobre el coche. 'focus' y 'field' son las ganancias del coche enfocado y del resto; 'interior' sube la admisión y oscurece el escape (a bordo).",
       "groups": {"onboard": ["tcam", "visor", "nose", "tcamRear"], "chase": ["chase", "drone"], "tv": ["tv"], "heli": ["heli"], "map": ["map", "follow"]},
       "mix": {
-        "onboard": {"listener": "car", "back": 0, "side": 0, "up": 1, "focus": 1.0, "field": 0.55, "interior": 1, "crowd": 0.35, "wind": 1.0, "lowpassHz": 12000},
+        "onboard": {"listener": "car", "back": 0, "side": 0, "up": 1, "focus": 0.8, "field": 0.55, "interior": 1, "crowd": 0.35, "wind": 1.0, "lowpassHz": 12000},
         "chase": {"listener": "car", "back": 9, "side": 0, "up": 2.5, "focus": 0.9, "field": 0.7, "interior": 0, "crowd": 0.55, "wind": 0.45, "lowpassHz": 14000},
-        "tv": {"listener": "post", "ahead": 160, "side": 25, "up": 6, "passBehind": 120, "focus": 1.0, "field": 0.85, "interior": 0, "crowd": 1.0, "wind": 0.15, "lowpassHz": 16000},
-        "heli": {"listener": "above", "back": 0, "side": 30, "up": 140, "focus": 1.0, "field": 0.9, "interior": 0, "crowd": 0.7, "wind": 0.6, "lowpassHz": 5000},
+        "tv": {"listener": "post", "useCamera": true, "ahead": 160, "side": 25, "up": 6, "passBehind": 120, "focus": 1.0, "field": 0.85, "interior": 0, "crowd": 1.0, "wind": 0.15, "lowpassHz": 16000},
+        "heli": {"listener": "above", "useCamera": true, "back": 0, "side": 30, "up": 140, "focus": 1.0, "field": 0.9, "interior": 0, "crowd": 0.7, "wind": 0.6, "lowpassHz": 5000},
         "map": {"listener": "above", "back": 0, "side": 0, "up": 220, "focus": 1.0, "field": 0.8, "interior": 0, "crowd": 0.6, "wind": 0.2, "lowpassHz": 4000}
+      }
+    },
+    "views": {
+      "$comment": "Mezcla por vista (mix-snapshots-per-view, F1M24-GAMEPLAY §2.1; RF-3D-04, RNF-07). Una 'snapshot' se pone encima de la mezcla de la cámara: sus focus/field/crowd/wind/interior/lowpassHz, si están, sustituyen a los de la cámara, y engineDb/bedDb recortan el bus de motores (con el lecho del pelotón) y el de ambiente. La vista la da la pantalla ('replay', 'menu'); sin ella, la pausa es 'paused' y el grupo de cámara de byGroup da la suya ('map'). Al cortar de cámara la mezcla se funde en crossfadeMs y al cambiar de vista en snapshotFadeMs. Con 'useCamera' en la mezcla de una cámara, el oyente es la cámara que se ve (cameraBus de Race3D, §1.7); sin ella, el poste virtual. Todos los valores NV, diseño propio: la referencia de vídeo solo fija relaciones de nivel entre vistas (onboard unos 12-15 dB sobre la TV lejana, el mapa 15 dB o más por debajo de la TV), que comprueba el test de mezcla offline (three/audio/levels.js); ninguna cifra del juego se copia.",
+      "crossfadeMs": 250,
+      "snapshotFadeMs": 600,
+      "byGroup": {"map": "map"},
+      "cameraListener": {"minUpM": 1, "sourceUpM": 0.6, "maxSpeed": 120},
+      "snapshots": {
+        "map": {"focus": 0.3, "field": 0.25, "crowd": 0.5, "wind": 0, "engineDb": -6, "bedDb": -10},
+        "paused": {"focus": 0, "field": 0, "crowd": 0.35, "wind": 0, "lowpassHz": 3000, "engineDb": -60, "bedDb": -16},
+        "replay": {"engineDb": -3, "bedDb": -3},
+        "menu": {"focus": 0, "field": 0, "crowd": 0.3, "wind": 0, "lowpassHz": 3000, "engineDb": -60, "bedDb": -14}
       }
     }
   },
   "ambience": {
     "$comment": "NV, diseño propio: lecho de público, viento, lluvia, boxes, neumáticos e impactos.",
     "crowd": {"base": 0.12, "lfoHz": 0.07, "lfoDepth": 0.25, "bandHz": 900, "q": 0.5, "swell": {"pass": 0.25, "lead": 0.55, "start": 0.8, "finish": 0.9, "contact": 0.35}, "attackSec": 0.4, "decaySec": 3.5, "nearbyMetres": 400},
-    "wind": {"gain": 0.18, "fullKmh": 300, "lowHz": 250, "highHz": 2200},
+    "wind": {"$comment": "highHz 8000: el viento y la rodadura a bordo ocupan 2-8 kHz (F1M24-GAMEPLAY §2.1, medido en la referencia de vídeo, conf. A; es el espectro, no un ajuste del juego). gain, fullKmh y lowHz NV.", "gain": 0.18, "fullKmh": 300, "lowHz": 250, "highHz": 8000},
+    "fieldBed": {
+      "$comment": "Lecho del pelotón (field-bed-start, RF-3D-04, RNF-02): los coches cercanos que no tienen voz propia (mixer.maxVoices) suenan como ruido filtrado más unos peines desafinados (DelayNode con realimentación) en la frecuencia de encendido media de esos coches. Nivel = gain × raíz de la suma de las potencias de su distancia al oyente (ley inversa del mezclador), solo los que están a menos de nearbyMetres, hasta maxLevel; va al bus de motores con la cuota 'field' de la cámara. En la salida, con todo el pelotón junto, es lo más fuerte de la mezcla de pista. Todo NV, diseño propio.",
+      "gain": 0.6,
+      "nearbyMetres": 400,
+      "maxLevel": 0.9,
+      "bandHz": 700,
+      "q": 0.5,
+      "noiseShare": 0.4,
+      "combs": [{"ratio": 1, "feedback": 0.6}, {"ratio": 1.013, "feedback": 0.55}, {"ratio": 0.986, "feedback": 0.55}],
+      "minHz": 60,
+      "maxHz": 2000,
+      "smoothingSec": 0.25
+    },
+    "kerb": {
+      "$comment": "Pianos (kerbs-wind, RF-3D-03, RF-3D-04): suena cuando el coche enfocado pisa un piano de data/circuits/<splineId>/kerbs.json (sacado de la malla por tools/assets/blender/extract_kerbs.py): dentro del tramo y con su desplazamiento lateral (pose.lateral, + = derecha como splines.json line) a menos de reachM del borde de ese lado (reachM NV: la trazada de curvatura mínima deja el centro del coche a trackMarginM = 1,3 m del borde, splines.json; con 1,5 m la trazada pisa el piano en el vértice y la salida). Zumbido grave: onda cuadrada a v / stripeM Hz por un paso bajo en lowpassHz. stripeM pending: sin fuente del paso de los resaltes de un piano (deja ~40 Hz a 200 km/h, el orden de lo que se oye a bordo en la referencia). gain, reachM, minKmh y lowpassHz NV, diseño propio. Sin kerbs.json para el circuito o sin lateral (modo rápido) no suena.",
+      "gain": 0.4,
+      "stripeM": 1.4,
+      "stripeStatus": "pending",
+      "reachM": 1.5,
+      "minKmh": 60,
+      "lowpassHz": 160,
+      "minHz": 15,
+      "maxHz": 90
+    },
     "rain": {"gain": 0.32, "threshold": 0.05, "hz": 4500, "q": 0.4},
     "pit": {"airGunHz": 22, "airGunGain": 0.5, "airGunBandHz": 3200, "stages": ["wheels"], "audibleMetres": 150},
     "squeal": {"gain": 0.35, "hz": 1800, "vibratoHz": 7, "durationSec": 0.9, "kinds": ["lockup", "spin"]},

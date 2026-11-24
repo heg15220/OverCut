@@ -125,6 +125,7 @@
       "required": ["listener", "up", "focus", "field", "interior", "crowd", "wind", "lowpassHz"],
       "properties": {
         "listener": {"enum": ["car", "post", "above"]},
+        "useCamera": {"type": "boolean"},
         "back": {"type": "number"},
         "side": {"type": "number"},
         "up": {"type": "number"},
@@ -136,6 +137,21 @@
         "crowd": {"$ref": "#/definitions/share"},
         "wind": {"$ref": "#/definitions/share"},
         "lowpassHz": {"$ref": "#/definitions/positive"}
+      }
+    },
+    "viewSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engineDb", "bedDb"],
+      "properties": {
+        "focus": {"$ref": "#/definitions/share"},
+        "field": {"$ref": "#/definitions/share"},
+        "interior": {"$ref": "#/definitions/share"},
+        "crowd": {"$ref": "#/definitions/share"},
+        "wind": {"$ref": "#/definitions/share"},
+        "lowpassHz": {"$ref": "#/definitions/positive"},
+        "engineDb": {"type": "number", "minimum": -60, "maximum": 6},
+        "bedDb": {"type": "number", "minimum": -60, "maximum": 6}
       }
     }
   },
@@ -215,7 +231,7 @@
     "mixer": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["storageKey", "defaults", "volumeCurve", "maxVoices", "panningModel", "distance", "doppler", "masterLimiter", "cameras"],
+      "required": ["storageKey", "defaults", "volumeCurve", "maxVoices", "panningModel", "distance", "doppler", "masterLimiter", "cameras", "views"],
       "properties": {
         "storageKey": {"$ref": "#/definitions/text"},
         "defaults": {
@@ -259,13 +275,36 @@
             "groups": {"type": "object", "additionalProperties": {"type": "array", "items": {"$ref": "#/definitions/text"}}},
             "mix": {"type": "object", "additionalProperties": {"$ref": "#/definitions/cameraMix"}}
           }
+        },
+        "views": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["crossfadeMs", "snapshotFadeMs", "byGroup", "cameraListener", "snapshots"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "crossfadeMs": {"type": "number", "minimum": 0, "maximum": 5000},
+            "snapshotFadeMs": {"type": "number", "minimum": 0, "maximum": 5000},
+            "byGroup": {"type": "object", "additionalProperties": {"$ref": "#/definitions/text"}},
+            "cameraListener": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["minUpM", "sourceUpM", "maxSpeed"],
+              "properties": {"minUpM": {"$ref": "#/definitions/nonNegative"}, "sourceUpM": {"$ref": "#/definitions/nonNegative"}, "maxSpeed": {"$ref": "#/definitions/positive"}}
+            },
+            "snapshots": {
+              "type": "object",
+              "required": ["map", "paused", "replay", "menu"],
+              "properties": {"map": {"$ref": "#/definitions/viewSnapshot"}, "paused": {"$ref": "#/definitions/viewSnapshot"}, "replay": {"$ref": "#/definitions/viewSnapshot"}, "menu": {"$ref": "#/definitions/viewSnapshot"}},
+              "additionalProperties": {"$ref": "#/definitions/viewSnapshot"}
+            }
+          }
         }
       }
     },
     "ambience": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["crowd", "wind", "rain", "pit", "squeal", "impact"],
+      "required": ["crowd", "wind", "fieldBed", "kerb", "rain", "pit", "squeal", "impact"],
       "properties": {
         "$comment": {"type": "string"},
         "crowd": {
@@ -293,7 +332,46 @@
           "type": "object",
           "additionalProperties": false,
           "required": ["gain", "fullKmh", "lowHz", "highHz"],
-          "properties": {"gain": {"$ref": "#/definitions/share"}, "fullKmh": {"$ref": "#/definitions/positive"}, "lowHz": {"$ref": "#/definitions/positive"}, "highHz": {"$ref": "#/definitions/positive"}}
+          "properties": {"$comment": {"type": "string"}, "gain": {"$ref": "#/definitions/share"}, "fullKmh": {"$ref": "#/definitions/positive"}, "lowHz": {"$ref": "#/definitions/positive"}, "highHz": {"$ref": "#/definitions/positive"}}
+        },
+        "fieldBed": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["gain", "nearbyMetres", "maxLevel", "bandHz", "q", "noiseShare", "combs", "minHz", "maxHz", "smoothingSec"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "gain": {"$ref": "#/definitions/share"},
+            "nearbyMetres": {"$ref": "#/definitions/positive"},
+            "maxLevel": {"$ref": "#/definitions/share"},
+            "bandHz": {"$ref": "#/definitions/positive"},
+            "q": {"$ref": "#/definitions/positive"},
+            "noiseShare": {"$ref": "#/definitions/share"},
+            "combs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "items": {"type": "object", "additionalProperties": false, "required": ["ratio", "feedback"], "properties": {"ratio": {"type": "number", "minimum": 0.9, "maximum": 1.1}, "feedback": {"type": "number", "minimum": 0, "maximum": 0.95}}}
+            },
+            "minHz": {"$ref": "#/definitions/positive"},
+            "maxHz": {"$ref": "#/definitions/positive"},
+            "smoothingSec": {"$ref": "#/definitions/positive"}
+          }
+        },
+        "kerb": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["gain", "stripeM", "stripeStatus", "reachM", "minKmh", "lowpassHz", "minHz", "maxHz"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "gain": {"$ref": "#/definitions/share"},
+            "stripeM": {"$ref": "#/definitions/positive"},
+            "stripeStatus": {"enum": ["pending", "sourced"]},
+            "reachM": {"$ref": "#/definitions/nonNegative"},
+            "minKmh": {"$ref": "#/definitions/nonNegative"},
+            "lowpassHz": {"$ref": "#/definitions/positive"},
+            "minHz": {"$ref": "#/definitions/positive"},
+            "maxHz": {"$ref": "#/definitions/positive"}
+          }
         },
         "rain": {
           "type": "object",
