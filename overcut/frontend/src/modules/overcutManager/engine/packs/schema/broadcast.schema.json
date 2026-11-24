@@ -51,10 +51,34 @@
         "width": {"type": "number", "exclusiveMinimum": 0, "maximum": 500},
         "priority": {"type": "integer", "minimum": 0, "maximum": 10},
         "weight": {"type": "number", "minimum": 0},
+        "offsetM": {"type": "number", "minimum": -500, "maximum": 500},
+        "everyM": {"type": "number", "exclusiveMinimum": 0, "maximum": 2000},
+        "lagM": {"type": "number", "minimum": 0, "maximum": 200},
+        "spanM": {
+          "type": "object", "additionalProperties": false, "required": ["from", "to"],
+          "properties": {"from": {"type": "number", "minimum": -1000, "maximum": 1000}, "to": {"type": "number", "minimum": -1000, "maximum": 1000}}
+        },
+        "approach": {
+          "type": "object", "additionalProperties": false, "required": ["maxShare", "ofStraight"],
+          "properties": {"maxShare": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.5}, "ofStraight": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}}
+        },
+        "byKind": {
+          "type": "object", "additionalProperties": false, "required": ["slow", "medium", "fast"],
+          "properties": {
+            "slow": {"$ref": "#/definitions/placement"},
+            "medium": {"$ref": "#/definitions/placement"},
+            "fast": {"$ref": "#/definitions/placement"}
+          }
+        },
         "status": {"$ref": "#/definitions/status"},
         "note": {"type": "string"}
       }
     },
+    "placement": {
+      "type": "object", "additionalProperties": false, "required": ["dist", "height"],
+      "properties": {"dist": {"type": "number", "minimum": 0, "maximum": 500}, "height": {"type": "number", "minimum": 0, "maximum": 200}}
+    },
+    "rigTypeName": {"enum": ["braking", "corner", "straight", "headOn", "passPan", "lateralTrack", "highWide", "grandstand", "cable"]},
     "framingType": {
       "type": "object",
       "additionalProperties": false,
@@ -124,6 +148,8 @@
       "properties": {
         "status": {"$ref": "#/definitions/status"},
         "note": {"type": "string"},
+        "carLengthM": {"type": "number", "exclusiveMinimum": 0, "maximum": 10},
+        "carLengthNote": {"type": "string"},
         "types": {"type": "array", "items": {"$ref": "#/definitions/rigType"}, "minItems": 1}
       }
     },
@@ -134,7 +160,24 @@
       "properties": {
         "status": {"$ref": "#/definitions/status"},
         "note": {"type": "string"},
-        "byType": {"type": "object", "additionalProperties": {"$ref": "#/definitions/framingType"}}
+        "fovDeg": {
+          "type": "object", "additionalProperties": false, "required": ["min", "max"],
+          "properties": {"min": {"type": "number", "exclusiveMinimum": 0, "maximum": 120}, "max": {"type": "number", "exclusiveMinimum": 0, "maximum": 120}}
+        },
+        "lookAhead": {
+          "type": "object", "additionalProperties": false, "required": ["perSpeed", "maxM"],
+          "properties": {"perSpeed": {"type": "number", "minimum": 0, "maximum": 1}, "maxM": {"type": "number", "minimum": 0, "maximum": 50}}
+        },
+        "aimUpM": {"type": "number", "minimum": 0, "maximum": 3},
+        "byType": {"type": "object", "additionalProperties": {"$ref": "#/definitions/framingType"}},
+        "battle": {
+          "type": "object", "additionalProperties": false, "required": ["pairShare", "maxGapM"],
+          "properties": {
+            "pairShare": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+            "maxGapM": {"type": "number", "exclusiveMinimum": 0, "maximum": 500},
+            "note": {"type": "string"}
+          }
+        }
       }
     },
     "zonesPolicy": {
@@ -145,7 +188,29 @@
         "avoidRepeat": {"type": "boolean"},
         "seedSalt": {"$ref": "#/definitions/text"},
         "status": {"$ref": "#/definitions/status"},
-        "note": {"type": "string"}
+        "note": {"type": "string"},
+        "layout": {
+          "type": "object", "additionalProperties": false,
+          "required": ["cornerEntryM", "cornerExitM", "chicaneGapM", "straightMaxM", "minZoneM"],
+          "properties": {
+            "cornerEntryM": {"type": "number", "minimum": 0, "maximum": 300},
+            "cornerExitM": {"type": "number", "minimum": 0, "maximum": 300},
+            "chicaneGapM": {"type": "number", "minimum": 0, "maximum": 300},
+            "straightMaxM": {"type": "number", "exclusiveMinimum": 0, "maximum": 3000},
+            "minZoneM": {"type": "number", "minimum": 0, "maximum": 500}
+          }
+        },
+        "cams": {
+          "type": "object", "additionalProperties": false, "required": ["corner", "braking", "straight", "line"],
+          "properties": {
+            "corner": {"type": "array", "items": {"$ref": "#/definitions/rigTypeName"}, "minItems": 1, "maxItems": 3, "uniqueItems": true},
+            "braking": {"type": "array", "items": {"$ref": "#/definitions/rigTypeName"}, "minItems": 1, "maxItems": 3, "uniqueItems": true},
+            "straight": {"type": "array", "items": {"$ref": "#/definitions/rigTypeName"}, "minItems": 1, "maxItems": 3, "uniqueItems": true},
+            "line": {"type": "array", "items": {"$ref": "#/definitions/rigTypeName"}, "minItems": 1, "maxItems": 3, "uniqueItems": true}
+          }
+        },
+        "looseRadiusM": {"type": "number", "exclusiveMinimum": 0, "maximum": 2000},
+        "nearRadiusM": {"type": "number", "exclusiveMinimum": 0, "maximum": 5000}
       }
     },
     "sequences": {

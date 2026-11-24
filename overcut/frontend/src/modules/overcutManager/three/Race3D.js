@@ -23,7 +23,7 @@ import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { buildCar } from "./carModel";
 import { buildTrack } from "./trackScene";
-import { buildRig, fitRig, frame, garageShot, isOnboard, modeForYear, onboardFor, seedOf, shakeOffset } from "./cameras";
+import { buildZoneRig, critDampStep, fitRig, frame, garageShot, isOnboard, modeForYear, onboardFor, seedOf, shakeOffset, tvRival } from "./cameras";
 import { onRacingLine } from "./racingLine";
 import { poseAt } from "../engine/trackGeometry";
 import { createRenderer, environmentFor } from "./studio";
@@ -81,10 +81,10 @@ const buildCrew = (color) => {
   return group;
 };
 
-export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, teams, onPick, labels, clock, sample, cameraBus }) {
+export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, teams, onPick, labels, clock, sample, cameraBus, seed }) {
   const mount = useRef(null);
   const props = useRef({});
-  props.current = { cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, onPick, clock, sample, year, cameraBus };
+  props.current = { cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, onPick, clock, sample, year, cameraBus, seed };
   const world = useRef(null);
 
   // Renderer, sky, sun and camera: once.
@@ -189,7 +189,8 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
     state.scene.add(track.group);
     state.track = track;
     track.applyWeather(state, Boolean(state.wet));
-    state.rig = buildRig(circuit);
+    // The TV rig by zones (CAM-2): the circuit's camera-zones.json, or zones built from its geometry.
+    state.rig = buildZoneRig(circuit);
     state.camState = {};
     state.circuit = circuit;
     // The real circuit, when the pipeline calibrated one for this layout (RF-3D-01, RF-3D-03); the
@@ -209,7 +210,7 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
           return buildHeightField(scene, spline.points).then((field) => {
             if (disposed || !field) return;
             state.field = field;
-            state.rig = fitRig(buildRig(circuit), circuit, field, heightAt);
+            state.rig = fitRig(buildZoneRig(circuit), circuit, field, heightAt);
             state.camState = {};
           });
         })
@@ -296,7 +297,7 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
  * from the radius it is turning on and wheels that roll at its speed.
  */
 function step(state, props, dt) {
-  const { cars = [], focusId, wet, lights, safetyCar, clock, sample, safetyCarOn, year, cameraBus } = props;
+  const { cars = [], focusId, wet, lights, safetyCar, clock, sample, safetyCarOn, year, cameraBus, seed } = props;
   // SRS 6.2: an onboard the cars of this season did not carry is filmed by the chase camera.
   const mode = modeForYear(props.mode || "chase", year);
   const onboard = isOnboard(mode);
@@ -455,6 +456,13 @@ function step(state, props, dt) {
   if (focus) {
     const cam = state.cam;
     const inGarage = focus.item?.pose?.garage && mode !== "heli";
+    // CAM-2: the zone cameras are drawn with the race seed (the circuit and year when the live view
+    // gives none), and the TV frame opens for two when the focused car is racing a rival.
+    state.camState.seed = seed ?? seedOf(`${circuit.splineId ?? circuit.id ?? ""}|${year ?? ""}`);
+    if (mode === "tv") {
+      const rival = tvRival(ordered, focus.item?.car?.id, state.carObjects);
+      focus.rival = rival ? { x: rival.object.position.x, z: rival.object.position.z } : null;
+    }
     const shot = inGarage
       ? garageShot(focus)
       : frame(mode, focus, circuit, state.rig, state.camState, dt, state.heightAt ? { heightAt: state.heightAt, field: state.field } : null);
@@ -468,12 +476,24 @@ function step(state, props, dt) {
     if (shot.snap || cam.pos.distanceTo(shot.pos) > 120) {
       cam.pos.copy(shot.pos);
       cam.look.copy(shot.look);
+      cam.lookVel = null;
     } else {
       // The camera eases in race time: at 10x the cars cover ten times the road per frame, and a lens
       // easing in wall-clock time would trail tens of metres behind its car (out of a long-lens TV shot).
       const ease = Math.max(dt, Math.min(simDt, 0.5));
       cam.pos.lerp(shot.pos, Math.min(1, ease * (shot.lag ?? 30)));
-      cam.look.lerp(shot.look, Math.min(1, ease * (shot.lookLag ?? 10)));
+      if (shot.critDamp) {
+        // The TV lens on a critically damped spring (framing.byType critDamp): no overshoot.
+        if (!cam.lookVel) cam.lookVel = new THREE.Vector3();
+        ["x", "y", "z"].forEach((axis) => {
+          const next = critDampStep(cam.look[axis], cam.lookVel[axis], shot.look[axis], shot.critDamp, ease);
+          cam.look[axis] = next.x;
+          cam.lookVel[axis] = next.v;
+        });
+      } else {
+        cam.lookVel = null;
+        cam.look.lerp(shot.look, Math.min(1, ease * (shot.lookLag ?? 10)));
+      }
     }
     camera.fov += (shot.fov - camera.fov) * Math.min(1, shot.snap ? 1 : dt * 3);
     camera.near = shot.near ?? 0.3;

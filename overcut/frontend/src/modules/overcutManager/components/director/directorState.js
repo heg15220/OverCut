@@ -21,8 +21,9 @@
  *   CAM-3/CAM-4; ignored here).
  * - `rig`: the trackside cameras (three/cameras.js buildRig / fitRig, each with `id`,
  *   `type`, `from`, `to`, `priority`).
- * - `clock`: { now } wall-clock seconds for the follow-the-action hold, and `prev` - the
- *   previous result, so the director keeps its camera while the car is still in it.
+ * - `clock`: { now } wall-clock seconds for the follow-the-action hold, `prev` - the
+ *   previous result, so the director keeps its camera while the car is still in it - and
+ *   `seed`, the race seed of the zone draw on a zone rig (CAM-2).
  *
  * `shotKind`: "zone" (one car in a trackside camera), "battle" (the subject and its
  * rival framed together), "pit" (the subject in the pit lane; CAM-3 turns it into the
@@ -32,6 +33,7 @@
  */
 
 import broadcast from "../../data/balance/broadcast.json";
+import { zoneChoice } from "../../three/cameraZones";
 
 const wrap = (value) => ((value % 1) + 1) % 1;
 const inSpan = (share, from, to) => {
@@ -77,12 +79,20 @@ export const rivalOf = (rows, subjectId, config = broadcast.director) => {
   return null;
 };
 
-/** The trackside camera covering a share of the lap: the one already on air if it still covers it, else the highest priority. */
-export const cameraFor = (rig, share, keepId = null) => {
+/**
+ * The trackside camera covering a share of the lap: the one already on air if it still covers it,
+ * else, on a zone rig (CAM-2), the camera of that zone drawn for this lap with the race seed
+ * (`opts.seed`, `opts.lap` - by default the whole part of the share, a car's progress), the same
+ * one three/cameras.js frame puts on air; on a rig by priority, the highest priority.
+ */
+export const cameraFor = (rig, share, keepId = null, opts = {}) => {
   if (!rig?.length || !Number.isFinite(share)) return null;
   const covering = rig.filter((cam) => inSpan(share, cam.from, cam.to));
   const kept = keepId !== null ? covering.find((cam) => cam.id === keepId) : null;
   if (kept) return kept;
+  const lap = Number.isFinite(opts.lap) ? opts.lap : Math.max(0, Math.floor(share));
+  const zoned = zoneChoice(covering, share, lap, opts.seed ?? 0);
+  if (zoned) return zoned[0];
   return covering.slice().sort((a, b) => b.priority - a.priority)[0] || null;
 };
 
@@ -114,7 +124,7 @@ export const directorState = (focusId, rows = [], events = [], rig = [], clock =
 
   const subjectId = idOf(subject);
   const share = subject.pose?.progress;
-  const cam = cameraFor(rig, share, prev?.cameraId ?? null);
+  const cam = cameraFor(rig, share, prev?.cameraId ?? null, { seed: clock.seed });
   const base = { cameraId: cam?.id ?? null, camType: cam?.type ?? null, reason, hold };
   if (subject.pose?.inPit) return { ...base, subjectIds: [subjectId], shotKind: "pit" };
   const rival = rivalOf(rows, subjectId, config);
