@@ -5,7 +5,8 @@
     "reference": "docs/manager/f1m24-analysis/cameras.md §2, §5-§9 (duraciones y densidad de planos medidas en vídeo; solo referencia)",
     "previous": "components/LiveRace.js y components/raceClock.js battlesIn antes de CAM-1 (valores trasladados sin cambios)",
     "rig": "three/cameras.js buildRig antes de CAM-1 (CAM-2 lo pasa a esta plantilla)",
-    "unification": "docs/manager/F1M24-GAMEPLAY.md §1.5 (buffer de repeticiones en la vista: 22 coches × 25 s × 10 Hz)"
+    "zones": "docs/manager/f1m24-analysis/cameras.md §2 y §5 (21-24 planos por vuelta a 1x; 18-22 zonas con 1-3 cámaras alternativas; plantilla de densidad, no posiciones). Las posiciones salen de la geometría del circuito (data/splines.json) y de la malla GLB (fitRig)",
+    "unification":"docs/manager/F1M24-GAMEPLAY.md §1.5 (buffer de repeticiones en la vista: 22 coches × 25 s × 10 Hz)"
   },
   "director": {
     "battleGapSec": 1.0,
@@ -35,30 +36,50 @@
     "note": "HUD-1 lo lee; en libres el mapa por defecto (F1M24-GAMEPLAY §2.5 user-camera-lock)."
   },
   "rigTemplate": {
-    "status": "pending",
-    "note": "CAM-2 (camera-zones) cablea buildRig a esta plantilla. Los tipos existentes llevan los valores que buildRig tenía en código; los nuevos van sin calibrar.",
+    "status": "current",
+    "note": "CAM-2 (camera-zones): three/cameras.js buildRig (rig por prioridad, el de antes) y buildZoneRig (rig por zonas, el que usa Race3D) leen esta plantilla. Los cinco tipos 'current' llevan los valores que buildRig tenía en código: mismas cámaras y mismas posiciones. Los tipos nuevos son diseño propio sin calibrar ('pending'); en un circuito real la altura y la distancia finales salen de la malla GLB al ajustar el rig (fitRig). spanM: metros de pista que cubre, con signo, desde su ancla (inicio/fin de curva, punto de la recta, línea de meta). weight: peso de la elección por zona, diseño propio en todos los tipos. Sin fuente de en qué año entra cada tipo de cámara en la realización de F1: todos valen para todas las eras, como antes de CAM-2 (pending).",
+    "carLengthM": 5.6,
+    "carLengthNote": "Largo nominal del coche para el encuadre (fracción del cuadro), orden de magnitud de un F1 de 2022-2024. El reglamento técnico FIA fija batalla y voladizos, no el largo total: pending fuente por era.",
     "types": [
-      { "type": "braking", "dist": 22, "height": 5, "width": 26, "priority": 3, "weight": 1, "status": "current" },
-      { "type": "corner", "dist": 52, "height": 7, "width": 30, "priority": 2, "weight": 1, "status": "current", "note": "38/52/68 m y 9/7 m de alto según curva lenta/media/rápida en buildRig" },
-      { "type": "straight", "dist": 30, "height": 4, "width": 40, "priority": 1, "weight": 1, "status": "current", "note": "una cada 260 m de recta sin cubrir" },
-      { "type": "grandstand", "dist": 46, "height": 20, "width": 46, "priority": 4, "weight": 1, "status": "current" },
-      { "type": "cable", "dist": 0, "height": 24, "width": 40, "priority": 5, "weight": 1, "status": "current" },
-      { "type": "headOn", "dist": 30, "height": 5, "width": 30, "priority": 3, "weight": 1, "status": "pending" },
-      { "type": "passPan", "dist": 25, "height": 4, "width": 30, "priority": 2, "weight": 1, "status": "pending" },
-      { "type": "lateralTrack", "dist": 20, "height": 2, "width": 25, "priority": 2, "weight": 1, "status": "pending" },
-      { "type": "highWide", "dist": 80, "height": 25, "width": 90, "priority": 2, "weight": 1, "status": "pending" }
+      { "type": "braking", "dist": 22, "height": 5, "width": 26, "priority": 3, "weight": 3, "offsetM": 25, "spanM": { "from": 0, "to": 10 }, "approach": { "maxShare": 0.08, "ofStraight": 0.8 }, "status": "current", "note": "Teleobjetivo al final de la recta mirando atrás, offsetM pasada la frenada y por fuera de la curva; cubre approach (la menor de maxShare de vuelta y ofStraight de la recta) antes de la frenada" },
+      { "type": "corner", "dist": 52, "height": 7, "width": 30, "priority": 2, "weight": 3, "spanM": { "from": -30, "to": 60 }, "byKind": { "slow": { "dist": 38, "height": 9 }, "medium": { "dist": 52, "height": 7 }, "fast": { "dist": 68, "height": 7 } }, "status": "current", "note": "Torre por fuera del vértice; distancia y altura por tipo de curva como en buildRig; spanM desde el inicio (from) y el final (to) de la curva" },
+      { "type": "straight", "dist": 30, "height": 4, "width": 40, "priority": 1, "weight": 2, "offsetM": 60, "everyM": 260, "spanM": { "from": -140, "to": 130 }, "status": "current", "note": "Rig por prioridad: una cada everyM de recta sin cubrir; rig por zonas: una por tramo de recta" },
+      { "type": "grandstand", "dist": 46, "height": 20, "width": 46, "priority": 4, "weight": 3, "spanM": { "from": -110, "to": 60 }, "status": "current" },
+      { "type": "cable", "dist": 0, "height": 24, "width": 40, "priority": 5, "weight": 1, "lagM": 18, "spanM": { "from": -360, "to": -110 }, "status": "current", "note": "Sobre la recta principal, lagM por detrás del coche" },
+      { "type": "headOn", "dist": 14, "height": 6, "width": 22, "priority": 3, "weight": 2, "offsetM": 70, "status": "pending", "note": "Frontal de recta (TS frontal, cameras.md §5): más allá del final de la recta y cerca del eje, teleobjetivo largo. Diseño propio" },
+      { "type": "passPan", "dist": 12, "height": 3, "width": 24, "priority": 2, "weight": 2, "status": "pending", "note": "Paso con barrido (cameras.md §5): pegada al borde en mitad del tramo; el coche pasa por delante y la cámara gira hasta ~180°. Diseño propio" },
+      { "type": "lateralTrack", "dist": 16, "height": 2, "width": 20, "priority": 2, "weight": 1, "lagM": 4, "status": "pending", "note": "Seguimiento lateral (cameras.md §5): corre en paralelo al coche, lagM por detrás, fondo barrido. Diseño propio" },
+      { "type": "highWide", "dist": 80, "height": 25, "width": 70, "priority": 2, "weight": 2, "status": "pending", "note": "Pista alta / gran angular en curva (TW, cameras.md §5). Diseño propio" }
     ]
   },
   "framing": {
     "status": "pending",
-    "note": "CAM-2 (tv-lens-behaviour): fracción del ancho del cuadro que ocupa el coche y amortiguamiento crítico por tipo. Hoy cameras.js usa el ancho de rig.width y lookLag fijo.",
-    "byType": {}
+    "note": "CAM-2 (tv-lens-behaviour). byType: fracción del cuadro que ocupa el coche [minShare, maxShare] (convención de cameras.js: metros de encuadre frente al campo vertical) y pulsación en 1/s del amortiguamiento crítico de la mirada (critDamp). La anchura del rig se acota a carLengthM/maxShare..carLengthM/minShare. Referencia del vídeo: el coche en el 15-35 % del ancho (cameras.md §5), solo referencia: los valores son diseño propio. critDamp 14 en 'default' = el lookLag que cameras.js tenía en código; fovDeg, lookAhead y aimUpM, los literales que tenía (current). Un tipo sin entrada usa 'default'.",
+    "fovDeg": { "min": 3.5, "max": 60 },
+    "lookAhead": { "perSpeed": 0.08, "maxM": 6 },
+    "aimUpM": 0.6,
+    "byType": {
+      "default": { "minShare": 0.12, "maxShare": 0.36, "critDamp": 14 },
+      "passPan": { "minShare": 0.18, "maxShare": 0.45, "critDamp": 20 },
+      "lateralTrack": { "minShare": 0.22, "maxShare": 0.4, "critDamp": 24 },
+      "highWide": { "minShare": 0.06, "maxShare": 0.2, "critDamp": 8 }
+    },
+    "battle": { "pairShare": 0.7, "maxGapM": 60, "note": "Encuadre para dos (cameras.md §6): si el coche enfocado lleva un rival a menos de director.battleGapSec (o en estado battle ATTACKING/DEFENDING del contrato SIM-4) y a menos de maxGapM, el cuadro se abre hasta que la pareja ocupe pairShare y apunta a su punto medio. Diseño propio" }
   },
   "zonesPolicy": {
     "avoidRepeat": true,
     "seedSalt": "camera-zones",
     "status": "pending",
-    "note": "CAM-2: elección por peso con la semilla de la carrera sin repetir la variante de la vuelta anterior."
+    "note": "CAM-2 (camera-zones): la vuelta se parte en zonas (curvas, frenadas, tramos de recta, meta); el plano dura lo que el coche tarda en cruzar su zona y al salir el realizador corta a una cámara de la siguiente, elegida por peso (rigTemplate weight) con la semilla de la carrera y sin repetir la de esa zona en la vuelta anterior: los cortes caen por posición, no por tiempo (cameras.md §5). layout y cams son diseño propio ajustado a la densidad de referencia (18-24 planos por vuelta en Baréin a 1x, cameras.md §2); data/circuits/<splineId>/camera-zones.json (tools/assets/camera_zones.mjs) lo fija por circuito y se puede editar a mano. looseRadiusM y nearRadiusM: los 260 y 400 m que cameras.js tenía en código para tomar la torre más cercana (current).",
+    "layout": { "cornerEntryM": 30, "cornerExitM": 60, "chicaneGapM": 25, "straightMaxM": 450, "minZoneM": 60 },
+    "cams": {
+      "corner": ["corner", "highWide"],
+      "braking": ["braking", "headOn"],
+      "straight": ["straight", "passPan", "lateralTrack"],
+      "line": ["grandstand", "cable", "passPan"]
+    },
+    "looseRadiusM": 260,
+    "nearRadiusM": 400
   },
   "sequences": {
     "pitStop": { "status": "pending", "note": "CAM-3: [{trigger: 'pitPhase:X', cam, minSec, maxSec}] con prioridad sobre zonas", "crewLeadSec": null, "shots": [] },

@@ -1,0 +1,442 @@
+{
+ "$comment": "Generado por tools/assets/camera_zones.mjs (CAM-2) desde la geometría del circuito; esquema engine/packs/schema/camera-zones.schema.json. Editable a mano: poner \"edited\": true para que el generador no lo sobrescriba.",
+ "splineId": "silverstone-7",
+ "lengthM": 5025.2,
+ "year": 2009,
+ "source": "buildCameraZones (three/cameraZones.js) + broadcast.json zonesPolicy",
+ "zones": [
+  {
+   "fromM": 226.5,
+   "toM": 399.8,
+   "kind": "corner",
+   "corners": [
+    1
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 298.1,
+     "side": 1,
+     "cornerKind": "fast"
+    },
+    {
+     "type": "highWide",
+     "atM": 298.1,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 399.8,
+   "toM": 615.4,
+   "kind": "braking",
+   "cams": [
+    {
+     "type": "braking",
+     "atM": 615.4,
+     "side": -1
+    },
+    {
+     "type": "headOn",
+     "atM": 615.4,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 615.4,
+   "toM": 837.1,
+   "kind": "corner",
+   "corners": [
+    2
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 735.2,
+     "side": -1,
+     "cornerKind": "fast"
+    },
+    {
+     "type": "highWide",
+     "atM": 735.2,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 837.1,
+   "toM": 1046.5,
+   "kind": "corner",
+   "corners": [
+    3
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 932.8,
+     "side": 1,
+     "cornerKind": "medium"
+    },
+    {
+     "type": "highWide",
+     "atM": 932.8,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 1046.5,
+   "toM": 1485.7,
+   "kind": "corner",
+   "corners": [
+    4,
+    5
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 1122.5,
+     "side": 1,
+     "cornerKind": "slow"
+    },
+    {
+     "type": "highWide",
+     "atM": 1122.5,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 1485.7,
+   "toM": 1616.7,
+   "kind": "corner",
+   "corners": [
+    6
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 1533.6,
+     "side": -1,
+     "cornerKind": "fast"
+    },
+    {
+     "type": "highWide",
+     "atM": 1533.6,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 1616.7,
+   "toM": 1680.3,
+   "kind": "straight",
+   "cams": [
+    {
+     "type": "straight",
+     "atM": 1648.5,
+     "side": -1
+    },
+    {
+     "type": "passPan",
+     "atM": 1648.5,
+     "side": -1
+    },
+    {
+     "type": "lateralTrack",
+     "atM": 1648.5,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 1680.3,
+   "toM": 1852.1,
+   "kind": "corner",
+   "corners": [
+    7
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 1750.7,
+     "side": -1,
+     "cornerKind": "medium"
+    },
+    {
+     "type": "highWide",
+     "atM": 1750.7,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 1852.1,
+   "toM": 2073.5,
+   "kind": "straight",
+   "cams": [
+    {
+     "type": "straight",
+     "atM": 1962.8,
+     "side": -1
+    },
+    {
+     "type": "passPan",
+     "atM": 1962.8,
+     "side": -1
+    },
+    {
+     "type": "lateralTrack",
+     "atM": 1962.8,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 2073.5,
+   "toM": 2293.6,
+   "kind": "corner",
+   "corners": [
+    8
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 2159.5,
+     "side": -1,
+     "cornerKind": "medium"
+    },
+    {
+     "type": "highWide",
+     "atM": 2159.5,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 2293.6,
+   "toM": 2422.7,
+   "kind": "corner",
+   "corners": [
+    9
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 2345.1,
+     "side": -1,
+     "cornerKind": "medium"
+    },
+    {
+     "type": "highWide",
+     "atM": 2345.1,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 2422.7,
+   "toM": 2668.4,
+   "kind": "braking",
+   "cams": [
+    {
+     "type": "braking",
+     "atM": 2668.4,
+     "side": 1
+    },
+    {
+     "type": "headOn",
+     "atM": 2668.4,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 2668.4,
+   "toM": 2916.6,
+   "kind": "corner",
+   "corners": [
+    10,
+    11
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 2740.4,
+     "side": 1,
+     "cornerKind": "fast"
+    },
+    {
+     "type": "highWide",
+     "atM": 2740.4,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 2916.6,
+   "toM": 3248.7,
+   "kind": "corner",
+   "corners": [
+    12,
+    13
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 3187.2,
+     "side": -1,
+     "cornerKind": "medium"
+    },
+    {
+     "type": "highWide",
+     "atM": 3187.2,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 3248.7,
+   "toM": 3431.6,
+   "kind": "corner",
+   "corners": [
+    14
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 3323.7,
+     "side": 1,
+     "cornerKind": "fast"
+    },
+    {
+     "type": "highWide",
+     "atM": 3323.7,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 3431.6,
+   "toM": 3641.6,
+   "kind": "straight",
+   "cams": [
+    {
+     "type": "straight",
+     "atM": 3536.6,
+     "side": -1
+    },
+    {
+     "type": "passPan",
+     "atM": 3536.6,
+     "side": -1
+    },
+    {
+     "type": "lateralTrack",
+     "atM": 3536.6,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 3641.6,
+   "toM": 4043.6,
+   "kind": "braking",
+   "cams": [
+    {
+     "type": "braking",
+     "atM": 4043.6,
+     "side": -1
+    },
+    {
+     "type": "headOn",
+     "atM": 4043.6,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 4043.6,
+   "toM": 4354.9,
+   "kind": "corner",
+   "corners": [
+    15
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 4187.3,
+     "side": -1,
+     "cornerKind": "medium"
+    },
+    {
+     "type": "highWide",
+     "atM": 4187.3,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 4354.9,
+   "toM": 4510.9,
+   "kind": "straight",
+   "cams": [
+    {
+     "type": "straight",
+     "atM": 4432.9,
+     "side": -1
+    },
+    {
+     "type": "passPan",
+     "atM": 4432.9,
+     "side": -1
+    },
+    {
+     "type": "lateralTrack",
+     "atM": 4432.9,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 4510.9,
+   "toM": 5007.1,
+   "kind": "corner",
+   "corners": [
+    16,
+    17
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 4719.6,
+     "side": -1,
+     "cornerKind": "medium"
+    },
+    {
+     "type": "highWide",
+     "atM": 4719.6,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 5007.1,
+   "toM": 5251.7,
+   "kind": "braking",
+   "cams": [
+    {
+     "type": "braking",
+     "atM": 226.5,
+     "side": 1
+    },
+    {
+     "type": "headOn",
+     "atM": 226.5,
+     "side": 1
+    }
+   ]
+  }
+ ]
+}

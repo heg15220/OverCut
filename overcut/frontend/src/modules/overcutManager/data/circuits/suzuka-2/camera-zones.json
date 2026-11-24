@@ -1,0 +1,426 @@
+{
+ "$comment": "Generado por tools/assets/camera_zones.mjs (CAM-2) desde la geometría del circuito; esquema engine/packs/schema/camera-zones.schema.json. Editable a mano: poner \"edited\": true para que el generador no lo sobrescriba.",
+ "splineId": "suzuka-2",
+ "lengthM": 5800.3,
+ "year": 2026,
+ "source": "buildCameraZones (three/cameraZones.js) + broadcast.json zonesPolicy",
+ "zones": [
+  {
+   "fromM": 110.1,
+   "toM": 363.7,
+   "kind": "braking",
+   "cams": [
+    {
+     "type": "braking",
+     "atM": 363.7,
+     "side": -1
+    },
+    {
+     "type": "headOn",
+     "atM": 363.7,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 363.7,
+   "toM": 782.4,
+   "kind": "corner",
+   "corners": [
+    1,
+    2
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 602.8,
+     "side": -1,
+     "cornerKind": "medium"
+    },
+    {
+     "type": "highWide",
+     "atM": 602.8,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 782.4,
+   "toM": 1051.6,
+   "kind": "corner",
+   "corners": [
+    3,
+    4
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 973.8,
+     "side": -1,
+     "cornerKind": "medium"
+    },
+    {
+     "type": "highWide",
+     "atM": 973.8,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 1051.6,
+   "toM": 1416.6,
+   "kind": "corner",
+   "corners": [
+    5,
+    6
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 1344.7,
+     "side": -1,
+     "cornerKind": "medium"
+    },
+    {
+     "type": "highWide",
+     "atM": 1344.7,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 1416.6,
+   "toM": 1980,
+   "kind": "corner",
+   "corners": [
+    7
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 1494.4,
+     "side": 1,
+     "cornerKind": "fast"
+    },
+    {
+     "type": "highWide",
+     "atM": 1494.4,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 1980,
+   "toM": 2117.3,
+   "kind": "corner",
+   "corners": [
+    8
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 2039.7,
+     "side": -1,
+     "cornerKind": "fast"
+    },
+    {
+     "type": "highWide",
+     "atM": 2039.7,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 2117.3,
+   "toM": 2307.8,
+   "kind": "corner",
+   "corners": [
+    9
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 2206.3,
+     "side": -1,
+     "cornerKind": "slow"
+    },
+    {
+     "type": "highWide",
+     "atM": 2206.3,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 2307.8,
+   "toM": 2451.9,
+   "kind": "braking",
+   "cams": [
+    {
+     "type": "braking",
+     "atM": 2451.9,
+     "side": -1
+    },
+    {
+     "type": "headOn",
+     "atM": 2451.9,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 2451.9,
+   "toM": 2592.8,
+   "kind": "corner",
+   "corners": [
+    10
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 2571.8,
+     "side": -1,
+     "cornerKind": "fast"
+    },
+    {
+     "type": "highWide",
+     "atM": 2571.8,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 2592.8,
+   "toM": 2808.2,
+   "kind": "corner",
+   "corners": [
+    11
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 2671.6,
+     "side": 1,
+     "cornerKind": "slow"
+    },
+    {
+     "type": "highWide",
+     "atM": 2671.6,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 2808.2,
+   "toM": 3162,
+   "kind": "corner",
+   "corners": [
+    12
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 2982,
+     "side": -1,
+     "cornerKind": "fast"
+    },
+    {
+     "type": "highWide",
+     "atM": 2982,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 3162,
+   "toM": 3473.9,
+   "kind": "corner",
+   "corners": [
+    13
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 3287.9,
+     "side": -1,
+     "cornerKind": "fast"
+    },
+    {
+     "type": "highWide",
+     "atM": 3287.9,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 3473.9,
+   "toM": 3904.6,
+   "kind": "corner",
+   "corners": [
+    14
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 3719,
+     "side": 1,
+     "cornerKind": "medium"
+    },
+    {
+     "type": "highWide",
+     "atM": 3719,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 3904.6,
+   "toM": 4184.6,
+   "kind": "straight",
+   "cams": [
+    {
+     "type": "straight",
+     "atM": 4044.6,
+     "side": -1
+    },
+    {
+     "type": "passPan",
+     "atM": 4044.6,
+     "side": -1
+    },
+    {
+     "type": "lateralTrack",
+     "atM": 4044.6,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 4184.6,
+   "toM": 4648.6,
+   "kind": "braking",
+   "cams": [
+    {
+     "type": "braking",
+     "atM": 4648.6,
+     "side": 1
+    },
+    {
+     "type": "headOn",
+     "atM": 4648.6,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 4648.6,
+   "toM": 4954.5,
+   "kind": "corner",
+   "corners": [
+    15
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 4786.5,
+     "side": 1,
+     "cornerKind": "fast"
+    },
+    {
+     "type": "highWide",
+     "atM": 4786.5,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 4954.5,
+   "toM": 5056.5,
+   "kind": "straight",
+   "cams": [
+    {
+     "type": "straight",
+     "atM": 5005.5,
+     "side": -1
+    },
+    {
+     "type": "passPan",
+     "atM": 5005.5,
+     "side": -1
+    },
+    {
+     "type": "lateralTrack",
+     "atM": 5005.5,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 5056.5,
+   "toM": 5543.4,
+   "kind": "corner",
+   "corners": [
+    16,
+    17,
+    18
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 5191.4,
+     "side": 1,
+     "cornerKind": "slow"
+    },
+    {
+     "type": "highWide",
+     "atM": 5191.4,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 5543.4,
+   "toM": 5690.3,
+   "kind": "straight",
+   "cams": [
+    {
+     "type": "straight",
+     "atM": 5726.9,
+     "side": -1
+    },
+    {
+     "type": "passPan",
+     "atM": 5726.9,
+     "side": -1
+    },
+    {
+     "type": "lateralTrack",
+     "atM": 5726.9,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 5690.3,
+   "toM": 5910.4,
+   "kind": "line",
+   "cams": [
+    {
+     "type": "grandstand",
+     "atM": 0,
+     "side": -1
+    },
+    {
+     "type": "cable",
+     "atM": 0,
+     "side": -1
+    },
+    {
+     "type": "passPan",
+     "atM": 0,
+     "side": -1
+    }
+   ]
+  }
+ ]
+}

@@ -9,10 +9,18 @@ import * as THREE from "three";
 import Ajv from "ajv";
 import cameraSchema from "../engine/packs/schema/cameras.schema.json";
 import cameraData from "../data/balance/cameras.json";
-import { CAMERA_LABELS, CAMERA_MODES, ONBOARDS, SIGHT_EVERY, buildRig, fitRig, frame, modeForYear, onboardsFor, seedOf, shakeOffset } from "./cameras";
+import zonesSchema from "../engine/packs/schema/camera-zones.schema.json";
+import broadcastData from "../data/balance/broadcast.json";
+import splineData from "../data/splines.json";
+import zoneFiles from "../data/circuits/cameraZones";
+import {
+  CAMERA_LABELS, CAMERA_MODES, ONBOARDS, SIGHT_EVERY, buildCameraZones, buildRig, buildZoneRig, critDampStep, fitRig, frame, frameWidth, framingFor,
+  modeForYear, onboardsFor, pickVariant, seedOf, shakeOffset, tvRival, zonesFor,
+} from "./cameras";
+import { cameraFor } from "../components/director/directorState";
 import { buildHeightField } from "./assets/assetCircuit";
 import { circuitFor } from "../engine/venue";
-import { poseAt } from "../engine/trackGeometry";
+import { distanceAtTimeShare, poseAt } from "../engine/trackGeometry";
 
 const circuit = circuitFor({ name: "Italian Grand Prix", circuit: "monza" }, 2005);
 const now = () => Promise.resolve();
@@ -261,5 +269,223 @@ describe("the gear on the steering wheel (F1M24-GAMEPLAY §2.5)", () => {
     } finally {
       getContext.mockRestore();
     }
+  });
+});
+
+// ---------------------------------------------------------------- CAM-2 camera zones and TV lens
+
+describe("camera zones (F1M24-GAMEPLAY §2.5 camera-zones, CAM-2; RF-3D-03, RF-3D-04, RNF-05, RNF-07)", () => {
+  const bahrain = circuitFor({ name: "Bahrain Grand Prix", circuit: "bahrain" }, 2024);
+
+  // buildRig as it was in code before CAM-2: the template must give exactly the same cameras.
+  const legacyRig = (c) => {
+    const len = c.length;
+    const wrap = (v) => ((v % 1) + 1) % 1;
+    const inSpan = (share, from, to) => {
+      const s = wrap(share);
+      const a = wrap(from);
+      const b = wrap(to);
+      return a <= b ? s >= a && s <= b : s >= a || s <= b;
+    };
+    const out = (share, side, distance, height) => {
+      const pose = poseAt(c, wrap(share));
+      return { x: pose.x - Math.sin(pose.heading) * side * distance, z: pose.y + Math.cos(pose.heading) * side * distance, y: height, at: wrap(share), side, dist: distance };
+    };
+    const cams = [];
+    c.brakingZones.forEach((zone) => {
+      const corner = c.corners.find((item) => item.number === zone.corner) || c.corners[0];
+      cams.push({ type: "braking", ...out(zone.at + 25 / len, -(corner?.sign || 1), 22, 5), from: zone.at - Math.min(0.08, (zone.metres * 0.8) / len), to: zone.at + 10 / len, priority: 3, width: 26 });
+    });
+    c.corners.forEach((corner) => {
+      const distance = corner.kind === "slow" ? 38 : corner.kind === "medium" ? 52 : 68;
+      cams.push({ type: "corner", ...out(corner.apex, -(corner.sign || 1), distance, corner.kind === "slow" ? 9 : 7), from: corner.from - 30 / len, to: corner.to + 60 / len, priority: 2, width: 30 });
+    });
+    for (let share = 0; share < 1; share += 260 / len) {
+      if (cams.some((cam) => inSpan(share, cam.from, cam.to))) continue;
+      const side = Math.round(share * 97) % 2 ? 1 : -1;
+      cams.push({ type: "straight", ...out(share + 60 / len, side, 30, 4), from: share - 140 / len, to: share + 130 / len, priority: 1, width: 40 });
+    }
+    cams.push({ type: "grandstand", ...out(0, c.clockwise ? -1 : 1, 46, 20), from: -110 / len, to: 60 / len, priority: 4, width: 46 });
+    cams.push({ type: "cable", x: 0, y: 24, z: 0, from: -360 / len, to: -110 / len, priority: 5, width: 40 });
+    return cams.map((cam, index) => ({ ...cam, id: `${cam.type}-${index}` }));
+  };
+
+  // One lap at 1x on the circuit's own speed trace, 60 frames a second: the camera cuts, counted
+  // from the camera on air (state.tvCam), as the camera-change events of the view would.
+  const filmLap = (c, rig, lap, seed, state = { seed }) => {
+    const frames = Math.round(c.simulatedLap * 60);
+    const shots = [];
+    for (let i = 0; i <= frames; i += 1) {
+      const d = distanceAtTimeShare(c, i / frames);
+      const pose = poseAt(c, d);
+      frame("tv", { x: pose.x, y: 0, z: pose.y, heading: pose.heading, speed: 60, share: lap + d, spec: {} }, c, rig, state, 1 / 60);
+      const id = state.tvCam?.id;
+      if (!shots.length || shots[shots.length - 1].id !== id) shots.push({ id, from: i / 60 });
+    }
+    return shots;
+  };
+
+  it("broadcast.json wires the old rig: buildRig gives the same cameras it had in code (RNF-07)", () => {
+    [bahrain, circuit, circuitFor({ name: "Monaco Grand Prix", circuit: "monaco" }, 1990)].forEach((c) => {
+      const now = buildRig(c);
+      const old = legacyRig(c);
+      expect(now.map((cam) => cam.id)).toEqual(old.map((cam) => cam.id));
+      now.forEach((cam, i) => {
+        ["x", "y", "z", "from", "to", "priority", "width"].forEach((key) => expect(cam[key]).toBeCloseTo(old[i][key], 9));
+      });
+    });
+  });
+
+  it("every camera-zones.json passes its schema, covers its lap without gaps or overlaps and matches the generator", () => {
+    const validate = new Ajv({ allErrors: true, strict: true }).compile(zonesSchema);
+    const types = new Set(broadcastData.rigTemplate.types.map((entry) => entry.type));
+    const ids = Object.keys(zoneFiles);
+    expect(ids.length).toBe(Object.keys(splineData.splines).length);
+    ids.forEach((id) => {
+      const file = zoneFiles[id];
+      expect(validate(file)).toBe(true);
+      expect(validate.errors).toBeNull();
+      expect(file.splineId).toBe(id);
+      const zones = file.zones;
+      for (let i = 0; i < zones.length; i += 1) {
+        const next = zones[(i + 1) % zones.length];
+        const end = i === zones.length - 1 ? next.fromM + file.lengthM : next.fromM;
+        expect(Math.abs(zones[i].toM - end)).toBeLessThan(0.11);
+        expect(zones[i].toM).toBeGreaterThan(zones[i].fromM);
+        zones[i].cams.forEach((cam) => expect(types.has(cam.type)).toBe(true));
+      }
+      // Hand edits aside, the file is what tools/assets/camera_zones.mjs makes of the circuit now.
+      const spline = splineData.splines[id];
+      const built = buildCameraZones(circuitFor({ circuit: spline.layoutRef }, Math.min(spline.validTo, 2026)));
+      expect(file.edited ? zones : built.zones).toEqual(zones);
+    });
+    // The view films a calibrated circuit with its file; a procedural one with zones of its own.
+    expect(zonesFor(bahrain).source).toBe("file");
+    expect(zonesFor(circuitFor({ name: "Bahrain Grand Prix", circuit: "bahrain" }, 1990)).source).toBe("built");
+  });
+
+  it("films Bahrain at 1x with 18-24 shots a lap, cut by position (cameras.md §2)", () => {
+    const rig = buildZoneRig(bahrain);
+    expect(rig.every((cam) => cam.zone !== undefined && cam.id)).toBe(true);
+    const zones = zonesFor(bahrain).zones;
+    expect(zones.length).toBeGreaterThanOrEqual(18);
+    expect(zones.length).toBeLessThanOrEqual(24);
+    const state = { seed: 1234 };
+    filmLap(bahrain, rig, 0, 1234, state);
+    [1, 2, 3].forEach((lap) => {
+      const shots = filmLap(bahrain, rig, lap, 1234, state);
+      // A lap flown on from the last: the first entry is the shot still on air from the line.
+      const cuts = shots.length - 1;
+      expect(cuts).toBeGreaterThanOrEqual(18);
+      expect(cuts).toBeLessThanOrEqual(24);
+      // The shot lasts what the car takes to cross its zone: ~4 s on average, as the reference.
+      expect(bahrain.simulatedLap / cuts).toBeGreaterThan(3);
+      expect(bahrain.simulatedLap / cuts).toBeLessThan(6);
+    });
+  });
+
+  it("draws each zone's camera with the race seed, never the one of the lap before (RNF-05)", () => {
+    const rig = buildZoneRig(bahrain);
+    const ids = (seed, lap) => filmLap(bahrain, rig, lap, seed).map((shot) => shot.id);
+    // Same seed, same broadcast - also when the view joins the race at lap 30 with a fresh state.
+    expect(ids(77, 30)).toEqual(ids(77, 30));
+    expect(ids(78, 30)).not.toEqual(ids(77, 30));
+    const zones = zonesFor(bahrain).zones;
+    let alternatives = 0;
+    zones.forEach((zone, zoneIndex) => {
+      if (zone.cams.length < 2) return;
+      alternatives += 1;
+      const picks = Array.from({ length: 40 }, (_, lap) => pickVariant(zone.cams, { seed: 77, zoneIndex, lap }));
+      for (let lap = 1; lap < picks.length; lap += 1) expect(picks[lap]).not.toBe(picks[lap - 1]);
+      expect(new Set(picks).size).toBeGreaterThan(1);
+    });
+    expect(alternatives).toBeGreaterThan(10);
+    // A camera of weight 0 is never drawn while another can be; a single camera is always on air.
+    const cams = [{ type: "corner", weight: 0 }, { type: "highWide", weight: 1 }, { type: "passPan", weight: 1 }];
+    for (let lap = 0; lap < 30; lap += 1) expect(pickVariant(cams, { seed: 5, zoneIndex: 2, lap })).not.toBe(0);
+    expect(pickVariant([{ type: "corner" }], { seed: 5, zoneIndex: 2, lap: 9 })).toBe(0);
+    // The director names the same camera the view puts on air.
+    const share = 30 + zones[5].fromM / zonesFor(bahrain).lengthM + 0.001;
+    const pose = poseAt(bahrain, share % 1);
+    const shot = frame("tv", { x: pose.x, y: 0, z: pose.y, heading: pose.heading, speed: 60, share, spec: {} }, bahrain, rig, { seed: 77 }, 1 / 60);
+    expect(cameraFor(rig, share, null, { seed: 77 }).id).toBe(shot.cameraId);
+  });
+
+  it("places the new camera types: tracking beside the car, the cable and the tracker never fitted to the mesh", () => {
+    const rig = buildZoneRig(bahrain);
+    const types = new Set(rig.map((cam) => cam.type));
+    ["braking", "corner", "straight", "headOn", "passPan", "lateralTrack", "highWide", "grandstand", "cable"].forEach((type) => expect(types.has(type)).toBe(true));
+    const tracker = rig.find((cam) => cam.type === "lateralTrack");
+    const share = (tracker.from + tracker.to) / 2;
+    const pose = poseAt(bahrain, share);
+    const focus = { x: pose.x, y: 0, z: pose.y, heading: pose.heading, speed: 60, share, spec: {} };
+    const shot = frame("tv", focus, bahrain, [tracker], {}, 1 / 60);
+    const t = broadcastData.rigTemplate.types.find((entry) => entry.type === "lateralTrack");
+    expect(shot.pos.y).toBeCloseTo(t.height, 6);
+    expect(Math.hypot(shot.pos.x - focus.x, shot.pos.z - focus.z)).toBeCloseTo(Math.hypot(t.dist, t.lagM), 0);
+    const fitted = fitRig(rig, bahrain, { topNear: () => 98, sight: () => false }, () => 100);
+    expect(new Set(fitted.map((cam) => cam.type))).toEqual(new Set(["cable", "lateralTrack"]));
+  });
+});
+
+describe("TV lens (F1M24-GAMEPLAY §2.5 tv-lens-behaviour, CAM-2)", () => {
+  const car = broadcastData.rigTemplate.carLengthM;
+
+  it("keeps the car within its framing share of the frame, for every camera type", () => {
+    broadcastData.rigTemplate.types.forEach((t) => {
+      const { minShare, maxShare } = framingFor(t.type);
+      const share = car / frameWidth(t);
+      expect(share).toBeGreaterThanOrEqual(minShare - 1e-9);
+      expect(share).toBeLessThanOrEqual(maxShare + 1e-9);
+    });
+    // The old rig's widths (26-46 m) are inside the default framing: its TV shots are unchanged.
+    buildRig(circuit).forEach((cam) => expect(frameWidth(cam)).toBe(cam.width));
+  });
+
+  it("opens the frame for two when a rival is close, and aims between them", () => {
+    const rig = buildRig(circuit);
+    const at = coveredShare(rig);
+    const focus = focusAt(at);
+    const alone = frame("tv", focus, circuit, rig, {}, 0.016);
+    const dir = { x: Math.cos(focus.heading), z: Math.sin(focus.heading) };
+    const rival = { x: focus.x + dir.x * 25, z: focus.z + dir.z * 25 };
+    const pair = frame("tv", { ...focus, rival }, circuit, rig, {}, 0.016);
+    expect(pair.pair).toBe(true);
+    expect(pair.fov).toBeGreaterThan(alone.fov);
+    const along = (p) => (p.x - focus.x) * dir.x + (p.z - focus.z) * dir.z;
+    expect(along(pair.look) - along(alone.look)).toBeCloseTo(12.5, 6);
+    const beyond = broadcastData.framing.battle.maxGapM + 10;
+    const apart = frame("tv", { ...focus, rival: { x: focus.x + dir.x * beyond, z: focus.z + dir.z * beyond } }, circuit, rig, {}, 0.016);
+    expect(apart.pair).toBe(false);
+    expect(apart.fov).toBeCloseTo(alone.fov, 9);
+    expect(alone.critDamp).toBe(broadcastData.framing.byType.default.critDamp);
+  });
+
+  it("follows on a critically damped spring: no overshoot, stable at any step", () => {
+    [0.004, 0.016, 0.1, 0.5].forEach((h) => {
+      let s = { x: 0, v: 0 };
+      let last = 0;
+      for (let i = 0; i < 400; i += 1) {
+        s = critDampStep(s.x, s.v, 10, 14, h);
+        expect(s.x).toBeLessThanOrEqual(10 + 1e-9);
+        expect(s.x).toBeGreaterThanOrEqual(last - 1e-9);
+        last = s.x;
+      }
+      expect(s.x).toBeCloseTo(10, 3);
+    });
+  });
+
+  it("frames the rival the focused car is racing: the SIM-4 battle state first, the gap otherwise", () => {
+    const objects = new Map(["a", "b", "c"].map((id) => [id, { speed: 80, object: { position: { x: 0, z: 0 } }, id }]));
+    const row = (id, metres, extra = {}) => ({ car: { id }, metres, pose: { progress: metres / 5000 }, ...extra });
+    const gap = broadcastData.director.battleGapSec;
+    const ordered = [row("a", 1000), row("b", 1000 - 80 * gap * 0.5), row("c", 1000 - 80 * gap * 3)];
+    expect(tvRival(ordered, "b", objects).id).toBe("a");
+    expect(tvRival(ordered, "c", objects)).toBeNull();
+    expect(tvRival(ordered, "a", objects).id).toBe("b");
+    const defending = [row("a", 1000), row("b", 990, { battle: "DEFENDING" }), row("c", 500)];
+    expect(tvRival(defending, "b", objects).id).toBe("c");
+    expect(tvRival([row("a", 1000), row("b", 990, { battle: "RUNNING" })], "b", objects)).toBeNull();
+    expect(tvRival([row("a", 1000, { pose: { inPit: true } }), row("b", 990)], "b", objects)).toBeNull();
   });
 });

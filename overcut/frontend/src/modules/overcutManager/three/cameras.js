@@ -14,11 +14,26 @@
  * `buildRig` places the trackside cameras for a circuit, each covering a stretch
  * of the lap; `frame` says, for the camera mode chosen, where the camera sits,
  * what it looks at and how long its lens is.
+ *
+ * CAM-2 (F1M24-GAMEPLAY §2.5 camera-zones, tv-lens-behaviour): every figure of the rig
+ * comes from data/balance/broadcast.json rigTemplate (RNF-07). `buildZoneRig` films the lap
+ * by zones (three/cameraZones.js) with one to three alternative cameras each - long lens,
+ * head-on, pass-and-pan, tracking, high and wide - drawn per lap with the race seed; the TV
+ * lens keeps the car within its framing share and opens for two when a rival is close.
  */
 
 import * as THREE from "three";
 import { poseAt } from "../engine/trackGeometry";
 import cameraData from "../data/balance/cameras.json";
+import broadcast from "../data/balance/broadcast.json";
+import { rigType, zoneChoice, zonesFor } from "./cameraZones";
+
+export { buildCameraZones, pickVariant, zoneChoice, zonesFor, zoneIndexAt } from "./cameraZones";
+
+const TEMPLATE = broadcast.rigTemplate;
+const FRAMING = broadcast.framing;
+const ZONES = broadcast.zonesPolicy;
+const DIRECTOR = broadcast.director;
 
 /**
  * The cameras that ride with the car (F1M24-GAMEPLAY §2.5 onboard-mounts, CAM-1): mounts,
@@ -92,40 +107,113 @@ const outsidePoint = (circuit, share, side, distance, height) => {
 };
 
 /**
- * Trackside cameras for a circuit. Each is { type, x, y, z, from, to, priority,
- * width } - `width` the metres of track it frames around the car.
+ * Trackside cameras for a circuit, by priority (the rig OverCut had before CAM-2; every figure
+ * from data/balance/broadcast.json rigTemplate, RNF-07). Each is { type, x, y, z, from, to,
+ * priority, width } - `width` the metres of track it frames around the car.
  */
 export const buildRig = (circuit) => {
   const L = circuit.length;
   const cams = [];
+  const braking = rigType("braking");
+  const cornerType = rigType("corner");
+  const straight = rigType("straight");
+  const grandstand = rigType("grandstand");
+  const cable = rigType("cable");
+  const base = (t) => ({ priority: t.priority, width: t.width });
   // Long lenses at the braking zones, looking back up the straight.
   circuit.brakingZones.forEach((zone) => {
     const corner = circuit.corners.find((item) => item.number === zone.corner) || circuit.corners[0];
     const outside = -(corner?.sign || 1);
-    const p = outsidePoint(circuit, zone.at + 25 / L, outside, 22, 5);
-    cams.push({ type: "braking", ...p, from: zone.at - Math.min(0.08, (zone.metres * 0.8) / L), to: zone.at + 10 / L, priority: 3, width: 26 });
+    const p = outsidePoint(circuit, zone.at + braking.offsetM / L, outside, braking.dist, braking.height);
+    cams.push({ type: "braking", ...p, from: zone.at - Math.min(braking.approach.maxShare, (zone.metres * braking.approach.ofStraight) / L), to: zone.at + braking.spanM.to / L, ...base(braking) });
   });
   // Scaffold towers on the outside of every corner.
   circuit.corners.forEach((corner) => {
     const outside = -(corner.sign || 1);
-    const distance = corner.kind === "slow" ? 38 : corner.kind === "medium" ? 52 : 68;
-    const p = outsidePoint(circuit, corner.apex, outside, distance, corner.kind === "slow" ? 9 : 7);
-    cams.push({ type: "corner", ...p, from: corner.from - 30 / L, to: corner.to + 60 / L, priority: 2, width: 30 });
+    const place = cornerType.byKind[corner.kind] || cornerType;
+    const p = outsidePoint(circuit, corner.apex, outside, place.dist, place.height);
+    cams.push({ type: "corner", ...p, from: corner.from + cornerType.spanM.from / L, to: corner.to + cornerType.spanM.to / L, ...base(cornerType) });
   });
   // Beside the long straights.
-  for (let share = 0; share < 1; share += 260 / L) {
+  for (let share = 0; share < 1; share += straight.everyM / L) {
     const covered = cams.some((cam) => inSpan(share, cam.from, cam.to));
     if (covered) continue;
     const side = Math.round(share * 97) % 2 ? 1 : -1;
-    const p = outsidePoint(circuit, share + 60 / L, side, 30, 4);
-    cams.push({ type: "straight", ...p, from: share - 140 / L, to: share + 130 / L, priority: 1, width: 40 });
+    const p = outsidePoint(circuit, share + straight.offsetM / L, side, straight.dist, straight.height);
+    cams.push({ type: "straight", ...p, from: share + straight.spanM.from / L, to: share + straight.spanM.to / L, ...base(straight) });
   }
   // The main straight: a high camera above the line and the cable camera.
-  const line = outsidePoint(circuit, 0, circuit.clockwise ? -1 : 1, 46, 20);
-  cams.push({ type: "grandstand", ...line, from: -110 / L, to: 60 / L, priority: 4, width: 46 });
-  cams.push({ type: "cable", x: 0, y: 24, z: 0, from: -360 / L, to: -110 / L, priority: 5, width: 40 });
+  const line = outsidePoint(circuit, 0, circuit.clockwise ? -1 : 1, grandstand.dist, grandstand.height);
+  cams.push({ type: "grandstand", ...line, from: grandstand.spanM.from / L, to: grandstand.spanM.to / L, ...base(grandstand) });
+  cams.push({ type: "cable", x: 0, y: cable.height, z: 0, from: cable.spanM.from / L, to: cable.spanM.to / L, ...base(cable) });
   // A stable id per camera (the director and the camera bus name the camera on air by it).
   return cams.map((cam, index) => ({ ...cam, id: `${cam.type}-${index}` }));
+};
+
+/** Cameras that move with the car (the cable and the tracking camera): placed every frame, never fitted to the mesh. */
+const isMoving = (cam) => cam.type === "cable" || Boolean(cam.moving);
+
+/**
+ * The rig by zones (F1M24-GAMEPLAY §2.5 camera-zones, CAM-2): the cameras of every zone of
+ * `zones` (three/cameraZones.js zonesFor: the circuit's camera-zones.json or the built ones),
+ * placed with the rigTemplate. Each covers exactly its zone and carries `zone` (its index) and
+ * `weight`; `frame` then picks one per zone and lap with the race seed. A file made on a spline
+ * of another length is scaled to this circuit.
+ */
+export const buildZoneRig = (circuit, zones = zonesFor(circuit)) => {
+  const L = circuit.length;
+  const k = L / (zones.lengthM || L);
+  const rig = [];
+  zones.zones.forEach((zone, zi) => {
+    zone.cams.forEach((cam, ci) => {
+      const t = rigType(cam.type);
+      if (!t) return;
+      const common = {
+        type: cam.type,
+        id: `${cam.type}-z${zi}-${ci}`,
+        from: (zone.fromM * k) / L,
+        to: (zone.toM * k) / L,
+        priority: t.priority,
+        width: t.width,
+        weight: cam.weight ?? t.weight,
+        zone: zi,
+        variant: ci,
+      };
+      if (cam.type === "cable" || cam.type === "lateralTrack") {
+        rig.push({ ...common, x: 0, y: t.height, z: 0, side: cam.side, dist: t.dist, lagM: t.lagM ?? 0, moving: true });
+        return;
+      }
+      const place = cam.type === "corner" && t.byKind && cam.cornerKind ? t.byKind[cam.cornerKind] : t;
+      rig.push({ ...common, ...outsidePoint(circuit, (cam.atM * k + (t.offsetM || 0)) / L, cam.side, place.dist, place.height) });
+    });
+  });
+  return rig;
+};
+
+/**
+ * One step of a critically damped spring towards `target` (exact, stable for any step):
+ * the TV lens follows its car without overshoot (framing.byType critDamp, CAM-2).
+ */
+export const critDampStep = (x, v, target, omega, h) => {
+  const d = x - target;
+  const e = Math.exp(-omega * h);
+  const j = v + omega * d;
+  return { x: target + (d + j * h) * e, v: (v - omega * j * h) * e };
+};
+
+/** The framing of a camera type (broadcast.json framing.byType, 'default' when it has none). */
+export const framingFor = (type) => FRAMING.byType[type] || FRAMING.byType.default;
+
+/**
+ * The metres of track a TV camera frames: its rig width kept between the car filling maxShare
+ * and minShare of the frame; with a rival close enough, wide enough for both (framing.battle).
+ */
+export const frameWidth = (cam, pairGapM = null) => {
+  const fr = framingFor(cam.type);
+  const car = TEMPLATE.carLengthM;
+  let width = Math.min(Math.max(cam.width, car / fr.maxShare), car / fr.minShare);
+  if (Number.isFinite(pairGapM) && pairGapM <= FRAMING.battle.maxGapM) width = Math.max(width, (pairGapM + car) / FRAMING.battle.pairShare);
+  return width;
 };
 
 /**
@@ -144,7 +232,7 @@ export const FIT_TRIES = [[1, 0], [0.7, 0], [1, 8], [0.7, 8], [0.45, 0], [1, 18]
 export const fitRig = (rig, circuit, field, heightAt) => {
   const fitted = [];
   rig.forEach((cam) => {
-    if (cam.type === "cable") {
+    if (isMoving(cam)) {
       fitted.push({ ...cam, abs: true });
       return;
     }
@@ -204,6 +292,10 @@ export const garageShot = (focus) => {
  * stays above the tallest thing under it, and the TV director checks every
  * SIGHT_EVERY frames that the tower still sees the car - after two failed
  * checks it cuts to another tower that does, or to the helicopter.
+ *
+ * TV extras (CAM-2): `state.seed` the race seed for the zone draw, `focus.lap` (else the whole
+ * part of `focus.share`), `focus.rival` { x, z } to frame a pair. The TV shot also returns
+ * `cameraId`, `camType`, `critDamp` (the look's spring, 1/s) and `pair`.
  */
 export const frame = (mode, focus, circuit, rig, state, dt, world = null) => {
   const dir = v3(Math.cos(focus.heading), 0, Math.sin(focus.heading));
@@ -266,18 +358,31 @@ export const frame = (mode, focus, circuit, rig, state, dt, world = null) => {
 
   // TV: the director takes the camera covering this stretch, keeps it until the
   // car leaves it, and zooms to keep the car framed.
+  // On a zone rig (buildZoneRig) the camera of each zone is drawn per lap with the race seed
+  // (state.seed, set by Race3D; RNF-05); on the priority rig the highest priority covers it.
   const share = wrap(focus.share);
+  const lap = Number.isFinite(focus.lap) ? focus.lap : Math.max(0, Math.floor(focus.share || 0));
+  const choose = (covering) => {
+    const zoned = zoneChoice(covering, share, lap, state.seed ?? 0);
+    return zoned || covering.slice().sort((a, b) => b.priority - a.priority);
+  };
   const target = v3(focus.x, y0 + 0.8, focus.z);
   const camPos = (cam) => {
     if (cam.type === "cable") {
       // Runs above the main straight alongside the car.
-      const along = poseAt(circuit, wrap(share - 18 / L));
-      return v3(along.x, real ? road(-18) + cam.y : cam.y, along.y);
+      const lag = rigType("cable").lagM;
+      const along = poseAt(circuit, wrap(share - lag / L));
+      return v3(along.x, real ? road(-lag) + cam.y : cam.y, along.y);
+    }
+    if (cam.moving) {
+      // The tracking camera runs beside the road, a little behind the car.
+      const along = poseAt(circuit, wrap(share - cam.lagM / L));
+      return v3(along.x - Math.sin(along.heading) * cam.side * cam.dist, real ? road(-cam.lagM) + cam.y : cam.y, along.y + Math.cos(along.heading) * cam.side * cam.dist);
     }
     return v3(cam.x, cam.abs || !real ? cam.y : cam.y + y0, cam.z);
   };
   // No tower sees a car under a roof; otherwise one ray march over the height grid.
-  const clear = (cam) => !field || (!covered && (cam.type === "cable" || field.sight(camPos(cam), target)));
+  const clear = (cam) => !field || (!covered && (isMoving(cam) || field.sight(camPos(cam), target)));
   let current = null;
   if (real) {
     state.tick = (state.tick || 0) + 1;
@@ -286,9 +391,9 @@ export const frame = (mode, focus, circuit, rig, state, dt, world = null) => {
       if (!inSpan(share, cam.from, cam.to)) state.skip.delete(cam);
     });
     const kept = state.tvCam;
-    if (kept && !state.skip.has(kept) && (inSpan(share, kept.from, kept.to) || (state.tvLoose && Math.hypot(kept.x - focus.x, kept.z - focus.z) < 260))) current = kept;
+    if (kept && !state.skip.has(kept) && (inSpan(share, kept.from, kept.to) || (state.tvLoose && Math.hypot(kept.x - focus.x, kept.z - focus.z) < ZONES.looseRadiusM))) current = kept;
     // The occlusion check - one ray march over the height grid - a few frames apart.
-    if (current && field && (current.type !== "cable" || covered) && state.tick % SIGHT_EVERY === 0) {
+    if (current && field && (!isMoving(current) || covered) && state.tick % SIGHT_EVERY === 0) {
       state.hidden = clear(current) ? 0 : (state.hidden || 0) + 1;
       if (state.hidden >= 2) {
         state.skip.add(current);
@@ -297,14 +402,14 @@ export const frame = (mode, focus, circuit, rig, state, dt, world = null) => {
       }
     }
     if (!current && (!state.fallback || state.tick % SIGHT_EVERY === 0)) {
-      const covering = rig.filter((cam) => inSpan(share, cam.from, cam.to) && !state.skip.has(cam)).sort((a, b) => b.priority - a.priority);
+      const covering = choose(rig.filter((cam) => inSpan(share, cam.from, cam.to))).filter((cam) => !state.skip.has(cam));
       current = covering.find(clear) || null;
       state.tvLoose = false;
       if (!current) {
         const near = rig
-          .filter((cam) => cam.type !== "cable" && !state.skip.has(cam))
+          .filter((cam) => !isMoving(cam) && !state.skip.has(cam))
           .map((cam) => ({ cam, d: Math.hypot(cam.x - focus.x, cam.z - focus.z) }))
-          .filter((item) => item.d < 400)
+          .filter((item) => item.d < ZONES.nearRadiusM)
           .sort((a, b) => a.d - b.d);
         current = near.find((item) => clear(item.cam))?.cam || null;
         state.tvLoose = Boolean(current);
@@ -325,12 +430,11 @@ export const frame = (mode, focus, circuit, rig, state, dt, world = null) => {
   } else {
     current = state.tvCam && inSpan(share, state.tvCam.from, state.tvCam.to) ? state.tvCam : null;
     if (!current) {
-      const covering = rig.filter((cam) => inSpan(share, cam.from, cam.to));
-      current = covering.sort((a, b) => b.priority - a.priority)[0];
+      current = choose(rig.filter((cam) => inSpan(share, cam.from, cam.to)))[0];
       if (!current) {
         let best = null;
         rig.forEach((cam) => {
-          if (cam.type === "cable") return;
+          if (isMoving(cam)) return;
           const d = Math.hypot(cam.x - focus.x, cam.z - focus.z);
           if (!best || d < best.d) best = { cam, d };
         });
@@ -342,11 +446,55 @@ export const frame = (mode, focus, circuit, rig, state, dt, world = null) => {
     if (!current) return { pos: car.clone().add(v3(0, 40, 40)), look: car, fov: 50 };
   }
   const pos = camPos(current);
-  const distance = pos.distanceTo(car.clone().setY(y0 + 0.6));
-  const fov = THREE.MathUtils.clamp((2 * Math.atan(current.width / 2 / Math.max(5, distance)) * 180) / Math.PI, 3.5, 60);
+  // tv-lens-behaviour (CAM-2): the car kept between minShare and maxShare of the frame; with a
+  // rival close by (focus.rival, from Race3D) the frame opens for both and aims between them.
+  const aimY = y0 + FRAMING.aimUpM;
+  let subject = car.clone();
+  let pairGap = null;
+  if (focus.rival && Number.isFinite(focus.rival.x) && Number.isFinite(focus.rival.z)) {
+    const gap = Math.hypot(focus.rival.x - focus.x, focus.rival.z - focus.z);
+    if (gap <= FRAMING.battle.maxGapM) {
+      pairGap = gap;
+      subject = v3((focus.x + focus.rival.x) / 2, 0, (focus.z + focus.rival.z) / 2);
+    }
+  }
+  const distance = pos.distanceTo(subject.clone().setY(aimY));
+  const width = frameWidth(current, pairGap);
+  const fov = THREE.MathUtils.clamp((2 * Math.atan(width / 2 / Math.max(5, distance)) * 180) / Math.PI, FRAMING.fovDeg.min, FRAMING.fovDeg.max);
   const snap = state.cut;
   state.cut = false;
-  return { pos, look: car.clone().add(dir.clone().multiplyScalar(Math.min(6, (focus.speed || 0) * 0.08))).setY(y0 + 0.6), fov, snap, lookLag: 14, abs };
+  const { critDamp } = framingFor(current.type);
+  const lead = Math.min(FRAMING.lookAhead.maxM, (focus.speed || 0) * FRAMING.lookAhead.perSpeed);
+  return { pos, look: subject.add(dir.clone().multiplyScalar(lead)).setY(aimY), fov, snap, lookLag: critDamp, critDamp, cameraId: current.id ?? null, camType: current.type, pair: pairGap !== null, abs };
+};
+
+/**
+ * The rival the focused car is racing, for the TV frame for two (CAM-2 tv-lens-behaviour): the
+ * SIM-4 battle state when the cars carry it (F1M24-GAMEPLAY §1.7: ATTACKING frames the car ahead,
+ * DEFENDING the one behind), else the nearer of the two neighbours on the road within
+ * broadcast.json director.battleGapSec at the chaser's speed. `ordered`: leader first, with metres.
+ */
+export const tvRival = (ordered, focusId, objects) => {
+  const index = ordered.findIndex((item) => item.car.id === focusId);
+  if (index < 0) return null;
+  const me = ordered[index];
+  const usable = (item) => item && !item.pose.inPit && !item.pose.gone && !item.pose.finished && objects.get(item.car.id);
+  if (!usable(me)) return null;
+  const ahead = ordered[index - 1];
+  const behind = ordered[index + 1];
+  const { battleGapSec, battleStates } = DIRECTOR;
+  const state = me.battle ?? me.pose.battle;
+  if (state !== undefined) {
+    if (!battleStates.includes(state)) return null;
+    const other = state === "ATTACKING" ? ahead : state === "DEFENDING" ? behind : null;
+    return usable(other) ? objects.get(other.car.id) : null;
+  }
+  const gapSec = (front, back) => (front.metres - back.metres) / Math.max(1, objects.get(back.car.id)?.speed || 0);
+  const options = [];
+  if (usable(ahead)) options.push({ item: ahead, gap: gapSec(ahead, me) });
+  if (usable(behind)) options.push({ item: behind, gap: gapSec(me, behind) });
+  const best = options.filter((option) => option.gap >= 0 && option.gap < battleGapSec).sort((a, b) => a.gap - b.gap)[0];
+  return best ? objects.get(best.item.car.id) : null;
 };
 
 export const CAMERA_LABELS = {
