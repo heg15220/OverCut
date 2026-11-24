@@ -12,6 +12,14 @@
  * speed within ±10 % of the real one and the gear there within one. The corners that fail today are
  * listed, with what was measured, in KNOWN_OFF below (the slow ones, as §2.3 says); PT-3 tunes
  * race-physics.json / race-powertrain.json and removes them from the list.
+ *
+ * PT-3 (same §2.3; RF-SIM-01, RF-SIM-02): the sim lap is a race lap, so the bench now compares it with
+ * the real race laps - the pole sitter's clean first-stint laps of the same GP (fixture `raceLaps`,
+ * powertrain_from_openf1.py --racelaps) - at the corner found on the pole lap; same ±10 % and ±1 gear.
+ * It also checks the race pace of the step race against those laps and measures, by the sim's own
+ * bands, where the real race lap loses its time against the pole lap (the numbers race-physics.json
+ * `budget.sensitivity` stands for). What it found is in the KNOWN_OFF note: the gap is in the trace
+ * the race runs, not in the budget or the gearbox, and the trace is outside PT's files.
  */
 
 import { SIM_BALANCE, airEffect, fromQuickRace, snapshot, stepOnce } from "./index";
@@ -115,58 +123,75 @@ describe("WP5 · dirty air by speed band, DRS at the end of its zone (SIM-FISICA
 
 const KMH = 3.6;
 /** Bench set-up (test parameters, not balance): the race lap measured, the tolerances of F1M24-GAMEPLAY §3.3. */
-const BENCH = { lap: 4, seed: "powertrain", year: 2024, minTolerance: 0.1, gearTolerance: 1, prominenceMetres: 200, prominenceKmh: 8, matchShare: 0.015, offsetRange: 0.08, offsetStep: 0.002 };
+const BENCH = { lap: 4, seed: "powertrain", year: 2024, minTolerance: 0.1, gearTolerance: 1, prominenceMetres: 200, prominenceKmh: 8, matchShare: 0.015, offsetRange: 0.08, offsetStep: 0.002, minRaceLaps: 4, paceTolerance: 0.03, raceShare: 0.006 };
 const realSessions = [...telemetry.sessions, ...((telemetry.corners && telemetry.corners.sessions) || [])];
 
 /**
- * Corners outside the tolerance today: "circuit:number" -> [sim km/h, real km/h, sim gear, real gear].
+ * Corners outside the tolerance today: "circuit:number" -> [sim km/h, real race km/h, sim gear, real race gear].
  *
- * Measured 24/11/2026 on feature/overcut-manager after wave 1 (race lap 4 of car 0, seed "powertrain",
- * against the pole lap; lap offsets -0.046 Monza, -0.038 Bahrain, RMS 29 / 25 km/h). 33 of 40 corners
- * are out, almost all on the slow side: the step race takes slow and medium corners 15-45 % under the
- * real minimum and one or two gears lower (Bahrain T1 48 against 71 km/h in 1st against 3rd), which is
- * what F1M24-GAMEPLAY §2.3 and SIM-FISICA §7 say (race-physics.json `budget` loads the slow band). Part
- * of the gap is the comparison itself - race fuel against a qualifying lap - but not 30 %. The few
- * where the sim is faster (Bahrain T2, T9; Hungaroring T7) are short links after a slow corner whose
- * real minimum comes later. Monza's calibrated layout counts 12 corners against the official 11
- * (Parabolica is split in two), so its T8-T12 are one number off the official ones; Bahrain and the
- * Hungaroring match the official count (calibratedCircuit.test.js). PT-3 (race-physics.json `mu.slow`,
- * `budget.slow`, race-powertrain.json `shift.downRpm`) removes entries as it brings them in.
+ * Measured 24/11/2026 on wp/PT-3 (feature/overcut-manager after wave 2; race lap 4 of car 0, seed
+ * "powertrain", against the median of the pole sitter's clean race laps 3-8; lap offsets -0.046 Monza,
+ * -0.038 Bahrain, -0.030 Hungaroring). 27 of 40 corners are out (33 against the pole lap, PT-2), almost
+ * all on the slow side: slow and medium corners 10-40 % under the real race minimum and one or two gears
+ * lower; the gear follows the speed (at the real speed the shift logic gives the real gear on the real
+ * trace, powertrain.test.js), so no race-powertrain.json change helps. PT-3 measured where the gap comes
+ * from (probe runs on 24/11; points 1 and 4 are the tests below, PT2_PRINT=1 / PT3_PRINT=1 print them):
+ *
+ *  1. The budget is right: the step race's lap 4 lasts the real first-stint race lap within 2 % (test
+ *     below), so the corners are not slow because the lap is.
+ *  2. The trace the race runs is the slow part. Its corner minima (circuit.speed, the best car's
+ *     qualifying lap) are already 15-30 % under the real pole minima (Bahrain T1 55 against 71, T6 164
+ *     against 218), while its lap is the pole's: too slow in the corners, too fast elsewhere.
+ *     Two causes outside PT's files (F1M24-GAMEPLAY §3.2):
+ *     a. engine/venue.js caches circuits by era bucket (BUCKETS ends at 2017, so every year from 2017 is
+ *        built as 2020 and 2009-2016 as 2016): a 2024 race runs the 2017-2021 car of race-physics.json
+ *        (μ 1.44, ClA 7.4), not the 2022-2025 one the physics test calibrates (μ 1.9, ClA 4.6). With the
+ *        2022-2025 car the bench passes 11 of 40 against the pole lap instead of 7.
+ *     b. The racing line's curvature: venue.js does not pass splines.json `kappa` (the pipeline's
+ *        curvature that physics.test.js calibrates the poles on), so the race takes the Menger curvature
+ *        of the line, tighter in the medium corners; even with the right car and `kappa`, Bahrain T6/T7,
+ *        the Hungaroring T3/T4/T8/T11/T14 and Monza's Lesmos stay 20-30 % slow, which is the line in
+ *        splines.json (PIT lane) or its extraction. Monza's calibrated layout also counts 12 corners
+ *        against the official 11 (Parabolica split), so its T8-T12 are one number off.
+ *  3. race-physics.json mu.slow is not the lever: with the 2017-2021 car the trace is the one PT could
+ *     change, but that block is the 2017-2021 cars' own calibration (SRS §6: a 2024 number does not go
+ *     into another era), and the 2022-2025 block is not what the race reads (2a).
+ *  4. budget.sensitivity, measured here for the first time (OpenF1 race laps against the pole lap, test
+ *     below): straights lose 0.72-0.81 of the lap's average, slow corners 1.12-1.28, medium 1.34-1.40
+ *     (Monza 2.7), fast 0.62-1.12; the json has 0.42-0.49 / 1.63-2.10 / 1.47-1.89 / 1.25-1.61 after
+ *     normalisation. Applying the measured weights on today's trace loses two corners, drops Bahrain's
+ *     race top speed to the edge of its ±5 % and brings a safety car into Monza's lap 4: the old weights
+ *     partly make up for the trace. Left as they are, the measurement written in race-physics.json
+ *     `budget.$comment` as pending until 2a and 2b are fixed (then re-run this bench).
  */
 const KNOWN_OFF = {
-  "monza:1": [72, 83, 1, 2],
-  "monza:4": [91, 113, 2, 3],
-  "monza:5": [98, 127, 2, 3],
-  "monza:6": [153, 207, 5, 5],
-  "monza:7": [124, 190, 3, 5],
-  "monza:8": [131, 215, 4, 8],
-  "monza:9": [174, 194, 4, 5],
-  "monza:10": [200, 251, 5, 6],
-  "monza:11": [115, 251, 3, 6],
-  "monza:12": [172, 215, 4, 5],
-  "bahrain:1": [48, 71, 1, 3],
-  "bahrain:2": [111, 165, 3, 3],
-  "bahrain:4": [85, 120, 2, 4],
-  "bahrain:6": [146, 218, 4, 6],
-  "bahrain:7": [190, 239, 5, 6],
-  "bahrain:8": [58, 79, 1, 3],
-  "bahrain:9": [150, 171, 4, 4],
-  "bahrain:10": [58, 76, 1, 3],
-  "bahrain:11": [105, 161, 3, 4],
-  "bahrain:13": [103, 140, 3, 4],
-  "bahrain:14": [81, 133, 2, 4],
-  "hungaroring:1": [67, 95, 1, 3],
-  "hungaroring:2": [110, 128, 3, 4],
-  "hungaroring:3": [177, 245, 5, 6],
-  "hungaroring:4": [167, 247, 5, 6],
-  "hungaroring:5": [143, 162, 4, 4],
-  "hungaroring:7": [166, 135, 4, 3],
-  "hungaroring:8": [110, 181, 3, 4],
-  "hungaroring:9": [156, 195, 3, 4],
-  "hungaroring:11": [176, 238, 5, 6],
-  "hungaroring:12": [93, 120, 2, 3],
-  "hungaroring:13": [80, 103, 2, 3],
-  "hungaroring:14": [91, 147, 2, 4],
+  "monza:4": [91, 104, 2, 3],
+  "monza:5": [98, 116, 2, 3],
+  "monza:6": [153, 174, 5, 4],
+  "monza:7": [124, 164, 3, 4],
+  "monza:8": [131, 179, 4, 4],
+  "monza:10": [200, 240, 5, 6],
+  "monza:11": [115, 206, 3, 5],
+  "bahrain:1": [49, 63, 1, 3],
+  "bahrain:2": [112, 155, 3, 4],
+  "bahrain:4": [86, 117, 2, 4],
+  "bahrain:6": [148, 176, 4, 5],
+  "bahrain:8": [60, 74, 1, 3],
+  "bahrain:10": [59, 70, 1, 3],
+  "bahrain:11": [109, 149, 3, 4],
+  "bahrain:13": [102, 131, 3, 4],
+  "bahrain:14": [80, 117, 2, 4],
+  "hungaroring:1": [67, 85, 1, 3],
+  "hungaroring:3": [177, 228, 5, 5],
+  "hungaroring:4": [167, 210, 5, 5],
+  "hungaroring:6": [117, 102, 3, 3],
+  "hungaroring:7": [166, 121, 4, 3],
+  "hungaroring:8": [110, 150, 3, 4],
+  "hungaroring:10": [247, 218, 6, 5],
+  "hungaroring:11": [176, 206, 5, 6],
+  "hungaroring:12": [93, 108, 2, 3],
+  "hungaroring:13": [80, 94, 2, 3],
+  "hungaroring:14": [91, 130, 2, 4],
 };
 
 /** The real lap as samples with distance share (distance integrated from speed). */
@@ -175,12 +200,19 @@ const realLapOf = (session) => {
   let d = 0;
   session.lap.samples.forEach((row, k, all) => {
     if (k) d += ((row[1] + all[k - 1][1]) / 2 / KMH) * (row[0] - all[k - 1][0]);
-    out.push({ d, kmh: row[1], gear: row[3] });
+    out.push({ t: row[0], d, kmh: row[1], gear: row[3] });
   });
   out.forEach((row) => {
     row.share = row.d / d;
   });
   return out;
+};
+
+/** PT-3: the pole sitter's clean first-stint race laps of the same GP (fixture `raceLaps`), as realLapOf rows. */
+const raceSessionOf = (circuit) => ((telemetry.raceLaps && telemetry.raceLaps.sessions) || []).find((session) => session.circuit === circuit && session.year === BENCH.year) || null;
+const raceLapsOf = (circuit) => {
+  const session = raceSessionOf(circuit);
+  return session ? session.laps.map((lap) => realLapOf({ lap })) : [];
 };
 
 const inSpan = (share, from, to) => {
@@ -249,18 +281,31 @@ const benchOf = (circuit) => {
     matched.set(index, { minimum, gap });
     taken.add(minimum);
   });
+  // PT-3: the sim runs a race lap, so the reference is the real race lap (like for like): at the point
+  // found on the pole lap, each clean first-stint race lap's slowest sample within matchShare, the
+  // median over the laps (raceLapsOf). The pole's own minimum stays in `pole` for the record.
+  const raceLaps = raceLapsOf(circuit);
   const corners = rows.map(({ corner, simMin, realShare }, index) => {
     let realMin = matched.get(index)?.minimum || null;
     if (!realMin && realShare !== null) realMin = real.reduce((near, row) => (!near || circular(row.share, realShare) < circular(near.share, realShare) ? row : near), null);
+    // A matched corner: each race lap's slowest sample within raceShare of the pole's minimum; a corner
+    // the pole car takes without slowing: each race lap's sample nearest that point.
+    const pick = (lap) =>
+      matched.has(index)
+        ? lap.filter((row) => circular(row.share, realMin.share) <= BENCH.raceShare).reduce((low, row) => (!low || row.kmh < low.kmh ? row : low), null)
+        : lap.reduce((near, row) => (!near || circular(row.share, realMin.share) < circular(near.share, realMin.share) ? row : near), null);
+    const raceMins = realMin ? raceLaps.map(pick).filter(Boolean).sort((x, y) => x.kmh - y.kmh || x.gear - y.gear) : [];
+    const race = raceMins.length ? raceMins[raceMins.length >> 1] : null;
     return {
       number: corner.number,
       kind: corner.kind,
       matched: matched.has(index),
       sim: simMin && { kmh: simMin.v * KMH, gear: simMin.gear },
-      real: realMin && { kmh: realMin.kmh, gear: realMin.gear, metres: Math.round(realMin.d) },
+      pole: realMin && { kmh: realMin.kmh, gear: realMin.gear, metres: Math.round(realMin.d) },
+      real: race && { kmh: race.kmh, gear: race.gear, laps: raceMins.length },
     };
   });
-  benchCache[circuit] = { offset: best.off, rms: Math.sqrt(best.err / real.length), samples: sim.length, corners };
+  benchCache[circuit] = { offset: best.off, rms: Math.sqrt(best.err / real.length), samples: sim.length, corners, tables: state._sim.tables, budget: state._sim.budget[0] };
   return benchCache[circuit];
 };
 
@@ -283,19 +328,21 @@ describe("PT-2 · corner bench against OpenF1 2024 (F1M24-GAMEPLAY §2.3 curvas-
     expect(benchCases.length).toBeGreaterThanOrEqual(35);
   });
 
-  it.each(benchCircuits)("%s: the step race lap and the real lap line up (offset inside the range, every corner seen)", (circuit) => {
+  it.each(benchCircuits)("%s: the step race lap and the real laps line up (offset inside the range, every corner seen)", (circuit) => {
     const bench = benchOf(circuit);
     expect(bench.samples).toBeGreaterThan(100);
     expect(Math.abs(bench.offset)).toBeLessThan(BENCH.offsetRange);
     expect(bench.corners).toHaveLength(benchCases.filter(([c]) => c === circuit).length);
     bench.corners.forEach((row) => {
       expect(row.sim).not.toBeNull();
+      expect(row.pole).not.toBeNull();
       expect(row.real).not.toBeNull();
+      expect(row.real.laps).toBeGreaterThanOrEqual(BENCH.minRaceLaps);
     });
   });
 
   it.each(benchCases.filter(([circuit, number]) => !KNOWN_OFF[`${circuit}:${number}`]))(
-    "%s T%i (%s): slowest speed within ±10 %% of the real one, gear within one",
+    "%s T%i (%s): slowest speed within ±10 %% of the real race lap's, gear within one",
     (circuit, number) => {
       const row = benchOf(circuit).corners.find((corner) => corner.number === number);
       expect(Math.abs(row.sim.kmh / row.real.kmh - 1)).toBeLessThanOrEqual(BENCH.minTolerance);
@@ -315,5 +362,110 @@ describe("PT-2 · corner bench against OpenF1 2024 (F1M24-GAMEPLAY §2.3 curvas-
       console.log(JSON.stringify(off), benchCircuits.map((c) => `${c} ${benchOf(c).offset.toFixed(3)} ${benchOf(c).rms.toFixed(1)}`), JSON.stringify(benchCircuits.map((c) => benchOf(c).corners)));
     }
     Object.keys(off).forEach((key) => expect([key, KNOWN_OFF[key] !== undefined]).toEqual([key, true]));
+  });
+
+  it("KNOWN_OFF holds no corner that is already inside the tolerance (a fixed corner leaves the list)", () => {
+    const fixed = Object.keys(KNOWN_OFF).filter((key) => {
+      const [circuit, number] = key.split(":");
+      const row = benchOf(circuit).corners.find((corner) => corner.number === Number(number));
+      return row && withinTolerance(row);
+    });
+    expect(fixed).toEqual([]);
+  });
+});
+
+// ------------------------------------------------------------------ F1M24-GAMEPLAY §2.3 curvas-lentas (PT-3)
+
+/** Time (s) the lap `rows` (realLapOf) spends between distance shares a and b (b < a wraps the line). */
+const spanTime = (rows, lapTime, a, b) => {
+  const timeAt = (s) => {
+    if (s <= rows[0].share) return 0;
+    for (let k = 1; k < rows.length; k += 1) {
+      if (rows[k].share >= s) return rows[k - 1].t + ((rows[k].t - rows[k - 1].t) * (s - rows[k - 1].share)) / Math.max(1e-12, rows[k].share - rows[k - 1].share);
+    }
+    return rows[rows.length - 1].t;
+  };
+  // The samples stop a fraction of a second short of the line: scale to the timed lap.
+  const scale = lapTime / timeAt(1);
+  return (b >= a ? timeAt(b) - timeAt(a) : timeAt(1) - timeAt(a) + timeAt(b)) * scale;
+};
+
+const BANDS = ["slow", "medium", "fast", "straight"];
+
+/**
+ * Where the real race lap loses its time against the pole lap, in the step race's own bands
+ * (race-physics.json `budget`: corner by the trace's speed band, straight off the corners), on the
+ * lap aligned by the bench. Per band the share of extra time per second of pole time, over the
+ * lap's: the number `budget.sensitivity` stands for after normalisation (sens in trackTables).
+ */
+const bandLossOf = (circuit) => {
+  const bench = benchOf(circuit);
+  const t = bench.tables;
+  const session = realSessions.find((s) => s.circuit === circuit && s.year === BENCH.year);
+  const pole = realLapOf(session);
+  const laps = raceSessionOf(circuit).laps.map((lap) => ({ rows: realLapOf({ lap }), lapTime: lap.lapTime }));
+  const { slowMaxKmh, fastMinKmh } = physicsData.bands;
+  const acc = Object.fromEntries(BANDS.map((band) => [band, { pole: 0, race: 0, sens: 0, share: 0 }]));
+  for (let j = 0; j < t.M; j += 1) {
+    const bin = Math.min(t.M - 1, Math.floor(((t.dOfTau[j] + t.dOfTau[j + 1]) / 2) * t.M));
+    const kmh = t.vRef[j] * KMH;
+    const band = !t.corner[bin] ? "straight" : kmh < slowMaxKmh ? "slow" : kmh > fastMinKmh ? "fast" : "medium";
+    const a = (((t.dOfTau[j] - bench.offset) % 1) + 1) % 1;
+    const b = (((t.dOfTau[j + 1] - bench.offset) % 1) + 1) % 1;
+    acc[band].pole += spanTime(pole, session.lap.lapTime, a, b);
+    acc[band].race += laps.reduce((sum, lap) => sum + spanTime(lap.rows, lap.lapTime, a, b), 0) / laps.length;
+    acc[band].sens += t.sens[j] / t.M;
+    acc[band].share += 1 / t.M;
+  }
+  const pole2 = BANDS.reduce((sum, band) => sum + acc[band].pole, 0);
+  const race2 = BANDS.reduce((sum, band) => sum + acc[band].race, 0);
+  const lapLoss = (race2 - pole2) / pole2;
+  const real = {};
+  const sim = {};
+  BANDS.forEach((band) => {
+    real[band] = (acc[band].race - acc[band].pole) / acc[band].pole / lapLoss;
+    sim[band] = acc[band].share > 0 ? acc[band].sens / acc[band].share : 0;
+  });
+  return { real, sim, pole: pole2, race: race2, poleTime: acc, lapLoss };
+};
+
+describe("PT-3 · race laps against the pole lap (F1M24-GAMEPLAY §2.3 curvas-lentas; RF-SIM-01, RF-SIM-02)", () => {
+  it.each(benchCircuits)("%s: the fixture has clean first-stint race laps of the pole sitter (OpenF1, no stop, no SC/VSC)", (circuit) => {
+    const session = raceSessionOf(circuit);
+    const pole = realSessions.find((s) => s.circuit === circuit && s.year === BENCH.year);
+    expect(session).not.toBeNull();
+    expect(session.driver).toBe(pole.lap.driver);
+    expect(session.laps.length).toBeGreaterThanOrEqual(BENCH.minRaceLaps);
+    session.laps.forEach((lap) => {
+      expect(lap.samples.length).toBeGreaterThan(250);
+      // A race lap is slower than the pole lap, by fuel and tyres, not by an incident.
+      expect(lap.lapTime / pole.lap.lapTime).toBeGreaterThan(1.02);
+      expect(lap.lapTime / pole.lap.lapTime).toBeLessThan(1.15);
+    });
+  });
+
+  it.each(benchCircuits)("%s: the step race's lap budget is the real race pace (±3 %% of the median clean lap)", (circuit) => {
+    const times = raceSessionOf(circuit).laps.map((lap) => lap.lapTime).sort((x, y) => x - y);
+    const median = times[times.length >> 1];
+    expect(Math.abs(benchOf(circuit).budget / median - 1)).toBeLessThanOrEqual(BENCH.paceTolerance);
+  });
+
+  it("the real race lap loses its time mostly in the corners and least on the straights (OpenF1, every circuit)", () => {
+    const rows = benchCircuits.map((circuit) => [circuit, bandLossOf(circuit)]);
+    if (process.env.PT3_PRINT) {
+      // eslint-disable-next-line no-console
+      console.log(rows.map(([circuit, r]) => `${circuit} +${(r.lapLoss * 100).toFixed(1)} % real ${BANDS.map((b) => `${b} ${r.real[b].toFixed(2)}`).join(" ")} | sim ${BANDS.map((b) => `${b} ${r.sim[b].toFixed(2)}`).join(" ")}`).join("\n"));
+    }
+    rows.forEach(([, r]) => {
+      expect(r.lapLoss).toBeGreaterThan(0.02);
+      // Straights lose less than the lap on average, in the data and in the sim's weights.
+      expect(r.real.straight).toBeLessThan(1);
+      expect(r.sim.straight).toBeLessThan(1);
+      // The slow and medium corners lose more than the lap on average, in the data and in the sim.
+      expect(r.real.slow).toBeGreaterThan(1);
+      expect(r.real.medium).toBeGreaterThan(1);
+      expect(r.sim.slow).toBeGreaterThan(1);
+      expect(r.sim.medium).toBeGreaterThan(1);
+    });
   });
 });
