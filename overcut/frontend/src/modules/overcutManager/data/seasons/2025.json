@@ -234,7 +234,44 @@
    "pitStops": {
     "median": 5,
     "cars": 14
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-03-14",
+     "startLocal": "12:30",
+     "startUtc": "2025-03-14T01:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-03-14",
+     "startLocal": "16:00",
+     "startUtc": "2025-03-14T05:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-03-15",
+     "startLocal": "12:30",
+     "startUtc": "2025-03-15T01:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-03-15",
+     "startLocal": "16:00",
+     "startUtc": "2025-03-15T05:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-03-16",
+     "startLocal": "15:00",
+     "startUtc": "2025-03-16T04:00Z"
+    }
+   ]
   },
   {
    "round": 2,
@@ -266,7 +303,44 @@
    "pitStops": {
     "median": 1,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-03-21",
+     "startLocal": "11:30",
+     "startUtc": "2025-03-21T03:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2025-03-21",
+     "startLocal": "15:30",
+     "startUtc": "2025-03-21T07:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2025-03-22",
+     "startLocal": "11:00",
+     "startUtc": "2025-03-22T03:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-03-22",
+     "startLocal": "15:00",
+     "startUtc": "2025-03-22T07:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-03-23",
+     "startLocal": "15:00",
+     "startUtc": "2025-03-23T07:00Z"
+    }
+   ]
   },
   {
    "round": 3,
@@ -298,7 +372,44 @@
    "pitStops": {
     "median": 1,
     "cars": 20
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-04-04",
+     "startLocal": "11:30",
+     "startUtc": "2025-04-04T02:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-04-04",
+     "startLocal": "15:00",
+     "startUtc": "2025-04-04T06:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-04-05",
+     "startLocal": "11:30",
+     "startUtc": "2025-04-05T02:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-04-05",
+     "startLocal": "15:00",
+     "startUtc": "2025-04-05T06:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-04-06",
+     "startLocal": "14:00",
+     "startUtc": "2025-04-06T05:00Z"
+    }
+   ]
   },
   {
    "round": 4,
@@ -330,7 +441,44 @@
    "pitStops": {
     "median": 2,
     "cars": 18
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-04-11",
+     "startLocal": "14:30",
+     "startUtc": "2025-04-11T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-04-11",
+     "startLocal": "18:00",
+     "startUtc": "2025-04-11T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-04-12",
+     "startLocal": "15:30",
+     "startUtc": "2025-04-12T12:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-04-12",
+     "startLocal": "19:00",
+     "startUtc": "2025-04-12T16:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-04-13",
+     "startLocal": "18:00",
+     "startUtc": "2025-04-13T15:00Z"
+    }
+   ]
   },
   {
    "round": 5,
@@ -362,7 +510,44 @@
    "pitStops": {
     "median": 1,
     "cars": 18
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-04-18",
+     "startLocal": "16:30",
+     "startUtc": "2025-04-18T13:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-04-18",
+     "startLocal": "20:00",
+     "startUtc": "2025-04-18T17:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-04-19",
+     "startLocal": "16:30",
+     "startUtc": "2025-04-19T13:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-04-19",
+     "startLocal": "20:00",
+     "startUtc": "2025-04-19T17:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-04-20",
+     "startLocal": "20:00",
+     "startUtc": "2025-04-20T17:00Z"
+    }
+   ]
   },
   {
    "round": 6,
@@ -394,7 +579,44 @@
    "pitStops": {
     "median": 1,
     "cars": 16
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-05-02",
+     "startLocal": "12:30",
+     "startUtc": "2025-05-02T16:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2025-05-02",
+     "startLocal": "16:30",
+     "startUtc": "2025-05-02T20:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2025-05-03",
+     "startLocal": "12:00",
+     "startUtc": "2025-05-03T16:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-05-03",
+     "startLocal": "16:00",
+     "startUtc": "2025-05-03T20:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-05-04",
+     "startLocal": "16:00",
+     "startUtc": "2025-05-04T20:00Z"
+    }
+   ]
   },
   {
    "round": 7,
@@ -426,7 +648,44 @@
    "pitStops": {
     "median": 2,
     "cars": 18
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-05-16",
+     "startLocal": "13:30",
+     "startUtc": "2025-05-16T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-05-16",
+     "startLocal": "17:00",
+     "startUtc": "2025-05-16T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-05-17",
+     "startLocal": "12:30",
+     "startUtc": "2025-05-17T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-05-17",
+     "startLocal": "16:00",
+     "startUtc": "2025-05-17T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-05-18",
+     "startLocal": "15:00",
+     "startUtc": "2025-05-18T13:00Z"
+    }
+   ]
   },
   {
    "round": 8,
@@ -458,7 +717,44 @@
    "pitStops": {
     "median": 2,
     "cars": 18
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-05-23",
+     "startLocal": "13:30",
+     "startUtc": "2025-05-23T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-05-23",
+     "startLocal": "17:00",
+     "startUtc": "2025-05-23T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-05-24",
+     "startLocal": "12:30",
+     "startUtc": "2025-05-24T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-05-24",
+     "startLocal": "16:00",
+     "startUtc": "2025-05-24T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-05-25",
+     "startLocal": "15:00",
+     "startUtc": "2025-05-25T13:00Z"
+    }
+   ]
   },
   {
    "round": 9,
@@ -490,7 +786,44 @@
    "pitStops": {
     "median": 3,
     "cars": 17
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-05-30",
+     "startLocal": "13:30",
+     "startUtc": "2025-05-30T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-05-30",
+     "startLocal": "17:00",
+     "startUtc": "2025-05-30T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-05-31",
+     "startLocal": "12:30",
+     "startUtc": "2025-05-31T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-05-31",
+     "startLocal": "16:00",
+     "startUtc": "2025-05-31T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-06-01",
+     "startLocal": "15:00",
+     "startUtc": "2025-06-01T13:00Z"
+    }
+   ]
   },
   {
    "round": 10,
@@ -522,7 +855,44 @@
    "pitStops": {
     "median": 2,
     "cars": 18
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-06-13",
+     "startLocal": "13:30",
+     "startUtc": "2025-06-13T17:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-06-13",
+     "startLocal": "17:00",
+     "startUtc": "2025-06-13T21:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-06-14",
+     "startLocal": "12:30",
+     "startUtc": "2025-06-14T16:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-06-14",
+     "startLocal": "16:00",
+     "startUtc": "2025-06-14T20:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-06-15",
+     "startLocal": "14:00",
+     "startUtc": "2025-06-15T18:00Z"
+    }
+   ]
   },
   {
    "round": 11,
@@ -554,7 +924,44 @@
    "pitStops": {
     "median": 2,
     "cars": 16
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-06-27",
+     "startLocal": "13:30",
+     "startUtc": "2025-06-27T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-06-27",
+     "startLocal": "17:00",
+     "startUtc": "2025-06-27T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-06-28",
+     "startLocal": "12:30",
+     "startUtc": "2025-06-28T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-06-28",
+     "startLocal": "16:00",
+     "startUtc": "2025-06-28T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-06-29",
+     "startLocal": "15:00",
+     "startUtc": "2025-06-29T13:00Z"
+    }
+   ]
   },
   {
    "round": 12,
@@ -586,7 +993,44 @@
    "pitStops": {
     "median": 2,
     "cars": 15
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-07-04",
+     "startLocal": "12:30",
+     "startUtc": "2025-07-04T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-07-04",
+     "startLocal": "16:00",
+     "startUtc": "2025-07-04T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-07-05",
+     "startLocal": "11:30",
+     "startUtc": "2025-07-05T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-07-05",
+     "startLocal": "15:00",
+     "startUtc": "2025-07-05T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-07-06",
+     "startLocal": "15:00",
+     "startUtc": "2025-07-06T14:00Z"
+    }
+   ]
   },
   {
    "round": 13,
@@ -618,7 +1062,44 @@
    "pitStops": {
     "median": 1,
     "cars": 20
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-07-25",
+     "startLocal": "12:30",
+     "startUtc": "2025-07-25T10:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2025-07-25",
+     "startLocal": "16:30",
+     "startUtc": "2025-07-25T14:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2025-07-26",
+     "startLocal": "12:00",
+     "startUtc": "2025-07-26T10:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-07-26",
+     "startLocal": "16:00",
+     "startUtc": "2025-07-26T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-07-27",
+     "startLocal": "15:00",
+     "startUtc": "2025-07-27T13:00Z"
+    }
+   ]
   },
   {
    "round": 14,
@@ -650,7 +1131,44 @@
    "pitStops": {
     "median": 1,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-08-01",
+     "startLocal": "13:30",
+     "startUtc": "2025-08-01T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-08-01",
+     "startLocal": "17:00",
+     "startUtc": "2025-08-01T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-08-02",
+     "startLocal": "12:30",
+     "startUtc": "2025-08-02T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-08-02",
+     "startLocal": "16:00",
+     "startUtc": "2025-08-02T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-08-03",
+     "startLocal": "15:00",
+     "startUtc": "2025-08-03T13:00Z"
+    }
+   ]
   },
   {
    "round": 15,
@@ -682,7 +1200,44 @@
    "pitStops": {
     "median": 2,
     "cars": 17
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-08-29",
+     "startLocal": "12:30",
+     "startUtc": "2025-08-29T10:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-08-29",
+     "startLocal": "16:00",
+     "startUtc": "2025-08-29T14:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-08-30",
+     "startLocal": "11:30",
+     "startUtc": "2025-08-30T09:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-08-30",
+     "startLocal": "15:00",
+     "startUtc": "2025-08-30T13:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-08-31",
+     "startLocal": "15:00",
+     "startUtc": "2025-08-31T13:00Z"
+    }
+   ]
   },
   {
    "round": 16,
@@ -714,7 +1269,44 @@
    "pitStops": {
     "median": 1,
     "cars": 18
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-09-05",
+     "startLocal": "13:30",
+     "startUtc": "2025-09-05T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-09-05",
+     "startLocal": "17:00",
+     "startUtc": "2025-09-05T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-09-06",
+     "startLocal": "12:30",
+     "startUtc": "2025-09-06T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-09-06",
+     "startLocal": "16:00",
+     "startUtc": "2025-09-06T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-09-07",
+     "startLocal": "15:00",
+     "startUtc": "2025-09-07T13:00Z"
+    }
+   ]
   },
   {
    "round": 17,
@@ -746,7 +1338,44 @@
    "pitStops": {
     "median": 1,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-09-19",
+     "startLocal": "12:30",
+     "startUtc": "2025-09-19T08:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-09-19",
+     "startLocal": "16:00",
+     "startUtc": "2025-09-19T12:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-09-20",
+     "startLocal": "12:30",
+     "startUtc": "2025-09-20T08:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-09-20",
+     "startLocal": "16:00",
+     "startUtc": "2025-09-20T12:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-09-21",
+     "startLocal": "15:00",
+     "startUtc": "2025-09-21T11:00Z"
+    }
+   ]
   },
   {
    "round": 18,
@@ -778,7 +1407,44 @@
    "pitStops": {
     "median": 1,
     "cars": 20
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-10-03",
+     "startLocal": "17:30",
+     "startUtc": "2025-10-03T09:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-10-03",
+     "startLocal": "21:00",
+     "startUtc": "2025-10-03T13:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-10-04",
+     "startLocal": "17:30",
+     "startUtc": "2025-10-04T09:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-10-04",
+     "startLocal": "21:00",
+     "startUtc": "2025-10-04T13:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-10-05",
+     "startLocal": "20:00",
+     "startUtc": "2025-10-05T12:00Z"
+    }
+   ]
   },
   {
    "round": 19,
@@ -810,7 +1476,44 @@
    "pitStops": {
     "median": 1,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-10-17",
+     "startLocal": "12:30",
+     "startUtc": "2025-10-17T17:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2025-10-17",
+     "startLocal": "16:30",
+     "startUtc": "2025-10-17T21:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2025-10-18",
+     "startLocal": "12:00",
+     "startUtc": "2025-10-18T17:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-10-18",
+     "startLocal": "16:00",
+     "startUtc": "2025-10-18T21:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-10-19",
+     "startLocal": "14:00",
+     "startUtc": "2025-10-19T19:00Z"
+    }
+   ]
   },
   {
    "round": 20,
@@ -842,7 +1545,44 @@
    "pitStops": {
     "median": 1,
     "cars": 17
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-10-24",
+     "startLocal": "12:30",
+     "startUtc": "2025-10-24T18:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-10-24",
+     "startLocal": "16:00",
+     "startUtc": "2025-10-24T22:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-10-25",
+     "startLocal": "11:30",
+     "startUtc": "2025-10-25T17:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-10-25",
+     "startLocal": "15:00",
+     "startUtc": "2025-10-25T21:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-10-26",
+     "startLocal": "14:00",
+     "startUtc": "2025-10-26T20:00Z"
+    }
+   ]
   },
   {
    "round": 21,
@@ -874,7 +1614,44 @@
    "pitStops": {
     "median": 2,
     "cars": 17
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-11-07",
+     "startLocal": "11:30",
+     "startUtc": "2025-11-07T14:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2025-11-07",
+     "startLocal": "15:30",
+     "startUtc": "2025-11-07T18:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2025-11-08",
+     "startLocal": "11:00",
+     "startUtc": "2025-11-08T14:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-11-08",
+     "startLocal": "15:00",
+     "startUtc": "2025-11-08T18:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-11-09",
+     "startLocal": "14:00",
+     "startUtc": "2025-11-09T17:00Z"
+    }
+   ]
   },
   {
    "round": 22,
@@ -906,7 +1683,44 @@
    "pitStops": {
     "median": 1,
     "cars": 15
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-11-20",
+     "startLocal": "16:30",
+     "startUtc": "2025-11-21T00:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-11-20",
+     "startLocal": "20:00",
+     "startUtc": "2025-11-21T04:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-11-21",
+     "startLocal": "16:30",
+     "startUtc": "2025-11-22T00:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-11-21",
+     "startLocal": "20:00",
+     "startUtc": "2025-11-22T04:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-11-22",
+     "startLocal": "20:00",
+     "startUtc": "2025-11-23T04:00Z"
+    }
+   ]
   },
   {
    "round": 23,
@@ -938,7 +1752,44 @@
    "pitStops": {
     "median": 2,
     "cars": 18
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-11-28",
+     "startLocal": "16:30",
+     "startUtc": "2025-11-28T13:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2025-11-28",
+     "startLocal": "20:30",
+     "startUtc": "2025-11-28T17:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2025-11-29",
+     "startLocal": "17:00",
+     "startUtc": "2025-11-29T14:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-11-29",
+     "startLocal": "21:00",
+     "startUtc": "2025-11-29T18:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-11-30",
+     "startLocal": "19:00",
+     "startUtc": "2025-11-30T16:00Z"
+    }
+   ]
   },
   {
    "round": 24,
@@ -970,7 +1821,44 @@
    "pitStops": {
     "median": 1,
     "cars": 20
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2025-12-05",
+     "startLocal": "13:30",
+     "startUtc": "2025-12-05T09:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2025-12-05",
+     "startLocal": "17:00",
+     "startUtc": "2025-12-05T13:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2025-12-06",
+     "startLocal": "14:30",
+     "startUtc": "2025-12-06T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2025-12-06",
+     "startLocal": "18:00",
+     "startUtc": "2025-12-06T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2025-12-07",
+     "startLocal": "17:00",
+     "startUtc": "2025-12-07T13:00Z"
+    }
+   ]
   }
  ],
  "teams": [

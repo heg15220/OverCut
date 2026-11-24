@@ -108,3 +108,14 @@ export const practiceRun = ({ setup, ideal, knowledge = 0, technical = 50, engin
 
 /** Seconds a lap is worth from a setup's satisfaction (0.62 - an engineers' first guess - is par). */
 export const setupLapTime = (satisfaction) => -(satisfaction - 0.62) * 0.7;
+
+/**
+ * trabajo-garaje (F1M24-GAMEPLAY §2.12.3; RF-WKD-03): how much a setup change moves, in slider
+ * points (each slider 0..100), summed over the five settings - what the garage work of a
+ * session charges for it (data/balance/sessions.json garage.work.setup). 0 when either side is
+ * missing (no change asked).
+ */
+export const setupDistance = (from, to) => {
+  if (!from || !to) return 0;
+  return SLIDERS.reduce((sum, slider) => sum + Math.abs((to[slider] ?? from[slider] ?? 50) - (from[slider] ?? 50)), 0);
+};

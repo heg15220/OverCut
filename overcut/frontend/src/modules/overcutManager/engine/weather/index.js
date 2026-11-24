@@ -366,6 +366,26 @@ export const sessionWetness = ({ race = {}, kind = "qualifying", stream }) => {
   return Math.round((sum / Math.max(1, n)) * 1000) / 1000;
 };
 
+/**
+ * reloj-sesion (F1M24-GAMEPLAY §2.12.3; RF-SIM-11, RF-WKD-01): the conditions at a local hour of
+ * the weekend, for the playable sessions' clock. The circuit's climatology (climate.json, ERA5)
+ * holds the air at the race's start hour; `diurnal` ({peakHour, halfRangeC}, sessions.json
+ * clock.diurnal) moves it along a 24-hour cosine to `hour` (absent or without a start hour: the
+ * start-hour air). Night from race-weather.json temperature.nightFromHour to dayFromHour; the
+ * track over the air as in the race (trackTempOf) for `state` (0 = sunny). Pure: no stream.
+ */
+export const hourlyConditions = ({ race = {}, hour, state = 0, diurnal = null }) => {
+  const climate = climateFor(race);
+  const startHour = Number.isFinite(climate.startHour) ? climate.startHour : null;
+  const h = ((hour % 24) + 24) % 24;
+  const night = h >= W.temperature.nightFromHour || h < W.temperature.dayFromHour;
+  const base = climate.airC?.dry ?? W.temperature.fallbackAirC;
+  const wave = (at) => Math.cos((2 * Math.PI * (at - diurnal.peakHour)) / 24);
+  const airC = diurnal && startHour !== null && Number.isFinite(diurnal.halfRangeC) ? base + diurnal.halfRangeC * (wave(h) - wave(startHour)) : base;
+  const round1 = (value) => Math.round(value * 10) / 10;
+  return { hour: Math.round(h * 1000) / 1000, startHour, night, airC: round1(airC), trackC: round1(trackTempOf(airC, state, night)) };
+};
+
 // ------------------------------------------------------------------ the view and the sound
 
 /** The spray a follower meets (0..1) with this much water on the line. */

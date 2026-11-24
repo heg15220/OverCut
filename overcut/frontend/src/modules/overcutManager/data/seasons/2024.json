@@ -230,7 +230,44 @@
    "pitStops": {
     "median": 2,
     "cars": 20
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-02-29",
+     "startLocal": "14:30",
+     "startUtc": "2024-02-29T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-02-29",
+     "startLocal": "18:00",
+     "startUtc": "2024-02-29T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-03-01",
+     "startLocal": "15:30",
+     "startUtc": "2024-03-01T12:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-03-01",
+     "startLocal": "19:00",
+     "startUtc": "2024-03-01T16:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-03-02",
+     "startLocal": "18:00",
+     "startUtc": "2024-03-02T15:00Z"
+    }
+   ]
   },
   {
    "round": 2,
@@ -262,7 +299,44 @@
    "pitStops": {
     "median": 1,
     "cars": 18
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-03-07",
+     "startLocal": "16:30",
+     "startUtc": "2024-03-07T13:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-03-07",
+     "startLocal": "20:00",
+     "startUtc": "2024-03-07T17:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-03-08",
+     "startLocal": "16:30",
+     "startUtc": "2024-03-08T13:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-03-08",
+     "startLocal": "20:00",
+     "startUtc": "2024-03-08T17:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-03-09",
+     "startLocal": "20:00",
+     "startUtc": "2024-03-09T17:00Z"
+    }
+   ]
   },
   {
    "round": 3,
@@ -294,7 +368,44 @@
    "pitStops": {
     "median": 2,
     "cars": 17
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-03-22",
+     "startLocal": "12:30",
+     "startUtc": "2024-03-22T01:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-03-22",
+     "startLocal": "16:00",
+     "startUtc": "2024-03-22T05:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-03-23",
+     "startLocal": "12:30",
+     "startUtc": "2024-03-23T01:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-03-23",
+     "startLocal": "16:00",
+     "startUtc": "2024-03-23T05:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-03-24",
+     "startLocal": "15:00",
+     "startUtc": "2024-03-24T04:00Z"
+    }
+   ]
   },
   {
    "round": 4,
@@ -326,7 +437,44 @@
    "pitStops": {
     "median": 3,
     "cars": 17
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-04-05",
+     "startLocal": "11:30",
+     "startUtc": "2024-04-05T02:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-04-05",
+     "startLocal": "15:00",
+     "startUtc": "2024-04-05T06:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-04-06",
+     "startLocal": "11:30",
+     "startUtc": "2024-04-06T02:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-04-06",
+     "startLocal": "15:00",
+     "startUtc": "2024-04-06T06:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-04-07",
+     "startLocal": "14:00",
+     "startUtc": "2024-04-07T05:00Z"
+    }
+   ]
   },
   {
    "round": 5,
@@ -358,7 +506,44 @@
    "pitStops": {
     "median": 2,
     "cars": 17
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-04-19",
+     "startLocal": "11:30",
+     "startUtc": "2024-04-19T03:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2024-04-19",
+     "startLocal": "15:30",
+     "startUtc": "2024-04-19T07:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2024-04-20",
+     "startLocal": "11:00",
+     "startUtc": "2024-04-20T03:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-04-20",
+     "startLocal": "15:00",
+     "startUtc": "2024-04-20T07:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-04-21",
+     "startLocal": "15:00",
+     "startUtc": "2024-04-21T07:00Z"
+    }
+   ]
   },
   {
    "round": 6,
@@ -390,7 +575,44 @@
    "pitStops": {
     "median": 1,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-05-03",
+     "startLocal": "12:30",
+     "startUtc": "2024-05-03T16:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2024-05-03",
+     "startLocal": "16:30",
+     "startUtc": "2024-05-03T20:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2024-05-04",
+     "startLocal": "12:00",
+     "startUtc": "2024-05-04T16:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-05-04",
+     "startLocal": "16:00",
+     "startUtc": "2024-05-04T20:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-05-05",
+     "startLocal": "16:00",
+     "startUtc": "2024-05-05T20:00Z"
+    }
+   ]
   },
   {
    "round": 7,
@@ -422,7 +644,44 @@
    "pitStops": {
     "median": 1,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-05-17",
+     "startLocal": "13:30",
+     "startUtc": "2024-05-17T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-05-17",
+     "startLocal": "17:00",
+     "startUtc": "2024-05-17T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-05-18",
+     "startLocal": "12:30",
+     "startUtc": "2024-05-18T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-05-18",
+     "startLocal": "16:00",
+     "startUtc": "2024-05-18T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-05-19",
+     "startLocal": "15:00",
+     "startUtc": "2024-05-19T13:00Z"
+    }
+   ]
   },
   {
    "round": 8,
@@ -454,7 +713,44 @@
    "pitStops": {
     "median": 1,
     "cars": 16
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-05-24",
+     "startLocal": "13:30",
+     "startUtc": "2024-05-24T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-05-24",
+     "startLocal": "17:00",
+     "startUtc": "2024-05-24T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-05-25",
+     "startLocal": "12:30",
+     "startUtc": "2024-05-25T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-05-25",
+     "startLocal": "16:00",
+     "startUtc": "2024-05-25T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-05-26",
+     "startLocal": "15:00",
+     "startUtc": "2024-05-26T13:00Z"
+    }
+   ]
   },
   {
    "round": 9,
@@ -486,7 +782,44 @@
    "pitStops": {
     "median": 2,
     "cars": 15
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-06-07",
+     "startLocal": "13:30",
+     "startUtc": "2024-06-07T17:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-06-07",
+     "startLocal": "17:00",
+     "startUtc": "2024-06-07T21:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-06-08",
+     "startLocal": "12:30",
+     "startUtc": "2024-06-08T16:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-06-08",
+     "startLocal": "16:00",
+     "startUtc": "2024-06-08T20:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-06-09",
+     "startLocal": "14:00",
+     "startUtc": "2024-06-09T18:00Z"
+    }
+   ]
   },
   {
    "round": 10,
@@ -518,7 +851,44 @@
    "pitStops": {
     "median": 2,
     "cars": 20
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-06-21",
+     "startLocal": "13:30",
+     "startUtc": "2024-06-21T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-06-21",
+     "startLocal": "17:00",
+     "startUtc": "2024-06-21T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-06-22",
+     "startLocal": "12:30",
+     "startUtc": "2024-06-22T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-06-22",
+     "startLocal": "16:00",
+     "startUtc": "2024-06-22T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-06-23",
+     "startLocal": "15:00",
+     "startUtc": "2024-06-23T13:00Z"
+    }
+   ]
   },
   {
    "round": 11,
@@ -550,7 +920,44 @@
    "pitStops": {
     "median": 2,
     "cars": 20
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-06-28",
+     "startLocal": "12:30",
+     "startUtc": "2024-06-28T10:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2024-06-28",
+     "startLocal": "16:30",
+     "startUtc": "2024-06-28T14:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2024-06-29",
+     "startLocal": "12:00",
+     "startUtc": "2024-06-29T10:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-06-29",
+     "startLocal": "16:00",
+     "startUtc": "2024-06-29T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-06-30",
+     "startLocal": "15:00",
+     "startUtc": "2024-06-30T13:00Z"
+    }
+   ]
   },
   {
    "round": 12,
@@ -582,7 +989,44 @@
    "pitStops": {
     "median": 2,
     "cars": 18
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-07-05",
+     "startLocal": "12:30",
+     "startUtc": "2024-07-05T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-07-05",
+     "startLocal": "16:00",
+     "startUtc": "2024-07-05T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-07-06",
+     "startLocal": "11:30",
+     "startUtc": "2024-07-06T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-07-06",
+     "startLocal": "15:00",
+     "startUtc": "2024-07-06T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-07-07",
+     "startLocal": "15:00",
+     "startUtc": "2024-07-07T14:00Z"
+    }
+   ]
   },
   {
    "round": 13,
@@ -614,7 +1058,44 @@
    "pitStops": {
     "median": 2,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-07-19",
+     "startLocal": "13:30",
+     "startUtc": "2024-07-19T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-07-19",
+     "startLocal": "17:00",
+     "startUtc": "2024-07-19T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-07-20",
+     "startLocal": "12:30",
+     "startUtc": "2024-07-20T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-07-20",
+     "startLocal": "16:00",
+     "startUtc": "2024-07-20T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-07-21",
+     "startLocal": "15:00",
+     "startUtc": "2024-07-21T13:00Z"
+    }
+   ]
   },
   {
    "round": 14,
@@ -646,7 +1127,44 @@
    "pitStops": {
     "median": 2,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-07-26",
+     "startLocal": "13:30",
+     "startUtc": "2024-07-26T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-07-26",
+     "startLocal": "17:00",
+     "startUtc": "2024-07-26T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-07-27",
+     "startLocal": "12:30",
+     "startUtc": "2024-07-27T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-07-27",
+     "startLocal": "16:00",
+     "startUtc": "2024-07-27T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-07-28",
+     "startLocal": "15:00",
+     "startUtc": "2024-07-28T13:00Z"
+    }
+   ]
   },
   {
    "round": 15,
@@ -678,7 +1196,44 @@
    "pitStops": {
     "median": 1,
     "cars": 20
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-08-23",
+     "startLocal": "12:30",
+     "startUtc": "2024-08-23T10:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-08-23",
+     "startLocal": "16:00",
+     "startUtc": "2024-08-23T14:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-08-24",
+     "startLocal": "11:30",
+     "startUtc": "2024-08-24T09:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-08-24",
+     "startLocal": "15:00",
+     "startUtc": "2024-08-24T13:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-08-25",
+     "startLocal": "15:00",
+     "startUtc": "2024-08-25T13:00Z"
+    }
+   ]
   },
   {
    "round": 16,
@@ -710,7 +1265,44 @@
    "pitStops": {
     "median": 2,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-08-30",
+     "startLocal": "13:30",
+     "startUtc": "2024-08-30T11:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-08-30",
+     "startLocal": "17:00",
+     "startUtc": "2024-08-30T15:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-08-31",
+     "startLocal": "12:30",
+     "startUtc": "2024-08-31T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-08-31",
+     "startLocal": "16:00",
+     "startUtc": "2024-08-31T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-09-01",
+     "startLocal": "15:00",
+     "startUtc": "2024-09-01T13:00Z"
+    }
+   ]
   },
   {
    "round": 17,
@@ -742,7 +1334,44 @@
    "pitStops": {
     "median": 1,
     "cars": 18
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-09-13",
+     "startLocal": "13:30",
+     "startUtc": "2024-09-13T09:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-09-13",
+     "startLocal": "17:00",
+     "startUtc": "2024-09-13T13:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-09-14",
+     "startLocal": "12:30",
+     "startUtc": "2024-09-14T08:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-09-14",
+     "startLocal": "16:00",
+     "startUtc": "2024-09-14T12:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-09-15",
+     "startLocal": "15:00",
+     "startUtc": "2024-09-15T11:00Z"
+    }
+   ]
   },
   {
    "round": 18,
@@ -774,7 +1403,44 @@
    "pitStops": {
     "median": 1,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-09-20",
+     "startLocal": "17:30",
+     "startUtc": "2024-09-20T09:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-09-20",
+     "startLocal": "21:00",
+     "startUtc": "2024-09-20T13:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-09-21",
+     "startLocal": "17:30",
+     "startUtc": "2024-09-21T09:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-09-21",
+     "startLocal": "21:00",
+     "startUtc": "2024-09-21T13:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-09-22",
+     "startLocal": "20:00",
+     "startUtc": "2024-09-22T12:00Z"
+    }
+   ]
   },
   {
    "round": 19,
@@ -806,7 +1472,44 @@
    "pitStops": {
     "median": 1,
     "cars": 19
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-10-18",
+     "startLocal": "12:30",
+     "startUtc": "2024-10-18T17:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2024-10-18",
+     "startLocal": "16:30",
+     "startUtc": "2024-10-18T21:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2024-10-19",
+     "startLocal": "13:00",
+     "startUtc": "2024-10-19T18:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-10-19",
+     "startLocal": "17:00",
+     "startUtc": "2024-10-19T22:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-10-20",
+     "startLocal": "14:00",
+     "startUtc": "2024-10-20T19:00Z"
+    }
+   ]
   },
   {
    "round": 20,
@@ -838,7 +1541,44 @@
    "pitStops": {
     "median": 1,
     "cars": 17
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-10-25",
+     "startLocal": "12:30",
+     "startUtc": "2024-10-25T18:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-10-25",
+     "startLocal": "16:00",
+     "startUtc": "2024-10-25T22:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-10-26",
+     "startLocal": "11:30",
+     "startUtc": "2024-10-26T17:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-10-26",
+     "startLocal": "15:00",
+     "startUtc": "2024-10-26T21:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-10-27",
+     "startLocal": "14:00",
+     "startUtc": "2024-10-27T20:00Z"
+    }
+   ]
   },
   {
    "round": 21,
@@ -870,7 +1610,44 @@
    "pitStops": {
     "median": 2,
     "cars": 15
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-11-01",
+     "startLocal": "11:30",
+     "startUtc": "2024-11-01T14:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2024-11-01",
+     "startLocal": "15:30",
+     "startUtc": "2024-11-01T18:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2024-11-02",
+     "startLocal": "11:00",
+     "startUtc": "2024-11-02T14:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-11-03",
+     "startLocal": "07:30",
+     "startUtc": "2024-11-03T10:30Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-11-03",
+     "startLocal": "12:30",
+     "startUtc": "2024-11-03T15:30Z"
+    }
+   ]
   },
   {
    "round": 22,
@@ -902,7 +1679,44 @@
    "pitStops": {
     "median": 2,
     "cars": 18
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-11-21",
+     "startLocal": "18:30",
+     "startUtc": "2024-11-22T02:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-11-21",
+     "startLocal": "22:00",
+     "startUtc": "2024-11-22T06:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-11-22",
+     "startLocal": "18:30",
+     "startUtc": "2024-11-23T02:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-11-22",
+     "startLocal": "22:00",
+     "startUtc": "2024-11-23T06:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-11-23",
+     "startLocal": "22:00",
+     "startUtc": "2024-11-24T06:00Z"
+    }
+   ]
   },
   {
    "round": 23,
@@ -934,7 +1748,44 @@
    "pitStops": {
     "median": 3,
     "cars": 15
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-11-29",
+     "startLocal": "16:30",
+     "startUtc": "2024-11-29T13:30Z"
+    },
+    {
+     "kind": "shootout",
+     "name": "SQ",
+     "date": "2024-11-29",
+     "startLocal": "20:30",
+     "startUtc": "2024-11-29T17:30Z"
+    },
+    {
+     "kind": "sprint",
+     "name": "S",
+     "date": "2024-11-30",
+     "startLocal": "17:00",
+     "startUtc": "2024-11-30T14:00Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-11-30",
+     "startLocal": "21:00",
+     "startUtc": "2024-11-30T18:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-12-01",
+     "startLocal": "19:00",
+     "startUtc": "2024-12-01T16:00Z"
+    }
+   ]
   },
   {
    "round": 24,
@@ -966,7 +1817,44 @@
    "pitStops": {
     "median": 1,
     "cars": 17
-   }
+   },
+   "sessions": [
+    {
+     "kind": "practice",
+     "name": "FP1",
+     "date": "2024-12-06",
+     "startLocal": "13:30",
+     "startUtc": "2024-12-06T09:30Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP2",
+     "date": "2024-12-06",
+     "startLocal": "17:00",
+     "startUtc": "2024-12-06T13:00Z"
+    },
+    {
+     "kind": "practice",
+     "name": "FP3",
+     "date": "2024-12-07",
+     "startLocal": "14:30",
+     "startUtc": "2024-12-07T10:30Z"
+    },
+    {
+     "kind": "qualifying",
+     "name": "Q",
+     "date": "2024-12-07",
+     "startLocal": "18:00",
+     "startUtc": "2024-12-07T14:00Z"
+    },
+    {
+     "kind": "race",
+     "name": "R",
+     "date": "2024-12-08",
+     "startLocal": "17:00",
+     "startUtc": "2024-12-08T13:00Z"
+    }
+   ]
   }
  ],
  "teams": [

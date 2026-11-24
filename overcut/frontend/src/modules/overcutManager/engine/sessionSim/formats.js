@@ -31,11 +31,17 @@ export const qualifyingFormatOf = (eraOrRules, race = null) => {
 };
 
 const minutesOf = (table, year) => byYear(balance.durations[table], year);
+/** Seconds of break after segment `index` of a row with breakMinutes (absent: none). */
+const breakOf = (row, index) => (Array.isArray(row.breakMinutes) && Number.isFinite(row.breakMinutes[index]) ? row.breakMinutes[index] * 60 : 0);
 
 /**
  * The segments of a session. `kind` is "practice", "qualifying" or "shootout"; `field`
  * the number of cars. Each segment: name, duration (s), drop (cars out at its end),
- * lapLimit, singleLap (+ spacing), raceFuel, tyre (a mandated compound) and newTyre.
+ * lapLimit, singleLap (+ spacing), raceFuel, tyre (a mandated compound) and newTyre;
+ * for the weekend's local clock (reloj-sesion, RF-WKD-01) `breakAfter` (s between the end of
+ * this segment and the start of the next: sessions.json durations.*[].breakMinutes) or
+ * `nextDay` (the segment runs on the following day at the same hour: two-session and
+ * aggregate qualifying).
  */
 export const sessionFormat = ({ kind, era, race = null, field }) => {
   const rules = rulesFor(era);
@@ -58,6 +64,7 @@ export const sessionFormat = ({ kind, era, race = null, field }) => {
         lapLimit: null,
         tyre: row.tyres[index],
         newTyre: true,
+        breakAfter: breakOf(row, index),
       })),
     };
   }
@@ -76,6 +83,9 @@ export const sessionFormat = ({ kind, era, race = null, field }) => {
         drop: index < split.length - 1 ? drop : 0,
         lapLimit: null,
         raceFuel: raceFuel && index === split.length - 1,
+        // 2006-2007: the last segment starts on race fuel and burns some of it before the attempt.
+        fuelBurn: Boolean(raceFuel && row.fuelBurnLast && index === split.length - 1),
+        breakAfter: breakOf(row, index),
       })),
     };
   }
@@ -83,7 +93,7 @@ export const sessionFormat = ({ kind, era, race = null, field }) => {
     const row = minutesOf("oneLap", year);
     const single = (name, fuel) => ({ name, duration: 0, drop: 0, lapLimit: 3, singleLap: true, spacing: row.spacingSec, raceFuel: fuel });
     return format === "AGGREGATE"
-      ? { kind, format, combine: "sum", segments: [single("Q1", false), single("Q2", raceFuel)] }
+      ? { kind, format, combine: "sum", segments: [single("Q1", false), { ...single("Q2", raceFuel), nextDay: true }] }
       : { kind, format, combine: "best", segments: [single("Q", raceFuel)] };
   }
   if (format === "ONE_SESSION") {
@@ -97,7 +107,7 @@ export const sessionFormat = ({ kind, era, race = null, field }) => {
     combine: "best",
     segments: [
       { name: "Q1", duration: row.minutes * 60, drop: 0, lapLimit: row.lapLimit ?? null },
-      { name: "Q2", duration: row.minutes * 60, drop: 0, lapLimit: row.lapLimit ?? null },
+      { name: "Q2", duration: row.minutes * 60, drop: 0, lapLimit: row.lapLimit ?? null, nextDay: true },
     ],
   };
 };

@@ -1,0 +1,32 @@
+{
+  "$comment": "reloj-sesion (F1M24-GAMEPLAY §2.12.3; RF-WKD-01): zona horaria IANA de cada circuito de f1db con horas de sesión (f1db las da en UTC, desde 2024). generate_season_packs.py pasa cada hora UTC a hora local con zoneinfo (horario de verano incluido) y se para si un circuito con horas no está aquí. Fuente: IANA Time Zone Database (tzdata), por la ciudad del circuito. A mano.",
+  "source": "IANA Time Zone Database (https://www.iana.org/time-zones)",
+  "circuits": {
+    "austin": "America/Chicago",
+    "bahrain": "Asia/Bahrain",
+    "baku": "Asia/Baku",
+    "catalunya": "Europe/Madrid",
+    "hungaroring": "Europe/Budapest",
+    "imola": "Europe/Rome",
+    "interlagos": "America/Sao_Paulo",
+    "jeddah": "Asia/Riyadh",
+    "las-vegas": "America/Los_Angeles",
+    "lusail": "Asia/Qatar",
+    "madring": "Europe/Madrid",
+    "marina-bay": "Asia/Singapore",
+    "melbourne": "Australia/Melbourne",
+    "mexico-city": "America/Mexico_City",
+    "miami": "America/New_York",
+    "monaco": "Europe/Monaco",
+    "montreal": "America/Toronto",
+    "monza": "Europe/Rome",
+    "sepang": "Asia/Kuala_Lumpur",
+    "shanghai": "Asia/Shanghai",
+    "silverstone": "Europe/London",
+    "spa-francorchamps": "Europe/Brussels",
+    "spielberg": "Europe/Vienna",
+    "suzuka": "Asia/Tokyo",
+    "yas-marina": "Asia/Dubai",
+    "zandvoort": "Europe/Amsterdam"
+  }
+}
