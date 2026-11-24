@@ -15,7 +15,8 @@
     "speeds": "docs/manager/SIM-FISICA.md §4.2 (puntas reales de Monza 2005/2012/2024)",
     "soundSpeed": "https://en.wikipedia.org/wiki/Speed_of_sound",
     "openf1Downshifts": "https://api.openf1.org/v1/car_data?session_key=9472 (VER 15:30:30-15:33:30, LEC 15:21-15:24, NOR 15:24:20-15:27:20 UTC; leído el 2026-11-24)",
-    "openf1PitLane": "https://api.openf1.org/v1/car_data?session_key=9472 y /v1/pit?session_key=9472 (mismas ventanas, alrededor de cada parada; leído el 2026-11-24)"
+    "openf1PitLane": "https://api.openf1.org/v1/car_data?session_key=9472 y /v1/pit?session_key=9472 (mismas ventanas, alrededor de cada parada; leído el 2026-11-24)",
+    "openf1Grid": "https://api.openf1.org/v1/car_data?session_key=9472 (2024-03-02 15:02:30-15:03:50 UTC; pilotos 1, 4, 11, 16, 44, 63) y session_key=7953 (2023-03-05 15:03:20-15:03:40 UTC; pilotos 1, 11, 14, 16, 44); /v1/race_control SESSION STARTED 15:03:42 (2024) y 15:03:38 (2023); leído el 2026-11-24"
   },
   "eras": [
     {
@@ -374,6 +375,24 @@
     "rain": {"gain": 0.32, "threshold": 0.05, "hz": 4500, "q": 0.4},
     "pit": {"airGunHz": 22, "airGunGain": 0.5, "airGunBandHz": 3200, "stages": ["wheels"], "audibleMetres": 150},
     "squeal": {"gain": 0.35, "hz": 1800, "vibratoHz": 7, "durationSec": 0.9, "kinds": ["lockup", "spin"]},
-    "impact": {"gain": 0.8, "durationSec": 0.5, "lowHz": 180, "audibleMetres": 600}
+    "impact": {"gain": 0.8, "durationSec": 0.5, "lowHz": 180, "audibleMetres": 600},
+    "startLights": {
+      "$comment": "Luces de salida (start-lights-sound-and-timing, AUD-3; RF-SIM-10, RF-SIM-15, RNF-05, F1M24-GAMEPLAY §2.13): un golpe grave y un tono cada vez que snapshot.start (SIM-3, §1.7) enciende una luz más en la fase 'lights'; el apagado no suena (lo dicen los motores y el público, crowd.swell.start). El motor decide cuándo (race-sim.json start, era-defaults.json startProcedure); el sonido solo sigue a la instantánea y sin ella no suena nada. En el circuito real el semáforo no suena: es sonido de presentación, diseño propio (NV). Frecuencias, duraciones, ganancias y retardo elegidos aquí; no se copian el tono (~523 Hz) ni el retardo (~0,2 s) medidos en la referencia (§1.4). burstSpacingSec separa los golpes cuando a velocidad alta se encienden varias luces en un mismo fotograma. maxLights 5: el semáforo de cinco luces de la instantánea (lights 0..5).",
+      "delaySec": 0,
+      "burstSpacingSec": 0.09,
+      "maxLights": 5,
+      "thump": {"hz": 52, "endHz": 34, "attackSec": 0.006, "durationSec": 0.32, "gain": 0.7},
+      "tone": {"hz": 440, "attackSec": 0.004, "durationSec": 0.22, "gain": 0.16, "partials": [{"ratio": 1, "gain": 1}, {"ratio": 2, "gain": 0.3}]}
+    },
+    "gridRevs": {
+      "$comment": "Vueltas en la parrilla (gridRevs, AUD-3): con snapshot.start en 'grid' los coches parados suenan al ralentí de parrilla; en 'lights', desde la luz fromLight, suben a sus vueltas de salida en riseSec y las mantienen hasta el apagado (embrague en el punto de mordida). Medido en OpenF1 car_data (fuente openf1Grid): Baréin 2023 y 2024, once salidas de siete pilotos, coches a 0 km/h antes de moverse: ralentí 3.540-4.070 rpm de media por coche, subida de ~3.600 a ~9.000 rpm en 0,8-0,9 s (muestreo ~3,7 Hz, ±0,3 s), retención 8.880-10.440 rpm (una sola subida sostenida, sin subidas sueltas), acelerador 13-37 % (holdLoad 0,25). La subida empieza 5,4-6,3 s antes de que el coche se mueva, lo que con luces cada segundo y la espera de la FIA cae en la primera luz: fromLight 1 es inferido (OpenF1 no da los instantes de las luces). Cada coche toma su ralentí y su retención dentro del rango con un flujo con semilla por coche (RF-SIM-15). Solo 2023-2025 está medido; las demás eras usan el ralentí y las vueltas de salida de su era (eras[].idleRpm, launchRpm, lo que suena hoy con el coche parado) y la subida y la carga del bloque fallback, pending hasta tener telemetría. Si el motor da rpm en la pose (race-powertrain.json), manda el motor y esto no se aplica.",
+      "stationaryKmh": 1,
+      "fromLight": 1,
+      "fromLightStatus": "inferred",
+      "byEra": [
+        {"from": 2023, "to": 2025, "idleRpm": [3540, 4070], "holdRpm": [8880, 10440], "riseSec": 0.9, "holdLoad": 0.25, "status": "sourced", "source": "openf1Grid"}
+      ],
+      "fallback": {"riseSec": 0.9, "holdLoad": 0.25, "status": "pending", "note": "Sin telemetría antes de 2023 (OpenF1 empieza en 2023); se reutiliza la forma medida en 2023-2024 sobre el ralentí y las vueltas de salida de cada era (eras[]). 2026 (unidad nueva) también pending."}
+    }
   }
 }

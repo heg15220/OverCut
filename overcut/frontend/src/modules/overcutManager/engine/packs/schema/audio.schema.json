@@ -304,7 +304,7 @@
     "ambience": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["crowd", "wind", "fieldBed", "kerb", "rain", "pit", "squeal", "impact"],
+      "required": ["crowd", "wind", "fieldBed", "kerb", "rain", "pit", "squeal", "impact", "startLights", "gridRevs"],
       "properties": {
         "$comment": {"type": "string"},
         "crowd": {
@@ -396,6 +396,70 @@
           "additionalProperties": false,
           "required": ["gain", "durationSec", "lowHz", "audibleMetres"],
           "properties": {"gain": {"$ref": "#/definitions/share"}, "durationSec": {"$ref": "#/definitions/positive"}, "lowHz": {"$ref": "#/definitions/positive"}, "audibleMetres": {"$ref": "#/definitions/positive"}}
+        },
+        "startLights": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["delaySec", "burstSpacingSec", "maxLights", "thump", "tone"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "delaySec": {"$ref": "#/definitions/nonNegative"},
+            "burstSpacingSec": {"$ref": "#/definitions/positive"},
+            "maxLights": {"type": "integer", "minimum": 1, "maximum": 10},
+            "thump": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["hz", "endHz", "attackSec", "durationSec", "gain"],
+              "properties": {"hz": {"$ref": "#/definitions/positive"}, "endHz": {"$ref": "#/definitions/positive"}, "attackSec": {"$ref": "#/definitions/positive"}, "durationSec": {"$ref": "#/definitions/positive"}, "gain": {"$ref": "#/definitions/share"}}
+            },
+            "tone": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["hz", "attackSec", "durationSec", "gain", "partials"],
+              "properties": {
+                "hz": {"$ref": "#/definitions/positive"},
+                "attackSec": {"$ref": "#/definitions/positive"},
+                "durationSec": {"$ref": "#/definitions/positive"},
+                "gain": {"$ref": "#/definitions/share"},
+                "partials": {"type": "array", "minItems": 1, "maxItems": 6, "items": {"type": "object", "additionalProperties": false, "required": ["ratio", "gain"], "properties": {"ratio": {"$ref": "#/definitions/positive"}, "gain": {"$ref": "#/definitions/share"}}}}
+              }
+            }
+          }
+        },
+        "gridRevs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["stationaryKmh", "fromLight", "fromLightStatus", "byEra", "fallback"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "stationaryKmh": {"$ref": "#/definitions/positive"},
+            "fromLight": {"type": "integer", "minimum": 0, "maximum": 10},
+            "fromLightStatus": {"enum": ["pending", "inferred", "sourced"]},
+            "byEra": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["from", "to", "idleRpm", "holdRpm", "riseSec", "holdLoad", "status", "source"],
+                "properties": {
+                  "from": {"type": "integer", "minimum": 1950, "maximum": 2100},
+                  "to": {"type": "integer", "minimum": 1950, "maximum": 2100},
+                  "idleRpm": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"$ref": "#/definitions/rpm"}},
+                  "holdRpm": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"$ref": "#/definitions/rpm"}},
+                  "riseSec": {"$ref": "#/definitions/positive"},
+                  "holdLoad": {"$ref": "#/definitions/share"},
+                  "status": {"enum": ["pending", "sourced"]},
+                  "source": {"$ref": "#/definitions/text"}
+                }
+              }
+            },
+            "fallback": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["riseSec", "holdLoad", "status", "note"],
+              "properties": {"riseSec": {"$ref": "#/definitions/positive"}, "holdLoad": {"$ref": "#/definitions/share"}, "status": {"enum": ["pending", "sourced"]}, "note": {"$ref": "#/definitions/text"}}
+            }
+          }
         }
       }
     }
