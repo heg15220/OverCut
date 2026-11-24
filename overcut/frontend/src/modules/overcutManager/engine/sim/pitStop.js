@@ -150,8 +150,10 @@ export const planStop = ({ rules, crew = 60, tyres = true, refuelLaps = 0, wing 
 /**
  * The expected stationary time (no draws, no errors) - what a strategist plans with
  * (race.js stationaryTime). Same formula as planStop at z = 0, plus the mean error cost.
+ * `errors: false` leaves the error cost out: the typical (median) stop, since an error is the
+ * rare case - what the pit-stop preview shows as `stopMedian` (pitLane.js previewPit, PIT-1).
  */
-export const expectedStationary = ({ rules, crew = 60, tyres = true, refuelLaps = 0, kgPerLap = null }) => {
+export const expectedStationary = ({ rules, crew = 60, tyres = true, refuelLaps = 0, kgPerLap = null, errors = true }) => {
   const era = stopEraFor(rules);
   const factor = crewFactor(crew);
   const litres = refuelLaps > 0 ? refuelLaps * litresPerLapOf(kgPerLap) : 0;
@@ -160,7 +162,7 @@ export const expectedStationary = ({ rules, crew = 60, tyres = true, refuelLaps 
   // The slowest of four wheels sits ~1.03 sd above the mean.
   const wheels = era.wheel ? (era.wheel.mean + 1.03 * era.wheel.sd) * factor : 0;
   const errorFactor = crewErrorFactor(crew);
-  const errorCost = [era.marks, tyres ? era.jackUp : null, tyres ? era.wheel : null, tyres ? era.wheel : null, tyres ? era.wheel : null, tyres ? era.wheel : null, era.release]
+  const errorCost = !errors ? 0 : [era.marks, tyres ? era.jackUp : null, tyres ? era.wheel : null, tyres ? era.wheel : null, tyres ? era.wheel : null, tyres ? era.wheel : null, era.release]
     .reduce((sum, spec) => sum + (spec && spec.errorChance ? spec.errorChance * errorFactor * (spec.delay[0] + spec.delay[1]) * 0.5 : 0), 0);
   if (!tyres) return mean(era.marks) + refuel + mean(era.release) + errorCost;
   return mean(era.marks) + mean(era.jackUp) + Math.max(wheels, refuel) + mean(era.jackDown) + mean(era.release) + errorCost;

@@ -29,13 +29,20 @@
  * pitMarksFor: data/splines.json for a mesh lane, the procedural lane's own geometry otherwise);
  * without them, derived from the garages (race-pit.json `limitMarginMetres`).
  *
+ * Two read-only views on the same lane (PIT-1, docs/manager/F1M24-GAMEPLAY.md §1.7, §2.2):
+ * `previewPit(state, carId)` - what a stop would cost now, for the pit dialog - and
+ * `garageExitProfile(circuit, era, box)` - the drive from a team's box out of the lane, for the
+ * sessions' garage exit. Neither draws from any stream nor writes the state (RF-SIM-15, RNF-05).
+ *
  * Only + − × ÷ and Math.sqrt in the tables (RNF-05: bit-identical across JS engines).
  */
 
 import pitBalance from "../../data/balance/race-pit.json";
 import simBalance from "../../data/balance/race-sim.json";
+import { pitLaneSpeedFor, rulesFor } from "../rules";
 import { pitMarksFor } from "../trackData";
-import { timeShareAtDistance } from "../trackGeometry";
+import { distanceAtTimeShare, timeShareAtDistance } from "../trackGeometry";
+import { expectedStationary } from "./pitStop";
 
 const LANE = pitBalance.pitLane;
 const KMH = 1 / 3.6;
@@ -383,3 +390,210 @@ export const createLaneState = (n) => ({
   plan: new Array(n).fill(null),
   stage: new Array(n).fill(null),
 });
+
+// ------------------------------------------------------------ the pit-stop preview (PIT-1)
+
+/** The race's rules, as race.js rulesOf reads them (an era object with its year, or the year). */
+const rulesOfState = (state) => rulesFor(state.era && typeof state.era === "object" && (state.era.year !== undefined || state.era.regulations) ? state.era : state.year);
+
+const isRunning = (car) => Boolean(car) && car.status === "running";
+
+/** Does `car` stop at the end of `lap`: a planned stop on that lap, or a call for the next entry (race.js requestPit). */
+const stopsOn = (car, lap) => Boolean(car.pitRequest && (car.pitRequest.lap === undefined || car.pitRequest.lap === lap)) || Boolean(car.plan?.stops?.includes(lap));
+
+/** Laps of fuel a stop on `lap` adds in a refuelling era, as race.js pitDecision loads a called stop. */
+const refuelLapsFor = (state, car, lap) => {
+  const remaining = Math.max(0, state.laps - lap);
+  const stintsLeft = Math.max(1, (car.plan?.stops || []).filter((stop) => stop > lap).length + 1);
+  return Math.ceil(remaining / stintsLeft);
+};
+
+/** The lane's loss (stationary excluded) green / SC / VSC: the race's own (state.pitLane), or the circuit's. */
+const laneLossesOf = (state, circuit) => {
+  if (state.pitLane && Number.isFinite(state.pitLane.stop)) {
+    return { green: state.pitLane.stop, sc: state.pitLane.sc ?? null, vsc: state.pitLane.vsc ?? null };
+  }
+  if (!circuit || !circuit.pit || !circuit.pit.path || !(state.race?.baseLap > 0)) return null;
+  const lane = pitLaneFor(circuit, { kmh: state.pitLane?.kmh ?? null, baseLap: state.race.baseLap, circuitId: state.pitLane?.circuitId ?? null });
+  return { green: lane.stop, sc: lane.sc, vsc: lane.vsc };
+};
+
+/** Distance share of the lap car `index` has covered: given, the step simulator's (its time share on the trace), or the line. */
+const shareOfCar = (state, circuit, index, given) => {
+  if (Number.isFinite(given)) return frac(given);
+  const sim = state._sim;
+  if (sim && sim.tau && index >= 0 && index < sim.tau.length) return frac(distanceAtTimeShare(circuit, frac(sim.tau[index])));
+  return 0;
+};
+
+/**
+ * RF-CMD-02, RF-SIM-12, RF-SIM-13 (PIT-1, F1M24-GAMEPLAY.md §1.7 `previewPit`): what a stop at the
+ * end of the lap would cost car `carId`, for the pit dialog (HUD-3). Pure: it reads the race and
+ * writes nothing, and draws from no stream (the crew's stream is not even created), so asking
+ * never changes a result (RF-SIM-15, RNF-05).
+ *
+ * What each number measures - net losses, never the line-to-line lane time that f1db's
+ * pit_stop.time or a timing screen shows (F1M24-GAMEPLAY §1.6):
+ *
+ *   lossGreen   seconds lost against staying out, under green: the lane at the limit with the
+ *               braking into the box and the launch out of it, less the same stretch of track
+ *               at race pace (state.pitLane.stop, the loss both modes charge, SRS 4.2), plus
+ *               `stopMedian`, plus `queueSec`
+ *   lossSc      the same with the track stretch at safety-car pace (state.pitLane.sc), `lossVsc`
+ *               at VSC pace: derived, not configured (§2.11). Whether the era has a SC or a VSC
+ *               at all is `scAllowed` / `vscAllowed` (rules.raceControl)
+ *   stopMedian  the typical stationary time for this car's crew and era (pitStop.js
+ *               expectedStationary without the rare error), with the fuel of a refuelling era
+ *   queueSec    a double stack: the team-mate stops on the same lap and is ahead on the road,
+ *               so this car waits for its stop (0 otherwise)
+ *   exitPos     the race position the car would rejoin in: rivals whose race time stays below
+ *               this car's time + the loss (green, or SC/VSC while one is out); a rival that
+ *               stops on the same lap is charged its own loss too
+ *   teamMateSameLap      the team-mate stops at the end of the same lap
+ *   distanceToPitEntry   metres from the car to the lane's entry along the track (null without
+ *               a circuit: the quick mode passes `opts.circuit`)
+ *
+ * Options: `lap` (the in-lap; default the lap being run, state.lap + 1, as requestPit), `tyres`
+ * (default: the era's rule), `refuelLaps` (default the strategist's load), `crew`, `circuit`,
+ * `share` (the car's distance share of the lap; default the step simulator's own, or the line).
+ * A missing car returns null; a race without a lane loss gives null losses and positions.
+ */
+export const previewPit = (state, carId, opts = {}) => {
+  if (!state || !Array.isArray(state.cars)) return null;
+  const index = state.cars.findIndex((entry) => entry.id === carId);
+  const car = state.cars[index];
+  if (!car) return null;
+  const rules = rulesOfState(state);
+  const lap = Number.isFinite(opts.lap) ? opts.lap : (state.lap ?? 0) + 1;
+  const circuit = opts.circuit || state._sim?.lane?.circuit || null;
+  const tyres = opts.tyres ?? rules.tyres?.changesInRace !== false;
+  const fuelFor = (who) => (rules.refuelling ? refuelLapsFor(state, who, lap) : 0);
+  const refuelLaps = rules.refuelling && Number.isFinite(opts.refuelLaps) ? opts.refuelLaps : fuelFor(car);
+  const kgPerLap = state.fuelSpec?.kgPerLap ?? null;
+  const stopOf = (who, laps) => expectedStationary({ rules, crew: (who === car ? opts.crew : undefined) ?? who.crew ?? undefined, tyres, refuelLaps: laps, kgPerLap, errors: false });
+  const stopMedian = stopOf(car, refuelLaps);
+
+  // The double stack: the team-mate in the box first makes this car wait for its whole stop.
+  const mate = state.cars.find((other) => other.id !== car.id && other.teamId === car.teamId && isRunning(other));
+  const teamMateSameLap = Boolean(mate && stopsOn(mate, lap));
+  const mateFirst = teamMateSameLap && Number.isFinite(mate.time) && Number.isFinite(car.time) && mate.time < car.time;
+  const queueSec = mateFirst ? stopOf(mate, fuelFor(mate)) : 0;
+
+  const lane = laneLossesOf(state, circuit);
+  const total = (laneLoss) => (laneLoss === null || laneLoss === undefined ? null : laneLoss + stopMedian + queueSec);
+  const lossGreen = lane ? total(lane.green) : null;
+  const lossSc = lane ? total(lane.sc) : null;
+  const lossVsc = lane ? total(lane.vsc) : null;
+
+  // Where it rejoins, with the condition on track now (a safety car out lowers everybody's loss).
+  const neutral = state.safetyCar;
+  const laneNow = lane ? (neutral ? (neutral.virtual ? lane.vsc : lane.sc) ?? lane.green : lane.green) : null;
+  let exitPos = null;
+  if (laneNow !== null && Number.isFinite(car.time)) {
+    const after = car.time + laneNow + stopMedian + queueSec;
+    const rivalLoss = (other) => (stopsOn(other, lap) ? laneNow + stopOf(other, fuelFor(other)) : 0);
+    exitPos = 1 + state.cars.filter((other) => other.id !== car.id && (isRunning(other) || other.status === "finished") && Number.isFinite(other.time) && other.time + rivalLoss(other) < after).length;
+  }
+
+  let distanceToPitEntry = null;
+  if (circuit && circuit.pit && circuit.pit.path) {
+    const geo = laneGeometry(circuit);
+    const lapMetres = (circuit.km || state.track?.km || 0) * 1000;
+    if (lapMetres > 0) distanceToPitEntry = frac(geo.entry - shareOfCar(state, circuit, index, opts.share)) * lapMetres;
+  }
+
+  return {
+    carId: car.id,
+    lap,
+    lossGreen,
+    lossSc,
+    lossVsc,
+    stopMedian,
+    queueSec,
+    exitPos,
+    teamMateSameLap,
+    distanceToPitEntry,
+    // The parts, so the dialog can say what the total is made of.
+    laneGreen: lane ? lane.green : null,
+    laneSc: lane ? lane.sc : null,
+    laneVsc: lane ? lane.vsc : null,
+    refuelLaps,
+    tyres,
+    scAllowed: Boolean(rules.raceControl?.safetyCar),
+    vscAllowed: Boolean(rules.raceControl?.vsc),
+    measures: "net",
+  };
+};
+
+// ------------------------------------------------------------ the garage exit (PIT-1, for sessions)
+
+/** Metres along the lane of `box`: `{ metres }`, `{ slot, slots }` (stepRace's garages) or a share 0..1 (race.js car.boxSlot). */
+const boxMetres = (geo, box) => {
+  if (box && typeof box === "object") {
+    if (Number.isFinite(box.metres)) return clamp(box.metres, 0, geo.total);
+    if (Number.isFinite(box.slot) && Number.isFinite(box.slots)) return boxPosition(geo, box.slot, box.slots);
+  }
+  if (Number.isFinite(box)) return geo.slotFrom + (geo.slotTo - geo.slotFrom) * clamp(box, 0, 1);
+  return boxPosition(geo, 0, 1);
+};
+
+/**
+ * RF-WKD-02, RF-SIM-12 (PIT-1, part of `salida-boxes-sesion`, F1M24-GAMEPLAY.md §2.2): the drive
+ * out of the lane from a team's box, on the same physical profile the race uses - from rest at
+ * the box, up to the era's limit for this circuit and date (era-defaults.json pitLaneSpeed; none
+ * before 1994: the lane's own speed), along the limited zone and out to the end of the white exit
+ * line (`exitLineTo`, a share of the lane, once PIT-2 marks it in data/splines.json and
+ * trackData.pitMarksFor passes it on; until then the end of the lane, where it meets the track).
+ *
+ * `era`: rules, an era object or a year. `box`: see boxMetres (default: the middle garage).
+ * Options: `circuitId`, `date`, `kmh` (overrides the rule), `baseLap` (the track pace the lane
+ * blends into; default the trace's own lap).
+ *
+ * Returns { fromS, toS, metres, kmh, vLimit, T, toLimitEnd, N, step, s0, v, t, marks }: v[k] and
+ * t[k] are the speed and the time since the release at `s0 + k × step` metres along the lane;
+ * `garageExitAt` samples it. null for a circuit without a lane. Pure: no stream, no state.
+ */
+export const garageExitProfile = (circuit, era, box = null, opts = {}) => {
+  if (!circuit || !circuit.pit || !circuit.pit.path) return null;
+  const geo = laneGeometry(circuit);
+  const rules = rulesFor(era);
+  const circuitId = opts.circuitId ?? circuitIdOf({}, circuit.ref);
+  const kmh = opts.kmh !== undefined ? opts.kmh : pitLaneSpeedFor(rules, { circuitId, date: opts.date ?? null });
+  const baseLap = opts.baseLap ?? circuit.simulatedLap;
+  const vLimit = limitSpeed(circuit, kmh, baseLap);
+  const profile = buildProfile(circuit, { vLimit, baseLap, stopAt: boxMetres(geo, box) });
+  const marks = pitMarksFor(circuit);
+  const first = profile.stopIndex;
+  const exitLine = marks && Number.isFinite(marks.exitLineTo) ? clamp(marks.exitLineTo, 0, 1) * geo.total : null;
+  const toS = exitLine !== null && exitLine > first * profile.step ? exitLine : geo.total;
+  const last = Math.max(first + 1, Math.min(profile.N, Math.round(toS / profile.step)));
+  const N = last - first;
+  const v = new Float64Array(N + 1);
+  const t = new Float64Array(N + 1);
+  for (let k = 0; k <= N; k += 1) {
+    v[k] = profile.v[first + k];
+    t[k] = profile.t[first + k] - profile.t[first];
+  }
+  const shape = { v, t, N, step: profile.step };
+  return {
+    fromS: first * profile.step,
+    toS: last * profile.step,
+    metres: N * profile.step,
+    kmh,
+    vLimit,
+    T: t[N],
+    toLimitEnd: timeAtS(shape, clamp(geo.limitToS - first * profile.step, 0, N * profile.step)),
+    N,
+    step: profile.step,
+    s0: first * profile.step,
+    v,
+    t,
+    marks: exitLine !== null ? "exitLine" : "laneEnd",
+  };
+};
+
+/** Metres along the lane and speed `elapsed` seconds after the release, on a garageExitProfile. */
+export const garageExitAt = (exit, elapsed) => {
+  const at = sampleProfile(exit, elapsed);
+  return { s: exit.s0 + at.s, v: at.v, done: elapsed >= exit.T };
+};
