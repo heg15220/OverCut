@@ -1,0 +1,22 @@
+{
+  "$comment": "PIT-1 (docs/manager/F1M24-GAMEPLAY.md §3.3, prevision-parada): referencia real de la parada en Baréin 2024 para el test de previewPit (RF-SIM-12, RF-CMD-02). Medido el 2026-11-24. Dos magnitudes distintas, que no se deben confundir: `f1db.pitLaneMedian` es el tiempo línea a línea del pit lane (parada incluida), lo que mide la columna pit_stop.time de f1db; `openf1.lossMedian` es la pérdida neta frente a seguir en pista, lo que devuelve previewPit como lossGreen. El juego de referencia mezcla las dos (F1M24-GAMEPLAY §1.6); aquí no.",
+  "race": { "year": 2024, "round": 1, "circuit": "bahrain", "layoutId": "bahrain-1", "laps": 57 },
+  "f1db": {
+    "version": "v2026.20.0 (tools/assets/.cache/f1db/f1db.db)",
+    "query": "pit_stop.time_millis de race_id 1102 (Baréin 2024), todas las paradas con tiempo",
+    "stops": 43,
+    "pitLaneMedian": 24.852,
+    "winnerAvgLap": 96.574,
+    "winnerAvgLapSource": "race_result posición 1 (max-verstappen): time_millis 5504742 / 57 vueltas"
+  },
+  "openf1": {
+    "source": "https://api.openf1.org/v1/laps?session_key=9472 y /v1/pit?session_key=9472 (carrera de Baréin 2024)",
+    "method": "Por parada (vuelta de entrada L > 1): vuelta L + vuelta L+1 − 2 × mediana de las vueltas limpias del mismo piloto en L−3..L−1 y L+2..L+4 (sin vuelta 1 ni vueltas de entrada o salida). Parada incluida. Sin SC ni VSC en la carrera (race_control sin mensajes de SC/VSC).",
+    "stops": 42,
+    "lossMedian": 24.05,
+    "lossMedianAllLaps": 24.93,
+    "lossMedianAllLapsNote": "misma fórmula con la mediana de todas las vueltas limpias del piloto; mezcla la degradación de toda la carrera, por eso se usa la de las vueltas cercanas",
+    "laneDurationMedian": 24.75
+  },
+  "toleranceSec": 1
+}
