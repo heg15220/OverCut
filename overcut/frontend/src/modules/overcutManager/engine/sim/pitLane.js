@@ -34,13 +34,24 @@
  * `garageExitProfile(circuit, era, box)` - the drive from a team's box out of the lane, for the
  * sessions' garage exit. Neither draws from any stream nor writes the state (RF-SIM-15, RNF-05).
  *
+ * The white lines (PIT-2, F1M24-GAMEPLAY.md §2.2 `incorporacion-pit`): `pitLinesFor(circuit)`
+ * gives the entry and exit lines (exitLineTo from data/splines.json when reviewed, else from the
+ * geometry), `pitExitStep` the merge of a car leaving the lane - lane PIT_EXIT on the pit-side
+ * edge until the line ends, then the racing line only with mergeGapMetres clear behind, else it
+ * lifts and slots in behind - and `pitLineOffence` the stewards' case for crossing a line
+ * (race-eras.json pitExitLine / pitEntryLine, years pending). All pure; the step simulator
+ * (stepRace.js, SIM lane) calls them.
+ *
  * Only + − × ÷ and Math.sqrt in the tables (RNF-05: bit-identical across JS engines).
  */
 
 import pitBalance from "../../data/balance/race-pit.json";
+import raceBalance from "../../data/balance/race-eras.json";
 import simBalance from "../../data/balance/race-sim.json";
+import calibrated from "../../data/splines.json";
+import { skillZ } from "../drivers/skills";
 import { pitLaneSpeedFor, rulesFor } from "../rules";
-import { pitMarksFor } from "../trackData";
+import { pitMarksFor, trackDataFor } from "../trackData";
 import { distanceAtTimeShare, timeShareAtDistance } from "../trackGeometry";
 import { expectedStationary } from "./pitStop";
 
@@ -541,9 +552,9 @@ const boxMetres = (geo, box) => {
  * RF-WKD-02, RF-SIM-12 (PIT-1, part of `salida-boxes-sesion`, F1M24-GAMEPLAY.md §2.2): the drive
  * out of the lane from a team's box, on the same physical profile the race uses - from rest at
  * the box, up to the era's limit for this circuit and date (era-defaults.json pitLaneSpeed; none
- * before 1994: the lane's own speed), along the limited zone and out to the end of the white exit
- * line (`exitLineTo`, a share of the lane, once PIT-2 marks it in data/splines.json and
- * trackData.pitMarksFor passes it on; until then the end of the lane, where it meets the track).
+ * before 1994: the lane's own speed), along the limited zone, out of the lane and along the
+ * track's pit-side edge to the end of the white exit line (`exitLineTo`, PIT-2: pitLinesFor).
+ * `laneEndS` / `toLaneEnd` mark where the lane itself ends; past it the car is on the track.
  *
  * `era`: rules, an era object or a year. `box`: see boxMetres (default: the middle garage).
  * Options: `circuitId`, `date`, `kmh` (overrides the rule), `baseLap` (the track pace the lane
@@ -562,38 +573,244 @@ export const garageExitProfile = (circuit, era, box = null, opts = {}) => {
   const baseLap = opts.baseLap ?? circuit.simulatedLap;
   const vLimit = limitSpeed(circuit, kmh, baseLap);
   const profile = buildProfile(circuit, { vLimit, baseLap, stopAt: boxMetres(geo, box) });
-  const marks = pitMarksFor(circuit);
   const first = profile.stopIndex;
-  const exitLine = marks && Number.isFinite(marks.exitLineTo) ? clamp(marks.exitLineTo, 0, 1) * geo.total : null;
-  const toS = exitLine !== null && exitLine > first * profile.step ? exitLine : geo.total;
-  const last = Math.max(first + 1, Math.min(profile.N, Math.round(toS / profile.step)));
-  const N = last - first;
+  const step = profile.step;
+  const laneCells = Math.max(1, profile.N - first);
+  // PIT-2: past the lane's end, along the track's pit-side edge to the end of the white line
+  // (pitLinesFor), accelerating on the traction limit up to the track's own speed.
+  const lines = pitLinesFor(circuit);
+  const past = lines ? lines.exit.pastLaneEnd : 0;
+  const extra = past > 0 ? Math.max(1, Math.round(past / step)) : 0;
+  const N = laneCells + extra;
   const v = new Float64Array(N + 1);
   const t = new Float64Array(N + 1);
-  for (let k = 0; k <= N; k += 1) {
+  for (let k = 0; k <= laneCells; k += 1) {
     v[k] = profile.v[first + k];
     t[k] = profile.t[first + k] - profile.t[first];
   }
-  const shape = { v, t, N, step: profile.step };
+  if (extra > 0) {
+    const lap = lapMetresOf(circuit);
+    const scale = trackScale(circuit, baseLap);
+    for (let k = laneCells + 1; k <= N; k += 1) {
+      const d = lines.exit.laneEndShare + ((k - laneCells) * step) / lap;
+      const v0 = v[k - 1];
+      v[k] = Math.min(traceSpeedAt(circuit, d) * scale, Math.sqrt(v0 * v0 + 2 * accelAt(v0) * step));
+      const mean = v0 + v[k];
+      t[k] = t[k - 1] + (mean > 1e-9 ? (2 * step) / mean : 0);
+    }
+  }
+  const shape = { v, t, N, step };
   return {
-    fromS: first * profile.step,
-    toS: last * profile.step,
-    metres: N * profile.step,
+    fromS: first * step,
+    toS: first * step + N * step,
+    metres: N * step,
     kmh,
     vLimit,
     T: t[N],
-    toLimitEnd: timeAtS(shape, clamp(geo.limitToS - first * profile.step, 0, N * profile.step)),
+    toLimitEnd: timeAtS(shape, clamp(geo.limitToS - first * step, 0, laneCells * step)),
+    toLaneEnd: t[laneCells],
     N,
-    step: profile.step,
-    s0: first * profile.step,
+    step,
+    s0: first * step,
+    laneEndS: (first + laneCells) * step,
+    laneEndShare: lines ? lines.exit.laneEndShare : frac(circuit.pit.exit),
+    lapMetres: lapMetresOf(circuit),
+    exitLineShare: lines ? lines.exit.toShare : null,
     v,
     t,
-    marks: exitLine !== null ? "exitLine" : "laneEnd",
+    marks: extra > 0 ? "exitLine" : "laneEnd",
   };
 };
 
-/** Metres along the lane and speed `elapsed` seconds after the release, on a garageExitProfile. */
+/**
+ * Where the car is `elapsed` seconds after the release, on a garageExitProfile: metres `s` along
+ * the lane (past `laneEndS` it is on the track: `onTrack`, at lap distance share `share`, still on
+ * the pit-side edge, lane PIT_EXIT, until the white line ends), its speed and whether it is done.
+ */
 export const garageExitAt = (exit, elapsed) => {
   const at = sampleProfile(exit, elapsed);
-  return { s: exit.s0 + at.s, v: at.v, done: elapsed >= exit.T };
+  const s = exit.s0 + at.s;
+  const laneEnd = Number.isFinite(exit.laneEndS) ? exit.laneEndS : Infinity;
+  const onTrack = s > laneEnd + 1e-9;
+  const share = onTrack && exit.lapMetres > 0 ? frac(exit.laneEndShare + (s - laneEnd) / exit.lapMetres) : null;
+  return { s, v: at.v, done: elapsed >= exit.T, onTrack, share, lane: onTrack || s >= laneEnd - 1e-9 ? "PIT_EXIT" : "PIT" };
+};
+
+// ------------------------------------------------------------ the white lines (PIT-2)
+
+const EXIT_LINE = LANE.exitLine;
+const linesCache = new WeakMap();
+
+/** The circuit's lap length in metres (the built geometry's, or its km). */
+const lapMetresOf = (circuit) => (circuit.length > 0 ? circuit.length : (circuit.km || 0) * 1000);
+
+/** Index of the trace sample at or before distance share `x`. */
+const traceIndexAt = (circuit, x) => {
+  const shares = circuit.distShare;
+  let lo = 0;
+  let hi = shares.length - 1;
+  while (hi - lo > 1) {
+    const mid = (lo + hi) >> 1;
+    if (shares[mid] <= x) lo = mid;
+    else hi = mid;
+  }
+  return lo;
+};
+
+/** The reviewed marks of a mesh lane in data/splines.json (`pit.exitLineTo`, a lap share), or null. */
+const reviewedPitOf = (circuit) => {
+  if (!circuit.pit || circuit.pit.source !== "mesh") return null;
+  const id = circuit.splineId || (typeof circuit.id === "string" && circuit.id.startsWith("spline:") ? circuit.id.slice(7) : null);
+  return id ? calibrated.splines?.[id]?.pit || null : null;
+};
+
+/**
+ * Metres of white line past the lane's end, from the geometry: along the speed trace from where
+ * the lane meets the track to the first braking (speed `brakeDropKmh` under the stretch's best),
+ * between `minMetres` and `maxMetres` (race-pit.json pitLane.exitLine).
+ */
+const derivedLineMetres = (circuit, fromShare, lap) => {
+  const shares = circuit.distShare;
+  const speed = circuit.speed;
+  const n = speed.length;
+  const drop = EXIT_LINE.brakeDropKmh * KMH;
+  let k = traceIndexAt(circuit, fromShare) % n;
+  let metres = 0;
+  let best = speed[k];
+  for (let guard = 0; guard < n && metres < EXIT_LINE.maxMetres; guard += 1) {
+    const next = (k + 1) % n;
+    const span = next === 0 ? 1 - shares[k] + shares[0] : shares[next] - shares[k];
+    metres += span * lap;
+    if (speed[next] < best - drop) break;
+    if (speed[next] > best) best = speed[next];
+    k = next;
+  }
+  return clamp(metres, EXIT_LINE.minMetres, EXIT_LINE.maxMetres);
+};
+
+/**
+ * RF-SIM-12, RF-SIM-10 (PIT-2, incorporacion-pit; F1M24-GAMEPLAY.md §2.2): the pit lane's white
+ * lines (FIA ISC Appendix L, ch. IV, 4(d) entry, 6(c) exit), as lap distance shares:
+ *
+ *   exit.fromShare     where the lane meets the track's edge (the lane's exitBlend mark)
+ *   exit.laneEndShare  where the lane's path ends (circuit.pit.exit)
+ *   exit.toShare       exitLineTo: the end of the painted line - data/splines.json pit.exitLineTo
+ *                      (reviewed by hand) or derived from the geometry (derivedLineMetres)
+ *   exit.metres        the line's length; exit.pastLaneEnd its metres beyond the lane's end
+ *   entry.fromShare    where the lane leaves the track; entry.toLaneS the lane's entryLine mark,
+ *                      metres along the lane (the part of the lane the entry line runs beside)
+ *   side               +1 / −1, the side of the track the lane is on (circuit.pit.side)
+ *
+ * null for a circuit without a lane. Pure and cached per circuit.
+ */
+export const pitLinesFor = (circuit) => {
+  if (!circuit || !circuit.pit || !circuit.pit.path || !circuit.distShare || !circuit.speed) return null;
+  if (linesCache.has(circuit)) return linesCache.get(circuit);
+  const lap = lapMetresOf(circuit);
+  if (!(lap > 0)) return null;
+  const geo = laneGeometry(circuit);
+  const pit = circuit.pit;
+  const laneEndShare = frac(pit.exit);
+  const fromShare = frac(laneEndShare - Math.max(0, geo.total - geo.exitBlendS) / lap);
+  const reviewed = reviewedPitOf(circuit);
+  let pastLaneEnd;
+  let source;
+  if (reviewed && Number.isFinite(reviewed.exitLineTo)) {
+    const ahead = frac(reviewed.exitLineTo - laneEndShare) * lap;
+    pastLaneEnd = ahead < lap / 2 ? ahead : 0;
+    source = "spline";
+  } else {
+    pastLaneEnd = derivedLineMetres(circuit, laneEndShare, lap);
+    source = "derived";
+  }
+  const toShare = frac(laneEndShare + pastLaneEnd / lap);
+  const marks = pitMarksFor(circuit);
+  const entryLine = marks && Number.isFinite(marks.entryLine) ? clamp(marks.entryLine, 0, 1) : 0;
+  const out = {
+    exit: { fromShare, laneEndShare, toShare, metres: frac(toShare - fromShare) * lap, pastLaneEnd },
+    entry: { fromShare: frac(pit.entry), toLaneS: entryLine * geo.total },
+    side: pit.side < 0 ? -1 : 1,
+    lapMetres: lap,
+    source,
+  };
+  linesCache.set(circuit, out);
+  return out;
+};
+
+/**
+ * The lateral offset (metres, + = right of travel, the sense of engine/trackData.js `line`) of a
+ * car keeping to the pit side of the track at lap share `share`: the measured half width on that
+ * side less the car's margin (splines.json, trackData marginM). Where a car on lane PIT_EXIT runs.
+ */
+export const pitExitLateral = (circuit, share) => {
+  const data = trackDataFor(circuit);
+  const n = circuit.points.length;
+  const i = traceIndexAt(circuit, frac(share)) % n;
+  const side = circuit.pit && circuit.pit.side < 0 ? -1 : 1;
+  const half = side > 0 ? data.wr[i] : data.wl[i];
+  return side * Math.max(0, half - data.marginM);
+};
+
+const RACING = { lane: "RACING", lateral: null, merged: true, onLine: false, vCap: null, yieldTo: null, gapBehind: null };
+
+/**
+ * RF-SIM-12, RF-SIM-07 (PIT-2): one step of a car leaving the pit lane, for the step simulator
+ * (and the view). `me` = { id, share (lap distance share), v (m/s), merged }; `traffic` = the cars
+ * on the track (not in the lane) as { id, share, v }. Returns
+ *
+ *   lane      "PIT_EXIT" while the car is on the white line or waiting at its end; "RACING" once in
+ *   lateral   the pit-side offset to hold (pitExitLateral) on PIT_EXIT; null once merged
+ *   onLine    still beside the white line (before exitLineTo): never on the racing line
+ *   merged    true from the step it takes the racing line: the caller keeps it (me.merged)
+ *   vCap      m/s while yielding (the car behind's speed − liftKmh), else null
+ *   yieldTo   the car it lets by; gapBehind the metres to the nearest car behind
+ *
+ * At the end of the line it takes the racing line only when the nearest car behind on the track
+ * (up to lookBehindMetres) is mergeGapMetres or more away; otherwise it lifts and slots in behind.
+ * Pure: no stream, no state (RF-SIM-15, RNF-05). A circuit without lines merges at once.
+ */
+export const pitExitStep = (circuit, me, traffic = []) => {
+  const lines = pitLinesFor(circuit);
+  if (!lines || !me || me.merged || !Number.isFinite(me.share)) return { ...RACING, merged: true };
+  const lap = lines.lapMetres;
+  const here = frac(me.share);
+  const along = frac(here - lines.exit.fromShare) * lap;
+  // More than half a lap past the line's start: not leaving this lane any more.
+  if (along > lap / 2) return { ...RACING };
+  const lateral = pitExitLateral(circuit, here);
+  const base = { lane: "PIT_EXIT", lateral, along, toGo: Math.max(0, lines.exit.metres - along) };
+  if (along < lines.exit.metres) return { ...base, onLine: true, merged: false, vCap: null, yieldTo: null, gapBehind: null };
+  let nearest = null;
+  for (let k = 0; k < traffic.length; k += 1) {
+    const other = traffic[k];
+    if (!other || other.id === me.id || !Number.isFinite(other.share)) continue;
+    const behind = frac(here - frac(other.share)) * lap;
+    if (!(behind > 0) || behind > EXIT_LINE.lookBehindMetres) continue;
+    if (!nearest || behind < nearest.behind) nearest = { id: other.id, behind, v: other.v };
+  }
+  if (!nearest || nearest.behind >= EXIT_LINE.mergeGapMetres) {
+    return { ...RACING, along, gapBehind: nearest ? nearest.behind : null };
+  }
+  const theirs = Number.isFinite(nearest.v) ? nearest.v : me.v;
+  return { ...base, onLine: false, merged: false, vCap: Math.max(0, theirs - EXIT_LINE.liftKmh * KMH), yieldTo: nearest.id, gapBehind: nearest.behind };
+};
+
+/** Is pit-lane line offence `offence` ("pitExitLine" / "pitEntryLine") judged in `year`? Not while its year is pending. */
+export const pitLineOffenceInForce = (offence, year) => {
+  const spec = raceBalance.penalties.offences[offence];
+  return Boolean(spec) && Number.isFinite(spec.from) && Number.isFinite(year) && year >= spec.from;
+};
+
+/**
+ * RF-SIM-10 (PIT-2): does `car` cross the white line on this exit (or entry)? The chance per pass
+ * (race-eras.json penalties.offences) scaled by the driver's aggression (skills.js skillZ). Draws
+ * exactly one number from `stream` when the offence is judged in `year`, none otherwise - so while
+ * its year is pending no seed changes (RNF-05). The caller investigates a true answer.
+ */
+export const pitLineOffence = (stream, car, year, offence = "pitExitLine") => {
+  if (!pitLineOffenceInForce(offence, year)) return false;
+  const spec = raceBalance.penalties.offences[offence];
+  const per = offence === "pitEntryLine" ? spec.chancePerEntry : spec.chancePerExit;
+  const chance = per * Math.max(0, 1 + skillZ(car, "aggression") * spec.aggressionPerZ);
+  return stream.next() < chance;
 };

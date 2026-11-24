@@ -8,7 +8,7 @@
     "version": {"type": "integer", "minimum": 1},
     "pitLane": {
       "type": "object",
-      "required": ["gridMetres", "curvatureSpanMetres", "lateralAccel", "roadMaxKmh", "brakeDecel", "boxDecel", "accel", "limitMarginMetres", "entryRoadMinMetres", "exitRoadMinMetres", "noLimitMarginKmh", "queueOffsetMetres", "boxSlotMarginMetres", "speeding", "unsafeRelease", "circuitAliases", "extraLoss", "calibration"],
+      "required": ["gridMetres", "curvatureSpanMetres", "lateralAccel", "roadMaxKmh", "brakeDecel", "boxDecel", "accel", "limitMarginMetres", "entryRoadMinMetres", "exitRoadMinMetres", "noLimitMarginKmh", "queueOffsetMetres", "boxSlotMarginMetres", "speeding", "unsafeRelease", "exitLine", "circuitAliases", "extraLoss", "calibration"],
       "properties": {
         "gridMetres": {"type": "number", "exclusiveMinimum": 0, "maximum": 5},
         "curvatureSpanMetres": {"type": "number", "exclusiveMinimum": 0},
@@ -43,6 +43,23 @@
             "gapMetres": {"type": "number", "minimum": 0},
             "crewMissChance": {"type": "number", "minimum": 0, "maximum": 1},
             "holdSeconds": {"type": "number", "exclusiveMinimum": 0}
+          }
+        },
+        "exitLine": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mergeGapMetres", "lookBehindMetres", "liftKmh", "minMetres", "maxMetres", "brakeDropKmh"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "mergeGapMetres": {"type": "number", "exclusiveMinimum": 0, "maximum": 200},
+            "mergeGapSource": {"type": "string"},
+            "lookBehindMetres": {"type": "number", "exclusiveMinimum": 0},
+            "liftKmh": {"type": "number", "exclusiveMinimum": 0, "maximum": 100},
+            "liftSource": {"type": "string"},
+            "minMetres": {"type": "number", "minimum": 0},
+            "maxMetres": {"type": "number", "exclusiveMinimum": 0},
+            "lengthSource": {"type": "string"},
+            "brakeDropKmh": {"type": "number", "exclusiveMinimum": 0}
           }
         },
         "circuitAliases": {"type": "object", "additionalProperties": {"type": "string"}},
