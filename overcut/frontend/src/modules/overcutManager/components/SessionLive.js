@@ -13,12 +13,20 @@
  * next segment starts. Single-lap qualifying sends each car out at its slot in run order:
  * you set the fuel and tyre for it. The session runs in-thread (it is a few lap decisions
  * a minute); the same seed and orders replay it (RF-SIM-15).
+ *
+ * Playback (HUD-1 of F1M24-GAMEPLAY): the same 1-16 scale as the race (RF-CMD-04, before
+ * 1-60), the starting speed per session from data/balance/live-view.json, auto-speed when
+ * your car leaves the garage, starts a flying lap or comes in and at the flag, "next event",
+ * and the view (practice opens on the map) apart from the camera. The engine runs in fixed
+ * steps whatever the speed, so none of it changes the session (RNF-05).
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SESSION_BALANCE, advanceTo, carStatus, command, createSession, defaultCompound, nextSegment, runSegmentToEnd, sessionBestSectors, sessionResult } from "../engine/sessionSim";
 import { Segmented, Tyre, readableOn } from "./atoms";
-import { Feed, PlaybackBar, StatusStrip, TimingTower } from "./Broadcast";
+import { Feed, PlaybackBar, SpeedCallout, StatusStrip, TimingTower } from "./Broadcast";
+import { cameraModeOf, cameraName, camerasOf, cycle, defaultCameraOf, defaultSpeedOf, defaultViewOf, reasonText, runToNextSessionEvent, sessionTriggers, speedsOf, stepCar, viewName, viewsOf } from "./playback";
+import useAutoSpeed from "./useAutoSpeed";
 import { IconExit, IconFlag, IconLock, IconNextEvent, IconPlay } from "./icons";
 import { carAt } from "./raceClock";
 import RaceStage, { MiniMap } from "./RaceStage";
@@ -30,7 +38,6 @@ import "./styles/weekend.css";
 
 const Race3D = React.lazy(() => import("../three/Race3D"));
 
-const SPEEDS = [1, 4, 10, 30, 60];
 const LIMITS = SESSION_BALANCE.limits;
 const PROGRAMMES = Object.keys(SESSION_BALANCE.programmes).filter((key) => !key.startsWith("$"));
 
@@ -70,8 +77,6 @@ const SHORT_PHASE = {
   in: () => t("Entra", "In"),
   pitlane: () => t("Box", "Box"),
 };
-
-const cycle = (list, value, step) => list[(list.indexOf(value) + step + list.length) % list.length];
 
 /** The plan a driver's card starts with, before the player touches it. */
 const startPlan = (engine, kind) => {
@@ -166,8 +171,14 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
   if (!engineRef.current) engineRef.current = createSession(options);
   const engine = engineRef.current;
   const [playing, setPlaying] = useState(true);
-  const [speed, setSpeed] = useState(kind === "practice" ? 30 : 10);
-  const [cameraMode, setCameraMode] = useState(has3D ? "tv" : "follow");
+  // RF-CMD-04 / HUD-1: the 1-16 scale, the starting speed of this session and auto-speed.
+  const auto = useAutoSpeed({ initial: defaultSpeedOf(kind) });
+  const speed = auto.speed;
+  // user-camera-lock: the view apart from the camera (practice opens on the map).
+  const cameraList = useMemo(() => camerasOf({ has3D, year }), [has3D, year]);
+  const [view, setView] = useState(() => defaultViewOf(kind, has3D));
+  const [cameraPick, setCameraPick] = useState(() => defaultCameraOf(cameraList, has3D));
+  const cameraMode = cameraModeOf(view, cameraPick);
   const in3DRef = useRef(false);
   const users = entrants.filter((entry) => entry.isUser);
   const [focusId, setFocusId] = useState(users[0]?.id ?? entrants[0]?.id);
@@ -177,8 +188,8 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
   const seen = useRef(0);
   const phases = useRef({});
   const feedRef = useRef([]);
-  const playRef = useRef({ playing, speed });
-  playRef.current = { playing, speed };
+  const playRef = useRef({ playing, auto });
+  playRef.current = { playing: playing && !auto.held, auto };
   const callbacks = useRef({ onRun, onPhase });
   callbacks.current = { onRun, onPhase };
   const repaint = () => setFrame((value) => (value + 1) % 1e9);
@@ -210,6 +221,9 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
   // feed, and your cars' phases (setup changes only in the garage).
   const digest = useCallback(() => {
     const events = engine.events;
+    // HUD-1 auto-speed: the new events and the phases your cars have just entered.
+    const fresh = events.slice(seen.current);
+    const entered = [];
     for (; seen.current < events.length; seen.current += 1) {
       const event = events[seen.current];
       const entry = byId[event.carId];
@@ -234,10 +248,13 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
     users.forEach((user) => {
       const phase = carStatus(engine, user.id, engine.clock)?.phase;
       if (phases.current[user.id] !== phase) {
+        if (phases.current[user.id] !== undefined) entered.push(phase);
         phases.current[user.id] = phase;
         callbacks.current.onPhase?.(user.id, phase);
       }
     });
+    const triggers = sessionTriggers({ events: fresh, phases: entered, isUser: (id) => Boolean(byId[id]?.isUser) });
+    if (triggers.length) playRef.current.auto.notify(triggers, engine.clock);
   }, [engine, byId, users]);
 
   // The session clock: real time times the speed; the engine is run up to it every frame.
@@ -252,7 +269,8 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
       const dt = Math.min(0.1, (time - last) / 1000);
       last = time;
       if (playRef.current.playing && !engine.over) {
-        tau.current += dt * playRef.current.speed;
+        playRef.current.auto.tick(tau.current);
+        tau.current += dt * playRef.current.auto.machine.speed;
         advanceTo(engine, tau.current);
         if (engine.over) tau.current = engine.clock;
         digest();
@@ -358,14 +376,19 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
     digest();
     repaint();
   };
-
-  const cameraList = has3D ? ["tv", "chase", "drone", "heli", "tcam", "visor", "nose", "tcamRear", "map"] : ["follow", "tv", "map"];
-  const CAMERA = {
-    tv: "TV", chase: t("Persecución", "Chase"), drone: t("Dron", "Drone"), heli: "Helicam", tcam: "T-cam", visor: t("Visor", "Visor"), nose: t("Morro", "Nose"),
-    tcamRear: t("T-cam trasera", "Rear T-cam"), follow: t("Cenital", "Overhead"), map: t("Mapa", "Map"),
+  // RF-CMD-04 "saltar al siguiente evento": the engine's own fixed steps up to the next event
+  // of live-view.json nextEvent (or a phase change of your cars), never past the segment.
+  const nextEvent = () => {
+    runToNextSessionEvent(engine, { userIds: users.map((user) => user.id), from: tau.current });
+    tau.current = Math.max(tau.current, engine.clock);
+    digest();
+    repaint();
   };
+
   const in3D = has3D && cameraMode !== "map";
   in3DRef.current = in3D;
+  // The car arrows step through the tower by position; cars knocked out earlier are off the track.
+  const towerOrder = rows.map((row) => ({ id: row.id, out: Boolean(engine.cars.find((car) => car.id === row.id)?.eliminated) }));
   const focusPose = stageCars.find((item) => item.car.id === focusId)?.pose || stageCars[0]?.pose || { x: 0, y: 0, heading: 0 };
   const sessionTitle = kind === "practice" ? t("Libres", "Practice") : segmentName === "Q" ? t("Clasificación", "Qualifying") : segmentName;
   const remaining = segment.singleLap ? t(`${alive.filter((car) => car.history.length === 0).length} por salir`, `${alive.filter((car) => car.history.length === 0).length} to go`) : flag ? t("Bandera", "Flag") : mmss(segment.duration - now);
@@ -429,6 +452,7 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
             labels={{ map: t("Mapa del circuito", "Circuit map"), near: sessionTitle, box: "Box" }}
           />
         )}
+        <SpeedCallout callout={auto.callout} reasonText={reasonText} />
         <div className="lv-overlay">
           {over && (
             <div className="lv-endcard" role="status">
@@ -494,13 +518,23 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
       <PlaybackBar
         playing={playing}
         onPlay={() => setPlaying((value) => !value)}
-        speeds={SPEEDS}
+        speeds={speedsOf()}
         speed={speed}
-        onSpeed={setSpeed}
+        onSpeed={auto.choose}
+        autoSpeed={{ enabled: auto.enabled, onToggle: auto.setEnabled }}
+        held={auto.held}
         disabled={over}
-        cameraLabel={`${CAMERA[cameraMode]}${cameraMode !== "map" ? ` · ${code(byId[focusId]?.name || "")}` : ""}`}
-        onCamera={(step) => setCameraMode((value) => cycle(cameraList, value, step))}
+        views={{ value: view, onChange: setView, options: viewsOf().map((value) => ({ value, label: viewName(value) })) }}
+        car={{ label: code(byId[focusId]?.name || ""), onStep: (step) => setFocusId((id) => stepCar(towerOrder, id, step)) }}
+        cameraLabel={view === "tv" ? "TV" : cameraName(cameraPick)}
+        onCamera={(step) => (view !== "camera" ? setView("camera") : setCameraPick((value) => cycle(cameraList, value, step)))}
       >
+        {!over && (
+          <button type="button" className="mn-btn mn-btn--sm" onClick={nextEvent} aria-label={t("Siguiente evento", "Next event")} title={t("Saltar al siguiente evento", "Skip to the next event")}>
+            <IconNextEvent size={16} />
+            <span className="wk-hide-md">{t("Siguiente evento", "Next event")}</span>
+          </button>
+        )}
         {!over && (
           <button type="button" className="mn-btn mn-btn--sm mn-btn--ghost" onClick={skip} title={t("Los ingenieros llevan a tus pilotos hasta el final", "The engineers run your drivers to the end")}>
             <IconNextEvent size={16} />

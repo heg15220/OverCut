@@ -1,0 +1,93 @@
+{
+  "$comment": "RNF-07 / RF-CMD-04, RF-3D-04, RNF-05, RNF-09 (docs/manager/F1M24-GAMEPLAY.md §1.5, §2.12.1; paquete HUD-1): cómo se reproduce una sesión en directo (carrera, libres, clasificación, shootout). Escala de velocidades única, velocidad inicial por sesión, auto-velocidad (baja sola cuando pasa algo de tu equipo o de dirección de carrera), pausa con los diálogos, a qué para «siguiente evento», y las vistas y cámaras del selector. Lo leen components/playback.js y components/useAutoSpeed.js; lo comprueba components/playback.test.js con engine/packs/schema/live-view.schema.json. Nada de esto cambia el motor (§1.4 regla 5): solo cuánto tiempo de carrera pide la vista por segundo real. status: srs (lo fija el SRS), behaviour (decisión de diseño de OverCut, sin fuente externa que medir; de F1 Manager 24 solo la idea, ningún valor), pending (lo decide otro paquete).",
+  "version": 1,
+  "speeds": {
+    "$comment": "RF-CMD-04: ×1, ×2, ×4, ×8, ×16 contra el tiempo real; ×1 es una vuelta real. Una sola lista para carrera y sesiones (§1.5); antes las sesiones iban a 1/4/10/30/60.",
+    "status": "srs",
+    "list": [1, 2, 4, 8, 16]
+  },
+  "defaultSpeed": {
+    "$comment": "Velocidad con la que empieza cada sesión. race: carrera por pasos en directo; raceReplay: carrera del modo rápido repetida desde su historial. Libres y clasificación duran 60/18-12 min de reloj: a ×16 una hora de libres son 3:45 min reales.",
+    "status": "behaviour",
+    "race": 4,
+    "raceReplay": 8,
+    "practice": 16,
+    "qualifying": 8,
+    "shootout": 8
+  },
+  "engineLead": {
+    "$comment": "Carrera por pasos: cuánta carrera se pide al worker de una vez para que el motor vaya un poco por delante de la imagen a cualquier velocidad. Trozo = max(minChunkSec, velocidad × chunkPerSpeedSec) segundos de carrera; se pide otro cuando queda menos de medio. No cambia la carrera (el worker la trocea en pasos fijos de 0,25 s, RF-SIM-15). Antes, literales en LiveRace.js.",
+    "status": "behaviour",
+    "minChunkSec": 0.5,
+    "chunkPerSpeedSec": 0.25
+  },
+  "autoSpeed": {
+    "$comment": "Auto-velocidad (auto-velocidad, auto-speed-drop): cuando salta un disparador de eventPriority, la velocidad baja hasta el tope de su prioridad (levels: la prioridad más alta que se alcanza manda), un escalón de la lista cada rampRealSec segundos reales (0 = de golpe). Nunca sube por encima de lo que eligió el jugador. Con restoreAfter.enabled, pasados simSec segundos de sesión sin otro disparador, vuelve a la velocidad que tenía el jugador; si el jugador cambia la velocidad mientras tanto, manda la suya. Se puede apagar desde la barra de reproducción.",
+    "status": "behaviour",
+    "enabledByDefault": true,
+    "levels": [
+      { "minPriority": 3, "speed": 1 },
+      { "minPriority": 2, "speed": 2 },
+      { "minPriority": 1, "speed": 4 }
+    ],
+    "rampRealSec": 0.35,
+    "restoreAfter": { "enabled": true, "simSec": 20 }
+  },
+  "eventPriority": {
+    "$comment": "Disparador → prioridad (0 = no baja). La vista decide «coche propio» con el equipo del jugador (car.isUser); los disparadores salen de triggers.",
+    "status": "behaviour",
+    "map": {
+      "ownPitEntry": 3,
+      "ownGarageExit": 3,
+      "ownRetirement": 3,
+      "chequered": 3,
+      "redFlag": 3,
+      "safetyCar": 2,
+      "virtualSafetyCar": 2,
+      "ownContact": 2,
+      "ownPenalty": 2,
+      "ownKnockedOut": 2,
+      "ownFlyingLap": 1,
+      "ownPass": 1,
+      "ownMistake": 1,
+      "rain": 1
+    }
+  },
+  "triggers": {
+    "$comment": "De dónde sale cada disparador. raceEvents/sessionEvents: tipo de evento del motor (race.js, engine/sim, engine/sessionSim) para cualquier coche; ownRaceEvents/ownSessionEvents: el mismo evento solo si es de un coche del jugador (carId u otherId); ownSessionPhases: el coche propio entra en esa fase de sesión (carStatus.phase); ownPitEntry: el coche propio entra en el pit lane (pose.inPit pasa a cierto, en carrera).",
+    "status": "behaviour",
+    "raceEvents": { "sc": "safetyCar", "vsc": "virtualSafetyCar", "red": "redFlag", "flag": "chequered", "rain": "rain" },
+    "ownRaceEvents": { "dnf": "ownRetirement", "contact": "ownContact", "penalty": "ownPenalty", "pass": "ownPass", "mistake": "ownMistake" },
+    "sessionEvents": { "flag": "chequered" },
+    "ownSessionEvents": { "eliminated": "ownKnockedOut" },
+    "ownSessionPhases": { "queued": "ownGarageExit", "flying": "ownFlyingLap", "pitlane": "ownPitEntry" },
+    "ownPitEntry": "ownPitEntry"
+  },
+  "pauseOn": {
+    "$comment": "Diálogos que pausan la sesión mientras están abiertos (el reloj de la vista se para, el motor no da ningún paso). Los abren otros paquetes: pitDialog (HUD-3 PitDialog), setupDialog, replay (CAM-3/HUD-4); se registran con useAutoSpeed hold/release.",
+    "status": "behaviour",
+    "list": ["pitDialog", "setupDialog", "replay"]
+  },
+  "nextEvent": {
+    "$comment": "RF-CMD-04 «saltar al siguiente evento». race: tipos de evento del motor de carrera a los que para (se mandan al worker, raceSession next). session: tipos de evento de engine/sessionSim; ownSession: solo si son de un coche propio; también para cuando un coche propio cambia de fase. maxSimSec: tope de un salto en sesión.",
+    "status": "behaviour",
+    "race": ["pass", "pit", "dnf", "sc", "vsc", "sc-in", "rain", "lead", "contact", "mistake", "flag", "yellow", "red", "restart", "penalty", "swap"],
+    "session": ["best", "flag", "segment-over"],
+    "ownSession": ["out", "run", "pb", "abort", "eliminated"],
+    "maxSimSec": 3600
+  },
+  "views": {
+    "$comment": "user-camera-lock: la vista (mapa, TV, cámara) va separada de la cámara. En vista cámara el realizador no corta: la cámara y el coche son los que elige el jugador. defaultView por sesión (libres: mapa) y sin 3D (RNF-09: mapa 2D y cámara cenital). cameras: cámaras del selector cuando no hay catálogo por era (data/balance/cameras.json onboard[] de CAM-1; cuando llegue, manda su lista filtrada por era y broadcast.json cycleOrder/defaultView). Es la lista de hoy, sin filtrar por era: pending hasta CAM-1.",
+    "status": "pending",
+    "list": ["map", "tv", "camera"],
+    "defaultView": {
+      "with3D": { "race": "tv", "raceReplay": "tv", "practice": "map", "qualifying": "tv", "shootout": "tv" },
+      "without3D": { "race": "camera", "raceReplay": "camera", "practice": "map", "qualifying": "camera", "shootout": "camera" }
+    },
+    "cameras": {
+      "with3D": ["chase", "drone", "heli", "tcam", "visor", "nose", "tcamRear"],
+      "without3D": ["follow"]
+    },
+    "defaultCamera": { "with3D": "chase", "without3D": "follow" }
+  }
+}
