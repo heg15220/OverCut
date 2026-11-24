@@ -13,7 +13,9 @@
     "pu2026": "https://www.motorsportmagazine.com/articles/single-seaters/f1/all-the-key-aspects-changing-on-f1s-2026-engines",
     "mguh2026": "https://www.motorsport.com/f1/news/f1-agrees-to-ditch-mgu-h-as-part-of-new-engine-rules/6885631/",
     "speeds": "docs/manager/SIM-FISICA.md §4.2 (puntas reales de Monza 2005/2012/2024)",
-    "soundSpeed": "https://en.wikipedia.org/wiki/Speed_of_sound"
+    "soundSpeed": "https://en.wikipedia.org/wiki/Speed_of_sound",
+    "openf1Downshifts": "https://api.openf1.org/v1/car_data?session_key=9472 (VER 15:30:30-15:33:30, LEC 15:21-15:24, NOR 15:24:20-15:27:20 UTC; leído el 2026-11-24)",
+    "openf1PitLane": "https://api.openf1.org/v1/car_data?session_key=9472 y /v1/pit?session_key=9472 (mismas ventanas, alrededor de cada parada; leído el 2026-11-24)"
   },
   "eras": [
     {
@@ -239,6 +241,36 @@
       "notes": "gears 8 NV. refTopKmh NV"
     }
   ],
+  "shiftProfiles": [
+    {
+      "$comment": "Forma del cambio (RF-3D-04, SRS 6.2): el tono baja a la marcha nueva en una rampa de glideMs y la ganancia lleva un transitorio ('cut' baja a db y se recupera; 'pop' sube a db y vuelve), de ms milisegundos o, sin ms, del shiftCutMs de la era. Gana la primera fila cuyos años contienen la temporada y cuyo match encaja con el motor del pack (engineId o manufacturer de f1db; {} = todos): las filas de un fabricante van antes de la de su era. Sin filas por fabricante: no hay fuente pública de la forma del cambio por unidad de potencia y OpenF1 car_data (~0,24 s por muestra) no resuelve un cambio; la rpm de cambio por fabricante es de race-powertrain.json (PT-1).",
+      "id": "h-pattern",
+      "from": 1966,
+      "to": 1988,
+      "match": {},
+      "glideMs": 150,
+      "transient": {"kind": "cut", "db": -18},
+      "source": "f312t, mp44: cajas manuales en H (embrague y levantar el pie). Forma NV, diseño propio"
+    },
+    {
+      "id": "semi-auto",
+      "from": 1989,
+      "to": 2007,
+      "match": {},
+      "glideMs": 60,
+      "transient": {"kind": "cut", "db": -12},
+      "source": "f640: caja semiautomática desde 1989. Forma NV, diseño propio"
+    },
+    {
+      "id": "seamless",
+      "from": 2008,
+      "to": 2030,
+      "match": {},
+      "glideMs": 35,
+      "transient": {"kind": "cut", "db": -7},
+      "source": "NV: cajas sin interrupción de par (seamless) generalizadas hacia 2008, pending por verificar el año; forma NV, diseño propio"
+    }
+  ],
   "voicing": {
     "$comment": "NV, diseño propio: pesos de armónicos sobre la frecuencia de ciclo (rpm/120, un ciclo de cuatro tiempos son dos vueltas). El armónico 'cilindros' es la frecuencia de encendido rpm/60 × cilindros/2; 'overtones' son sus múltiplos, 'halfOrder' el orden de media encendido (cada bancada) y 'roughness' el resto (irregularidad entre cilindros). 'brightness' abre el filtro con la carga.",
     "maxHarmonics": 64,
@@ -258,7 +290,21 @@
     "launchShare": 0.45,
     "limiterHz": 14,
     "limiterDepth": 0.6,
-    "pitLimiterGear": 2,
+    "downshift": {
+      "$comment": "Golpe de gas en cada reducción (engineSynth.js shiftEnvelope): el tono pasa por encima de la marcha nueva en blipPct y la ganancia en blipGainDb, con el pico a la mitad de blipMs. blipPct, blipMs y blipGainDb: NV, diseño propio (la referencia de vídeo solo da la idea; sus cifras no se copian). minSpacingSec: dos reducciones más juntas suenan como un solo golpe.",
+      "blipPct": 0.04,
+      "blipMs": 70,
+      "blipGainDb": 2,
+      "minSpacingSec": 0.2,
+      "source": "openf1Downshifts: minSpacingSec = p10 del intervalo entre reducciones seguidas frenando (> 90 km/h) de VER, LEC y NOR en la carrera de Baréin 2024 (session_key 9472): mediana 0,32-0,36 s, p10 0,20 s; el muestreo de car_data es de ~0,24 s, así que los intervalos más cortos se ven como saltos de dos marchas (S)"
+    },
+    "pitLimiter": {
+      "$comment": "Limitador del pit lane: tono plano (marcha fija a la velocidad límite de rules.js pitLaneSpeedFor), separado del limitador de régimen (limiterHz/limiterDepth). La marcha no vive aquí: es del motor (pose.gear o race-powertrain.json eras[].pitLimiter, PT-1). flutterHz y flutterDepth NV, diseño propio: profundidad casi nula para que no se oiga rebote. holdTolerance NV: si el coche va a más de esa fracción del límite general, corre una excepción del circuito y se toma su propia velocidad.",
+      "flutterHz": 8,
+      "flutterDepth": 0.01,
+      "holdTolerance": 0.1,
+      "source": "openf1PitLane: con el limitador a 80 km/h en Baréin 2024 (session_key 9472) VER, LEC y NOR van en 2.ª a 6.800-7.170 rpm (mediana ~6.900-7.000, ±2 %): tono casi plano (S). Dato para race-powertrain.json pitLimiter de PT-1"
+    },
     "crackleRatePerSec": 9,
     "crackleGain": 0.35,
     "smoothingSec": 0.04

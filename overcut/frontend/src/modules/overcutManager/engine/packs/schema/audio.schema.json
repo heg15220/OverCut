@@ -3,8 +3,36 @@
   "$comment": "RNF-07: esquema de data/balance/audio.json (sonido de la vista en vivo, RF-3D-04, RNF-02). Lo comprueba three/audio/audio.test.js.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "sources", "eras", "voicing", "mixer", "ambience"],
+  "required": ["version", "sources", "eras", "shiftProfiles", "voicing", "mixer", "ambience"],
   "definitions": {
+    "shiftProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "from", "to", "match", "glideMs", "transient", "source"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "id": {"type": "string", "minLength": 1},
+        "from": {"type": "integer", "minimum": 1950, "maximum": 2100},
+        "to": {"type": "integer", "minimum": 1950, "maximum": 2100},
+        "match": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {"engineId": {"type": "string", "minLength": 1}, "manufacturer": {"type": "string", "minLength": 1}}
+        },
+        "glideMs": {"type": "number", "exclusiveMinimum": 0, "maximum": 500},
+        "transient": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "db"],
+          "properties": {
+            "kind": {"enum": ["pop", "cut"]},
+            "db": {"type": "number", "minimum": -40, "maximum": 12},
+            "ms": {"type": "number", "exclusiveMinimum": 0, "maximum": 500}
+          }
+        },
+        "source": {"type": "string", "minLength": 1}
+      }
+    },
     "positive": {"type": "number", "exclusiveMinimum": 0},
     "nonNegative": {"type": "number", "minimum": 0},
     "share": {"type": "number", "minimum": 0, "maximum": 1},
@@ -116,10 +144,11 @@
     "version": {"const": 1},
     "sources": {"type": "object", "additionalProperties": {"$ref": "#/definitions/text"}},
     "eras": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/era"}},
+    "shiftProfiles": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/shiftProfile"}},
     "voicing": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["maxHarmonics", "byCylinders", "layoutHalfOrder", "turboMuffle", "noise", "filter", "load", "downshiftShare", "launchShare", "limiterHz", "limiterDepth", "pitLimiterGear", "crackleRatePerSec", "crackleGain", "smoothingSec"],
+      "required": ["maxHarmonics", "byCylinders", "layoutHalfOrder", "turboMuffle", "noise", "filter", "load", "downshiftShare", "launchShare", "limiterHz", "limiterDepth", "downshift", "pitLimiter", "crackleRatePerSec", "crackleGain", "smoothingSec"],
       "properties": {
         "$comment": {"type": "string"},
         "maxHarmonics": {"type": "integer", "minimum": 8, "maximum": 256},
@@ -153,7 +182,31 @@
         "launchShare": {"$ref": "#/definitions/share"},
         "limiterHz": {"$ref": "#/definitions/positive"},
         "limiterDepth": {"$ref": "#/definitions/share"},
-        "pitLimiterGear": {"type": "integer", "minimum": 1, "maximum": 4},
+        "downshift": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["blipPct", "blipMs", "blipGainDb", "minSpacingSec", "source"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "blipPct": {"type": "number", "minimum": 0, "maximum": 0.5},
+            "blipMs": {"type": "number", "exclusiveMinimum": 0, "maximum": 500},
+            "blipGainDb": {"type": "number", "minimum": 0, "maximum": 12},
+            "minSpacingSec": {"type": "number", "minimum": 0, "maximum": 2},
+            "source": {"$ref": "#/definitions/text"}
+          }
+        },
+        "pitLimiter": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["flutterHz", "flutterDepth", "holdTolerance", "source"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "flutterHz": {"$ref": "#/definitions/positive"},
+            "flutterDepth": {"type": "number", "minimum": 0, "maximum": 0.05},
+            "holdTolerance": {"type": "number", "minimum": 0, "maximum": 0.5},
+            "source": {"$ref": "#/definitions/text"}
+          }
+        },
         "crackleRatePerSec": {"$ref": "#/definitions/positive"},
         "crackleGain": {"$ref": "#/definitions/share"},
         "smoothingSec": {"$ref": "#/definitions/positive"}

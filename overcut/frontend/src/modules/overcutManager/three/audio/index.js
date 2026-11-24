@@ -26,12 +26,12 @@ export { cameraMix, distanceGain, dopplerFactor, loadSettings, saveSettings, sli
 const KMH = 3.6;
 const VOICING = audioData.voicing;
 
-/** teamId → { id, formula } from a season pack (f1db engines; the first one a team entered). */
+/** teamId → { id, formula, manufacturer } from a season pack (f1db engines; the first one a team entered). */
 export const teamEnginesOf = (pack) => {
   const out = {};
   (pack?.teams || []).forEach((team) => {
     const engine = team.engines && team.engines[0];
-    if (engine) out[team.id] = { id: engine.id, formula: engine.formula };
+    if (engine) out[team.id] = { id: engine.id, formula: engine.formula, manufacturer: engine.manufacturer || null };
   });
   return out;
 };
@@ -48,7 +48,7 @@ export const audioSupported = () => Boolean(audioContextClass());
  * The controller. `start()` must run inside a user gesture; until then `frame()` is a
  * no-op, so the view can call it from the first render.
  */
-export const createRaceAudio = ({ seed = "race", year = 2012, engines = {} } = {}) => {
+export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circuitId = null, date = null } = {}) => {
   let ctx = null;
   let mixer = null;
   let ambience = null;
@@ -69,7 +69,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {} } = {
   const random = createStream(`${seed}::audio`).next;
 
   const specOf = (teamId) => {
-    if (!specs.has(teamId)) specs.set(teamId, engineSpecFor(year, teamEngines[teamId] || null));
+    if (!specs.has(teamId)) specs.set(teamId, engineSpecFor(year, teamEngines[teamId] || null, { circuitId, date }));
     return specs.get(teamId);
   };
 
@@ -232,9 +232,9 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {} } = {
  * React hook for LiveRace: one controller per race, the season's f1db engines from its
  * pack, the viewer's mix, and `enable()` for the sound button's click.
  */
-export const useRaceAudio = ({ seed, year }) => {
+export const useRaceAudio = ({ seed, year, circuitId = null, date = null }) => {
   const ref = useRef(null);
-  if (!ref.current) ref.current = createRaceAudio({ seed, year });
+  if (!ref.current) ref.current = createRaceAudio({ seed, year, circuitId, date });
   const [settings, setLocal] = useState(() => ref.current.settings);
   const [enabled, setEnabled] = useState(false);
 
