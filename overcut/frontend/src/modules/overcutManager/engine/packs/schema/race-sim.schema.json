@@ -56,7 +56,6 @@
     "safetyCar",
     "raceControl",
     "mistake",
-    "lateral",
     "pitRelease"
   ],
   "properties": {
@@ -90,7 +89,8 @@
       "additionalProperties": false,
       "required": [
         "gapMetres",
-        "poleBackMetres"
+        "poleBackMetres",
+        "staggerMetres"
       ],
       "properties": {
         "$comment": {
@@ -100,6 +100,9 @@
           "$ref": "#/definitions/nonNegative"
         },
         "poleBackMetres": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "staggerMetres": {
           "$ref": "#/definitions/nonNegative"
         }
       }
@@ -235,6 +238,7 @@
         "straight",
         "passDefenderLoss",
         "passMaxSeconds",
+        "passSettleSeconds",
         "incident",
         "switchback"
       ],
@@ -319,6 +323,9 @@
           "$ref": "#/definitions/nonNegative"
         },
         "passMaxSeconds": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "passSettleSeconds": {
           "$ref": "#/definitions/nonNegative"
         },
         "incident": {
@@ -693,41 +700,6 @@
           "type": "string"
         },
         "slowFactor": {
-          "$ref": "#/definitions/nonNegative"
-        }
-      }
-    },
-    "lateral": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "attackMetres",
-        "blockMetres",
-        "carWidth",
-        "carLength",
-        "halfWidth",
-        "rate"
-      ],
-      "properties": {
-        "$comment": {
-          "type": "string"
-        },
-        "attackMetres": {
-          "$ref": "#/definitions/nonNegative"
-        },
-        "blockMetres": {
-          "$ref": "#/definitions/nonNegative"
-        },
-        "carWidth": {
-          "$ref": "#/definitions/nonNegative"
-        },
-        "carLength": {
-          "$ref": "#/definitions/nonNegative"
-        },
-        "halfWidth": {
-          "$ref": "#/definitions/nonNegative"
-        },
-        "rate": {
           "$ref": "#/definitions/nonNegative"
         }
       }
