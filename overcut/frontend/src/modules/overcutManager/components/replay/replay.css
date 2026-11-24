@@ -1,0 +1,73 @@
+/* CAM-3: the replay overlay (F1M24-GAMEPLAY §2.5 replays; RF-3D-04, RNF-09). OverCut's own sting. */
+
+.mn-replay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.mn-replay__sting {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--mn-surface-1, #101317);
+  animation: mn-replay-wipe var(--mn-replay-sting, 800ms) ease-in-out both;
+}
+
+.mn-replay.is-stingOut .mn-replay__sting {
+  animation-direction: reverse;
+}
+
+.mn-replay__sting img {
+  width: min(28%, 180px);
+  height: auto;
+}
+
+.mn-replay.is-still .mn-replay__sting {
+  animation: none;
+}
+
+.mn-replay__bar {
+  position: absolute;
+  left: var(--mn-s-3, 12px);
+  bottom: var(--mn-s-3, 12px);
+  display: flex;
+  gap: var(--mn-s-2, 8px);
+  align-items: center;
+  max-width: calc(100% - 2 * var(--mn-s-3, 12px));
+  padding: var(--mn-s-2, 8px) var(--mn-s-3, 12px);
+  border: 1px solid var(--mn-hairline-strong, rgba(255, 255, 255, 0.2));
+  border-radius: var(--mn-r-1, 4px);
+  background: var(--mn-surface-2, rgba(16, 19, 23, 0.85));
+  color: var(--mn-text, #f2f5f8);
+  pointer-events: auto;
+}
+
+.mn-replay__tag {
+  font-size: var(--mn-fs-12, 12px);
+  color: var(--mn-text-2, #c3c9d1);
+}
+
+.mn-replay__driver {
+  color: var(--mn-text-2, #c3c9d1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@keyframes mn-replay-wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mn-replay__sting {
+    animation: none;
+  }
+}

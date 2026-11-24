@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$comment": "RNF-07: esquema completo de data/balance/broadcast.json (realización de TV, RF-3D-04, RNF-09). Lo crea CAM-1 con todas las claves que leerán CAM-2..5 y HUD; lo comprueba components/director/directorState.test.js.",
+  "$comment": "RNF-07: esquema completo de data/balance/broadcast.json (realización de TV, RF-3D-04, RNF-09). Lo crea CAM-1 con todas las claves que leerán CAM-2..5 y HUD; CAM-3 añade pitRig, las secuencias de boxes y garaje, el bloque replay completo y viewSafety. Lo comprueba components/director/directorState.test.js.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "sources", "director", "views", "cycleOrder", "defaultView", "rigTemplate", "framing", "zonesPolicy", "sequences", "replay", "inserts", "scLights"],
+  "required": ["version", "sources", "director", "views", "cycleOrder", "defaultView", "rigTemplate", "framing", "zonesPolicy", "pitRig", "sequences", "replay", "viewSafety", "inserts", "scLights"],
   "definitions": {
     "text": {"type": "string", "minLength": 1},
     "status": {"enum": ["current", "pending", "sourced"]},
@@ -20,7 +20,8 @@
         "subject": {"$ref": "#/definitions/text"},
         "minSec": {"type": "number", "minimum": 0},
         "maxSec": {"type": "number", "minimum": 0},
-        "skippable": {"type": "boolean"}
+        "skippable": {"type": "boolean"},
+        "lead": {"type": "boolean"}
       }
     },
     "sequence": {
@@ -77,6 +78,22 @@
     "placement": {
       "type": "object", "additionalProperties": false, "required": ["dist", "height"],
       "properties": {"dist": {"type": "number", "minimum": 0, "maximum": 500}, "height": {"type": "number", "minimum": 0, "maximum": 200}}
+    },
+    "replayScope": {"enum": ["user", "rival", "leader", "any"]},
+    "pitCam": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "anchor", "alongM", "side", "dist", "height", "width", "aim"],
+      "properties": {
+        "id": {"$ref": "#/definitions/cameraId"},
+        "anchor": {"enum": ["entry", "limitFrom", "line", "limitTo", "exit", "box", "trackEntry", "trackExit"]},
+        "alongM": {"type": "number", "minimum": -500, "maximum": 500},
+        "side": {"enum": ["garage", "wall", "outside"]},
+        "dist": {"type": "number", "minimum": 0, "maximum": 300},
+        "height": {"type": "number", "minimum": 0, "maximum": 200},
+        "width": {"type": "number", "exclusiveMinimum": 0, "maximum": 500},
+        "aim": {"enum": ["car", "box"]}
+      }
     },
     "rigTypeName": {"enum": ["braking", "corner", "straight", "headOn", "passPan", "lateralTrack", "highWide", "grandstand", "cable"]},
     "framingType": {
@@ -213,6 +230,47 @@
         "nearRadiusM": {"type": "number", "exclusiveMinimum": 0, "maximum": 5000}
       }
     },
+    "pitRig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "cams", "fovDeg", "critDamp"],
+      "properties": {
+        "status": {"$ref": "#/definitions/status"},
+        "note": {"type": "string"},
+        "cams": {"type": "array", "items": {"$ref": "#/definitions/pitCam"}, "minItems": 1},
+        "fovDeg": {
+          "type": "object", "additionalProperties": false, "required": ["min", "max"],
+          "properties": {"min": {"type": "number", "exclusiveMinimum": 0, "maximum": 120}, "max": {"type": "number", "exclusiveMinimum": 0, "maximum": 120}}
+        },
+        "critDamp": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "viewSafety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["overlap", "quickReplay"],
+      "properties": {
+        "overlap": {
+          "type": "object", "additionalProperties": false, "required": ["toleranceMetres", "maxPushMetres", "passes", "status"],
+          "properties": {
+            "toleranceMetres": {"type": "number", "minimum": 0, "maximum": 1},
+            "maxPushMetres": {"type": "number", "exclusiveMinimum": 0, "maximum": 10},
+            "passes": {"type": "integer", "minimum": 1, "maximum": 10},
+            "status": {"$ref": "#/definitions/status"},
+            "note": {"type": "string"}
+          }
+        },
+        "quickReplay": {
+          "type": "object", "additionalProperties": false, "required": ["wakeMetres", "pullOutMetres", "status"],
+          "properties": {
+            "wakeMetres": {"type": "number", "exclusiveMinimum": 0, "maximum": 50},
+            "pullOutMetres": {"type": "number", "minimum": 0, "maximum": 10},
+            "status": {"$ref": "#/definitions/status"},
+            "note": {"type": "string"}
+          }
+        }
+      }
+    },
     "sequences": {
       "type": "object",
       "additionalProperties": false,
@@ -229,12 +287,33 @@
     "replay": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["bufferSec", "sampleHz", "stingSec", "maxSec", "pauseSim", "triggers", "status"],
+      "required": ["bufferSec", "sampleHz", "stingSec", "maxSec", "preSec", "postSec", "angles", "onboard", "closeUp", "cooldownSec", "queueMax", "pauseSim", "triggers", "scope", "status"],
       "properties": {
         "bufferSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 120},
         "sampleHz": {"type": "number", "exclusiveMinimum": 0, "maximum": 60},
         "stingSec": {"$ref": "#/definitions/secOrNull"},
         "maxSec": {"$ref": "#/definitions/secOrNull"},
+        "preSec": {"type": "number", "minimum": 0, "maximum": 120},
+        "postSec": {"type": "number", "minimum": 0, "maximum": 60},
+        "angles": {
+          "type": "object", "additionalProperties": false, "required": ["min", "max", "minSec"],
+          "properties": {
+            "min": {"type": "integer", "minimum": 1, "maximum": 6},
+            "max": {"type": "integer", "minimum": 1, "maximum": 6},
+            "minSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 60}
+          }
+        },
+        "onboard": {"oneOf": [{"type": "null"}, {"$ref": "#/definitions/cameraId"}]},
+        "closeUp": {"oneOf": [{"type": "null"}, {"$ref": "#/definitions/cameraId"}]},
+        "cooldownSec": {"type": "number", "minimum": 0, "maximum": 600},
+        "queueMax": {"type": "integer", "minimum": 1, "maximum": 20},
+        "scope": {
+          "type": "object", "additionalProperties": false, "required": ["pass", "mistake", "dnf", "pitOther", "finish"],
+          "properties": {
+            "pass": {"$ref": "#/definitions/replayScope"}, "mistake": {"$ref": "#/definitions/replayScope"}, "dnf": {"$ref": "#/definitions/replayScope"},
+            "pitOther": {"$ref": "#/definitions/replayScope"}, "finish": {"$ref": "#/definitions/replayScope"}
+          }
+        },
         "pauseSim": {"type": "boolean"},
         "triggers": {
           "type": "object",

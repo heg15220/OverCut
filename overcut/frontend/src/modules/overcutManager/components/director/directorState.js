@@ -23,17 +23,21 @@
  *   `type`, `from`, `to`, `priority`).
  * - `clock`: { now } wall-clock seconds for the follow-the-action hold, `prev` - the
  *   previous result, so the director keeps its camera while the car is still in it - and
- *   `seed`, the race seed of the zone draw on a zone rig (CAM-2).
+ *   `seed`, the race seed of the zone draw on a zone rig (CAM-2); `tau`, the race clock, for
+ *   the pit and garage sequences (CAM-3; the wall clock `now` when absent).
  *
  * `shotKind`: "zone" (one car in a trackside camera), "battle" (the subject and its
- * rival framed together), "pit" (the subject in the pit lane; CAM-3 turns it into the
- * pit sequence) or "none" (nobody to film). `reason` says why the subject is the
+ * rival framed together), "pit" (the subject in the pit lane or leaving its garage: while
+ * components/director/pitSequence.js runs the stop or the garage exit, its pit camera takes
+ * the shot - `camType: "pit"` - over the zones and over other cars' events; `sequence` is that
+ * state, to hand back as `prev`) or "none" (nobody to film). `reason` says why the subject is the
  * subject: "focus", "focusGone" (the chosen car is out: the leader instead),
  * "leader" (nobody chosen) or "followAction".
  */
 
 import broadcast from "../../data/balance/broadcast.json";
 import { zoneChoice } from "../../three/cameraZones";
+import { etaToBox, stepSequence } from "./pitSequence";
 
 const wrap = (value) => ((value % 1) + 1) % 1;
 const inSpan = (share, from, to) => {
@@ -120,12 +124,16 @@ export const directorState = (focusId, rows = [], events = [], rig = [], clock =
     reason = "followAction";
   }
 
-  if (!subject) return { cameraId: null, camType: null, subjectIds: [], shotKind: "none", reason, hold };
+  if (!subject) return { cameraId: null, camType: null, subjectIds: [], shotKind: "none", reason, hold, sequence: null };
 
   const subjectId = idOf(subject);
   const share = subject.pose?.progress;
-  const cam = cameraFor(rig, share, prev?.cameraId ?? null, { seed: clock.seed });
-  const base = { cameraId: cam?.id ?? null, camType: cam?.type ?? null, reason, hold };
+  // CAM-3: the subject's pit stop or garage exit, told shot by shot (on the race clock: RNF-05).
+  const tau = Number.isFinite(clock.tau) ? clock.tau : now;
+  const sequence = stepSequence(prev?.sequence ?? null, { carId: subjectId, pose: subject.pose, tau, seed: clock.seed ?? 0, etaSec: etaToBox(subject.pose) });
+  if (sequence.active) return { cameraId: sequence.cam, camType: "pit", reason, hold, sequence, subjectIds: [subjectId], shotKind: "pit" };
+  const cam = cameraFor(rig, share, prev?.camType === "pit" ? null : prev?.cameraId ?? null, { seed: clock.seed });
+  const base = { cameraId: cam?.id ?? null, camType: cam?.type ?? null, reason, hold, sequence };
   if (subject.pose?.inPit) return { ...base, subjectIds: [subjectId], shotKind: "pit" };
   const rival = rivalOf(rows, subjectId, config);
   if (rival !== null) return { ...base, subjectIds: [subjectId, rival], shotKind: "battle" };

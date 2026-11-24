@@ -17,14 +17,30 @@
  * position, target, fov } }, F1M24-GAMEPLAY §1.7) for the TV listener of the sound. Props arrive every frame from the live
  * view and are read by the render loop through a ref, so React does no work
  * per frame here beyond handing them over.
+ *
+ * CAM-3 (F1M24-GAMEPLAY §2.5, §2.9; RF-3D-04, RF-SIM-12, RNF-05, RNF-07):
+ *   - pit and garage sequences: on TV, when the car on air pits (or leaves its garage in a
+ *     session) components/director/pitSequence.js tells it with the pit-lane cameras of
+ *     three/pitCameras.js, over the zones; the crew steps into the box crewLeadSec before the car.
+ *   - replays: `replayBuffer` (components/replay/replayBuffer.js createReplayBuffer) is filled
+ *     from `sample` at fixed instants of the race clock; `replay` = { plan, clock } (planReplay,
+ *     a ref with the seconds since it began) draws the buffer instead of the race - the angles of
+ *     the plan, the subject of the replay - and the live view owns the clock and the pause.
+ *   - the safety pass (three/viewOverlap.js): no two cars drawn inside one another, every
+ *     correction counted (viewOverlapStats).
+ * None of it touches the race (RNF-05): it reads poses and draws.
  */
 
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { buildCar } from "./carModel";
 import { buildTrack } from "./trackScene";
-import { buildZoneRig, critDampStep, fitRig, frame, garageShot, isOnboard, modeForYear, onboardFor, seedOf, shakeOffset, tvRival } from "./cameras";
+import { buildPitRig, buildZoneRig, critDampStep, fitRig, frame, garageShot, isOnboard, modeForYear, onboardFor, pitShot, seedOf, shakeOffset, tvRival } from "./cameras";
 import { onRacingLine } from "./racingLine";
+import { QUICK_REPLAY, boxSpecFor, countOverlap, overlapPass } from "./viewOverlap";
+import { boxPointOf, etaToBox, stepSequence } from "../components/director/pitSequence";
+import { recordReplay, replayFrameAt, replayPoseAt, tracksideFor } from "../components/replay/replayBuffer";
+import broadcast from "../data/balance/broadcast.json";
 import { poseAt } from "../engine/trackGeometry";
 import { createRenderer, environmentFor } from "./studio";
 import { carAssetFor, circuitAssetFor } from "./assets/manifest";
@@ -81,10 +97,12 @@ const buildCrew = (color) => {
   return group;
 };
 
-export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, teams, onPick, labels, clock, sample, cameraBus, seed }) {
+const CREW_LEAD_SEC = broadcast.sequences.pitStop.crewLeadSec;
+
+export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, teams, onPick, labels, clock, sample, cameraBus, seed, replayBuffer, replay }) {
   const mount = useRef(null);
   const props = useRef({});
-  props.current = { cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, onPick, clock, sample, year, cameraBus, seed };
+  props.current = { cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, onPick, clock, sample, year, cameraBus, seed, replayBuffer, replay };
   const world = useRef(null);
 
   // Renderer, sky, sun and camera: once.
@@ -193,6 +211,10 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
     state.rig = buildZoneRig(circuit);
     state.camState = {};
     state.circuit = circuit;
+    // CAM-3: the pit-lane cameras on this circuit's lane, and no sequence under way.
+    state.pitRig = buildPitRig(circuit);
+    state.pitSeq = null;
+    state.pitBox = null;
     // The real circuit, when the pipeline calibrated one for this layout (RF-3D-01, RF-3D-03); the
     // procedural track stays on screen until it arrives, and if it never does (RF-3D-02).
     let disposed = false;
@@ -297,19 +319,45 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
  * from the radius it is turning on and wheels that roll at its speed.
  */
 function step(state, props, dt) {
-  const { cars = [], focusId, wet, lights, safetyCar, clock, sample, safetyCarOn, year, cameraBus, seed } = props;
-  // SRS 6.2: an onboard the cars of this season did not carry is filmed by the chase camera.
-  const mode = modeForYear(props.mode || "chase", year);
-  const onboard = isOnboard(mode);
+  const { cars = [], wet, lights, safetyCar, clock, sample, safetyCarOn, year, cameraBus, seed, replayBuffer, replay } = props;
   const { camera, circuit } = state;
   if (!circuit) return;
-  const tau = clock ? clock.current : null;
+  const liveTau = clock ? clock.current : null;
+
+  // CAM-3 replays: the buffer fills from the race clock while the race is on screen; a replay
+  // draws the buffer at the replay's own race time, from the angles of its plan.
+  const plan = replay?.plan && replayBuffer ? replay.plan : null;
+  const replayed = plan ? replayFrameAt(plan, replay.clock ? replay.clock.current : 0) : null;
+  if (!replayed && replayBuffer && liveTau !== null) {
+    const byId = new Map(cars.map((item) => [item.car.id, item]));
+    recordReplay(replayBuffer, liveTau, [...byId.keys()], (id, t) => (sample ? sample(byId.get(id).car, t) : byId.get(id).pose));
+  }
+  const focusId = replayed ? plan.subjectId ?? props.focusId : props.focusId;
+  // SRS 6.2: an onboard the cars of this season did not carry is filmed by the chase camera
+  // (a replay angle may use the replay-only close-up, cameras.json).
+  let mode = modeForYear(props.mode || "chase", year);
+  let lockCam = null;
+  if (replayed) {
+    const angle = replayed.angle;
+    if (angle.kind === "onboard") mode = angle.cam;
+    else {
+      const key = `${plan.at}|${angle.from}`;
+      if (state.replayAngle?.key !== key) {
+        const start = replayPoseAt(replayBuffer, focusId, angle.from);
+        state.replayAngle = { key, cam: tracksideFor(state.rig, start ? ((start.progress % 1) + 1) % 1 : NaN, angle.slot, seed ?? 0) };
+      }
+      lockCam = state.replayAngle.cam;
+      mode = lockCam ? "tv" : "chase";
+    }
+  } else state.replayAngle = null;
+  const onboard = isOnboard(mode);
+  const tau = replayed ? replayed.tau : liveTau;
   const simDt = tau !== null && state.lastTau !== undefined ? Math.max(0, tau - state.lastTau) : dt;
   if (tau !== null) state.lastTau = tau;
 
-  // Poses: live from the clock where the view gave us one, otherwise as handed over.
+  // Poses: live from the clock where the view gave us one, otherwise as handed over; in a replay, from the buffer.
   const items = cars.map((item) => {
-    const raw = sample && tau !== null ? sample(item.car, tau) : item.pose;
+    const raw = replayed ? replayPoseAt(replayBuffer, item.car.id, tau) || { ...item.pose, gone: true } : sample && tau !== null ? sample(item.car, tau) : item.pose;
     return { ...item, pose: onRacingLine(circuit, raw) };
   });
 
@@ -322,10 +370,10 @@ function step(state, props, dt) {
     let target = 0;
     // The step race places cars sideways itself (pose.lateral, SIM-FISICA §3.1): the view only
     // pulls a car out of a wake on the quick replay, which has no lateral of its own.
-    if (item.pose.lateral === undefined && ahead && !item.pose.inPit && !ahead.pose.inPit && ahead.metres - item.metres < 9) {
-      // Pull to whichever side has more road.
+    if (item.pose.lateral === undefined && ahead && !item.pose.inPit && !ahead.pose.inPit && ahead.metres - item.metres < QUICK_REPLAY.wakeMetres) {
+      // Pull to whichever side has more road (broadcast.json viewSafety.quickReplay).
       const room = ahead.pose.lineOffset ?? 0;
-      target = room > 0 ? -2.3 : 2.3;
+      target = room > 0 ? -QUICK_REPLAY.pullOutMetres : QUICK_REPLAY.pullOutMetres;
     }
     lateralTarget.set(item.car.id, target);
   });
@@ -339,6 +387,7 @@ function step(state, props, dt) {
   });
 
   let focus = null;
+  const drawn = [];
   const smooth = (rate) => 1 - Math.exp(-rate * Math.max(simDt, dt * 0.5));
   items.forEach((item) => {
     const entry = state.carObjects.get(item.car.id);
@@ -392,6 +441,8 @@ function step(state, props, dt) {
     // In the pit lane, off the racing line the heights were sampled on, the grid says where the road is.
     if (pose.inPit && state.field) ground = state.field.floorNear(x, z, ground) ?? ground;
     object.position.set(x, ground, z);
+    // For the safety pass (CAM-3): the cars on the road, where they are drawn and which way the road takes them.
+    if (!pose.inPit && !pose.parked && !pose.garage && !pose.onGrid && Number.isFinite(pose.progress)) drawn.push({ id: car.id, x, z, heading: pose.heading, along: (((pose.progress % 1) + 1) % 1) * length, object });
     object.rotation.order = "YXZ";
     object.rotation.y = -entry.yaw;
     // Up and down the hills of a real circuit the car pitches with the road.
@@ -409,19 +460,38 @@ function step(state, props, dt) {
       if (onboard && Number.isFinite(pose.gear)) object.userData.setGear?.(pose.gear);
     }
 
-    // The pit crew around a car stopped in its box during the race.
+    // The pit crew around a car stopped in its box during the race - and, for the car on air,
+    // already waiting in the box crewLeadSec before it arrives (CAM-3, broadcast.json pitStop).
     let crew = state.crews.get(car.id);
-    if (pose.stopped && !pose.garage) {
+    const waiting = !pose.stopped && car.id === focusId && etaToBox(pose) <= CREW_LEAD_SEC ? boxPointOf(pose) : null;
+    if ((pose.stopped && !pose.garage) || waiting) {
       if (!crew) {
         crew = buildCrew(car.color);
         state.crews.set(car.id, crew);
         state.scene.add(crew);
       }
       crew.visible = true;
-      crew.position.set(x, ground, z);
-      crew.rotation.y = -pose.heading;
+      if (waiting) crew.position.set(waiting.x, ground, waiting.y);
+      else crew.position.set(x, ground, z);
+      crew.rotation.y = -(waiting ? waiting.heading : pose.heading);
     } else if (crew) crew.visible = false;
   });
+
+  // The safety pass (CAM-3 no-overlap-view): no two silhouettes inside one another, each correction counted.
+  if (drawn.length > 1) {
+    const result = overlapPass(drawn, boxSpecFor(year));
+    countOverlap(result);
+    result.fixes.forEach((fix, id) => {
+      const entry = drawn.find((item) => item.id === id);
+      if (!entry) return;
+      entry.object.position.x += fix.dx;
+      entry.object.position.z += fix.dz;
+      if (focus && focus.item?.car?.id === id) {
+        focus.x += fix.dx;
+        focus.z += fix.dz;
+      }
+    });
+  }
   if (!focus && ordered[0]) {
     const lead = state.carObjects.get(ordered[0].car.id);
     if (lead) focus = { x: lead.object.position.x, y: lead.object.position.y, z: lead.object.position.z, heading: lead.yaw, speed: lead.speed || 0, share: ordered[0].pose.progress, spec: lead.object.userData.spec, item: ordered[0] };
@@ -463,9 +533,35 @@ function step(state, props, dt) {
       const rival = tvRival(ordered, focus.item?.car?.id, state.carObjects);
       focus.rival = rival ? { x: rival.object.position.x, z: rival.object.position.z } : null;
     }
-    const shot = inGarage
-      ? garageShot(focus)
-      : frame(mode, focus, circuit, state.rig, state.camState, dt, state.heightAt ? { heightAt: state.heightAt, field: state.field } : null);
+    const world = state.heightAt ? { heightAt: state.heightAt, field: state.field } : null;
+    // CAM-3 pit-sequence / garage exit: on TV (not on a camera the viewer picked, not in a replay)
+    // the stop of the car on air is told with the pit cameras, on the race clock (RNF-05).
+    const subjectPose = focus.item?.pose;
+    const subjectId = focus.item?.car?.id ?? null;
+    let seqCam = null;
+    if (mode === "tv" && !replayed && !lockCam) {
+      const was = state.pitSeq;
+      state.pitSeq = stepSequence(was, { carId: subjectId, pose: subjectPose, tau: tau ?? state.viewTime ?? 0, seed: state.camState.seed, etaSec: etaToBox(subjectPose) });
+      if (state.pitBox && state.pitBox.carId !== subjectId) state.pitBox = null;
+      const box = subjectPose?.inPit ? boxPointOf(subjectPose) : null;
+      if (box) state.pitBox = { ...box, carId: subjectId };
+      else if (!subjectPose?.inPit && !state.pitSeq.active) state.pitBox = null;
+      if (state.pitSeq.active) seqCam = state.pitSeq.cam;
+      // Out of the sequence the trackside director chooses afresh (and cuts).
+      else if (was?.active) state.camState.tvCam = null;
+    } else state.pitSeq = null;
+    state.camState.lockCam = lockCam;
+    let shot = null;
+    if (inGarage) shot = garageShot(focus);
+    else if (seqCam === "chase") shot = frame("chase", focus, circuit, state.rig, state.camState, dt, world);
+    else if (seqCam) shot = pitShot(seqCam, focus, circuit, state.pitRig || [], state.pitBox, world);
+    if (shot && seqCam && state.lastSeqCam !== seqCam) shot.snap = true;
+    state.lastSeqCam = seqCam;
+    if (!shot) shot = frame(mode, focus, circuit, state.rig, state.camState, dt, world);
+    if (replayed && state.lastReplayKey !== `${plan.at}|${replayed.angle.from}`) {
+      shot.snap = true;
+      state.lastReplayKey = `${plan.at}|${replayed.angle.from}`;
+    }
     // On a real circuit the road climbs and falls: a shot framed on the flat plane follows the car's height.
     if (focus.y && !shot.abs) {
       shot.pos = shot.pos.clone();
@@ -508,12 +604,15 @@ function step(state, props, dt) {
     // The camera on air, for whoever listens (the TV sound, AUD-2).
     if (cameraBus) {
       // A TV shot no tower can take is flown by the helicopter (cameras.js frame).
-      const fallback = mode === "tv" && !inGarage && state.camState.fallback;
-      const tv = mode === "tv" && !inGarage && !fallback ? state.camState.tvCam : null;
+      const fallback = mode === "tv" && !inGarage && !seqCam && state.camState.fallback;
+      const tv = mode === "tv" && !inGarage && !seqCam && !fallback ? state.camState.tvCam : null;
+      // A pit-sequence shot is named by its pit camera (kind "pit"), the chase shot of a garage exit as the chase camera.
+      const pit = !inGarage && seqCam ? seqCam : null;
       cameraBus.current = {
-        id: inGarage ? "garage" : fallback ? "heli" : tv?.id ?? mode,
-        kind: inGarage ? "garage" : fallback ? "heli" : tv ? tv.type : onboard ? "onboard" : mode,
+        id: inGarage ? "garage" : pit ?? (fallback ? "heli" : tv?.id ?? mode),
+        kind: inGarage ? "garage" : pit ? (pit === "chase" ? "chase" : "pit") : fallback ? "heli" : tv ? tv.type : onboard ? "onboard" : mode,
         mode,
+        replay: Boolean(replayed),
         subjectId: focus.item?.car?.id ?? null,
         position: { x: camera.position.x, y: camera.position.y, z: camera.position.z },
         target: { x: cam.look.x, y: cam.look.y, z: cam.look.z },
