@@ -81,9 +81,46 @@
     "looseRadiusM": 260,
     "nearRadiusM": 400
   },
+  "pitRig": {
+    "status": "pending",
+    "note": "CAM-3 (pit-sequence, F1M24-GAMEPLAY §2.5): cámaras de boxes colocadas sobre la trazada del pit lane de engine/sim/pitLane.js (laneGeometry). anchor: entry (inicio del carril, 0 m), limitFrom / line / limitTo (marcas del carril, metros de laneGeometry), exit (final del carril), box (el box del coche enfocado: donde está parado o, frenando hacia él, donde parará con race-pit.json boxDecel), trackEntry / trackExit (en la pista, en pit.entry y al final de la línea blanca de salida, pitLinesFor). alongM: metros a lo largo del carril (o de la pista) desde el ancla. side: 'garage' (más allá del carril, lado de los garajes), 'wall' (lado del muro del pit, hacia la pista), 'outside' (en la pista, lado contrario al pit). dist y height en metros; width: metros de encuadre como en rigTemplate (frameWidth); aim: 'car' sigue al coche, 'box' mira al box (los mecánicos esperando). Todo diseño propio sin calibrar: de la referencia (cameras.md §5) solo qué planos hay y en qué orden, ninguna posición ni duración.",
+    "cams": [
+      { "id": "pitEntry", "anchor": "trackEntry", "alongM": 60, "side": "outside", "dist": 22, "height": 5, "width": 26, "aim": "car" },
+      { "id": "pitLaneHigh", "anchor": "limitFrom", "alongM": 40, "side": "garage", "dist": 10, "height": 14, "width": 44, "aim": "car" },
+      { "id": "pitWall", "anchor": "line", "alongM": 0, "side": "wall", "dist": 3, "height": 1.2, "width": 18, "aim": "car" },
+      { "id": "garage", "anchor": "box", "alongM": 7, "side": "wall", "dist": 5, "height": 2.4, "width": 14, "aim": "box" },
+      { "id": "boxExit", "anchor": "box", "alongM": -12, "side": "wall", "dist": 4, "height": 1.6, "width": 18, "aim": "car" },
+      { "id": "pitExit", "anchor": "limitTo", "alongM": 25, "side": "wall", "dist": 6, "height": 5.5, "width": 22, "aim": "car" },
+      { "id": "merge", "anchor": "trackExit", "alongM": 40, "side": "outside", "dist": 45, "height": 20, "width": 55, "aim": "car" }
+    ],
+    "fovDeg": { "min": 8, "max": 70 },
+    "critDamp": 10
+  },
   "sequences": {
-    "pitStop": { "status": "pending", "note": "CAM-3: [{trigger: 'pitPhase:X', cam, minSec, maxSec}] con prioridad sobre zonas", "crewLeadSec": null, "shots": [] },
-    "garageExit": { "status": "pending", "note": "CAM-3 (sesiones, SES-2)", "shots": [] },
+    "pitStop": {
+      "status": "pending",
+      "note": "CAM-3 (pit-sequence). Plano del coche enfocado en una parada, con prioridad sobre las zonas y sobre los eventos de otros coches (no la cortan; las repeticiones esperan a que acabe). trigger 'pitPhase:X' = la fase de boxes del motor (engine/sim/pitLane.js PHASE; TRACK = de vuelta en pista). La secuencia solo avanza: una fase que vuelve (LIMITER tras el box) no la hace retroceder. minSec: tiempo mínimo en el aire antes de cortar al siguiente; maxSec del último plano: cuando acaba, vuelve la TV por zonas. lead: el plano de los mecánicos se adelanta; crewLeadSec: segundos de reloj de carrera antes de que el coche pare (estimados con su velocidad y race-pit.json boxDecel) en que los mecánicos ya esperan en el box. Duraciones de diseño propio en tiempo de carrera (la referencia, ~40 s en 5-7 planos, cameras.md §8, solo para el orden).",
+      "crewLeadSec": 1.5,
+      "shots": [
+        { "trigger": "pitPhase:ENTRY_ROAD", "cam": "pitEntry", "minSec": 2, "maxSec": 6 },
+        { "trigger": "pitPhase:LIMITER", "cam": "pitLaneHigh", "minSec": 2, "maxSec": 8 },
+        { "trigger": "pitPhase:BOX_APPROACH", "cam": "garage", "minSec": 2, "lead": true },
+        { "trigger": "pitPhase:RELEASE", "cam": "boxExit", "minSec": 1.5, "maxSec": 8 },
+        { "trigger": "pitPhase:EXIT_ROAD", "cam": "pitExit", "minSec": 1.5, "maxSec": 7 },
+        { "trigger": "pitPhase:TRACK", "cam": "merge", "minSec": 1, "maxSec": 3 }
+      ]
+    },
+    "garageExit": {
+      "status": "pending",
+      "note": "CAM-3 (garage-exit-presentation, sesiones de SES-2): salida del garaje en una cadena de planos cortos y vuelta a la TV por zonas. trigger 'runPhase:X' = la fase de la tanda (§1.7: GARAGE, GARAGE_EXIT, OUT_LAP...); 'next' = corta al plano siguiente cuando acaba el actual, con una duración entre minSec y maxSec sacada con la semilla (RNF-05). cam: una cámara de pitRig o 'chase'. Orden y duraciones de diseño propio (la referencia, 5-6 cámaras con cortes cada 1-3 s, practice-quali §4 y cameras.md §8, solo para la estructura).",
+      "shots": [
+        { "trigger": "runPhase:GARAGE_EXIT", "cam": "garage", "minSec": 1.5, "maxSec": 3 },
+        { "trigger": "next", "cam": "pitWall", "minSec": 1, "maxSec": 2.5 },
+        { "trigger": "next", "cam": "chase", "minSec": 1.5, "maxSec": 3 },
+        { "trigger": "next", "cam": "pitExit", "minSec": 1, "maxSec": 2.5 },
+        { "trigger": "runPhase:OUT_LAP", "cam": "merge", "minSec": 1, "maxSec": 3 }
+      ]
+    },
     "preRace": { "status": "pending", "note": "CAM-4; saltable; SC aparcado en la parrilla solo desde 1993", "shots": [] },
     "start": { "status": "pending", "note": "CAM-4; lee snapshot.start (SIM-3)", "shots": [] },
     "finish": { "status": "pending", "note": "CAM-4; finisherShots por coche que cruza (referencia 1,3-7 s)", "finisherShots": null, "shots": [] },
@@ -92,12 +129,35 @@
   "replay": {
     "bufferSec": 25,
     "sampleHz": 10,
-    "stingSec": null,
-    "maxSec": null,
+    "stingSec": 0.8,
+    "maxSec": 14,
+    "preSec": 7,
+    "postSec": 3,
+    "angles": { "min": 1, "max": 3, "minSec": 3 },
+    "onboard": "tcam",
+    "closeUp": "closeUp",
+    "cooldownSec": 40,
+    "queueMax": 3,
     "pauseSim": true,
     "triggers": { "pass": true, "mistake": true, "dnf": true, "pitOther": true, "finish": true },
+    "scope": { "pass": "user", "mistake": "any", "dnf": "any", "pitOther": "rival", "finish": "leader" },
     "status": "pending",
-    "note": "CAM-3. bufferSec y sampleHz por la decisión de unificación; cortinilla y duración máxima de diseño propio, sin fijar."
+    "note": "CAM-3 (replays, buffer-repeticion). components/replay/replayBuffer.js guarda bufferSec de reloj de carrera de cada coche a sampleHz (la decisión de unificación: 22 coches × 25 s × 10 Hz), muestreando la misma función de posición que la vista (raceClock.liveCarAt) en instantes fijos del reloj de carrera, no por fotograma (RNF-05). Una repetición enseña de preSec antes a postSec después del evento (nunca más de maxSec ni fuera del buffer) entre dos cortinillas propias de stingSec (logotipo de OverCut, components/replay/ReplayOverlay.js), con angles.min..max ángulos de al menos angles.minSec: cámaras del rig que cubren el sitio del evento, elegidas por peso con la semilla, y la onboard 'onboard' si la era la tiene (cameras.json); en la meta, el primer plano 'closeUp' (solo repetición). scope: de quién es el evento que la dispara (user: un coche del jugador implicado; rival: no del jugador; leader: el ganador; any: cualquiera). Una a la vez, como mucho queueMax en cola, cooldownSec de carrera entre dos; la parada del coche enfocado no se corta (las repeticiones esperan). pauseSim: la vista para su reloj mientras dura (la enchufa HUD-4 en LiveRace). Todas las duraciones son diseño propio; la referencia (cortinilla 1,2 s, contenido 9-22 s, cameras.md §8) solo para la estructura."
+  },
+  "viewSafety": {
+    "overlap": {
+      "toleranceMetres": 0.05,
+      "maxPushMetres": 2.5,
+      "passes": 8,
+      "status": "pending",
+      "note": "CAM-3 (no-overlap-view, F1M24-GAMEPLAY §2.9): pasada de seguridad de three/viewOverlap.js en Race3D.step. Cajas orientadas (rumbo de la pose) del ancho y largo de la era (race-physics.json lateral.eras, lo que el motor garantiza; el spec del modelo si falta la era) entre coches en pista a menos de una diagonal. Solo corrige si las cajas se meten una en otra más de toleranceMetres, y entonces aparta al de detrás por el eje de menor penetración (atrás si van en fila; de lado, hasta la holgura lateral.clearanceMetres, si van en paralelo), como mucho maxPushMetres por fotograma y en 'passes' rondas para no empujarlo contra un tercero. Cada pareja corregida se cuenta (viewOverlapStats): el contador está para ver bugs del motor, no para taparlos. Diseño propio."
+    },
+    "quickReplay": {
+      "wakeMetres": 9,
+      "pullOutMetres": 2.3,
+      "status": "current",
+      "note": "Repetición del modo rápido (sin lateral propio): a menos de wakeMetres del coche de delante, el de detrás sale de su estela pullOutMetres hacia el lado con más pista. Los 9 m y 2,3 m que Race3D.js tenía en código (no-overlap-view)."
+    }
   },
   "inserts": {
     "onboard": {

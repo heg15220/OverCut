@@ -14,8 +14,8 @@ import broadcastData from "../data/balance/broadcast.json";
 import splineData from "../data/splines.json";
 import zoneFiles from "../data/circuits/cameraZones";
 import {
-  CAMERA_LABELS, CAMERA_MODES, ONBOARDS, SIGHT_EVERY, buildCameraZones, buildRig, buildZoneRig, critDampStep, fitRig, frame, frameWidth, framingFor,
-  modeForYear, onboardsFor, pickVariant, seedOf, shakeOffset, tvRival, zonesFor,
+  CAMERA_LABELS, CAMERA_MODES, ONBOARDS, SIGHT_EVERY, buildCameraZones, buildPitRig, buildRig, buildZoneRig, critDampStep, fitRig, frame, frameWidth, framingFor,
+  laneBoxOf, lanePoseAt, modeForYear, onboardsFor, pickVariant, pitShot, seedOf, shakeOffset, tvRival, zonesFor,
 } from "./cameras";
 import { cameraFor } from "../components/director/directorState";
 import { buildHeightField } from "./assets/assetCircuit";
@@ -487,5 +487,73 @@ describe("TV lens (F1M24-GAMEPLAY §2.5 tv-lens-behaviour, CAM-2)", () => {
     expect(tvRival(defending, "b", objects).id).toBe("c");
     expect(tvRival([row("a", 1000), row("b", 990, { battle: "RUNNING" })], "b", objects)).toBeNull();
     expect(tvRival([row("a", 1000, { pose: { inPit: true } }), row("b", 990)], "b", objects)).toBeNull();
+  });
+});
+
+describe("pit-lane cameras (F1M24-GAMEPLAY §2.5 pit-sequence, CAM-3; RF-3D-04, RF-SIM-12, RNF-07)", () => {
+  const bahrain = circuitFor({ name: "Bahrain Grand Prix", circuit: "bahrain" }, 2024);
+  const PIT_RIG = broadcastData.pitRig;
+  // Which side of the lane (or the track) a point lies on, in the sense of circuit.pit.side.
+  const sideOf = (pose, p) => Math.sign(-(p.x - pose.x) * Math.sin(pose.heading) + (p.z - pose.y) * Math.cos(pose.heading));
+
+  [["Bahrain 2024", bahrain], ["Monza 2005", circuit]].forEach(([name, c]) => {
+    it(`${name}: every camera of broadcast.json pitRig on its side of the lane, the box ones on the car's box`, () => {
+      const rig = buildPitRig(c);
+      expect(rig.map((cam) => cam.id)).toEqual(PIT_RIG.cams.map((cam) => cam.id));
+      const pitSide = c.pit.side || 1;
+      rig.forEach((cam) => {
+        if (cam.box) return;
+        expect(Number.isFinite(cam.x) && Number.isFinite(cam.z)).toBe(true);
+        const template = PIT_RIG.cams.find((entry) => entry.id === cam.id);
+        if (template.dist === 0) return;
+        // The anchor's pose, as buildPitRig takes it.
+        const anchorPose = cam.anchor.startsWith("track")
+          ? poseAt(c, (((cam.anchor === "trackEntry" ? c.pit.entry : c.pit.exit) + template.alongM / c.length) % 1 + 1) % 1)
+          : null;
+        const expected = cam.side === "garage" ? pitSide : -pitSide;
+        if (anchorPose && cam.anchor === "trackEntry") expect(sideOf(anchorPose, cam)).toBe(expected);
+      });
+      const box = laneBoxOf(c);
+      const focus = { x: box.x, y: 0, z: box.y, heading: box.heading };
+      rig.forEach((cam) => {
+        const shot = pitShot(cam.id, focus, c, rig, box, null);
+        expect(shot).toMatchObject({ camType: "pit", cameraId: cam.id });
+        expect([shot.pos.x, shot.pos.y, shot.pos.z, shot.look.x, shot.look.z].every(Number.isFinite)).toBe(true);
+        expect(shot.fov).toBeGreaterThanOrEqual(PIT_RIG.fovDeg.min);
+        expect(shot.fov).toBeLessThanOrEqual(PIT_RIG.fovDeg.max);
+      });
+      // The crew camera stands on the wall side of the car's box, looking at the box.
+      const garage = PIT_RIG.cams.find((cam) => cam.id === "garage");
+      const shot = pitShot("garage", { ...focus, x: focus.x + 30 }, c, rig, box, null);
+      expect(Math.hypot(shot.pos.x - box.x, shot.pos.z - box.y)).toBeCloseTo(Math.hypot(garage.alongM, garage.dist), 6);
+      expect(sideOf({ ...box }, { x: shot.pos.x, z: shot.pos.z })).toBe(-pitSide);
+      expect(shot.look.x).toBeCloseTo(box.x, 9);
+      expect(shot.look.z).toBeCloseTo(box.y, 9);
+    });
+  });
+
+  it("lane poses run from the lane's entry to its exit by distance", () => {
+    const start = lanePoseAt(bahrain, 0);
+    const end = lanePoseAt(bahrain, 1e9);
+    expect(start.x).toBeCloseTo(bahrain.pit.path[0].x, 6);
+    expect(end.x).toBeCloseTo(bahrain.pit.path[bahrain.pit.path.length - 1].x, 0);
+    const a = lanePoseAt(bahrain, 100);
+    const b = lanePoseAt(bahrain, 110);
+    expect(Math.hypot(b.x - a.x, b.y - a.y)).toBeCloseTo(10, 0);
+  });
+
+  it("no lane, no pit cameras; an unknown camera gives no shot", () => {
+    expect(buildPitRig({ ...bahrain, pit: null })).toEqual([]);
+    expect(pitShot("nope", { x: 0, y: 0, z: 0, heading: 0 }, bahrain, buildPitRig(bahrain))).toBeNull();
+  });
+
+  it("a replay angle locks the TV on one tower whatever the car does (state.lockCam)", () => {
+    const rig = buildZoneRig(circuit);
+    const lock = rig.find((cam) => !cam.moving && cam.type !== "cable");
+    const state = { lockCam: lock };
+    const far = focusAt(((lock.to + 0.3) % 1 + 1) % 1);
+    const shot = frame("tv", far, circuit, rig, state, 0.016);
+    expect(shot.cameraId).toBe(lock.id);
+    expect(state.tvCam).toBe(lock);
   });
 });

@@ -29,6 +29,8 @@ import broadcast from "../data/balance/broadcast.json";
 import { rigType, zoneChoice, zonesFor } from "./cameraZones";
 
 export { buildCameraZones, pickVariant, zoneChoice, zonesFor, zoneIndexAt } from "./cameraZones";
+// CAM-3 (F1M24-GAMEPLAY §2.5 pit-sequence): the pit-lane cameras.
+export { buildPitRig, laneBoxOf, lanePoseAt, pitShot } from "./pitCameras";
 
 const TEMPLATE = broadcast.rigTemplate;
 const FRAMING = broadcast.framing;
@@ -294,7 +296,8 @@ export const garageShot = (focus) => {
  * checks it cuts to another tower that does, or to the helicopter.
  *
  * TV extras (CAM-2): `state.seed` the race seed for the zone draw, `focus.lap` (else the whole
- * part of `focus.share`), `focus.rival` { x, z } to frame a pair. The TV shot also returns
+ * part of `focus.share`), `focus.rival` { x, z } to frame a pair. `state.lockCam` (CAM-3, a
+ * replay angle) holds that rig camera whatever the car does. The TV shot also returns
  * `cameraId`, `camType`, `critDamp` (the look's spring, 1/s) and `pair`.
  */
 export const frame = (mode, focus, circuit, rig, state, dt, world = null) => {
@@ -384,7 +387,13 @@ export const frame = (mode, focus, circuit, rig, state, dt, world = null) => {
   // No tower sees a car under a roof; otherwise one ray march over the height grid.
   const clear = (cam) => !field || (!covered && (isMoving(cam) || field.sight(camPos(cam), target)));
   let current = null;
-  if (real) {
+  if (state.lockCam) {
+    // A replay angle (CAM-3): this tower and no other, wherever the car goes.
+    current = state.lockCam;
+    state.fallback = false;
+    state.cut = state.tvCam !== current;
+    state.tvCam = current;
+  } else if (real) {
     state.tick = (state.tick || 0) + 1;
     state.skip = state.skip || new Set();
     state.skip.forEach((cam) => {
