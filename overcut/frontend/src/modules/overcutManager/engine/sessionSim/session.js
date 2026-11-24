@@ -52,6 +52,14 @@
  *                IN_LAP; with `garageExit` {s, v, queued, toTrack} while leaving and `boxRequest`
  *                {distanceM} (metres to pit entry) once the car has been called in.
  * Nothing in the lane draws from a stream: the lane is geometry, the same for every seed.
+ *
+ * Local yellows (SES-3, F1M24-GAMEPLAY §1.5 / §1.7 `yellow`, §2.12.1 flag-header-sectors; RF-SIM-10,
+ * RF-WKD-02): a mistake on a timed lap may be an off - sessions.json yellow.chance by kind, calibrated on
+ * OpenF1 race_control - and the marshals wave a yellow (or a double, yellow.doubleShare) where it happened,
+ * for a log-normal time from the measured durations. The event {t, type: "yellow", carId, segment, sector
+ * (circuit.sectors), marshalPost, corner, double, s, until} is pushed at its own instant inside the step.
+ * Its draws come from a stream of their own, so every lap is the same with or without yellows. The
+ * yellow does not slow or delete anybody's lap yet (SES-4, SES-8).
  */
 
 import { clamp, createStream } from "../../../overcutTrayectoria/engine/rng";
@@ -358,6 +366,8 @@ const startSegment = (state, index) => {
     car.pending = null;
     car.auto = !car.isUser;
     car.stream = createStream(`${state.seed}::session::${state.kind}::${segment.name}::${car.id}`);
+    // SES-3: the yellows' own stream, so the laps never depend on them.
+    car.yellowStream = createStream(`${state.seed}::session::${state.kind}::${segment.name}::yellow::${car.id}`);
     car.aiPlans = car.eliminated ? [] : rivalPlans(state, car, segment);
     if (segment.singleLap && !car.eliminated) car.pending = { at: segment.slots[car.id] ?? 0, plan: null, slot: true };
   });
@@ -497,8 +507,103 @@ const lapTimeOf = (state, car, kind) => {
   const where = car.stream.int(0, 2);
   const shares = [a, b - a, 1 - b];
   const sectors = shares.map((share, index) => clean * share + extra * (B.pace.sectorNoiseShare * (split[index] / sum) + (index === where ? 1 - B.pace.sectorNoiseShare : 0)));
-  return { time, sectors, mistake: mistake > 0 };
+  return { time, sectors, mistake: mistake > 0, where };
 };
+
+// ------------------------------------------------------------------ local yellows (SES-3)
+
+/** The standard normal's 90th percentile: turns a measured median and p90 into a log-normal spread. */
+const Z90 = 1.2815515655446004;
+
+/** SES-3: the row of sessions.json yellow.eras for `year` (every year has one, measured or pending). */
+export const yellowEraOf = (year) => B.yellow.eras.find((row) => year >= row.from && year <= row.to) || null;
+
+/** The sector (1-based) of distance share `s` against the circuit's sector starts (circuit.sectors). */
+const sectorOfDistance = (circuit, s) => {
+  const starts = circuit?.sectors;
+  if (!Array.isArray(starts) || !starts.length || !Number.isFinite(s)) return null;
+  let sector = 1;
+  starts.forEach((start, index) => {
+    if (s >= start) sector = index + 1;
+  });
+  return sector;
+};
+
+/**
+ * SES-3 (F1M24-GAMEPLAY §1.5, §1.7 `yellow`; RF-SIM-10): does the mistake on timed lap `record` put
+ * the car off and bring out a local yellow, and where and for how long. The draws come from the car's
+ * own yellow stream (four on every mistake lap, in a fixed order), never from its lap stream: the laps
+ * are the same with and without yellows (RF-SIM-15, RNF-05). The place is a corner of the timing sector
+ * the time was lost in (`where`), or the middle of it; the sector in the event is circuit.sectors'.
+ * Null when the mistake is only a moment (no yellow).
+ */
+const planYellow = (state, car, record, where) => {
+  const Y = B.yellow;
+  const kind = Y.chance[state.kind] !== undefined ? state.kind : "qualifying";
+  const stream = car.yellowStream;
+  const off = stream.chance(Y.chance[kind]);
+  const pick = stream.range(0, 1);
+  const double = stream.chance(Y.doubleShare[kind]);
+  const z = stream.normal(0, 1);
+  if (!off) return null;
+  const circuit = circuitOfState(state);
+  const bounds = [0, ...state.sectorShares, 1];
+  const from = bounds[where] ?? 0;
+  const to = bounds[where + 1] ?? 1;
+  const hasTrace = Boolean(circuit?.timeShare && circuit?.distShare);
+  const d0 = hasTrace ? distanceAtTimeShare(circuit, from) : from;
+  const d1 = to >= 1 ? 1 : hasTrace ? distanceAtTimeShare(circuit, to) : to;
+  const corners = (circuit?.corners || []).filter((corner) => Number.isFinite(corner.apex) && corner.apex >= d0 && corner.apex < d1);
+  const corner = corners.length ? corners[Math.min(corners.length - 1, Math.floor(pick * corners.length))] : null;
+  const s = corner ? corner.apex : hasTrace ? distanceAtTimeShare(circuit, (from + to) / 2) : (from + to) / 2;
+  const share = hasTrace ? timeShareAtDistance(circuit, s) : s;
+  const spread = double ? Y.durationSec.double : Y.durationSec.single;
+  const sigma = Math.log(spread.p90 / spread.median) / Z90;
+  const duration = clamp(spread.median * Math.exp(sigma * z), spread.p10, spread.p90);
+  const at = record.start + clamp(share, 0, 1) * (record.end - record.start);
+  return {
+    at,
+    until: at + duration,
+    sector: sectorOfDistance(circuit, s) ?? where + 1,
+    corner: corner?.number ?? null,
+    s,
+    double,
+    waved: false,
+    dropped: false,
+  };
+};
+
+/** When the car's planned yellow is due (Infinity without one, or once waved or dropped). */
+const yellowDue = (car) => {
+  const yellow = car.record?.yellow;
+  return yellow && !yellow.waved && !yellow.dropped ? yellow.at : Infinity;
+};
+
+/**
+ * Wave the yellow of `car`'s lap: the §1.7 event {sector, marshalPost, double, s, until}, plus the corner
+ * (the post at that corner waves it; the FIA marshal-sector numbering is not in the circuit data) and
+ * the car. The view only paints it (components/tower.js sessionYellowsAt).
+ */
+const waveYellow = (state, car) => {
+  const yellow = car.record.yellow;
+  yellow.waved = true;
+  state.events.push({
+    t: round3(yellow.at),
+    type: "yellow",
+    carId: car.id,
+    segment: state.segment,
+    sector: yellow.sector,
+    marshalPost: yellow.corner,
+    corner: yellow.corner,
+    double: yellow.double,
+    s: Math.round(yellow.s * 10000) / 10000,
+    until: round3(yellow.until),
+  });
+};
+
+/** SES-3: the yellows of the current segment still waved at session time `tau` (the events). Read-only. */
+export const sessionYellows = (state, tau = state.clock) =>
+  state.events.filter((event) => event.type === "yellow" && event.segment === state.segment && event.t <= tau && event.until > tau);
 
 /**
  * SES-2: make `record` the in-lap that ends in the garage. The car is on the track from `trackAt` at
@@ -517,7 +622,7 @@ const toInLap = (state, car, record, trackAt, from, pace) => {
 
 /** Start a lap of `kind` at session time `at` (an out-lap with its garage exit, see leave). */
 const beginLap = (state, car, kind, at, garageExit = null) => {
-  const { time, sectors, mistake } = lapTimeOf(state, car, kind);
+  const { time, sectors, mistake, where } = lapTimeOf(state, car, kind);
   car.laps += 1;
   const record = { lap: car.history.length + 1, start: at, end: at + time, kind, compound: car.run.set.compound };
   if (kind === "out") {
@@ -533,7 +638,11 @@ const beginLap = (state, car, kind, at, garageExit = null) => {
   if (kind === "push" || kind === "timed") {
     record.flying = time;
     record.sectors = sectors;
-    if (mistake) record.mistake = true;
+    if (mistake) {
+      record.mistake = true;
+      const yellow = planYellow(state, car, record, where);
+      if (yellow) record.yellow = yellow;
+    }
   }
   if (kind === "in") toInLap(state, car, record, at, 0, time);
   car.history.push(record);
@@ -705,11 +814,16 @@ export const stepOnce = (state) => {
   for (let guard = 0; guard < 400; guard += 1) {
     let pick = null;
     let when = Infinity;
+    let wave = false;
     state.cars.forEach((car) => {
-      const due = nextDue(state, car);
+      const lap = nextDue(state, car);
+      // SES-3: a yellow planned on the lap under way is waved at its instant, before the lap ends.
+      const flagAt = yellowDue(car);
+      const due = Math.min(lap, flagAt);
       if (due <= to + EPS && (due < when - EPS || (Math.abs(due - when) <= EPS && pick && car.index < pick.index))) {
         pick = car;
         when = due;
+        wave = flagAt <= lap;
       }
     });
     if (!pick) break;
@@ -717,6 +831,10 @@ export const stepOnce = (state) => {
     if (!state.flag && when >= segment.duration) {
       state.flag = true;
       state.events.push({ t: round3(segment.duration), type: "flag", segment: state.segment });
+      continue;
+    }
+    if (wave) {
+      waveYellow(state, pick);
       continue;
     }
     handleDue(state, pick, Math.max(when, state.clock));
@@ -845,6 +963,8 @@ const ORDERS = {
     const share = clamp((state.clock - record.start) / (record.end - record.start), 0, 1);
     record.aborted = true;
     record.warp = { at: state.clock, share };
+    // SES-3: aborted before the place of the mistake - it never happens, nor does its yellow.
+    if (record.yellow && !record.yellow.waved && record.yellow.at > state.clock) record.yellow.dropped = true;
     delete record.flying;
     delete record.sectors;
     record.end = state.clock + (1 - share) * state.baseLap * B.laps.abortRest;

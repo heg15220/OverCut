@@ -189,5 +189,29 @@
       }
     ],
     "diurnal": { "peakHour": 15, "halfRangeC": 4, "status": "pending" }
+  },
+  "yellow": {
+    "$comment": "SES-3 (F1M24-GAMEPLAY §2.12.1 flag-header-sectors, §1.5 amarilla por sector, §1.7 evento yellow; RF-SIM-10, RF-WKD-02, RNF-07). La sesión jugable agita amarillas locales: un error en una vuelta cronometrada (pace.styles[].mistake) es una salida de pista o un trompo con probabilidad chance[kind]; entonces la amarilla sale en el punto del error, dentro del sector de cronometraje donde se perdió el tiempo (una curva de ese tramo, o su mitad si no tiene curvas), y el evento lleva el sector de circuit.sectors, la curva, s (fracción de distancia de la vuelta), si es doble (doubleShare[kind]) y until (t + duración). La duración es lognormal con la mediana y el p90 medidos de su tipo (sencilla o doble) y se recorta a [p10, p90]: lo que pasa de p90 en OpenF1 son retiradas largas que en la realidad acaban en bandera roja, fuera de este paquete. Las tiradas salen de un flujo propio por coche y segmento (seed::session::kind::segmento::yellow::coche): las vueltas de todos son las mismas con y sin amarillas (RF-SIM-15, RNF-05). La amarilla aún no estropea las vueltas de los demás ni las anula: eso es SES-4 (yellowLapDeleted, pending) y SES-8 (tráfico). chance calibrada: episodios por sesión de OpenF1 (measured.perSession) entre los errores por sesión que da el modelo en Baréin y el resto de 2024 en seco (11 en libres, 4,9 en clasificación; test en engine/sessionSim/session.test.js). Reglamento: ISC Apéndice H de la FIA, banderas de comisario (amarilla agitada: reducir, no adelantar, peligro junto a la pista o en ella; doble agitada: reducir mucho, preparados para parar, pista bloqueada en parte o comisarios trabajando), citado de memoria (status pending hasta copiar la cita del año). El juego de referencia solo da la idea de la cabecera amarilla con el sector; ningún valor suyo.",
+    "status": "measured",
+    "chance": { "practice": 0.17, "qualifying": 0.4, "shootout": 0.4 },
+    "doubleShare": { "practice": 0.469, "qualifying": 0.613, "shootout": 0.613 },
+    "durationSec": {
+      "single": { "p10": 5, "median": 10, "p90": 33.5 },
+      "double": { "p10": 7, "median": 23, "p90": 282.6 }
+    },
+    "eras": [
+      { "from": 1950, "to": 2022, "status": "pending", "note": "Las amarillas de comisario existen en todas las eras; sin race_control de OpenF1 antes de 2023, se usan las tasas y duraciones de 2023-2024 hasta medirlas (FastF1 track_status desde 2018)." },
+      { "from": 2023, "to": 2024, "status": "measured" },
+      { "from": 2025, "to": 2030, "status": "pending", "note": "Mismas tasas que 2023-2024; repetir session_yellows_from_openf1.py --years 2025 cuando haga falta." }
+    ],
+    "regulation": { "status": "pending", "note": "FIA International Sporting Code, Apéndice H (señales con banderas): amarilla sencilla y doble agitadas por el puesto de comisarios del sector. De memoria; copiar la cita del Apéndice H vigente antes de fijarlo." },
+    "measured": {
+      "source": "OpenF1 race_control (api.openf1.org), libres y clasificación de 2023 y 2024 sin sprints; episodio = YELLOW o DOUBLE YELLOW de un sector de comisarios hasta su CLEAR, los solapados como uno, sin los de menos de 5 s (103 + 39 que se ponen y quitan al instante). Script: overcut/src/main/resources/scripts/session_yellows_from_openf1.py.",
+      "years": [2023, 2024],
+      "practice": { "sessions": 123, "episodes": 226, "perSession": 1.84, "doubleShare": 0.469 },
+      "qualifying": { "sessions": 47, "episodes": 93, "perSession": 1.98, "doubleShare": 0.613 },
+      "single": { "n": 156, "p10": 5, "median": 10, "p90": 33.5 },
+      "double": { "n": 163, "p10": 7, "median": 23, "p90": 282.6 }
+    }
   }
 }
