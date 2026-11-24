@@ -1,0 +1,124 @@
+{
+  "$comment": "RNF-07: cámaras que viajan con el coche (onboards, persecución, dron, helicóptero, plano de garaje) de la vista 3D (RF-3D-04, RF-3D-05). Lo leen three/cameras.js y three/Race3D.js; lo comprueba three/cameras.test.js contra engine/packs/schema/cameras.schema.json. Las medidas de montaje son metros en ejes del coche: 'ahead' hacia el morro, 'side' de lado (con el signo del vector lateral de three/cameras.js frame), 'up' hacia arriba; 'anchor' dice desde dónde se miden (head = spec.head del modelo de su era, front = eje delantero spec.front, ground = el suelo bajo el centro del coche, road = 'ahead' metros por la carretera y 'up' sobre ella). De F1 Manager 24 solo la idea de qué onboards hay (docs/manager/f1m24-analysis/cameras.md §3); ningún valor suyo se copia sin marcarlo 'pending'. 'status: current' = valor que OverCut ya usaba antes de CAM-1 (cameras.js / Race3D.js), trasladado sin cambios; 'status: pending' = punto de partida sin fuente real, por calibrar.",
+  "version": 1,
+  "sources": {
+    "halo2018": "FIA Formula One Technical Regulations 2018 (protección de cabina 'halo' obligatoria desde 2018); pending citar el artículo exacto",
+    "onboardHistory": "NV: primeras cámaras a bordo en carrera a mediados de los años 80 (pending fecha exacta); antes solo cámaras de pista",
+    "tcamPod": "NV: la carcasa de T-cam sobre la toma de aire, alineada con el modelo de OverCut (three/carBody.js dibuja la T-cam desde 1993); pending verificar el año con el reglamento técnico FIA",
+    "reference": "docs/manager/f1m24-analysis/cameras.md §3 (posiciones y FOV inferidos de vídeo, confianza media-baja; solo referencia)",
+    "previous": "three/cameras.js y three/Race3D.js antes de CAM-1 (valores trasladados sin cambios)"
+  },
+  "onboard": [
+    {
+      "id": "tcam",
+      "label": ["T-cam", "T-cam"],
+      "mount": { "anchor": "head", "ahead": -0.55, "side": 0, "up": 0.42, "pitchDeg": 0 },
+      "aim": { "anchor": "road", "ahead": 40, "side": 0, "up": 0.4 },
+      "fovDeg": 68,
+      "near": 0.05,
+      "shake": { "perMs": 33, "perSpeed": 0.00012, "max": 0.012, "minSpeed": 5 },
+      "eras": [{ "from": 1993, "to": 2100 }],
+      "status": "current",
+      "source": "previous; eras: tcamPod (pending)"
+    },
+    {
+      "id": "tcamRear",
+      "label": ["T-cam trasera", "Rear T-cam"],
+      "mount": { "anchor": "head", "ahead": -0.62, "side": 0, "up": 0.4, "pitchDeg": 0 },
+      "aim": { "anchor": "road", "ahead": -40, "side": 0, "up": 0.6 },
+      "fovDeg": 64,
+      "near": 0.05,
+      "eras": [{ "from": 1993, "to": 2100 }],
+      "status": "current",
+      "source": "previous (sin vibración, como antes); eras: tcamPod (pending)"
+    },
+    {
+      "id": "halo",
+      "label": ["Halo", "Halo"],
+      "mount": { "anchor": "head", "ahead": 0.12, "side": 0, "up": 0.3, "pitchDeg": 0 },
+      "aim": { "anchor": "road", "ahead": 40, "side": 0, "up": 0.3 },
+      "fovDeg": 85,
+      "near": 0.05,
+      "shake": { "perMs": 33, "perSpeed": 0.00012, "max": 0.012, "minSpeed": 5 },
+      "eras": [{ "from": 2018, "to": 2100 }],
+      "status": "pending",
+      "source": "eras: halo2018. Montaje y FOV: pending; punto de partida de reference (eje central, ~1,0 m del suelo, detrás y encima del halo, ~85°), por calibrar con imágenes reales de la cámara de halo"
+    },
+    {
+      "id": "visor",
+      "label": ["Visor", "Visor"],
+      "mount": { "anchor": "head", "ahead": 0.08, "side": 0, "up": 0.02, "pitchDeg": 0 },
+      "aim": { "anchor": "road", "ahead": 30, "side": 0, "up": 0.55 },
+      "fovDeg": 82,
+      "near": 0.05,
+      "shake": { "perMs": 33, "perSpeed": 0.00012, "max": 0.012, "minSpeed": 5 },
+      "eras": [{ "from": 1985, "to": 2100 }],
+      "status": "current",
+      "source": "previous. La referencia estima ~100° de FOV (pending, no aplicado). Eras: onboardHistory (pending); es la vista del piloto del juego, no una cámara de TV de la época (la cámara en el casco real es muy posterior, pending fecha)"
+    },
+    {
+      "id": "cockpitSide",
+      "label": ["Lateral de cabina", "Cockpit side"],
+      "mount": { "anchor": "head", "ahead": 0.35, "side": 0.32, "up": 0.06, "pitchDeg": 0 },
+      "aim": { "anchor": "head", "ahead": 0.05, "side": 0, "up": -0.05 },
+      "fovDeg": 70,
+      "near": 0.05,
+      "shake": { "perMs": 33, "perSpeed": 0.00008, "max": 0.008, "minSpeed": 5 },
+      "eras": [{ "from": 1985, "to": 2100 }],
+      "status": "pending",
+      "source": "pending: punto de partida de reference (a un lado de la cabina, a la altura del casco, ~70°); eras: onboardHistory (pending)"
+    },
+    {
+      "id": "sidepod",
+      "label": ["Pontón", "Sidepod"],
+      "mount": { "anchor": "ground", "ahead": 0.1, "side": 0.5, "up": 0.6, "pitchDeg": 0 },
+      "aim": { "anchor": "road", "ahead": 40, "side": 0.5, "up": 0.4 },
+      "fovDeg": 80,
+      "near": 0.05,
+      "shake": { "perMs": 33, "perSpeed": 0.0001, "max": 0.01, "minSpeed": 5 },
+      "eras": [{ "from": 1985, "to": 2100 }],
+      "status": "pending",
+      "source": "pending: punto de partida de reference (~0,6 m de alto, ~0,5 m fuera del eje, ~80°); 'ahead' relativo al centro del coche, por ajustar al pontón de cada era; eras: onboardHistory (pending)"
+    },
+    {
+      "id": "nose",
+      "label": ["Morro", "Nose"],
+      "mount": { "anchor": "front", "ahead": 0.35, "side": 0.22, "up": 0.42, "pitchDeg": 0 },
+      "aim": { "anchor": "road", "ahead": 40, "side": 0, "up": 0.3 },
+      "fovDeg": 74,
+      "near": 0.05,
+      "shake": { "perMs": 33, "perSpeed": 0.00012, "max": 0.012, "minSpeed": 5 },
+      "eras": [{ "from": 1985, "to": 2100 }],
+      "status": "current",
+      "source": "previous ('up' desde el suelo); eras: onboardHistory (pending)"
+    },
+    {
+      "id": "closeUp",
+      "label": ["Primer plano", "Close-up"],
+      "mount": { "anchor": "head", "ahead": 1.1, "side": 0.15, "up": 0.08, "pitchDeg": 0 },
+      "aim": { "anchor": "head", "ahead": 0, "side": 0, "up": 0 },
+      "fovDeg": 24,
+      "near": 0.05,
+      "eras": [{ "from": 1985, "to": 2100 }],
+      "replayOnly": true,
+      "status": "pending",
+      "source": "pending: solo en la repetición de meta (CAM-3/CAM-4); frontal al casco con tele, diseño propio"
+    }
+  ],
+  "follow": {
+    "chase": { "back": 8.5, "up": 2.5, "lookAhead": 8, "lookUp": 0.7, "fovDeg": 56, "lag": 7, "status": "current", "source": "previous" },
+    "drone": { "back": 11, "side": 4.5, "up": 5.5, "lookAhead": 2.5, "lookUp": 0.2, "fovDeg": 50, "lag": 3.5, "swing": 0.005, "underRoofClearance": 1, "minAboveCar": 1.5, "fenceClearance": 1.5, "fenceMaxAbove": 8, "status": "current", "source": "previous" },
+    "heli": { "heightM": 130, "offset": { "side": 70, "back": 55 }, "lookAhead": 25, "clearanceM": 40, "fovDeg": 30, "lag": 0.7, "status": "current", "source": "previous" },
+    "garage": { "ahead": 9, "up": 2.4, "lookUp": 0.6, "fovDeg": 45, "status": "current", "source": "previous (Race3D.js, plano del coche en su garaje)" }
+  },
+  "wheelDisplay": {
+    "from": 1998,
+    "to": 2100,
+    "offset": { "ahead": 0.3, "up": -0.15 },
+    "size": [0.07, 0.05],
+    "tiltRad": -0.35,
+    "colors": { "fg": "#f2f5f8", "bg": "#0c0e12" },
+    "status": "pending",
+    "source": "Marcha en la pantalla del volante, leída de pose.gear (engine/sim/powertrain.js). 'offset' desde spec.head, junto al aro que dibuja three/carBody.js (head + 0,32 m, head − 0,17 m). 'from': pending; volantes con pantalla de marcha generalizados a finales de los 90 (sin fuente), por verificar"
+  }
+}

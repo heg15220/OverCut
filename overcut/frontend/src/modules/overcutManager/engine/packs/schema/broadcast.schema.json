@@ -1,0 +1,219 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "RNF-07: esquema completo de data/balance/broadcast.json (realización de TV, RF-3D-04, RNF-09). Lo crea CAM-1 con todas las claves que leerán CAM-2..5 y HUD; lo comprueba components/director/directorState.test.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "sources", "director", "views", "cycleOrder", "defaultView", "rigTemplate", "framing", "zonesPolicy", "sequences", "replay", "inserts", "scLights"],
+  "definitions": {
+    "text": {"type": "string", "minLength": 1},
+    "status": {"enum": ["current", "pending", "sourced"]},
+    "secOrNull": {"oneOf": [{"type": "null"}, {"type": "number", "minimum": 0, "maximum": 600}]},
+    "view": {"enum": ["map", "tv", "camera"]},
+    "cameraId": {"type": "string", "pattern": "^[a-zA-Z]+$"},
+    "shot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["trigger", "cam"],
+      "properties": {
+        "trigger": {"$ref": "#/definitions/text"},
+        "cam": {"$ref": "#/definitions/text"},
+        "subject": {"$ref": "#/definitions/text"},
+        "minSec": {"type": "number", "minimum": 0},
+        "maxSec": {"type": "number", "minimum": 0},
+        "skippable": {"type": "boolean"}
+      }
+    },
+    "sequence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "shots"],
+      "properties": {
+        "status": {"$ref": "#/definitions/status"},
+        "note": {"type": "string"},
+        "crewLeadSec": {"$ref": "#/definitions/secOrNull"},
+        "finisherShots": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "object", "additionalProperties": false, "required": ["minSec", "maxSec"], "properties": {"minSec": {"type": "number", "minimum": 0}, "maxSec": {"type": "number", "minimum": 0}}}
+          ]
+        },
+        "shots": {"type": "array", "items": {"$ref": "#/definitions/shot"}}
+      }
+    },
+    "rigType": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "dist", "height", "width", "priority", "weight", "status"],
+      "properties": {
+        "type": {"enum": ["braking", "corner", "straight", "headOn", "passPan", "lateralTrack", "highWide", "grandstand", "cable"]},
+        "dist": {"type": "number", "minimum": 0, "maximum": 500},
+        "height": {"type": "number", "minimum": 0, "maximum": 200},
+        "width": {"type": "number", "exclusiveMinimum": 0, "maximum": 500},
+        "priority": {"type": "integer", "minimum": 0, "maximum": 10},
+        "weight": {"type": "number", "minimum": 0},
+        "status": {"$ref": "#/definitions/status"},
+        "note": {"type": "string"}
+      }
+    },
+    "framingType": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minShare", "maxShare", "critDamp"],
+      "properties": {
+        "minShare": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "maxShare": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "critDamp": {"type": "number", "exclusiveMinimum": 0}
+      }
+    }
+  },
+  "properties": {
+    "$comment": {"type": "string"},
+    "version": {"type": "integer", "minimum": 1},
+    "sources": {"type": "object", "additionalProperties": {"$ref": "#/definitions/text"}},
+    "director": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["battleGapSec", "battleStates", "followAction", "status", "source"],
+      "properties": {
+        "battleGapSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 5},
+        "battleStates": {"type": "array", "items": {"enum": ["RUNNING", "FOLLOWING", "ATTACKING", "DEFENDING", "TRAIN"]}, "minItems": 1, "uniqueItems": true},
+        "followAction": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "holdSec", "preferUser", "status", "note"],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "holdSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 120},
+            "preferUser": {"type": "boolean"},
+            "status": {"$ref": "#/definitions/status"},
+            "note": {"$ref": "#/definitions/text"}
+          }
+        },
+        "status": {"$ref": "#/definitions/status"},
+        "source": {"$ref": "#/definitions/text"}
+      }
+    },
+    "views": {"type": "array", "items": {"$ref": "#/definitions/view"}, "minItems": 1, "uniqueItems": true},
+    "cycleOrder": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cameras", "status"],
+      "properties": {
+        "cameras": {"type": "array", "items": {"$ref": "#/definitions/cameraId"}, "minItems": 1, "uniqueItems": true},
+        "status": {"$ref": "#/definitions/status"},
+        "note": {"type": "string"}
+      }
+    },
+    "defaultView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["race", "sprint", "qualifying", "practice", "status"],
+      "properties": {
+        "race": {"$ref": "#/definitions/view"},
+        "sprint": {"$ref": "#/definitions/view"},
+        "qualifying": {"$ref": "#/definitions/view"},
+        "practice": {"$ref": "#/definitions/view"},
+        "status": {"$ref": "#/definitions/status"},
+        "note": {"type": "string"}
+      }
+    },
+    "rigTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "types"],
+      "properties": {
+        "status": {"$ref": "#/definitions/status"},
+        "note": {"type": "string"},
+        "types": {"type": "array", "items": {"$ref": "#/definitions/rigType"}, "minItems": 1}
+      }
+    },
+    "framing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "byType"],
+      "properties": {
+        "status": {"$ref": "#/definitions/status"},
+        "note": {"type": "string"},
+        "byType": {"type": "object", "additionalProperties": {"$ref": "#/definitions/framingType"}}
+      }
+    },
+    "zonesPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["avoidRepeat", "seedSalt", "status"],
+      "properties": {
+        "avoidRepeat": {"type": "boolean"},
+        "seedSalt": {"$ref": "#/definitions/text"},
+        "status": {"$ref": "#/definitions/status"},
+        "note": {"type": "string"}
+      }
+    },
+    "sequences": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pitStop", "garageExit", "preRace", "start", "finish", "scDeploy"],
+      "properties": {
+        "pitStop": {"$ref": "#/definitions/sequence"},
+        "garageExit": {"$ref": "#/definitions/sequence"},
+        "preRace": {"$ref": "#/definitions/sequence"},
+        "start": {"$ref": "#/definitions/sequence"},
+        "finish": {"$ref": "#/definitions/sequence"},
+        "scDeploy": {"$ref": "#/definitions/sequence"}
+      }
+    },
+    "replay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bufferSec", "sampleHz", "stingSec", "maxSec", "pauseSim", "triggers", "status"],
+      "properties": {
+        "bufferSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 120},
+        "sampleHz": {"type": "number", "exclusiveMinimum": 0, "maximum": 60},
+        "stingSec": {"$ref": "#/definitions/secOrNull"},
+        "maxSec": {"$ref": "#/definitions/secOrNull"},
+        "pauseSim": {"type": "boolean"},
+        "triggers": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pass", "mistake", "dnf", "pitOther", "finish"],
+          "properties": {
+            "pass": {"type": "boolean"}, "mistake": {"type": "boolean"}, "dnf": {"type": "boolean"},
+            "pitOther": {"type": "boolean"}, "finish": {"type": "boolean"}
+          }
+        },
+        "status": {"$ref": "#/definitions/status"},
+        "note": {"type": "string"}
+      }
+    },
+    "inserts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["onboard"],
+      "properties": {
+        "onboard": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "perLap", "minSec", "maxSec", "zoneKinds", "status"],
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "perLap": {"oneOf": [{"type": "null"}, {"type": "number", "minimum": 0, "maximum": 10}]},
+            "minSec": {"$ref": "#/definitions/secOrNull"},
+            "maxSec": {"$ref": "#/definitions/secOrNull"},
+            "zoneKinds": {"type": "array", "items": {"$ref": "#/definitions/text"}, "minItems": 1},
+            "status": {"$ref": "#/definitions/status"},
+            "note": {"type": "string"}
+          }
+        }
+      }
+    },
+    "scLights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["flashHz", "status"],
+      "properties": {
+        "flashHz": {"oneOf": [{"type": "null"}, {"type": "number", "minimum": 0, "maximum": 20}]},
+        "status": {"$ref": "#/definitions/status"},
+        "note": {"type": "string"}
+      }
+    }
+  }
+}

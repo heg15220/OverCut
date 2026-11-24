@@ -1,0 +1,146 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "RNF-07: esquema de data/balance/cameras.json (cámaras que viajan con el coche, RF-3D-04, RF-3D-05, SRS 6.2). Lo comprueba three/cameras.test.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "sources", "onboard", "follow", "wheelDisplay"],
+  "definitions": {
+    "num": {"type": "number"},
+    "positive": {"type": "number", "exclusiveMinimum": 0},
+    "text": {"type": "string", "minLength": 1},
+    "status": {"enum": ["current", "pending", "sourced"]},
+    "year": {"type": "integer", "minimum": 1950, "maximum": 2100},
+    "label": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 2, "maxItems": 2},
+    "point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["anchor", "ahead", "side", "up"],
+      "properties": {
+        "anchor": {"enum": ["head", "front", "ground", "road"]},
+        "ahead": {"type": "number", "minimum": -200, "maximum": 200},
+        "side": {"type": "number", "minimum": -5, "maximum": 5},
+        "up": {"type": "number", "minimum": -5, "maximum": 20},
+        "pitchDeg": {"type": "number", "minimum": -45, "maximum": 45}
+      }
+    },
+    "shake": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["perMs", "perSpeed", "max", "minSpeed"],
+      "properties": {
+        "perMs": {"type": "number", "minimum": 5, "maximum": 1000},
+        "perSpeed": {"type": "number", "minimum": 0, "maximum": 0.01},
+        "max": {"type": "number", "minimum": 0, "maximum": 0.1},
+        "minSpeed": {"type": "number", "minimum": 0}
+      }
+    },
+    "onboard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "mount", "aim", "fovDeg", "near", "eras", "status", "source"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-zA-Z]+$"},
+        "label": {"$ref": "#/definitions/label"},
+        "mount": {"$ref": "#/definitions/point"},
+        "aim": {"$ref": "#/definitions/point"},
+        "fovDeg": {"type": "number", "minimum": 10, "maximum": 130},
+        "near": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "shake": {"$ref": "#/definitions/shake"},
+        "eras": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from", "to"],
+            "properties": {"from": {"$ref": "#/definitions/year"}, "to": {"$ref": "#/definitions/year"}}
+          }
+        },
+        "replayOnly": {"type": "boolean"},
+        "status": {"$ref": "#/definitions/status"},
+        "source": {"$ref": "#/definitions/text"}
+      }
+    }
+  },
+  "properties": {
+    "$comment": {"type": "string"},
+    "version": {"type": "integer", "minimum": 1},
+    "sources": {"type": "object", "additionalProperties": {"$ref": "#/definitions/text"}},
+    "onboard": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/onboard"}},
+    "follow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chase", "drone", "heli", "garage"],
+      "properties": {
+        "chase": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["back", "up", "lookAhead", "lookUp", "fovDeg", "lag", "status", "source"],
+          "properties": {
+            "back": {"$ref": "#/definitions/positive"}, "up": {"$ref": "#/definitions/positive"}, "lookAhead": {"$ref": "#/definitions/num"},
+            "lookUp": {"$ref": "#/definitions/num"}, "fovDeg": {"$ref": "#/definitions/positive"}, "lag": {"$ref": "#/definitions/positive"},
+            "status": {"$ref": "#/definitions/status"}, "source": {"$ref": "#/definitions/text"}
+          }
+        },
+        "drone": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["back", "side", "up", "lookAhead", "lookUp", "fovDeg", "lag", "swing", "underRoofClearance", "minAboveCar", "fenceClearance", "fenceMaxAbove", "status", "source"],
+          "properties": {
+            "back": {"$ref": "#/definitions/positive"}, "side": {"$ref": "#/definitions/num"}, "up": {"$ref": "#/definitions/positive"},
+            "lookAhead": {"$ref": "#/definitions/num"}, "lookUp": {"$ref": "#/definitions/num"}, "fovDeg": {"$ref": "#/definitions/positive"},
+            "lag": {"$ref": "#/definitions/positive"}, "swing": {"type": "number", "minimum": 0, "maximum": 1},
+            "underRoofClearance": {"$ref": "#/definitions/positive"}, "minAboveCar": {"$ref": "#/definitions/positive"},
+            "fenceClearance": {"$ref": "#/definitions/positive"}, "fenceMaxAbove": {"$ref": "#/definitions/positive"},
+            "status": {"$ref": "#/definitions/status"}, "source": {"$ref": "#/definitions/text"}
+          }
+        },
+        "heli": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["heightM", "offset", "lookAhead", "clearanceM", "fovDeg", "lag", "status", "source"],
+          "properties": {
+            "heightM": {"$ref": "#/definitions/positive"},
+            "offset": {
+              "type": "object", "additionalProperties": false, "required": ["side", "back"],
+              "properties": {"side": {"$ref": "#/definitions/num"}, "back": {"$ref": "#/definitions/num"}}
+            },
+            "lookAhead": {"$ref": "#/definitions/num"}, "clearanceM": {"$ref": "#/definitions/positive"},
+            "fovDeg": {"$ref": "#/definitions/positive"}, "lag": {"$ref": "#/definitions/positive"},
+            "status": {"$ref": "#/definitions/status"}, "source": {"$ref": "#/definitions/text"}
+          }
+        },
+        "garage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ahead", "up", "lookUp", "fovDeg", "status", "source"],
+          "properties": {
+            "ahead": {"$ref": "#/definitions/num"}, "up": {"$ref": "#/definitions/positive"}, "lookUp": {"$ref": "#/definitions/num"},
+            "fovDeg": {"$ref": "#/definitions/positive"}, "status": {"$ref": "#/definitions/status"}, "source": {"$ref": "#/definitions/text"}
+          }
+        }
+      }
+    },
+    "wheelDisplay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "offset", "size", "tiltRad", "colors", "status", "source"],
+      "properties": {
+        "from": {"$ref": "#/definitions/year"},
+        "to": {"$ref": "#/definitions/year"},
+        "offset": {
+          "type": "object", "additionalProperties": false, "required": ["ahead", "up"],
+          "properties": {"ahead": {"$ref": "#/definitions/num"}, "up": {"$ref": "#/definitions/num"}}
+        },
+        "size": {"type": "array", "items": {"$ref": "#/definitions/positive"}, "minItems": 2, "maxItems": 2},
+        "tiltRad": {"$ref": "#/definitions/num"},
+        "colors": {
+          "type": "object", "additionalProperties": false, "required": ["fg", "bg"],
+          "properties": {"fg": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"}, "bg": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"}}
+        },
+        "status": {"$ref": "#/definitions/status"},
+        "source": {"$ref": "#/definitions/text"}
+      }
+    }
+  }
+}
