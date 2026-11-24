@@ -14,6 +14,13 @@
  * 3D), a timing tower read at the line, and the pit wall: pace, fuel mixture, battery,
  * defence and overtaking risk for each car, the stop calls and team orders (RF-CMD-01/02,
  * the era's orders from rules.commandsFor), the engineer on the radio and the commentary.
+ *
+ * Playback (HUD-1 of F1M24-GAMEPLAY): one 1-16 scale and the starting speed from
+ * data/balance/live-view.json; auto-speed (useAutoSpeed) drops it when your car pits, retires
+ * or fights, under the safety car, the red flag and the chequered flag, and gives it back;
+ * an open dialog pauses the clock. The view (map, TV, camera) is picked apart from the
+ * camera; in the camera view the director never cuts, and the car arrows step through the
+ * tower by position. None of it touches the engine (RNF-05).
  */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -27,7 +34,9 @@ import { circuitFor } from "../engine/venue";
 import { poseAt } from "../engine/trackGeometry";
 import { useManager } from "./context";
 import { Meter, Segmented, Tyre, readableOn } from "./atoms";
-import { Dots, Feed, PlaybackBar, StatusStrip, TimingTower } from "./Broadcast";
+import { Dots, Feed, PlaybackBar, SpeedCallout, StatusStrip, TimingTower } from "./Broadcast";
+import { HUD, LIVE_VIEW, cameraModeOf, cameraName, camerasOf, cycle, defaultCameraOf, defaultSpeedOf, defaultViewOf, engineChunk, raceTriggers, reasonText, speedsOf, stepCar, viewName, viewsOf } from "./playback";
+import useAutoSpeed from "./useAutoSpeed";
 import { IconFastForward, IconFlag } from "./icons";
 import { IconLap, IconNextEvent } from "./icons";
 import "./styles/weekend.css";
@@ -42,9 +51,6 @@ import { battlesIn, carAt, computedUntil, eventTime, leaderLap, liveCarAt, liveS
 // three.js is only fetched when a race is watched in 3D, so the rest of OverCut stays light.
 const Race3D = React.lazy(() => import("../three/Race3D"));
 
-/** RF-CMD-04: simulation speeds against real time; ×1 is a real lap. */
-export const SPEEDS = [1, 2, 4, 8, 16];
-
 /** Overhead camera widths, in metres of track across the screen. */
 const ZOOMS = [70, 130, 280];
 
@@ -56,22 +62,6 @@ const code = (name = "") => {
   const parts = name.split(" ").filter((part) => part && !/^(jr|sr|ii|iii)\.?$/i.test(part));
   return (parts[parts.length - 1] || name).replace(/[^\p{L}]/gu, "").slice(0, 3).toUpperCase();
 };
-
-/** Camera names for the 3D broadcast. */
-const CAMERA_NAME = {
-  tv: () => "TV",
-  chase: () => t("Persecución", "Chase"),
-  drone: () => t("Dron", "Drone"),
-  heli: () => "Helicam",
-  tcam: () => "T-cam",
-  visor: () => t("Visor", "Visor"),
-  nose: () => t("Morro", "Nose"),
-  tcamRear: () => t("T-cam trasera", "Rear T-cam"),
-  follow: () => t("Cenital", "Overhead"),
-};
-
-/** The 3D cameras in the order the arrows step through them, as F1 Manager offers its views. */
-const CAMERAS_3D = ["tv", "chase", "drone", "heli", "tcam", "visor", "nose", "tcamRear", "map"];
 
 /** Events the feed shows: everything at the front, everything about you, every race-control call. */
 const worthTelling = (event, carsById, positions) => {
@@ -100,15 +90,11 @@ export const clockOf = (seconds) => {
   return [Math.floor(whole / 3600) % 24, Math.floor(whole / 60) % 60, whole % 60].map((v) => String(v).padStart(2, "0")).join(":");
 };
 
-const cycle = (list, value, step) => list[(list.indexOf(value) + step + list.length) % list.length];
-
-const TOWER_MODES = ["interval", "gap", "tyres"];
-
-/** RF-CMD-04 "saltar al siguiente evento": what the skip button stops at. */
 /** Feed lines worth a second look: race control and retirements. */
 const ALERTS = ["sc", "vsc", "sc-in", "red", "restart", "dnf", "contact", "penalty", "investigation", "rain"];
 
-const NEXT_TYPES = ["pass", "pit", "dnf", "sc", "vsc", "sc-in", "rain", "lead", "contact", "mistake", "flag", "yellow", "red", "restart", "penalty", "swap"];
+/** RF-CMD-04 "saltar al siguiente evento": what the skip button stops at (live-view.json nextEvent.race). */
+const NEXT_TYPES = LIVE_VIEW.nextEvent.race;
 
 // ------------------------------------------------------------------ sources
 
@@ -211,12 +197,11 @@ const stepSource = (client, mirror) => {
     limit: (tau) => (mirror.finished ? tau : Math.min(tau, mirror.clock)),
     advance: (tau, speed) => {
       if (mirror.finished || client.busy || jumps.size) return;
-      // Ask for a chunk of race once less than half a chunk is left ahead of the clock.
-      const chunk = Math.max(0.5, speed * 0.25);
-      if (source.requested - tau > chunk / 2) return;
-      const target = Math.max(source.requested, tau) + chunk;
-      client.step(target - source.requested);
-      source.requested = target;
+      // Ask for a chunk of race once less than half a chunk is left ahead of the clock (live-view.json engineLead).
+      const ask = engineChunk(source.requested, tau, speed);
+      if (ask <= 0) return;
+      client.step(ask);
+      source.requested += ask;
     },
     rows: (tau) => standingsAt(mirror.cars, tau, circuit, lapRef, pose),
     sample: pose,
@@ -297,15 +282,22 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
 
   const [, setFrame] = useState(0);
   const [playing, setPlaying] = useState(true);
-  const [speed, setSpeed] = useState(source.steps ? 4 : 8);
+  const sessionKind = source.steps ? "race" : "raceReplay";
+  // RF-CMD-04 / HUD-1: the 1-16 scale, the starting speed and auto-speed (live-view.json).
+  const auto = useAutoSpeed({ initial: defaultSpeedOf(sessionKind) });
+  const speed = auto.speed;
   const has3D = useMemo(() => canRender3D(), []);
-  const [cameraMode, setCameraMode] = useState(() => (canRender3D() ? "tv" : "follow"));
+  // user-camera-lock: the view (map, TV, camera) apart from the camera of the camera view.
+  const cameraList = useMemo(() => camerasOf({ has3D, year: current.year }), [has3D, current.year]);
+  const [view, setView] = useState(() => defaultViewOf(sessionKind, has3D));
+  const [cameraPick, setCameraPick] = useState(() => defaultCameraOf(cameraList, has3D));
+  const cameraMode = cameraModeOf(view, cameraPick);
   const in3D = has3D && cameraMode !== "map";
   const in3DRef = useRef(in3D);
   in3DRef.current = in3D;
   const zoom = 1;
   const [focusId, setFocusId] = useState(userCars[0]?.id ?? current.cars[0]?.id);
-  const [towerMode, setTowerMode] = useState("interval");
+  const [towerMode, setTowerMode] = useState(HUD.tower.modes[0]);
   // RF-3D-04 sound: engines per car and era, spatial mix per camera, ambience (three/audio).
   const audio = useRaceAudio({ seed: current.seed ?? `${current.year}`, year: current.year });
 
@@ -315,8 +307,9 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const camera = useRef(null);
   const director = useRef({ id: null, until: 0 });
   const finishedRef = useRef(false);
-  const playRef = useRef({ playing, speed });
-  playRef.current = { playing, speed };
+  // The loop reads the auto-speed machine itself (a drop lands on the very next frame).
+  const playRef = useRef({ playing, auto });
+  playRef.current = { playing: playing && !auto.held, auto };
   const repaint = () => setFrame((value) => (value + 1) % 1e9);
 
   // Skips (next event, one lap, to the flag) land here, whenever the engine answers.
@@ -338,7 +331,9 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
       const time = now();
       const dt = Math.min(0.1, (time - last) / 1000);
       last = time;
-      const { playing: isPlaying, speed: rate } = playRef.current;
+      const { playing: isPlaying, auto: playback } = playRef.current;
+      if (isPlaying && !finishedRef.current) playback.tick(tau.current);
+      const rate = playback.machine.speed;
       if (isPlaying && !finishedRef.current) {
         if (!introDone.current) {
           intro.current += dt;
@@ -445,7 +440,22 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     }
   }
   const cam = camera.current || { x: 0, y: 0, heading: 0 };
-  const view = cameraMode === "tv" ? ZOOMS[2] : ZOOMS[zoom];
+  const viewWidth = cameraMode === "tv" ? ZOOMS[2] : ZOOMS[zoom];
+
+  // ---- auto-speed (HUD-1): what has just happened, read from the engine's events and your
+  // cars' poses once per commit; the drop lands on the next frame of the clock.
+  const seenEvents = useRef(null);
+  const pitBefore = useRef(null);
+  useEffect(() => {
+    if (!seenEvents.current) seenEvents.current = new WeakSet();
+    const fresh = visibleEvents.filter((event) => !seenEvents.current.has(event));
+    fresh.forEach((event) => seenEvents.current.add(event));
+    const inPit = Object.fromEntries(userCars.map((car) => [car.id, Boolean(rowOf[car.id] && !rowOf[car.id].out && rowOf[car.id].pose.inPit)]));
+    const pitEntries = pitBefore.current ? userCars.filter((car) => inPit[car.id] && pitBefore.current[car.id] === false).map((car) => car.id) : [];
+    pitBefore.current = inPit;
+    const triggers = raceTriggers({ events: fresh, pitEntries, isUser: (id) => Boolean(byId[id]?.isUser) });
+    if (triggers.length) auto.notify(triggers, tau.current);
+  });
 
   // The safety car runs a little ahead of the leader on the road.
   let safetyCar = null;
@@ -513,8 +523,13 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const trackTemp = current.trackTemps ? current.trackTemps[Math.min(displayLap, current.trackTemps.length - 1)] ?? 30 : (current.trackTemp ?? 30) - wetness * 8;
   const rubber = wetness > 0.3 ? 0.1 : Math.min(1, displayLap / Math.max(10, current.laps * 0.55));
 
-  const cameraList = has3D ? CAMERAS_3D : ["follow", "tv", "map"];
-  const cameraLabel = cameraMode === "map" ? t("Mapa", "Map") : cameraMode === "tv" ? "TV" : CAMERA_NAME[cameraMode]?.() ?? "";
+  // user-camera-lock: the camera arrows pick the camera view first, then step through its cameras.
+  const onCamera = (step) => {
+    if (view !== "camera") setView("camera");
+    else setCameraPick((value) => cycle(cameraList, value, step));
+  };
+  const cameraLabel = view === "tv" ? `TV · ${directorLabel}` : cameraName(cameraPick);
+  const towerOrder = rows.map((row) => ({ id: row.car.id, out: Boolean(row.out || row.pose.gone) }));
 
   const towerRows = rows.map((row, index) => {
     const { car, pose } = row;
@@ -614,7 +629,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
             circuit={circuit}
             year={current.year}
             cars={stageCars}
-            camera={{ mode: cameraMode === "map" ? "map" : cameraMode === "tv" ? "tv" : "follow", x: cam.x, y: cam.y, heading: cam.heading, rotate: cameraMode !== "tv", view }}
+            camera={{ mode: cameraMode === "map" ? "map" : cameraMode === "tv" ? "tv" : "follow", x: cam.x, y: cam.y, heading: cam.heading, rotate: cameraMode !== "tv", view: viewWidth }}
             wet={wetness > 0.2}
             teams={teams}
             safetyCar={safetyCar}
@@ -640,6 +655,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
             </div>
           )}
         </div>
+        <SpeedCallout callout={auto.callout} reasonText={reasonText} />
         {!leaderFinished && battles[0] && cameraMode !== "tv" && (
           <div className="lv-chip">
             <i aria-hidden="true" />
@@ -656,7 +672,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
             {t("Vuelta", "Lap")} <b>{displayLap}</b>/{current.laps}
           </>
         }
-        modes={{ value: towerMode, onChange: setTowerMode, options: TOWER_MODES.map((value) => ({ value, label: { interval: t("Intervalo", "Interval"), gap: t("Líder", "Leader"), tyres: t("Neumáticos", "Tyres") }[value] })) }}
+        modes={{ value: towerMode, onChange: setTowerMode, options: HUD.tower.modes.filter((value) => ["interval", "gap", "tyres"].includes(value)).map((value) => ({ value, label: { interval: t("Intervalo", "Interval"), gap: t("Líder", "Leader"), tyres: t("Neumáticos", "Tyres") }[value] })) }}
         rows={towerRows}
         onPick={setFocusId}
       />
@@ -699,11 +715,15 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
         playing={playing}
         onPlay={() => setPlaying((value) => !value)}
         disabled={done}
-        speeds={SPEEDS}
+        speeds={speedsOf()}
         speed={speed}
-        onSpeed={setSpeed}
-        cameraLabel={cameraMode === "tv" ? `TV · ${directorLabel}` : `${cameraLabel}${cameraMode !== "map" ? ` · ${code(focusName)}` : ""}`}
-        onCamera={(step) => setCameraMode((value) => cycle(cameraList, value, step))}
+        onSpeed={auto.choose}
+        autoSpeed={{ enabled: auto.enabled, onToggle: auto.setEnabled }}
+        held={auto.held}
+        views={{ value: view, onChange: setView, options: viewsOf().map((value) => ({ value, label: viewName(value) })) }}
+        car={{ label: code(focusName), onStep: (step) => setFocusId((id) => stepCar(towerOrder, id, step)) }}
+        cameraLabel={cameraLabel}
+        onCamera={onCamera}
       >
         <button type="button" className="mn-btn mn-btn--sm" onClick={skip(source.next)} aria-label={t("Siguiente evento", "Next event")} title={t("Saltar al siguiente evento", "Skip to the next event")} disabled={over}>
           <IconNextEvent size={16} />

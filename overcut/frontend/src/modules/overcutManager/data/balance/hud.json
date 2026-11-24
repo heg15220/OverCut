@@ -1,0 +1,34 @@
+{
+  "$comment": "RNF-07 / RF-3D-04, RF-CMD-04, RF-WKD-07, RNF-09 (docs/manager/F1M24-GAMEPLAY.md §2.12.1, §3.2): presentación del HUD de sesión y de carrera. Lo crea HUD-1 con el esquema completo (engine/packs/schema/hud.schema.json), también con las claves que rellenarán HUD-2..HUD-7 y WKD-1, para que los demás carriles solo lean. status: behaviour (decisión de diseño de OverCut, sin fuente externa; de F1 Manager 24 ningún valor), pending (lo fija el paquete que se cita; mientras, la vista usa lo que hace hoy). Lo comprueba components/playback.test.js.",
+  "version": 1,
+  "speedCallout": {
+    "$comment": "Rótulo central al cambiar la velocidad (a mano o por la auto-velocidad): ×N y el motivo, durante showMs milisegundos reales. Con prefers-reduced-motion aparece y desaparece sin animación.",
+    "status": "behaviour",
+    "showMs": 1400
+  },
+  "carStep": {
+    "$comment": "Coche anterior/siguiente en la barra de reproducción: recorre la torre por posición; skipOut salta los retirados y los eliminados (no están en pista).",
+    "status": "behaviour",
+    "skipOut": true
+  },
+  "tower": {
+    "$comment": "Modos de la torre de tiempos, en el orden del selector. Hoy intervalo, al líder y neumáticos (antes TOWER_MODES en LiveRace.js). HUD-2 (tower-modes) añade lastLap, sectors, stops y tyres% con orden por era en byEra [{from, to, modes}].",
+    "status": "pending",
+    "modes": ["interval", "gap", "tyres"],
+    "byEra": []
+  },
+  "banners": {
+    "$comment": "HUD-3 (event-banners): tipos de banner, duración y avisos de vueltas para el final. Propuesta de §2.12.1: lapsToGoCallouts [15, 10, 3, 1]; la fija HUD-3. Vacío = sin banners nuevos (comportamiento de hoy).",
+    "status": "pending",
+    "kinds": [],
+    "durationSec": null,
+    "lapsToGoCallouts": []
+  },
+  "start": {
+    "$comment": "HUD-4: retardo del HUD tras snapshot.start (§1.5: el motor decide los instantes del semáforo; la vista solo guarda este retardo). null = la vista de hoy.",
+    "status": "pending",
+    "hudDelaySec": null
+  },
+  "$transitionSec": "WKD-1 (session-options-transition, §2.12.2: hud.json transitionSec): segundos de la transición con el logotipo de OverCut entre pantallas del fin de semana; saltable y sin animación con prefers-reduced-motion. pending: null = la fija WKD-1; mientras, sin transición (hoy).",
+  "transitionSec": null
+}

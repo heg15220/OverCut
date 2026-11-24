@@ -1,0 +1,80 @@
+/*
+ * HUD-1 (F1M24-GAMEPLAY §2.12.1): the speed callout over the picture, the auto-speed
+ * toggle, the view selector and the car stepper in the playback bar. Tokens from the
+ * Manager's theme (OvercutManager.css); with prefers-reduced-motion nothing animates.
+ */
+
+.lv-speedcall {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--mn-s-1);
+  padding: var(--mn-s-3) var(--mn-s-5, 24px);
+  border: 1px solid var(--mn-hairline-strong);
+  border-radius: var(--mn-r-2);
+  background: var(--lv-glass);
+  color: var(--mn-text);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: lv-speedcall-in 180ms ease-out;
+}
+
+.lv-speedcall strong {
+  font-size: 40px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.lv-speedcall span {
+  font-size: var(--mn-fs-14);
+}
+
+@keyframes lv-speedcall-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lv-speedcall {
+    animation: none;
+  }
+}
+
+.lv-play__auto[aria-pressed="true"] {
+  border-color: var(--mn-hairline-strong);
+  color: var(--mn-text);
+}
+
+.lv-play__auto[aria-pressed="false"] {
+  text-decoration: line-through;
+}
+
+.lv-play__views {
+  display: inline-flex;
+}
+
+.lv-play__car span {
+  min-width: 3ch;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.lv-play[data-held] .lv-play__toggle {
+  opacity: 0.6;
+}
+
+@media (max-width: 640px) {
+  .lv-speedcall strong {
+    font-size: 28px;
+  }
+}

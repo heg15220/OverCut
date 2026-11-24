@@ -1,0 +1,179 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "RNF-07: esquema de data/balance/live-view.json (reproducción en directo: velocidades, auto-velocidad, pausa, siguiente evento, vistas y cámaras; RF-CMD-04, RF-3D-04, RNF-05). Lo comprueba components/playback.test.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$comment", "version", "speeds", "defaultSpeed", "engineLead", "autoSpeed", "eventPriority", "triggers", "pauseOn", "nextEvent", "views"],
+  "definitions": {
+    "status": { "enum": ["srs", "behaviour", "pending", "measured", "NV"] },
+    "speed": { "enum": [1, 2, 4, 8, 16] },
+    "sessionKinds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["race", "raceReplay", "practice", "qualifying", "shootout"],
+      "properties": {
+        "race": { "$ref": "#/definitions/view" },
+        "raceReplay": { "$ref": "#/definitions/view" },
+        "practice": { "$ref": "#/definitions/view" },
+        "qualifying": { "$ref": "#/definitions/view" },
+        "shootout": { "$ref": "#/definitions/view" }
+      }
+    },
+    "view": { "enum": ["map", "tv", "camera"] },
+    "triggerMap": { "type": "object", "additionalProperties": { "type": "string", "minLength": 1 } },
+    "typeList": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "cameraList": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+  },
+  "properties": {
+    "$comment": { "type": "string" },
+    "version": { "const": 1 },
+    "speeds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "list"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "list": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/definitions/speed" } }
+      }
+    },
+    "defaultSpeed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "race", "raceReplay", "practice", "qualifying", "shootout"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "race": { "$ref": "#/definitions/speed" },
+        "raceReplay": { "$ref": "#/definitions/speed" },
+        "practice": { "$ref": "#/definitions/speed" },
+        "qualifying": { "$ref": "#/definitions/speed" },
+        "shootout": { "$ref": "#/definitions/speed" }
+      }
+    },
+    "engineLead": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "minChunkSec", "chunkPerSpeedSec"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "minChunkSec": { "type": "number", "exclusiveMinimum": 0, "maximum": 10 },
+        "chunkPerSpeedSec": { "type": "number", "exclusiveMinimum": 0, "maximum": 2 }
+      }
+    },
+    "autoSpeed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "enabledByDefault", "levels", "rampRealSec", "restoreAfter"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "enabledByDefault": { "type": "boolean" },
+        "levels": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["minPriority", "speed"],
+            "properties": {
+              "minPriority": { "type": "integer", "minimum": 1, "maximum": 9 },
+              "speed": { "$ref": "#/definitions/speed" }
+            }
+          }
+        },
+        "rampRealSec": { "type": "number", "minimum": 0, "maximum": 5 },
+        "restoreAfter": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "simSec"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "simSec": { "type": "number", "exclusiveMinimum": 0, "maximum": 600 }
+          }
+        }
+      }
+    },
+    "eventPriority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "map"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "map": { "type": "object", "minProperties": 1, "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 9 } }
+      }
+    },
+    "triggers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "raceEvents", "ownRaceEvents", "sessionEvents", "ownSessionEvents", "ownSessionPhases", "ownPitEntry"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "raceEvents": { "$ref": "#/definitions/triggerMap" },
+        "ownRaceEvents": { "$ref": "#/definitions/triggerMap" },
+        "sessionEvents": { "$ref": "#/definitions/triggerMap" },
+        "ownSessionEvents": { "$ref": "#/definitions/triggerMap" },
+        "ownSessionPhases": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": { "^(garage|queued|out|flying|cool|in|pitlane)$": { "type": "string", "minLength": 1 } }
+        },
+        "ownPitEntry": { "type": "string", "minLength": 1 }
+      }
+    },
+    "pauseOn": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "list"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "list": { "type": "array", "uniqueItems": true, "items": { "enum": ["pitDialog", "setupDialog", "replay"] } }
+      }
+    },
+    "nextEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "race", "session", "ownSession", "maxSimSec"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "race": { "$ref": "#/definitions/typeList" },
+        "session": { "$ref": "#/definitions/typeList" },
+        "ownSession": { "$ref": "#/definitions/typeList" },
+        "maxSimSec": { "type": "number", "exclusiveMinimum": 0, "maximum": 86400 }
+      }
+    },
+    "views": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "list", "defaultView", "cameras", "defaultCamera"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "list": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/definitions/view" } },
+        "defaultView": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["with3D", "without3D"],
+          "properties": { "with3D": { "$ref": "#/definitions/sessionKinds" }, "without3D": { "$ref": "#/definitions/sessionKinds" } }
+        },
+        "cameras": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["with3D", "without3D"],
+          "properties": { "with3D": { "$ref": "#/definitions/cameraList" }, "without3D": { "$ref": "#/definitions/cameraList" } }
+        },
+        "defaultCamera": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["with3D", "without3D"],
+          "properties": { "with3D": { "type": "string" }, "without3D": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

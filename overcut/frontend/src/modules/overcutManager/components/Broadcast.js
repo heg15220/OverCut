@@ -10,8 +10,10 @@
  *   StatusStrip   over the picture: the flag state (colour and words, never
  *                 colour alone) and the conditions - clock, air, track, rain,
  *                 rubber and grip.
- *   PlaybackBar   under the picture: play, speed (RF-CMD-04), camera
- *                 (RF-3D-04) and the skips the session allows.
+ *   PlaybackBar   under the picture: play, speed (RF-CMD-04), auto-speed, the
+ *                 view (map, TV, camera) apart from the camera (RF-3D-04), the
+ *                 car before or after by position, and the skips the session allows.
+ *   SpeedCallout  the big ×N over the picture when the speed changes.
  *   Feed          the engineer on the radio and the commentary (RF-CMD-03),
  *                 filterable.
  *   Dots          a level picked from a row of steps - pace, mixture, battery.
@@ -23,6 +25,7 @@ import { IconArrowDown, IconArrowUp, IconChevronLeft, IconChevronRight, IconPlay
 import { IconCamera, IconCloud, IconDroplet, IconPause, IconRain, IconSun, IconThermometer, IconTimer } from "./icons";
 import { t } from "./texts";
 import "./styles/weekend.css";
+import "./styles/playback.css";
 
 const MOVE_MS = 3000;
 
@@ -177,14 +180,44 @@ export const StatusStrip = ({ flag, clock, airTemp, rainChance, change, trackTem
 
 /**
  * Play, speed and camera - the bar under the picture. `speeds` are numbers; `children`
- * are the skips and calls the session allows.
+ * are the skips and calls the session allows. Optional (HUD-1, user-camera-lock and
+ * auto-velocidad): `views` { value, options, onChange } - the view (map, TV, camera) apart
+ * from the camera arrows; `car` { label, onStep } - the car before or after the focused one
+ * by position; `autoSpeed` { enabled, onToggle }; `held` - paused by an open dialog.
  */
-export const PlaybackBar = ({ playing, onPlay, speeds, speed, onSpeed, speedText = (value) => `×${value}`, cameraLabel, onCamera, children, disabled }) => (
-  <div className="lv-play">
-    <button type="button" className="mn-icon-btn lv-play__toggle" onClick={onPlay} aria-label={playing ? t("Pausa", "Pause") : t("Seguir", "Play")} title={playing ? t("Pausa", "Pause") : t("Seguir", "Play")} disabled={disabled}>
-      {playing ? <IconPause size={18} /> : <IconPlay size={18} />}
+export const PlaybackBar = ({ playing, onPlay, speeds, speed, onSpeed, speedText = (value) => `×${value}`, cameraLabel, onCamera, children, disabled, views = null, car = null, autoSpeed = null, held = false }) => (
+  <div className="lv-play" data-held={held ? "" : undefined}>
+    <button type="button" className="mn-icon-btn lv-play__toggle" onClick={onPlay} aria-label={playing ? t("Pausa", "Pause") : t("Seguir", "Play")} title={held ? t("En pausa mientras el diálogo está abierto", "Paused while the dialog is open") : playing ? t("Pausa", "Pause") : t("Seguir", "Play")} disabled={disabled}>
+      {playing && !held ? <IconPause size={18} /> : <IconPlay size={18} />}
     </button>
     <Segmented label={t("Velocidad", "Speed")} value={speed} onChange={onSpeed} options={speeds.map((value) => ({ value, label: speedText(value) }))} />
+    {autoSpeed && (
+      <button
+        type="button"
+        className={`mn-btn mn-btn--sm mn-btn--ghost lv-play__auto${autoSpeed.enabled ? " is-on" : ""}`}
+        aria-pressed={autoSpeed.enabled}
+        onClick={() => autoSpeed.onToggle(!autoSpeed.enabled)}
+        title={t("Auto-velocidad: baja sola cuando pasa algo con tu equipo o en pista", "Auto speed: slows down by itself when something happens to your team or on track")}
+      >
+        {t("Auto", "Auto")}
+      </button>
+    )}
+    {views && (
+      <div className="lv-play__views">
+        <Segmented label={t("Vista", "View")} value={views.value} onChange={views.onChange} options={views.options} />
+      </div>
+    )}
+    {car && (
+      <div className="lv-play__camera lv-play__car" role="group" aria-label={t("Coche", "Car")}>
+        <button type="button" className="mn-icon-btn" onClick={() => car.onStep(-1)} aria-label={t("Coche anterior", "Previous car")} title={t("Coche anterior (por posición)", "Previous car (by position)")}>
+          <IconChevronLeft size={16} />
+        </button>
+        <span data-car-label="">{car.label}</span>
+        <button type="button" className="mn-icon-btn" onClick={() => car.onStep(1)} aria-label={t("Coche siguiente", "Next car")} title={t("Coche siguiente (por posición)", "Next car (by position)")}>
+          <IconChevronRight size={16} />
+        </button>
+      </div>
+    )}
     <div className="lv-play__camera" role="group" aria-label={t("Cámara", "Camera")}>
       <button type="button" className="mn-icon-btn" onClick={() => onCamera(-1)} aria-label={t("Cámara anterior", "Previous camera")} title={t("Cámara anterior", "Previous camera")}>
         <IconChevronLeft size={16} />
@@ -201,6 +234,21 @@ export const PlaybackBar = ({ playing, onPlay, speeds, speed, onSpeed, speedText
     <div className="lv-play__skips">{children}</div>
   </div>
 );
+
+/**
+ * The big speed label over the picture after a change (HUD-1): `callout` is
+ * { key, speed, reason } from useAutoSpeed, `reasonText` what to say about the reason.
+ */
+export const SpeedCallout = ({ callout, reasonText = () => "" }) => {
+  if (!callout) return null;
+  const why = reasonText(callout.reason);
+  return (
+    <div className="lv-speedcall" role="status" key={callout.key}>
+      <strong>×{callout.speed}</strong>
+      {why && <span>{why}</span>}
+    </div>
+  );
+};
 
 /**
  * The engineer and the commentary. `entries` are { key, lap, kind: "radio"|"race", alert, text },
