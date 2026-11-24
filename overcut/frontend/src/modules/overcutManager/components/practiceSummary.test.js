@@ -51,7 +51,9 @@ describe("weekend-ui.json practiceSummary (RNF-07, RF-WKD-03)", () => {
     expect(confidenceLevelOf(1).index).toBe(5);
     levels.forEach((level, index) => {
       expect(confidenceLevelOf(level.from).index).toBe(index);
-      if (index) expect(confidenceLevelOf(level.from - 1e-6).index).toBe(index - 1);
+    });
+    levels.slice(1).forEach((level, index) => {
+      expect(confidenceLevelOf(level.from - 1e-6).index).toBe(index);
     });
     expect(confidenceLevelOf(neutral).id).toBe("settled");
     expect(confidenceLevelOf(NaN)).toBeNull();
