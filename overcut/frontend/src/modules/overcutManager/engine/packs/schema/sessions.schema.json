@@ -46,22 +46,44 @@
     "step": { "type": "object", "required": ["dt"], "properties": { "dt": { "$ref": "#/definitions/positive" } } },
     "laps": {
       "type": "object",
-      "required": ["outLap", "coolLap", "abortRest", "inLap", "burnLap", "pitLaneSec", "boxStopSec"],
+      "required": ["outLap", "coolLap", "abortRest", "inLap", "burnLap"],
+      "not": { "anyOf": [{ "required": ["pitLaneSec"] }, { "required": ["boxStopSec"] }] },
       "properties": {
         "outLap": { "type": "number", "minimum": 1 },
         "coolLap": { "type": "number", "minimum": 1 },
         "abortRest": { "type": "number", "minimum": 1 },
         "inLap": { "type": "number", "minimum": 1 },
-        "burnLap": { "type": "number", "minimum": 1 },
-        "pitLaneSec": { "$ref": "#/definitions/nonNegative" },
-        "boxStopSec": { "$ref": "#/definitions/nonNegative" }
+        "burnLap": { "type": "number", "minimum": 1 }
       }
     },
     "garage": {
       "type": "object",
-      "required": ["$comment", "status", "work"],
+      "required": ["$comment", "status", "exit", "work"],
       "properties": {
         "status": { "$ref": "#/definitions/status" },
+        "exit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "rollOutSec", "measured"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "rollOutSec": { "type": "number", "minimum": 0, "maximum": 30 },
+            "measured": {
+              "type": "object",
+              "required": ["source", "circuitId", "year", "n", "median", "p10", "p90"],
+              "properties": {
+                "source": { "type": "string", "minLength": 10 },
+                "circuitId": { "type": "string" },
+                "year": { "$ref": "#/definitions/year" },
+                "n": { "type": "integer", "minimum": 1 },
+                "median": { "$ref": "#/definitions/positive" },
+                "p10": { "$ref": "#/definitions/positive" },
+                "p90": { "$ref": "#/definitions/positive" }
+              }
+            }
+          }
+        },
         "work": {
           "type": "object",
           "additionalProperties": false,
