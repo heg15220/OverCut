@@ -219,7 +219,7 @@ export const StatusStrip = ({ flag, clock, airTemp, rainChance, change, trackTem
         <i aria-hidden="true" />
         {flag.label}
       </span>
-      <span className="lv-status__clock">{clock}</span>
+      <span className="lv-status__clock" data-testid="status-clock">{clock}</span>
     </div>
     <dl className="lv-status__grid">
       <div title={t("Aire", "Air")}>

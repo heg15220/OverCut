@@ -53,9 +53,8 @@ describe("broadcast.json scripts (RNF-07)", () => {
       SEQ[name].shots.forEach((shot) => {
         expect(triggers.has(shot.trigger)).toBe(true);
         const kind = camKindOf(shot.cam);
-        if (kind === "script") expect(SCRIPT_IDS.has(shot.cam)).toBe(true);
-        if (kind === "rig") expect(RIG_TYPES.has(shot.cam.slice(4))).toBe(true);
-        if (kind === "onboard") expect(ONBOARD_IDS.has(shot.cam)).toBe(true);
+        const known = { script: () => SCRIPT_IDS.has(shot.cam), rig: () => RIG_TYPES.has(shot.cam.slice(4)), onboard: () => ONBOARD_IDS.has(shot.cam) };
+        expect(known[kind] ? known[kind]() : true).toBe(true);
         expect(shot.maxSec ?? Infinity).toBeGreaterThanOrEqual(shot.minSec ?? 0);
       });
     });
@@ -155,13 +154,12 @@ describe("finish script", () => {
     expect(finishers).toContain("c4");
     expect(shots[shots.length - 1].key).toBe("tv");
     const { minSec, maxSec } = SEQ.finish.finisherShots;
-    for (let k = 0; k < shots.length - 1; k += 1) {
-      if (shots[k].key.startsWith("lineSide|")) {
-        const length = shots[k + 1].tau - shots[k].tau;
-        expect(length).toBeGreaterThanOrEqual(minSec - 0.11);
-        expect(length).toBeLessThanOrEqual(maxSec + 0.11);
-      }
-    }
+    const lengths = shots.slice(0, -1).map((shot, k) => ({ shot, length: shots[k + 1].tau - shot.tau })).filter(({ shot }) => shot.key.startsWith("lineSide|"));
+    expect(lengths.length).toBeGreaterThan(0);
+    lengths.forEach(({ length }) => {
+      expect(length).toBeGreaterThanOrEqual(minSec - 0.11);
+      expect(length).toBeLessThanOrEqual(maxSec + 0.11);
+    });
   });
 
   test("a crossing older than maxLagSec is not filmed late", () => {
@@ -216,7 +214,7 @@ describe("onboard inserts (inserts.onboard)", () => {
     a.forEach((insert) => {
       perLap[insert.lap] = (perLap[insert.lap] || 0) + 1;
       expect(cfg.zoneKinds).toContain(zones.zones[insert.zone].kind);
-      if (insert.end !== null) expect(insert.end - insert.from).toBeLessThanOrEqual(cfg.maxSec + 0.2);
+      expect(insert.end === null ? 0 : insert.end - insert.from).toBeLessThanOrEqual(cfg.maxSec + 0.2);
     });
     Object.values(perLap).forEach((count) => expect(count).toBeLessThanOrEqual(cfg.perLap));
     expect(runLaps()).toEqual(a);

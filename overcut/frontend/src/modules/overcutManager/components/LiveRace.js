@@ -844,7 +844,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const ORDER_LABEL = { free: t("Libres", "Race"), hold: t("Mantener", "Hold"), swap: t("Intercambiar", "Swap") };
 
   return (
-    <div className={`lv lv--race${in3D ? " is-3d" : ""}${replay ? " is-replay" : ""}`} data-engine={source.kind} data-start={startNow.phase}>
+    <div className={`lv lv--race${in3D ? " is-3d" : ""}${replay ? " is-replay" : ""}`} data-engine={source.kind} data-start={startNow.phase} data-testid="live-race">
       <StatusStrip flag={flag} clock={clock} airTemp={conditions.airC} rainChance={current.weather.forecast ?? 0} change={change} trackTemp={trackTemp} wetness={wetness} waterMm={conditions.waterMm} rubber={conditions.rubber} notes={[current.year, ...eraNotes].join(" · ")} />
 
       <div className="lv-stage">

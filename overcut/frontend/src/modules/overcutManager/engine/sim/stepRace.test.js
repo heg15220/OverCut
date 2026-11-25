@@ -453,25 +453,30 @@ describe("SIM-4 battles, duel events and sector yellows (F1M24-GAMEPLAY §1.7; R
     const { state } = stepRaceOf({ seed: "battle" });
     const sim = state._sim;
     const seen = new Set();
+    const problems = [];
     let checked = 0;
+    const attackMax = BATTLE_BALANCE.attackGapSec + BATTLE_BALANCE.hysteresisSec + 1e-9;
+    const followMax = BATTLE_BALANCE.followGapSec + BATTLE_BALANCE.hysteresisSec + 1e-9;
     for (let k = 0; k < 4000 && !state.finished; k += 1) {
       stepOnce(state);
       const shot = snapshot(state);
       shot.forEach((car, i) => {
-        expect(BATTLE_NAMES).toContain(car.battle);
+        const bad = (why) => problems.push(`${k}:${i}:${car.battle}:${why}`);
+        if (!BATTLE_NAMES.includes(car.battle)) bad("unknown state");
         seen.add(car.battle);
-        if (!sim.active[i] || car.inPit) expect(car.battle).toBe("RUNNING");
-        if (state.safetyCar) expect(car.battle).toBe("RUNNING");
+        if ((!sim.active[i] || car.inPit) && car.battle !== "RUNNING") bad("inactive or in pit");
+        if (state.safetyCar && car.battle !== "RUNNING") bad("behind the safety car");
         if (car.battle === "ATTACKING") {
           const target = sim.duelOther[i] >= 0 ? sim.duelOther[i] : sim.ahead[i];
-          expect(target).toBeGreaterThanOrEqual(0);
-          if (sim.duelOther[i] < 0) expect(sim.gapS[i]).toBeLessThanOrEqual(BATTLE_BALANCE.attackGapSec + BATTLE_BALANCE.hysteresisSec + 1e-9);
-          if (shot[target].battle !== "ATTACKING" && sim.active[target] && !shot[target].inPit) expect(shot[target].battle).toBe("DEFENDING");
+          if (!(target >= 0)) bad("no target");
+          if (sim.duelOther[i] < 0 && !(sim.gapS[i] <= attackMax)) bad("attack gap");
+          if (target >= 0 && shot[target].battle !== "ATTACKING" && sim.active[target] && !shot[target].inPit && shot[target].battle !== "DEFENDING") bad("target not defending");
           checked += 1;
         }
-        if (car.battle === "FOLLOWING" || car.battle === "TRAIN") expect(sim.gapS[i]).toBeLessThanOrEqual(BATTLE_BALANCE.followGapSec + BATTLE_BALANCE.hysteresisSec + 1e-9);
+        if ((car.battle === "FOLLOWING" || car.battle === "TRAIN") && !(sim.gapS[i] <= followMax)) bad("follow gap");
       });
     }
+    expect(problems).toEqual([]);
     expect(checked).toBeGreaterThan(0);
     ["RUNNING", "FOLLOWING", "ATTACKING", "DEFENDING"].forEach((name) => expect(seen.has(name)).toBe(true));
   });
@@ -486,29 +491,31 @@ describe("SIM-4 battles, duel events and sector yellows (F1M24-GAMEPLAY §1.7; R
       races.forEach((state) => {
         const open = new Map();
         const corners = new Set(state._sim.tables.attacks.map((zone) => zone.corner));
+        const problems = [];
         state.events.filter((event) => event.type === "duel").forEach((event) => {
           const key = `${event.carId}>${event.otherId}`;
+          const bad = (why) => problems.push(`${key}@${event.t}:${event.phase}:${why}`);
           expect(["inside", "outside"]).toContain(event.side);
           expect(event.attempt).toBeGreaterThanOrEqual(1);
           expect(Number.isFinite(event.t)).toBe(true);
-          if (event.corner !== null) expect(corners.has(event.corner)).toBe(true);
+          expect(event.corner === null || corners.has(event.corner)).toBe(true);
+          expect(["start", "alongside", "resolved"]).toContain(event.phase);
           if (event.phase === "start") {
             started += 1;
             open.set(key, event);
           } else if (event.phase === "alongside") {
             alongside += 1;
-            expect(open.has(key)).toBe(true);
+            if (!open.has(key)) bad("alongside without start");
           } else {
-            expect(event.phase).toBe("resolved");
-            expect(["passed", "defended", "contact"]).toContain(event.result);
+            if (!["passed", "defended", "contact"].includes(event.result)) bad(`result ${event.result}`);
             const start = open.get(key);
-            expect(start).toBeDefined();
-            expect(event.attempt).toBe(start.attempt);
-            expect(event.t).toBeGreaterThanOrEqual(start.t);
+            if (!start) bad("resolved without start");
+            else if (event.attempt !== start.attempt || !(event.t >= start.t)) bad("attempt or time mismatch");
             open.delete(key);
             resolved += 1;
           }
         });
+        expect(problems).toEqual([]);
         // Only a fight still on at the flag may be left open.
         expect(open.size).toBeLessThanOrEqual(3);
       });
@@ -547,12 +554,11 @@ describe("SIM-4 battles, duel events and sector yellows (F1M24-GAMEPLAY §1.7; R
         state.radio.filter((message) => String(message.kind).startsWith("battle-")).forEach((message) => {
           const key = `${message.kind}:${message.carId}`;
           const quiet = balance.radio.quietSec[message.kind.replace("battle-", "")];
-          if (last.has(key)) expect(message.t - last.get(key)).toBeGreaterThanOrEqual(quiet);
+          expect(last.has(key) ? message.t - last.get(key) : Infinity).toBeGreaterThanOrEqual(quiet);
           last.set(key, message.t);
-          if (message.kind === "battle-gaining") {
-            expect(message.gap).toBeLessThanOrEqual(balance.radio.gaining.withinSec);
-            expect(message.gain).toBeGreaterThanOrEqual(balance.radio.gaining.minGainSecPerLap);
-          }
+          const gaining = message.kind === "battle-gaining";
+          expect(gaining ? message.gap : -Infinity).toBeLessThanOrEqual(balance.radio.gaining.withinSec);
+          expect(gaining ? message.gain : Infinity).toBeGreaterThanOrEqual(balance.radio.gaining.minGainSecPerLap);
         });
       });
     });
@@ -641,7 +647,7 @@ describe("SIM-4 battles, duel events and sector yellows (F1M24-GAMEPLAY §1.7; R
         expect(rows[0].from).toBe(1950);
         expect(rows[rows.length - 1].to).toBe(2026);
         rows.forEach((row, k) => {
-          if (k > 0) expect(row.from).toBe(rows[k - 1].to + 1);
+          expect(row.from).toBe(k > 0 ? rows[k - 1].to + 1 : 1950);
           expect(row.status === "pending" ? typeof row.note : "source").toBe(row.status === "pending" ? "string" : "source");
         });
       });

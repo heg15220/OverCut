@@ -209,13 +209,13 @@ describe("HUD-4 · live: lights, clock and the flag", () => {
     jest.useFakeTimers();
     const { career } = weekend({ seed: "hud4-live" });
     const args = weekendRaceArgs(career);
-    const { container } = render(
+    render(
       <ManagerContext.Provider value={{ career }}>
         <LiveRace args={args} onFinished={() => {}} title="Race" />
       </ManagerContext.Provider>,
     );
-    const root = () => container.querySelector(".lv--race");
-    const clock = () => container.querySelector(".lv-status__clock").textContent;
+    const root = () => screen.getByTestId("live-race");
+    const clock = () => screen.getByTestId("status-clock").textContent;
     expect(root().getAttribute("data-start")).not.toBe("out");
     const start = raceStartOf(args.race);
     expect(clock().slice(0, 5)).toBe(clockLabel(start.startSec).slice(0, 5));
@@ -225,7 +225,8 @@ describe("HUD-4 · live: lights, clock and the flag", () => {
         jest.advanceTimersByTime(500);
       });
       const lights = screen.queryByRole("img", { name: /start lights/i });
-      if (lights) lit = Math.max(lit, lights.querySelectorAll(".is-on").length);
+      const on = lights ? Number((/(\d+) of \d+ lit/.exec(lights.getAttribute("aria-label")) || [0, 0])[1]) : 0;
+      lit = Math.max(lit, on);
     }
     expect(lit).toBe(5);
     expect(root().getAttribute("data-start")).toBe("out");
