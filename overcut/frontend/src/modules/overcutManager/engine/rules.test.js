@@ -450,3 +450,27 @@ describe("criterio 7.2 · whole races produce only era-legal events", () => {
   });
 
 });
+
+describe("SIM-7 errores-visibles · track limits only in their era (criterio 7.2, RF-SIM-10)", () => {
+  it("has the key for every year: null before 2023, a ladder from 2023", () => {
+    for (let year = 1950; year <= 2026; year += 1) {
+      const regs = defaultRegulationsFor(year);
+      expect(regs).toHaveProperty("trackLimits");
+      expect({ year, on: regs.trackLimits !== null }).toEqual({ year, on: year >= 2023 });
+    }
+  });
+
+  it("walks the 38 seasons: the procedure only from 2023, its penalties only types the era has, tactics by era", () => {
+    seasonPackYears().forEach((year) => {
+      const era = eraWithRegulations(year, packs[year].regulations);
+      const rules = rulesFor(era);
+      const procedure = rules.raceControl.trackLimits;
+      expect({ year, on: Boolean(procedure) }).toEqual({ year, on: year >= 2023 });
+      if (procedure) {
+        procedure.race.penalties.forEach((step) => expect(rules.raceControl.penaltyTypes).toContain(step.type));
+        expect(procedure.race.blackWhiteAt).toBeLessThan(procedure.race.penalties[0].at);
+      }
+      expect(commandsFor(era).tactics.battleAssist).toBe(rules.energy.modes.length > 0);
+    });
+  });
+});

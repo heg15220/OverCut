@@ -545,21 +545,37 @@
       "lockup": {
         "slowFactor": 0.35,
         "stopShare": 0,
-        "wide": false
+        "wide": false,
+        "lon": "LOCKUP",
+        "lockupSec": 0
       },
       "wide": {
         "slowFactor": 0.35,
         "stopShare": 0,
-        "wide": true
+        "wide": true,
+        "lon": "NORMAL",
+        "lockupSec": 0.8
       },
       "spin": {
         "slowFactor": 0.35,
         "stopShare": 0.3,
-        "wide": true
+        "wide": true,
+        "lon": "SPIN",
+        "lockupSec": 0
       }
     },
     "edgeShare": 0.95,
-    "recoverySec": 4
+    "recoverySec": 4,
+    "lonNote": "SIM-7 errores-visibles (F1M24-GAMEPLAY §1.7 `lon[i]`): el estado longitudinal que la instantánea da mientras se paga el error: `lon` del tipo, y durante los primeros `lockupSec` s de pago LOCKUP (la salida de pista empieza con un bloqueo en la frenada). Fuera de un error, NORMAL. Solo lo lee la vista (humo, chirrido, repetición); no cambia ninguna tirada. Comportamiento de diseño propio, NV.",
+    "recovery": {
+      "$comment": "SIM-7 errores-visibles (mistake.recovery.path, F1M24-GAMEPLAY §2.10): en los tipos de `kinds` el coche sale del asfalto por el lado exterior hasta runoffMetres más allá del borde medido (a outRate m/s mientras paga el error) y vuelve a él a rejoinRate m/s cuando lo ha pagado; mientras está fuera (snapshot offTrack) o en los recoverySec siguientes no ataca a nadie. La distancia va aparte del lateral del motor (que sigue dentro del asfalto, lateral.js): la vista la suma por el lado del error. Sin datos públicos de anchura de escapatorias por circuito: NV.",
+      "path": true,
+      "kinds": ["wide", "spin"],
+      "runoffMetres": 6,
+      "outRate": 6,
+      "rejoinRate": 2,
+      "status": "NV"
+    }
   },
   "lateral": {
     "$comment": "SIM-2 (no-solape, docs/manager/F1M24-GAMEPLAY.md §2.9; SIM-FISICA §3.1 y §3.10; RF-SIM-07, RF-SIM-01, RF-3D-03). Detección mutua y no solapamiento en el modo por pasos (engine/sim/lateral.js). Cada coche es una caja eras[].carWidth × eras[].carLength centrada en su sitio: P a lo largo del circuito y lat respecto a la trazada (+ a la derecha). Un coche solo se acerca a menos de un largo de otro si ya están a un ancho de distancia lateral; si no, levanta (nunca salta). En paralelo los centros guardan carWidth + clearanceMetres, con velocidad lateral limitada por maxRate y maxAccel, dentro del asfalto medido (splines.json wl/wr menos medio coche y edgeClearanceMetres; nunca menos que trackMarginM, el recorte de la vista). solverPasses: pasadas de la separación por paso. attackMetres/blockMetres: desplazamiento del atacante y de la defensa por el interior en un duelo (engine/sim/duel.js). pitExit.holdMetres: el coche que sale del pit va por el lado del pit lane esa distancia (estado PIT_EXIT) y espera al final de la calle si ese sitio está ocupado. Este bloque sustituye a race-sim.json lateral (migrado, SIM-FISICA §3.10); la pasada de seguridad de la vista (Race3D, CAM-3) lee clearanceMetres y eras[] de aquí (F1M24-GAMEPLAY §1.5).",

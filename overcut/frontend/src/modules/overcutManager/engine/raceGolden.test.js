@@ -19,6 +19,11 @@
  * 2026-11-25 again: SIM-6 tyre heat in °C (RF-SIM-03, engine/tyres/thermal.js, race-tyres.json): two nodes integrated
  * through each lap instead of the 0..1 drift at the line, blankets by era, the grid set after the formation lap, the
  * out-lap's cold calibrated with OpenF1; the cold-tyre pass bonus, the rivals' save call and the hot radio in °C.
+ * 2026-11-25, SIM-7 (RF-SIM-09/10, RF-DEV-08, RF-CMD-03): track limits from 2023 (laps deleted, black-and-white flag,
+ * 5 s / 10 s; OpenF1 race_control), floor damage by era from f1db, debris left by a touch that punctures cars passing
+ * it, and the engineer's wing/floor/puncture radio - each on its own seed::limits / seed::damage stream. With default
+ * tactics nothing else moves: 1976 and the 2012 classifications are unchanged; 1988/2008/2026 move by debris punctures
+ * and floor damage, 2024/2026 by track-limits penalties.
  */
 
 import crypto from "crypto";

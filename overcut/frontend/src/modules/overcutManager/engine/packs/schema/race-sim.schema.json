@@ -1272,6 +1272,44 @@
           }
         }
       }
+    },
+    "tactics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["defaults", "avoidKerbs", "cleanAir", "battleAssist"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "type": "string" },
+        "defaults": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["avoidKerbs", "cleanAir", "battleAssist"],
+          "properties": { "avoidKerbs": { "type": "boolean" }, "cleanAir": { "type": "boolean" }, "battleAssist": { "type": "boolean" } }
+        },
+        "avoidKerbs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["lapLossShare", "mistakeFactor", "trackLimitsFactor", "floorDamageFactor"],
+          "properties": {
+            "lapLossShare": { "$ref": "#/definitions/nonNegative" },
+            "mistakeFactor": { "$ref": "#/definitions/nonNegative" },
+            "trackLimitsFactor": { "$ref": "#/definitions/nonNegative" },
+            "floorDamageFactor": { "$ref": "#/definitions/nonNegative" }
+          }
+        },
+        "cleanAir": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["targetGapSec", "maxDropSecPerLap"],
+          "properties": { "targetGapSec": { "$ref": "#/definitions/nonNegative" }, "maxDropSecPerLap": { "$ref": "#/definitions/nonNegative" } }
+        },
+        "battleAssist": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["withinSec", "minBatteryPct"],
+          "properties": { "withinSec": { "$ref": "#/definitions/nonNegative" }, "minBatteryPct": { "$ref": "#/definitions/nonNegative" } }
+        }
+      }
     }
   }
 }

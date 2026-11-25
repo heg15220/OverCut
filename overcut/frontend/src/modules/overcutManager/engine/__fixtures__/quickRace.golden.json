@@ -1153,100 +1153,153 @@
   ]
  },
  "1988:orders": {
-  "sha256": "70621492f041be5bcd9502be7d5cb70558b82cad4e460cc794de9a0d9dc56102",
+  "sha256": "e3f69d4496747744d95587163ebaf737237529d6e291e8f499d34112583a82d0",
   "types": [
+   "call",
    "contact",
    "dnf",
    "fastest",
    "flag",
+   "issue",
    "lead",
    "mistake",
    "pass",
    "pit",
+   "puncture",
+   "swap",
    "yellow"
   ],
   "rows": [
    [
-    "nigel-mansell",
+    "gerhard-berger",
     "finished",
     0,
     1,
     0
    ],
    [
-    "thierry-boutsen",
-    "finished",
-    17.0318529726992,
-    1,
-    0
-   ],
-   [
-    "ivan-capelli",
-    "finished",
-    77.12049336719156,
-    1,
-    0
-   ],
-   [
     "eddie-cheever",
     "finished",
-    77.72524343577061,
+    39.63944420130338,
     1,
     0
    ],
    [
-    "mauricio-gugelmin",
+    "stefano-modena",
     "finished",
-    134.69391210152662,
+    71.97672189691548,
+    1,
+    0
+   ],
+   [
+    "luis-perez-sala",
+    "finished",
+    102.11452816052315,
     1,
     0
    ],
    [
     "andrea-de-cesaris",
     "finished",
-    142.9454407820067,
-    1,
-    0
-   ],
-   [
-    "satoru-nakajima",
-    "finished",
-    167.47916473393525,
+    113.37934747906274,
     1,
     0
    ],
    [
     "alex-caffi",
     "finished",
-    175.89188533332435,
+    144.866231306828,
     1,
     0
    ],
    [
     "julian-bailey",
     "finished",
-    179.74204253884,
+    147.0438254712908,
+    1,
+    0
+   ],
+   [
+    "mauricio-gugelmin",
+    "finished",
+    160.491660525111,
+    1,
+    0
+   ],
+   [
+    "philippe-alliot",
+    "finished",
+    163.22959551583244,
+    1,
+    0
+   ],
+   [
+    "derek-warwick",
+    "finished",
+    185.0298156825529,
+    1,
+    0
+   ],
+   [
+    "bernd-schneider",
+    "finished",
+    186.58039627106336,
+    1,
+    0
+   ],
+   [
+    "adrian-campos",
+    "finished",
+    213.2389621368884,
     1,
     0
    ],
    [
     "rene-arnoux",
     "finished",
-    195.5096567828141,
+    220.45502105220385,
+    1,
+    0
+   ],
+   [
+    "yannick-dalmas",
+    "finished",
+    279.1762562956783,
     1,
     0
    ],
    [
     "oscar-larrauri",
     "finished",
-    224.4703711000202,
+    280.8322133948768,
     1,
     0
    ],
    [
     "piercarlo-ghinzani",
     "finished",
-    245.8755040490405,
+    294.3570654276609,
+    1,
+    0
+   ],
+   [
+    "stefan-johansson",
+    "finished",
+    311.60326561115744,
+    1,
+    0
+   ],
+   [
+    "nicola-larini",
+    "finished",
+    317.1826675780785,
+    1,
+    0
+   ],
+   [
+    "philippe-streiff",
+    "mechanical",
+    null,
     1,
     0
    ],
@@ -1258,49 +1311,35 @@
     0
    ],
    [
-    "michele-alboreto",
-    "accident",
+    "satoru-nakajima",
+    "mechanical",
     null,
     1,
     0
    ],
    [
-    "yannick-dalmas",
-    "accident",
+    "ivan-capelli",
+    "mechanical",
+    null,
+    1,
+    0
+   ],
+   [
+    "thierry-boutsen",
+    "mechanical",
     null,
     1,
     0
    ],
    [
     "ayrton-senna",
-    "accident",
-    null,
-    2,
-    0
-   ],
-   [
-    "stefano-modena",
-    "accident",
+    "mechanical",
     null,
     1,
     0
    ],
    [
-    "gerhard-berger",
-    "mechanical",
-    null,
-    0,
-    0
-   ],
-   [
-    "luis-perez-sala",
-    "accident",
-    null,
-    0,
-    0
-   ],
-   [
-    "stefan-johansson",
+    "nigel-mansell",
     "mechanical",
     null,
     0,
@@ -1314,49 +1353,14 @@
     0
    ],
    [
+    "michele-alboreto",
+    "mechanical",
+    null,
+    1,
+    0
+   ],
+   [
     "gabriele-tarquini",
-    "mechanical",
-    null,
-    0,
-    0
-   ],
-   [
-    "bernd-schneider",
-    "mechanical",
-    null,
-    0,
-    0
-   ],
-   [
-    "nicola-larini",
-    "mechanical",
-    null,
-    0,
-    0
-   ],
-   [
-    "adrian-campos",
-    "accident",
-    null,
-    0,
-    0
-   ],
-   [
-    "derek-warwick",
-    "mechanical",
-    null,
-    0,
-    0
-   ],
-   [
-    "philippe-streiff",
-    "mechanical",
-    null,
-    0,
-    0
-   ],
-   [
-    "philippe-alliot",
     "mechanical",
     null,
     0,
@@ -1386,7 +1390,7 @@
   ]
  },
  "1988:hot": {
-  "sha256": "415e32ee242f30c9e677130f638c4a412849c4f0e1d3c1184e8fffa7d944ba2e",
+  "sha256": "3df01fe7ab1e35ac87020779155f4bc42323add7ea7f4c0f6ccb1c1b2abb3305",
   "types": [
    "contact",
    "dnf",
@@ -1402,13 +1406,15 @@
    "penalty",
    "penalty-applied",
    "pit",
+   "puncture",
    "red",
    "restart",
+   "swap",
    "yellow"
   ],
   "rows": [
    [
-    "stefano-modena",
+    "michele-alboreto",
     "finished",
     0,
     1,
@@ -1417,113 +1423,71 @@
    [
     "nelson-piquet",
     "finished",
-    54.42060504847177,
-    1,
-    0
-   ],
-   [
-    "gerhard-berger",
-    "finished",
-    57.078880754114834,
-    1,
-    0
-   ],
-   [
-    "gabriele-tarquini",
-    "finished",
-    135.6310730364221,
-    1,
-    0
-   ],
-   [
-    "nicola-larini",
-    "finished",
-    139.00298252315315,
+    2.999461483826053,
     1,
     0
    ],
    [
     "stefan-johansson",
     "finished",
-    139.3684506663294,
+    58.3212369358007,
     1,
     0
    ],
    [
-    "oscar-larrauri",
+    "mauricio-gugelmin",
     "finished",
-    164.69364647804105,
+    67.074366524982,
     1,
     0
    ],
    [
-    "satoru-nakajima",
+    "nicola-larini",
     "finished",
-    190.89034658159926,
-    1,
-    0
-   ],
-   [
-    "alex-caffi",
-    "finished",
-    192.17392831620418,
+    72.78584491829406,
     1,
     0
    ],
    [
     "eddie-cheever",
     "finished",
-    212.05667496353726,
+    160.11639241476587,
     1,
     0
    ],
    [
-    "yannick-dalmas",
+    "oscar-larrauri",
     "finished",
-    231.65407210388184,
+    187.85553634906864,
     1,
     0
+   ],
+   [
+    "rene-arnoux",
+    "finished",
+    231.753467697823,
+    1,
+    60
    ],
    [
     "riccardo-patrese",
     "finished",
-    246.40725405973535,
-    1,
-    60
-   ],
-   [
-    "ayrton-senna",
-    "finished",
-    254.6036615934163,
-    0,
-    60
-   ],
-   [
-    "philippe-alliot",
-    "finished",
-    348.73603768459,
+    248.2134935858894,
     1,
     60
    ],
    [
     "nigel-mansell",
-    "mechanical",
+    "accident",
     null,
-    2,
+    1,
     0
    ],
    [
-    "andrea-de-cesaris",
-    "mechanical",
+    "gerhard-berger",
+    "accident",
     null,
-    2,
-    0
-   ],
-   [
-    "mauricio-gugelmin",
-    "mechanical",
-    null,
-    2,
+    1,
     0
    ],
    [
@@ -1534,29 +1498,64 @@
     0
    ],
    [
-    "alain-prost",
-    "mechanical",
-    null,
-    0,
-    0
-   ],
-   [
     "alessandro-nannini",
-    "accident",
+    "mechanical",
     null,
     1,
     0
    ],
    [
-    "michele-alboreto",
+    "gabriele-tarquini",
+    "mechanical",
+    null,
+    1,
+    0
+   ],
+   [
+    "andrea-de-cesaris",
+    "mechanical",
+    null,
+    3,
+    0
+   ],
+   [
+    "yannick-dalmas",
+    "mechanical",
+    null,
+    1,
+    0
+   ],
+   [
+    "bernd-schneider",
+    "collision",
+    null,
+    0,
+    0
+   ],
+   [
+    "ivan-capelli",
+    "mechanical",
+    null,
+    0,
+    0
+   ],
+   [
+    "stefano-modena",
+    "mechanical",
+    null,
+    0,
+    0
+   ],
+   [
+    "philippe-alliot",
     "accident",
     null,
     0,
     0
    ],
    [
-    "rene-arnoux",
-    "mechanical",
+    "alain-prost",
+    "collision",
     null,
     0,
     0
@@ -1569,15 +1568,22 @@
     0
    ],
    [
-    "bernd-schneider",
+    "satoru-nakajima",
     "mechanical",
     null,
     0,
     0
    ],
    [
-    "ivan-capelli",
+    "ayrton-senna",
     "mechanical",
+    null,
+    0,
+    0
+   ],
+   [
+    "alex-caffi",
+    "collision",
     null,
     0,
     0
@@ -3489,18 +3495,23 @@
   ]
  },
  "2008:hot": {
-  "sha256": "0f46b3c03041a4d2cbd4fc093baa23a924ab80eaaaee721fb1cb0eb2cd1c9891",
+  "sha256": "eea9aa25c56b980d581b2f19c8f25720e21ac829fc092c39869b7fd2dc049c2f",
   "types": [
    "contact",
    "dnf",
-   "fastest",
    "flag",
    "investigation",
+   "issue",
    "mistake",
    "pass",
    "penalty",
    "penalty-served",
    "pit",
+   "puncture",
+   "red",
+   "restart",
+   "sc",
+   "sc-in",
    "yellow"
   ],
   "rows": [
@@ -3512,147 +3523,147 @@
     0
    ],
    [
-    "kimi-raikkonen",
-    "finished",
-    11.196022893931513,
-    2,
-    0
-   ],
-   [
     "lewis-hamilton",
     "finished",
-    39.75146028119343,
-    2,
-    0
-   ],
-   [
-    "mark-webber",
-    "finished",
-    71.17015095827992,
+    43.922942309950486,
     2,
     0
    ],
    [
     "david-coulthard",
     "finished",
-    112.73453682449235,
+    94.20750076929471,
     2,
     0
    ],
    [
-    "nelson-piquet-jr",
+    "mark-webber",
     "finished",
-    132.69271848010158,
+    95.40716852177229,
     2,
     0
    ],
    [
-    "fernando-alonso",
+    "heikki-kovalainen",
     "finished",
-    150.69605304088327,
-    2,
-    0
-   ],
-   [
-    "robert-kubica",
-    "finished",
-    158.07432557414086,
-    3,
-    0
-   ],
-   [
-    "nick-heidfeld",
-    "finished",
-    191.96057383080552,
+    102.90733332153468,
     2,
     0
    ],
    [
     "sebastian-vettel",
     "finished",
-    192.77579157930086,
+    134.1770037856195,
     2,
     0
    ],
    [
-    "jarno-trulli",
+    "nelson-piquet-jr",
     "finished",
-    196.3944421326214,
+    167.2401953663384,
     2,
+    0
+   ],
+   [
+    "fernando-alonso",
+    "finished",
+    180.5327321946961,
+    2,
+    0
+   ],
+   [
+    "nick-heidfeld",
+    "finished",
+    196.3798417251155,
+    2,
+    0
+   ],
+   [
+    "robert-kubica",
+    "finished",
+    224.07790765645768,
+    3,
     0
    ],
    [
     "sebastien-bourdais",
     "finished",
-    198.70863206157446,
-    2,
+    249.22734216357458,
+    3,
     0
    ],
    [
-    "jenson-button",
+    "jarno-trulli",
     "finished",
-    206.2287438242074,
-    2,
-    0
-   ],
-   [
-    "timo-glock",
-    "finished",
-    210.92729639280515,
+    253.81818168594964,
     2,
     0
    ],
    [
     "nico-rosberg",
     "finished",
-    214.69119131951356,
+    259.57286212353847,
     2,
     0
    ],
    [
-    "giancarlo-fisichella",
+    "rubens-barrichello",
     "finished",
-    248.2326169947064,
+    264.3639346700129,
+    2,
+    0
+   ],
+   [
+    "timo-glock",
+    "finished",
+    265.8407727873855,
+    2,
+    0
+   ],
+   [
+    "adrian-sutil",
+    "finished",
+    275.2792048831743,
     2,
     0
    ],
    [
     "kazuki-nakajima",
     "finished",
-    249.8282052110044,
+    286.81702863379815,
     2,
     0
    ],
    [
     "anthony-davidson",
     "finished",
-    264.26308006604813,
+    306.48609000819124,
     2,
     0
    ],
    [
     "takuma-sato",
     "finished",
-    313.5271372421921,
+    317.05953396552013,
     2,
     0
    ],
    [
-    "heikki-kovalainen",
-    "mechanical",
+    "kimi-raikkonen",
+    "accident",
     null,
-    1,
+    2,
     0
    ],
    [
-    "rubens-barrichello",
+    "jenson-button",
     "mechanical",
     null,
-    0,
+    2,
     0
    ],
    [
-    "adrian-sutil",
+    "giancarlo-fisichella",
     "collision",
     null,
     0,
@@ -5624,7 +5635,7 @@
   ]
  },
  "2012:hot": {
-  "sha256": "7aca5208df3f90e20f4ced835333b756ad4a3a0392b19474b5443b32a015f983",
+  "sha256": "2d785b94c40c20ac3bc2b0d79a5569d63e569b8895f7abbb994df6b965c993a0",
   "types": [
    "call",
    "contact",
@@ -7166,7 +7177,7 @@
   ]
  },
  "2024:g1": {
-  "sha256": "922d2aa303f52b00349b20d68d31cc314bbaefd6dcde10425a5954dbfaf22fad",
+  "sha256": "e9a3e68ca4518fb2aecb2bdb7f12659e7c47104b6c5f1bd78b2f823e38e8babc",
   "types": [
    "call",
    "contact",
@@ -7183,6 +7194,7 @@
    "sc",
    "sc-in",
    "swap",
+   "track-limits",
    "yellow"
   ],
   "rows": [
@@ -7329,8 +7341,9 @@
   ]
  },
  "2024:g2": {
-  "sha256": "c76cd8541f44e38bc45ca3929358aacb1d03ffb99b496df08be7670a227ba93c",
+  "sha256": "064b09879e4708b393e608cffc2df45d2c5e4407dad5e81ae21b316b1c9174a4",
   "types": [
+   "black-white",
    "call",
    "dnf",
    "fastest",
@@ -7340,6 +7353,7 @@
    "pass",
    "pit",
    "swap",
+   "track-limits",
    "yellow"
   ],
   "rows": [
@@ -7486,8 +7500,9 @@
   ]
  },
  "2024:orders": {
-  "sha256": "5b531bfe1e9ffbaf165da98dfe8655f88e501124286435ce324d0386fd496440",
+  "sha256": "58d6f0db54b8d1fa6fa71b12b82b6be25d934449614045ebe585609bd67e5b49",
   "types": [
+   "black-white",
    "call",
    "contact",
    "dnf",
@@ -7499,6 +7514,7 @@
    "pass",
    "pit",
    "swap",
+   "track-limits",
    "yellow"
   ],
   "rows": [
@@ -7645,8 +7661,9 @@
   ]
  },
  "2024:hot": {
-  "sha256": "d1b21a1ee2818b8b3c40e41366259ccb898145ffb7e800710a922c49a34184eb",
+  "sha256": "b5eb5ca69e5e7f6504b620b354422150d5d79402f7400563fd7d2db2b3b4a6c3",
   "types": [
+   "black-white",
    "call",
    "dnf",
    "fastest",
@@ -7664,6 +7681,7 @@
    "restart",
    "sc-in",
    "swap",
+   "track-limits",
    "vsc",
    "yellow"
   ],
@@ -7732,18 +7750,18 @@
     0
    ],
    [
-    "daniel-ricciardo",
-    "finished",
-    83.59923502188394,
-    3,
-    5
-   ],
-   [
     "esteban-ocon",
     "finished",
     87.24045588861009,
     2,
     0
+   ],
+   [
+    "daniel-ricciardo",
+    "finished",
+    88.59923502188394,
+    3,
+    10
    ],
    [
     "lance-stroll",
@@ -7811,8 +7829,9 @@
   ]
  },
  "2026:g1": {
-  "sha256": "bd5dfac66567e03aab3099618f21b0a1b35df6b4c77e934f08f67481e1184643",
+  "sha256": "a28ba8251542144cdd9af4579e204ef77c19c8bf212bb97b72e830bf833ab8ad",
   "types": [
+   "black-white",
    "call",
    "contact",
    "dnf",
@@ -7824,6 +7843,7 @@
    "pass",
    "pit",
    "swap",
+   "track-limits",
    "yellow"
   ],
   "rows": [
@@ -7970,8 +7990,9 @@
   ]
  },
  "2026:g2": {
-  "sha256": "dc89f8e8d9968d1718991cbc50457ae8fbd5fbb8555b476482ebd53b0d9cfb36",
+  "sha256": "2cd5ddeb95add651ff75a3de43093ded6c630a3b438d1b2db47817d5c41a1d88",
   "types": [
+   "black-white",
    "call",
    "contact",
    "dnf",
@@ -7987,6 +8008,7 @@
    "pit",
    "sc-in",
    "swap",
+   "track-limits",
    "vsc",
    "yellow"
   ],
@@ -8134,10 +8156,12 @@
   ]
  },
  "2026:orders": {
-  "sha256": "0da8a3eda85a50de245ddb9b85daa9737b4b124e9c3f6ec235be7612c79a5203",
+  "sha256": "4c3be64f34d5f13260d6aea3e6cc3efb32fb2a37a65bc72db19803fb8e469015",
   "types": [
+   "black-white",
    "call",
    "contact",
+   "damage",
    "dnf",
    "fastest",
    "flag",
@@ -8148,9 +8172,8 @@
    "penalty",
    "penalty-applied",
    "pit",
-   "sc-in",
    "swap",
-   "vsc",
+   "track-limits",
    "yellow"
   ],
   "rows": [
@@ -8164,119 +8187,119 @@
    [
     "oscar-piastri",
     "finished",
-    5.824853049814919,
+    6.241394639949249,
     2,
     0
    ],
    [
     "lewis-hamilton",
     "finished",
-    33.53824086217264,
+    32.31844422040467,
     2,
     0
    ],
    [
     "george-russell",
     "finished",
-    37.59050426116755,
+    36.17200226477689,
     2,
     0
    ],
    [
     "carlos-sainz-jr",
     "finished",
-    59.509260515151254,
-    2,
-    0
-   ],
-   [
-    "fernando-alonso",
-    "finished",
-    75.68656904693034,
-    2,
-    0
-   ],
-   [
-    "esteban-ocon",
-    "finished",
-    81.19761334709983,
+    62.60357622263837,
     2,
     0
    ],
    [
     "charles-leclerc",
     "finished",
-    81.99977136449706,
+    81.23062771055174,
     2,
     5
    ],
    [
     "yuki-tsunoda",
     "finished",
-    83.60296138486228,
+    83.66215264707716,
+    2,
+    0
+   ],
+   [
+    "esteban-ocon",
+    "finished",
+    84.65632310510955,
+    2,
+    0
+   ],
+   [
+    "fernando-alonso",
+    "finished",
+    85.23949093261126,
     2,
     0
    ],
    [
     "kevin-magnussen",
     "finished",
-    102.53598591082664,
+    105.70190002792697,
     3,
     0
    ],
    [
     "daniel-ricciardo",
     "finished",
-    116.69051071130889,
+    117.26829845282828,
     2,
     0
    ],
    [
     "nico-hulkenberg",
     "finished",
-    117.18179704476461,
+    123.14193759543468,
     2,
     0
    ],
    [
     "alexander-albon",
     "finished",
-    123.6755850293448,
+    126.28767274178517,
     2,
     0
    ],
    [
     "pierre-gasly",
     "finished",
-    124.94726558227558,
-    2,
-    0
-   ],
-   [
-    "valtteri-bottas",
-    "finished",
-    129.12924848806233,
+    128.32374553609588,
     2,
     0
    ],
    [
     "logan-sargeant",
     "finished",
-    130.48801381079193,
+    133.54066410761243,
     2,
     0
    ],
    [
     "lance-stroll",
     "finished",
-    145.14866697028265,
+    145.59697971183869,
+    2,
+    0
+   ],
+   [
+    "valtteri-bottas",
+    "finished",
+    151.20593571306472,
     2,
     0
    ],
    [
     "guanyu-zhou",
     "finished",
-    167.47023086959416,
+    169.6492422104293,
     2,
     0
    ],
@@ -8297,9 +8320,11 @@
   ]
  },
  "2026:hot": {
-  "sha256": "b2257ba21118c54ac4ed2ea346d7c5202d9a0f263493eb291355d7c16e62250d",
+  "sha256": "4cb61859d25d95d028ec8007520620f75a343465ad5c26700a2a0f2dac7bc2da",
   "types": [
+   "black-white",
    "call",
+   "damage",
    "dnf",
    "fastest",
    "flag",
@@ -8313,6 +8338,7 @@
    "penalty-served",
    "pit",
    "swap",
+   "track-limits",
    "yellow"
   ],
   "rows": [
@@ -8373,18 +8399,18 @@
     0
    ],
    [
-    "yuki-tsunoda",
-    "finished",
-    84.44962311338986,
-    2,
-    5
-   ],
-   [
     "nico-hulkenberg",
     "finished",
     86.46412737164792,
     2,
     0
+   ],
+   [
+    "yuki-tsunoda",
+    "finished",
+    89.44962311338986,
+    2,
+    10
    ],
    [
     "pierre-gasly",
@@ -8403,7 +8429,7 @@
    [
     "sergio-perez",
     "finished",
-    102.81080636877232,
+    104.89845638571205,
     2,
     5
    ],

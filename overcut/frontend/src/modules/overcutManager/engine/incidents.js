@@ -170,6 +170,60 @@ export const contactOutcome = (stream) => {
 /** Does this outcome leave debris on the track (RF-SIM-10)? */
 export const leavesDebris = (outcome) => outcome.kind === "wing" || outcome.kind === "puncture";
 
+// ------------------------------------------------------------------ damage (SIM-7)
+
+const DAMAGE = REL.damage;
+
+/**
+ * Pure (SIM-7 danos-visibles, RF-DEV-08): the chances of floor damage for a car in a race of `laps`
+ * laps in `year` - `perLap` from the kerbs, `offTrack` per trip off the road (a wide or a spin) - from
+ * the era's floor retirements in f1db (race-reliability.json damage.floor) and the avoid-kerbs tactic
+ * (`kerbFactor`, race-sim.json tactics.avoidKerbs). Zero in an era f1db has no such damage for.
+ */
+export const floorDamageChancesOf = ({ year, laps, kerbFactor = 1 }) => {
+  const floor = DAMAGE.floor;
+  const retired = byYear(floor.retiredPerCarRace, year)?.value ?? 0;
+  const perRace = retired * floor.nonRetiringPerRetiring;
+  return {
+    perLap: clamp((perRace * floor.kerbShare * kerbFactor) / Math.max(1, laps), 0, 1),
+    offTrack: clamp((floor.offTrackChance * retired) / floor.referencePerCarRace, 0, 1),
+  };
+};
+
+/** The seconds a lap a damaged floor costs (uniform in damage.floor.lossSec), one draw. */
+export const floorLossOf = (stream) => stream.range(DAMAGE.floor.lossSec[0], DAMAGE.floor.lossSec[1]);
+
+/** RF-DEV-08: the state of a part for the seconds a lap it costs (damage.view; 0 = perfect). */
+export const damageStateOf = (part, loss) => {
+  if (!(loss > 0)) return "perfect";
+  const table = DAMAGE.view[part] || [];
+  const hit = table.find((row) => row.upTo === null || loss <= row.upTo);
+  return hit ? hit.state : table.length ? table[table.length - 1].state : "light";
+};
+
+/**
+ * F1M24-GAMEPLAY §1.7 `damage[i]`: what the car carries now - the front wing and the floor as RF-DEV-08
+ * states, a puncture, and the time a lap they cost - or null on an undamaged car.
+ */
+export const damageOf = (car) => {
+  const wing = car.damage || 0;
+  const floor = car.floorDamage || 0;
+  const puncture = Boolean(car.puncture);
+  if (!(wing > 0) && !(floor > 0) && !puncture) return null;
+  return {
+    frontWing: damageStateOf("wing", wing),
+    floor: damageStateOf("floor", floor),
+    puncture,
+    lossSecPerLap: Math.round((wing + floor) * 1000) / 1000,
+  };
+};
+
+/** SIM-7: the laps debris stays at its corner (damage.debris.clearLaps, a uniform integer), one draw. */
+export const debrisLapsOf = (stream) => stream.int(DAMAGE.debris.clearLaps[0], DAMAGE.debris.clearLaps[1]);
+
+/** SIM-7: a car's chance of a puncture passing debris (damage.debris), lower behind the SC or on the VSC. */
+export const debrisPunctureChanceOf = (neutralised) => DAMAGE.debris.punctureChance * (neutralised ? DAMAGE.debris.neutralFactor : 1);
+
 // ------------------------------------------------------------------ turn one
 
 /** Seconds to cover `x` metres from standstill: constant `accel` up to `vmax`, then flat out. */
