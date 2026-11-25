@@ -227,7 +227,7 @@
     "driverPanel": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["$comment", "status", "tabs", "defaultTab", "tyreLife", "fuel", "engineTemp", "stopWindow"],
+      "required": ["$comment", "status", "tabs", "defaultTab", "tyreLife", "fuel", "engineTemp", "stopWindow", "tyreTemp"],
       "properties": {
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
@@ -283,6 +283,32 @@
           "properties": {
             "status": { "$ref": "#/definitions/status" },
             "source": { "type": "string" }
+          }
+        },
+        "tyreTemp": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "source", "judgeNode", "showCarcass", "nearEdgeC", "trend"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "source": { "type": "string" },
+            "judgeNode": { "enum": ["surface", "carcass"] },
+            "showCarcass": { "type": "boolean" },
+            "nearEdgeC": { "type": "number", "minimum": 0, "maximum": 30 },
+            "trend": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["spanSec", "deadbandC", "minStepC", "refreshSec", "staleSec", "keepSec"],
+              "properties": {
+                "spanSec": { "type": "number", "exclusiveMinimum": 0, "maximum": 600 },
+                "deadbandC": { "type": "number", "minimum": 0, "maximum": 30 },
+                "minStepC": { "type": "number", "minimum": 0, "maximum": 10 },
+                "refreshSec": { "type": "number", "exclusiveMinimum": 0, "maximum": 600 },
+                "staleSec": { "type": "number", "exclusiveMinimum": 0, "maximum": 3600 },
+                "keepSec": { "type": "number", "exclusiveMinimum": 0, "maximum": 3600 }
+              }
+            }
           }
         }
       }
