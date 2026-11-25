@@ -3,13 +3,23 @@
   "$comment": "RNF-07: esquema de data/balance/race-weather.json (tiempo dinámico y física en mojado; RF-SIM-11, RF-SIM-03, RF-SIM-09, RF-HQ-02). Lo comprueba engine/weather/weather.test.js.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["$comment", "version", "states", "chain", "sectors", "water", "temperature", "grip", "wetness", "mistakes", "spray", "offLine", "rubber", "forecast", "sessions", "kinds", "measured"],
+  "required": ["$comment", "version", "states", "chain", "sectors", "water", "temperature", "grip", "wetness", "mistakes", "spray", "offLine", "rubber", "forecast", "sessions", "kinds", "measured", "display"],
   "definitions": {
     "share": { "type": "number", "minimum": 0, "maximum": 1 },
     "positive": { "type": "number", "exclusiveMinimum": 0 },
     "nonNegative": { "type": "number", "minimum": 0 },
     "ratio": { "type": "number", "minimum": 1, "maximum": 2.5 },
     "status": { "enum": ["NV", "measured"] },
+    "gripId": { "enum": ["veryLow", "low", "normal", "high"] },
+    "gripBandList": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "above"],
+        "properties": { "id": { "$ref": "#/definitions/gripId" }, "above": { "type": "number" } }
+      }
+    },
     "block": { "type": "object", "required": ["$comment", "status"] }
   },
   "properties": {
@@ -98,6 +108,43 @@
     },
     "sessions": { "allOf": [{ "$ref": "#/definitions/block" }], "required": ["practice", "qualifying", "cars"] },
     "kinds": { "allOf": [{ "$ref": "#/definitions/block" }], "required": ["mixedFrom", "wetFrom", "wetShare"] },
-    "measured": { "type": "object", "required": ["$comment", "openf1", "usage"] }
+    "measured": { "type": "object", "required": ["$comment", "openf1", "usage"] },
+    "display": {
+      "$comment": "HUD-4 status-strip-data: umbrales de las palabras de la franja de condiciones (components/hudConditions.js).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "waterShownAbove", "sky", "rubberBands", "gripBands"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "waterShownAbove": { "$ref": "#/definitions/share" },
+        "sky": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["rainAbove", "cloudAbovePct"],
+          "properties": { "rainAbove": { "$ref": "#/definitions/share" }, "cloudAbovePct": { "type": "number", "minimum": 0, "maximum": 100 } }
+        },
+        "rubberBands": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "below"],
+            "properties": { "id": { "enum": ["veryLow", "low", "medium", "high"] }, "below": { "type": ["number", "null"] } }
+          }
+        },
+        "gripBands": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["wet", "dry", "dryDefault"],
+          "properties": {
+            "wet": { "$ref": "#/definitions/gripBandList" },
+            "dry": { "$ref": "#/definitions/gripBandList" },
+            "dryDefault": { "$ref": "#/definitions/gripId" }
+          }
+        }
+      }
+    }
   }
 }

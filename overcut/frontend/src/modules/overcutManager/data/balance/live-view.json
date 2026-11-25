@@ -89,5 +89,25 @@
       "without3D": ["follow"]
     },
     "defaultCamera": { "with3D": "chase", "without3D": "follow" }
+  },
+  "start": {
+    "$comment": "HUD-4 (start-lights-sound-and-timing, la vista): la carrera por pasos en directo pide al motor su fase PRE_START (SIM-3, createStepRace args.preStart): parrilla, las luces de la era y el apagado tras la espera con semilla, en su propio flujo (la carrera es la misma con o sin ella, RNF-05; lo comprueba components/hud4.test.js). formation: «skip» sale sin vuelta de formación conducida, «drive» la conduce (~1,66 vueltas base de reloj de procedimiento, race-sim.json start.formation); por defecto «skip» porque el worker todavía no tiene la orden skipFormation de stepRace.js para saltarla a mitad (pending: engine/worker/raceSession.js, carril CAM). lightsSpeed: velocidad del reloj de procedimiento desde la parrilla (las luces se ven a una por segundo real, FIA art. 44.10 b); null = la velocidad de reproducción. La vuelta de formación conducida va a la velocidad de reproducción. El modo rápido no tiene PRE_START: la vista enseña el mismo procedimiento con la espera tirada en el flujo de salida de la carrera (components/startLights.js replayTimelineOf).",
+    "status": "behaviour",
+    "preStart": true,
+    "formation": "skip",
+    "lightsSpeed": 1
+  },
+  "finish": {
+    "$comment": "HUD-4 (vuelta-enfriamiento, la vista; §2.13): la vista sigue tras la bandera hasta afterLastSec segundos de carrera después de que cruce el último coche en carrera, y devuelve la carrera a la pantalla de resultados handBackRealMs milisegundos reales después (antes, literales + 2 y 1800 en LiveRace.js). cooldown: la vuelta de enfriamiento del motor (SIM-3 coolStep, race-sim.json cooldown) solo se vería si el worker siguiera dando pasos tras la bandera; hoy su orden step para en state.finished (engine/worker/raceSession.js, carril CAM): pending, mientras la vista enseña a cada coche parado en la meta como hasta ahora.",
+    "status": "behaviour",
+    "afterLastSec": 2,
+    "handBackRealMs": 1800,
+    "cooldown": { "status": "pending", "enabled": false }
+  },
+  "replay": {
+    "$comment": "HUD-4 (replays, el enganche de CAM-3): auto: las repeticiones que piden broadcast.json replay.triggers se encolan solas (una a la vez, replayBuffer nextReplay) cuando la vista es una de autoViews (en la TV, el realizador; en la vista cámara el jugador eligió lo que ve y no se corta). El botón del banner (hud.json banners.replay) las pide en cualquier vista 3D. Mientras dura, el reloj de la carrera se para (pauseOn replay) si broadcast.json replay.pauseSim; el de la repetición corre en tiempo real.",
+    "status": "behaviour",
+    "auto": true,
+    "autoViews": ["tv"]
   }
 }

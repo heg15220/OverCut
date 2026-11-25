@@ -33,6 +33,8 @@ import { IconCamera, IconCloud, IconDroplet, IconPause, IconRain, IconSun, IconT
 import { t } from "./texts";
 import { headerFlagOf, sectorTone } from "./tower";
 import { bannerText } from "./hudBanners";
+import { gripLevel, rubberLevel, showsWater, skyOf } from "./hudConditions";
+import { depthOfWetness } from "../engine/weather";
 import "./styles/weekend.css";
 import "./styles/playback.css";
 import "./styles/tower.css";
@@ -198,13 +200,19 @@ export const TimingTower = ({ title, subtitle, modes, rows, onPick, label, flag 
   );
 };
 
-const rubberLabel = (level) => (level < 0.2 ? t("Muy poca", "Very low") : level < 0.45 ? t("Poca", "Low") : level < 0.75 ? t("Media", "Medium") : t("Mucha", "High"));
-const gripLabel = (wet, rubber) => (wet > 0.55 ? t("Muy bajo", "Very low") : wet > 0.2 ? t("Bajo", "Low") : rubber > 0.6 ? t("Alto", "High") : t("Normal", "Normal"));
+const SKY_ICON = { rain: IconRain, cloud: IconCloud, sun: IconSun };
+const degrees = (value) => (Number.isFinite(value) ? `${value.toFixed(0)} °C` : "—");
 
 /**
  * The strip over the picture. `flag` is { kind: green|yellow|sc|vsc|red|chequered|session, label }.
+ * HUD-4 status-strip-data: every value comes from the engine (components/hudConditions.js) - `waterMm`
+ * the water on the racing line, `rubber` the engine's 0..1 - and the words from race-weather.json
+ * display; a value the engine does not give shows as "—", never as a guess.
  */
-export const StatusStrip = ({ flag, clock, airTemp, rainChance, change, trackTemp, wetness = 0, rubber = 0, notes = null }) => (
+export const StatusStrip = ({ flag, clock, airTemp, rainChance, change, trackTemp, wetness = 0, waterMm = null, rubber = null, notes = null }) => {
+  const Sky = SKY_ICON[skyOf(wetness, rainChance)];
+  const water = showsWater(wetness);
+  return (
   <div className="lv-status" data-flag={flag.kind} role="status" aria-label={t("Estado de la pista", "Track status")}>
     <div className="lv-status__top">
       <span className="lv-status__flag">
@@ -216,37 +224,38 @@ export const StatusStrip = ({ flag, clock, airTemp, rainChance, change, trackTem
     <dl className="lv-status__grid">
       <div title={t("Aire", "Air")}>
         <dt>
-          {wetness > 0.2 ? <IconRain size={16} /> : rainChance > 30 ? <IconCloud size={16} /> : <IconSun size={16} />}
+          <Sky size={16} />
           {t("Aire", "Air")}
         </dt>
-        <dd>{airTemp.toFixed(0)} °C</dd>
+        <dd>{degrees(airTemp)}</dd>
       </div>
       <div>
         <dt>
           <IconThermometer size={16} />
           {t("Pista", "Track")}
         </dt>
-        <dd>{trackTemp.toFixed(0)} °C</dd>
+        <dd>{degrees(trackTemp)}</dd>
       </div>
-      <div className={wetness > 0.05 ? "is-wet" : ""}>
+      <div className={water ? "is-wet" : ""}>
         <dt>
           <IconDroplet size={16} />
-          {wetness > 0.05 ? t("Agua", "Water") : t("Lluvia", "Rain")}
+          {water ? t("Agua", "Water") : t("Lluvia", "Rain")}
         </dt>
-        <dd>{wetness > 0.05 ? `${(wetness * 3).toFixed(1)} mm` : `${rainChance}%`}</dd>
+        <dd>{water ? `${(Number.isFinite(waterMm) ? waterMm : depthOfWetness(wetness)).toFixed(1)} mm` : `${rainChance}%`}</dd>
       </div>
       <div>
         <dt>{t("Goma", "Rubber")}</dt>
-        <dd>{rubberLabel(rubber)}</dd>
+        <dd>{rubberLevel(rubber).label}</dd>
       </div>
       <div>
         <dt>{t("Agarre", "Grip")}</dt>
-        <dd>{gripLabel(wetness, rubber)}</dd>
+        <dd>{gripLevel(wetness, rubber).label}</dd>
       </div>
     </dl>
     {(change || notes) && <p className="lv-status__note">{[change, notes].filter(Boolean).join(" · ")}</p>}
   </div>
-);
+  );
+};
 
 /**
  * Play, speed and camera - the bar under the picture. `speeds` are numbers; `children`

@@ -37,6 +37,7 @@ import { HUD, cameraModeOf, cameraName, camerasOf, cycle, defaultCameraOf, defau
 import useAutoSpeed from "./useAutoSpeed";
 import { IconExit, IconFlag, IconLock, IconNextEvent, IconPlay } from "./icons";
 import { carAt } from "./raceClock";
+import { sessionConditionsOf } from "./hudConditions";
 import RaceStage, { MiniMap } from "./RaceStage";
 import { COMPOUND, PROGRAM, QUALI_STYLE, lapTime, t } from "./texts";
 import { canRender3D } from "../three/support";
@@ -57,11 +58,6 @@ const code = (name = "") => {
 const mmss = (seconds) => {
   const whole = Math.max(0, Math.ceil(seconds));
   return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
-};
-
-const clockOf = (seconds) => {
-  const whole = Math.floor(seconds);
-  return [Math.floor(whole / 3600) % 24, Math.floor(whole / 60) % 60, whole % 60].map((v) => String(v).padStart(2, "0")).join(":");
 };
 
 const signed = (value) => `${value >= 0 ? "+" : "−"}${Math.abs(value).toFixed(3)}`;
@@ -300,6 +296,8 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
   }, [engine, digest]);
 
   const now = tau.current;
+  // HUD-4 status-strip-data: the session's local clock, air and track by the hour, and its rubber (engine/sessionSim).
+  const strip = sessionConditionsOf(engine, now);
   const flag = engine.flag || now >= segment.duration;
   const over = engine.over;
   const alive = engine.cars.filter((car) => !car.eliminated);
@@ -464,13 +462,13 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
     <div className={`lv lv--session${compact ? " is-compact" : ""}${in3D ? " is-3d" : ""}`} data-session={kind}>
       <StatusStrip
         flag={flagState}
-        clock={clockOf((kind === "practice" ? 11 : 14) * 3600 + now + engine.segment * 1200)}
-        airTemp={trackTemp * 0.62 + 4}
+        clock={strip.clock ?? "—"}
+        airTemp={strip.airC}
         rainChance={rainChance}
         change={formatNote}
-        trackTemp={trackTemp}
+        trackTemp={strip.trackC ?? trackTemp}
         wetness={engine.wetness}
-        rubber={Math.min(1, 0.2 + engine.fieldLaps / 240 + engine.segment * 0.15)}
+        rubber={strip.rubber}
       />
 
       <div className="lv-stage">

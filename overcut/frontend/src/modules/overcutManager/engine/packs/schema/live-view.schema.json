@@ -3,7 +3,7 @@
   "$comment": "RNF-07: esquema de data/balance/live-view.json (reproducción en directo: velocidades, auto-velocidad, pausa, siguiente evento, vistas y cámaras; RF-CMD-04, RF-3D-04, RNF-05). Lo comprueba components/playback.test.js.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["$comment", "version", "speeds", "defaultSpeed", "engineLead", "autoSpeed", "eventPriority", "triggers", "pauseOn", "nextEvent", "views"],
+  "required": ["$comment", "version", "speeds", "defaultSpeed", "engineLead", "autoSpeed", "eventPriority", "triggers", "pauseOn", "nextEvent", "views", "start", "finish", "replay"],
   "definitions": {
     "status": { "enum": ["srs", "behaviour", "pending", "measured", "NV"] },
     "speed": { "enum": [1, 2, 4, 8, 16] },
@@ -173,6 +173,46 @@
           "required": ["with3D", "without3D"],
           "properties": { "with3D": { "type": "string" }, "without3D": { "type": "string" } }
         }
+      }
+    },
+    "start": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "preStart", "formation", "lightsSpeed"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "preStart": { "type": "boolean" },
+        "formation": { "enum": ["skip", "drive"] },
+        "lightsSpeed": { "anyOf": [{ "$ref": "#/definitions/speed" }, { "type": "null" }] }
+      }
+    },
+    "finish": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "afterLastSec", "handBackRealMs", "cooldown"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "afterLastSec": { "type": "number", "minimum": 0, "maximum": 600 },
+        "handBackRealMs": { "type": "number", "minimum": 0, "maximum": 60000 },
+        "cooldown": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "enabled"],
+          "properties": { "status": { "$ref": "#/definitions/status" }, "enabled": { "type": "boolean" } }
+        }
+      }
+    },
+    "replay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "auto", "autoViews"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "auto": { "type": "boolean" },
+        "autoViews": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/definitions/view" } }
       }
     }
   }

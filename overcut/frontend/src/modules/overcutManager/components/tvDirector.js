@@ -2,7 +2,7 @@
  * The TV in the live race, pure (no React): HUD-2 of docs/manager/F1M24-GAMEPLAY.md hooks
  * CAM-1's directorState into LiveRace (director-follow-focus; RF-3D-04, RNF-07, RNF-09).
  *
- *   tvShotOf({ focusId, rows, events, battle, cars, prev, now }) →
+ *   tvShotOf({ focusId, rows, events, battle, cars, prev, now, tau?, seed?, start? }) →
  *     { shot, subjectId, rivalId, target, label }
  *
  * The TV films the car the player picked - in the tower, on the map or with the car arrows -
@@ -16,9 +16,12 @@
 import { directorState } from "./director/directorState";
 import { t } from "./texts";
 
-export const tvShotOf = ({ focusId, rows = [], events = [], battle = null, cars = [], rig = [], prev = null, now = 0, config } = {}) => {
+export const tvShotOf = ({ focusId, rows = [], events = [], battle = null, cars = [], rig = [], prev = null, now = 0, tau, seed, start = null, config } = {}) => {
   const directorRows = Array.isArray(battle) ? rows.map((row) => ({ ...row, battle: battle[cars.indexOf(row.car)] })) : rows;
-  const shot = config ? directorState(focusId, directorRows, events, rig, { now, prev }, config) : directorState(focusId, directorRows, events, rig, { now, prev });
+  // HUD-4 (start-finish-scripts, the hook): the race clock and seed for the pit sequences (CAM-3) and the
+  // start (§1.7 snapshot.start) for CAM-4's start sequence; `events` already carries each car's `finished`.
+  const clock = { now, prev, ...(Number.isFinite(tau) ? { tau } : {}), ...(seed !== undefined && seed !== null ? { seed } : {}), ...(start ? { start } : {}) };
+  const shot = config ? directorState(focusId, directorRows, events, rig, clock, config) : directorState(focusId, directorRows, events, rig, clock);
   const rowOf = Object.fromEntries(rows.map((row) => [row.car.id, row]));
   const [subjectId = null, rivalId = null] = shot.subjectIds;
   const subject = subjectId !== null ? rowOf[subjectId] : null;

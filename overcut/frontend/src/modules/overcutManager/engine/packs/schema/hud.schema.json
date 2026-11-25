@@ -3,7 +3,7 @@
   "$comment": "RNF-07: esquema de data/balance/hud.json (presentación del HUD de sesión y de carrera; RF-3D-04, RF-CMD-04, RF-WKD-07, RNF-09). Esquema completo desde HUD-1, también para las claves de HUD-2..HUD-7 y WKD-1 (F1M24-GAMEPLAY §3.2). Lo comprueba components/playback.test.js.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["$comment", "version", "speedCallout", "carStep", "tower", "banners", "driverPanel", "pitDialog", "pitTimer", "start", "transitionSec"],
+  "required": ["$comment", "version", "speedCallout", "carStep", "tower", "banners", "driverPanel", "pitDialog", "pitTimer", "start", "finish", "transitionSec"],
   "definitions": {
     "status": {
       "enum": ["behaviour", "pending", "measured", "NV"]
@@ -324,7 +324,7 @@
     "start": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["$comment", "status", "hudDelaySec"],
+      "required": ["$comment", "status", "hudDelaySec", "lightsOutBannerSec"],
       "properties": {
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
@@ -332,7 +332,19 @@
           "type": ["number", "null"],
           "minimum": 0,
           "maximum": 30
-        }
+        },
+        "lightsOutBannerSec": { "type": "number", "minimum": 0, "maximum": 30 }
+      }
+    },
+    "finish": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "foldPanel", "chequeredBannerSec"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "foldPanel": { "type": "boolean" },
+        "chequeredBannerSec": { "type": "number", "minimum": 0, "maximum": 120 }
       }
     },
     "transitionSec": {
