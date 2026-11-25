@@ -157,6 +157,56 @@ describe("criterio 7.2 · no rule outside its era (sweep)", () => {
   });
 });
 
+describe("SIM-5 reglas-sc-era · the safety-car and VSC procedure only in its era (criterio 7.2)", () => {
+  const SC_FIELDS = ["scUnlapping", "scPitClosed", "scRestartLine", "scOvertakeBeforeLine", "vscEndingWarn"];
+
+  it("has every new key in era-defaults for every year, null before its procedure existed, sourced or pending", () => {
+    for (let year = 1950; year <= 2026; year += 1) {
+      const regs = defaultRegulationsFor(year);
+      SC_FIELDS.forEach((field) => expect(regs).toHaveProperty(field));
+      if (year < 1993) ["scUnlapping", "scPitClosed", "scRestartLine", "scOvertakeBeforeLine"].forEach((field) => expect(regs[field]).toBeNull());
+      if (year < 2015) expect(regs.vscEndingWarn).toBeNull();
+    }
+  });
+
+  it("walks the 38 seasons: no SC procedure before 1993, no VSC warning before 2015, closed keys only", () => {
+    const years = seasonPackYears();
+    expect(years).toHaveLength(38);
+    years.forEach((year) => {
+      const rules = rulesFor(eraWithRegulations(year, packs[year].regulations));
+      const { sc, vscEndingWarn } = rules.raceControl;
+      expect(Boolean(sc)).toBe(year >= 1993);
+      expect(Boolean(vscEndingWarn)).toBe(year >= 2015);
+      if (sc) {
+        expect(["sc1", "control"]).toContain(sc.restartLine);
+        expect(typeof sc.unlapping).toBe("boolean");
+        expect(typeof sc.pitClosed).toBe("boolean");
+        expect(sc.overtakeBeforeLine).toBe(false);
+      }
+      if (vscEndingWarn) expect(vscEndingWarn.maxSec).toBeGreaterThanOrEqual(vscEndingWarn.minSec);
+    });
+  });
+
+  it("reads FIA 2024 (art. 55.8, 55.11, 55.13, 56.7) for 2024", () => {
+    const rules = rulesFor(eraWithRegulations(2024, packs[2024].regulations));
+    expect(rules.raceControl.sc).toEqual({ unlapping: true, pitClosed: false, restartLine: "control", overtakeBeforeLine: false });
+    expect(rules.raceControl.vscEndingWarn).toEqual({ minSec: 10, maxSec: 15 });
+  });
+
+  it("carries the measured scRate only on the measured seasons' calendars (pack calendar[].scRate)", () => {
+    seasonPackYears().forEach((year) => {
+      packs[year].calendar.forEach((event) => {
+        if (year < 2023) expect(event.scRate).toBeUndefined();
+        if (event.scRate !== undefined) {
+          expect(event.scRate).toBeGreaterThan(0);
+          expect(event.scRate).toBeLessThan(1);
+        }
+      });
+    });
+    expect(packs[2024].calendar.filter((event) => event.scRate !== undefined).length).toBeGreaterThan(20);
+  });
+});
+
 describe("RF-SIM-08 · DRS", () => {
   const rules = rulesFor(2012);
   it("opens from lap 3, within a second, in the dry, two laps after a restart, and only where there are zones", () => {

@@ -187,8 +187,6 @@
       { "from": 2000, "to": 2026, "deployChance": 0.45 }
     ],
     "vscShare": 0.38,
-    "scLaps": [3, 5],
-    "vscLaps": [1, 3],
     "vscOnFailure": 0.1,
     "yellow": { "passFactor": 0.7, "mistakeKinds": ["spin", "wide"] },
     "redFlag": {

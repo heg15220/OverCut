@@ -170,6 +170,42 @@
     "yellowLapDeleted": [
       { "from": 1950, "to": 2013, "value": "none", "status": "pending", "note": "SIM-4 / SES-4 (F1M24-GAMEPLAY §2.10): qué vuelta de clasificación se borra por pasar una amarilla. 'none' = el tiempo vale (solo sanción si los comisarios ven que no levantó), 'double' = se borra la vuelta hecha con doble amarilla agitada en su sector, 'any' = también con amarilla sencilla. De memoria: antes de las notas del director de carrera de la era híbrida no había borrado automático. Año exacto por leer." },
       { "from": 2014, "to": 2026, "value": "double", "status": "pending", "note": "De memoria: las notas del director de carrera de la FIA en la era híbrida (y el reglamento deportivo después) borran la vuelta de clasificación hecha con doble amarilla agitada en ese sector. Año del cambio y artículo por leer en el reglamento FIA de cada año." }
+    ],
+    "scUnlapping": [
+      { "from": 1950, "to": 1992, "value": null, "status": "source", "note": "SIM-5 reglas-sc-era (RF-SIM-10, F1M24-GAMEPLAY §2.11): sin coche de seguridad oficial antes de 1993 (SRS 6.2, era-defaults safetyCar): la clave no existe." },
+      { "from": 1993, "to": 2006, "value": false, "status": "pending", "note": "De memoria: los doblados no se desdoblaban detrás del SC antes de la reforma de 2007. Por leer en el reglamento deportivo de cada año." },
+      { "from": 2007, "to": 2009, "value": true, "status": "pending", "note": "De memoria: la reforma de 2007 (pit lane cerrado al desplegar el SC) dejó pasar a los doblados. Por verificar." },
+      { "from": 2010, "to": 2011, "value": false, "status": "pending", "note": "De memoria: se suprimió en 2010 y volvió en 2012 tras el SC largo de Canadá 2011. Por verificar." },
+      { "from": 2012, "to": 2023, "value": true, "status": "pending", "note": "De memoria, igual que 2024; redacción de cada año por leer." },
+      { "from": 2024, "to": 2024, "value": true, "status": "source", "url": "https://www.fia.com/sites/default/files/fia_2024_formula_1_sporting_regulations_-_issue_1_-_2023-09-26.pdf", "quote": "Art. 55.13 'all cars that have been lapped by the leader will be required to pass the cars on the lead lap and the safety car' ... 'the safety car will return to the pits at the end of the following lap'." },
+      { "from": 2025, "to": 2026, "value": true, "status": "pending", "note": "Reglamentos 2025 y 2026 (sección B) sin leer." }
+    ],
+    "scPitClosed": [
+      { "from": 1950, "to": 1992, "value": null, "status": "source", "note": "SIM-5: sin coche de seguridad, la clave no existe." },
+      { "from": 1993, "to": 2006, "value": false, "status": "pending", "note": "De memoria: se podía parar en cuanto salía el SC." },
+      { "from": 2007, "to": 2008, "value": true, "status": "pending", "note": "De memoria (F1M24-GAMEPLAY §2.11 'scPitClosed 2007-08, verificar'): el pit lane se cerraba al desplegar el SC hasta que el tren estaba formado detrás de él (luz verde y mensaje 'pit lane open'); abolido en 2009 con el tiempo mínimo (delta). Salvo emergencia (pinchazo)." },
+      { "from": 2009, "to": 2023, "value": false, "status": "pending", "note": "De memoria, igual que 2024." },
+      { "from": 2024, "to": 2024, "value": false, "status": "source", "url": "https://www.fia.com/sites/default/files/fia_2024_formula_1_sporting_regulations_-_issue_1_-_2023-09-26.pdf", "quote": "Art. 55.11 'no car may enter the pits whilst the safety car is deployed unless it is for the purpose of changing tyres'." },
+      { "from": 2025, "to": 2026, "value": false, "status": "pending", "note": "Reglamentos 2025 y 2026 sin leer." }
+    ],
+    "scRestartLine": [
+      { "from": 1950, "to": 1992, "value": null, "status": "source", "note": "SIM-5: sin coche de seguridad, la clave no existe." },
+      { "from": 1993, "to": 2008, "value": "sc1", "status": "pending", "note": "De memoria: se podía adelantar al pasar la primera línea de SC (entrada del pit lane) en la vuelta en que el SC entraba. 'sc1' = primera línea de SC, 'control' = línea de control. Año del cambio por leer." },
+      { "from": 2009, "to": 2023, "value": "control", "status": "pending", "note": "De memoria, igual que 2024; año exacto del cambio de 'sc1' a 'control' sin verificar." },
+      { "from": 2024, "to": 2024, "value": "control", "status": "source", "url": "https://www.fia.com/sites/default/files/fia_2024_formula_1_sporting_regulations_-_issue_1_-_2023-09-26.pdf", "quote": "Art. 55.8 'no driver may overtake another car on the track, including the safety car, until he passes the Line (see Article 5.3) for the first time after the safety car has returned to the pits'." },
+      { "from": 2025, "to": 2026, "value": "control", "status": "pending", "note": "Reglamentos 2025 y 2026 sin leer." }
+    ],
+    "scOvertakeBeforeLine": [
+      { "from": 1950, "to": 1992, "value": null, "status": "source", "note": "SIM-5: sin coche de seguridad, la clave no existe." },
+      { "from": 1993, "to": 2023, "value": false, "status": "pending", "note": "SIM-5: ¿se puede adelantar a otro coche antes de la línea de reanudación (scRestartLine)? De memoria nunca; por leer en cada reglamento." },
+      { "from": 2024, "to": 2024, "value": false, "status": "source", "url": "https://www.fia.com/sites/default/files/fia_2024_formula_1_sporting_regulations_-_issue_1_-_2023-09-26.pdf", "quote": "Art. 55.8 (ver scRestartLine); excepciones a)-h): señal del SC, doblados (55.13), entrada y salida del pit lane, coche con un problema evidente." },
+      { "from": 2025, "to": 2026, "value": false, "status": "pending", "note": "Reglamentos 2025 y 2026 sin leer." }
+    ],
+    "vscEndingWarn": [
+      { "from": 1950, "to": 2014, "value": null, "status": "source", "note": "SIM-5: sin VSC antes de 2015 (era-defaults vsc), la clave no existe." },
+      { "from": 2015, "to": 2023, "value": { "minSec": 10, "maxSec": 15 }, "status": "pending", "note": "De memoria, igual que 2024; por leer en cada reglamento." },
+      { "from": 2024, "to": 2024, "value": { "minSec": 10, "maxSec": 15 }, "status": "source", "url": "https://www.fia.com/sites/default/files/fia_2024_formula_1_sporting_regulations_-_issue_1_-_2023-09-26.pdf", "quote": "Art. 56.7 'the message \"VSC ENDING\" will be sent ... and, at any time between 10 and 15 seconds later, \"VSC\" on the FIA light panels will change to green and drivers may continue ... racing immediately'." },
+      { "from": 2025, "to": 2026, "value": { "minSec": 10, "maxSec": 15 }, "status": "pending", "note": "Reglamentos 2025 y 2026 sin leer." }
     ]
   }
 }

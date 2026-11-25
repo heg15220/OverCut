@@ -33,6 +33,8 @@ const KNOWN_EVENTS = new Set([
   "lightsOut", "finished",
   // SIM-4 (F1M24-GAMEPLAY §1.7): the phases of every fight for a corner.
   "duel",
+  // SIM-5 (F1M24-GAMEPLAY §2.11): the safety car's phases and the VSC ending.
+  "sc-phase", "vsc-ending",
 ]);
 
 describe("RF-SIM-01 a race in fixed steps on the circuit", () => {

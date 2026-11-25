@@ -1,0 +1,210 @@
+{
+ "_doc": "SIM-5 duracion-neutralizacion (F1M24-GAMEPLAY §1.5 'Probabilidad de SC por circuito', §2.11; RF-SIM-10, RNF-07): parte de carreras con al menos un coche de seguridad por circuito (id de f1db), medida en OpenF1 race_control y encogida hacia la media de todas (priorRaces carreras de peso). generate_season_packs.py la copia a calendar[].scRate de las temporadas appliesFrom..appliesTo cuyo circuito aparece aquí; los demás GP no llevan la clave (el motor usa el factor neutro). Escrito con overcut/src/main/resources/scripts/race_neutralisations_from_openf1.py; no se edita a mano.",
+ "source": "OpenF1 race_control + laps (api.openf1.org), carreras sin sprints",
+ "script": "overcut/src/main/resources/scripts/race_neutralisations_from_openf1.py",
+ "years": [
+  2023,
+  2024,
+  2025
+ ],
+ "races": 70,
+ "priorRaces": 2,
+ "appliesFrom": 2023,
+ "appliesTo": 2026,
+ "appliesNote": "Solo las temporadas medidas y la actual (mismo procedimiento de SC/VSC). Antes de 2023 no hay race_control en OpenF1; FastF1 track_status (2018+) podría ampliarlo: pending.",
+ "scRateReference": 0.471,
+ "circuits": {
+  "austin": {
+   "scRate": 0.389,
+   "races": 3,
+   "racesWithSc": 1,
+   "sc": 1,
+   "vsc": 1,
+   "red": 0
+  },
+  "bahrain": {
+   "scRate": 0.389,
+   "races": 3,
+   "racesWithSc": 1,
+   "sc": 1,
+   "vsc": 1,
+   "red": 0
+  },
+  "baku": {
+   "scRate": 0.589,
+   "races": 3,
+   "racesWithSc": 2,
+   "sc": 2,
+   "vsc": 1,
+   "red": 0
+  },
+  "catalunya": {
+   "scRate": 0.389,
+   "races": 3,
+   "racesWithSc": 1,
+   "sc": 1,
+   "vsc": 0,
+   "red": 0
+  },
+  "hungaroring": {
+   "scRate": 0.189,
+   "races": 3,
+   "racesWithSc": 0,
+   "sc": 0,
+   "vsc": 0,
+   "red": 0
+  },
+  "imola": {
+   "scRate": 0.486,
+   "races": 2,
+   "racesWithSc": 1,
+   "sc": 1,
+   "vsc": 1,
+   "red": 0
+  },
+  "interlagos": {
+   "scRate": 0.789,
+   "races": 3,
+   "racesWithSc": 3,
+   "sc": 4,
+   "vsc": 2,
+   "red": 2
+  },
+  "jeddah": {
+   "scRate": 0.789,
+   "races": 3,
+   "racesWithSc": 3,
+   "sc": 3,
+   "vsc": 0,
+   "red": 0
+  },
+  "las-vegas": {
+   "scRate": 0.389,
+   "races": 3,
+   "racesWithSc": 1,
+   "sc": 2,
+   "vsc": 3,
+   "red": 0
+  },
+  "lusail": {
+   "scRate": 0.789,
+   "races": 3,
+   "racesWithSc": 3,
+   "sc": 5,
+   "vsc": 1,
+   "red": 0
+  },
+  "marina-bay": {
+   "scRate": 0.389,
+   "races": 3,
+   "racesWithSc": 1,
+   "sc": 1,
+   "vsc": 1,
+   "red": 0
+  },
+  "melbourne": {
+   "scRate": 0.589,
+   "races": 3,
+   "racesWithSc": 2,
+   "sc": 6,
+   "vsc": 3,
+   "red": 4
+  },
+  "mexico-city": {
+   "scRate": 0.589,
+   "races": 3,
+   "racesWithSc": 2,
+   "sc": 2,
+   "vsc": 2,
+   "red": 1
+  },
+  "miami": {
+   "scRate": 0.389,
+   "races": 3,
+   "racesWithSc": 1,
+   "sc": 1,
+   "vsc": 4,
+   "red": 0
+  },
+  "monaco": {
+   "scRate": 0.189,
+   "races": 3,
+   "racesWithSc": 0,
+   "sc": 0,
+   "vsc": 1,
+   "red": 1
+  },
+  "montreal": {
+   "scRate": 0.789,
+   "races": 3,
+   "racesWithSc": 3,
+   "sc": 4,
+   "vsc": 1,
+   "red": 0
+  },
+  "monza": {
+   "scRate": 0.189,
+   "races": 3,
+   "racesWithSc": 0,
+   "sc": 0,
+   "vsc": 0,
+   "red": 0
+  },
+  "shanghai": {
+   "scRate": 0.486,
+   "races": 2,
+   "racesWithSc": 1,
+   "sc": 2,
+   "vsc": 1,
+   "red": 0
+  },
+  "silverstone": {
+   "scRate": 0.589,
+   "races": 3,
+   "racesWithSc": 2,
+   "sc": 3,
+   "vsc": 3,
+   "red": 0
+  },
+  "spa-francorchamps": {
+   "scRate": 0.189,
+   "races": 3,
+   "racesWithSc": 0,
+   "sc": 0,
+   "vsc": 0,
+   "red": 1
+  },
+  "spielberg": {
+   "scRate": 0.589,
+   "races": 3,
+   "racesWithSc": 2,
+   "sc": 2,
+   "vsc": 2,
+   "red": 0
+  },
+  "suzuka": {
+   "scRate": 0.389,
+   "races": 3,
+   "racesWithSc": 1,
+   "sc": 1,
+   "vsc": 1,
+   "red": 1
+  },
+  "yas-marina": {
+   "scRate": 0.189,
+   "races": 3,
+   "racesWithSc": 0,
+   "sc": 0,
+   "vsc": 1,
+   "red": 0
+  },
+  "zandvoort": {
+   "scRate": 0.589,
+   "races": 3,
+   "racesWithSc": 2,
+   "sc": 4,
+   "vsc": 2,
+   "red": 1
+  }
+ }
+}

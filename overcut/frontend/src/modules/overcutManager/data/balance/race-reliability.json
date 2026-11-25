@@ -251,7 +251,7 @@
       {
         "from": 2014,
         "to": 2021,
-        "mechanical": 1.051,
+        "mechanical": 1.106,
         "accident": 0.6018,
         "collision": 1.6319,
         "stepCollision": 1.7947,

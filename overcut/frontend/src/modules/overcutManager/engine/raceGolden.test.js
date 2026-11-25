@@ -13,6 +13,9 @@
  * refactor pass. 2026-11-23: physical pit lane loss, stops by stages, pole from refLaps (SIM-FISICA
  * WP6/WP7/WP10), and the WP11 strategy (stops from the real ones, SC closing at racing pace). 2026-11-23 again:
  * dynamic weather and wet physics (RF-SIM-11: engine/weather, its own streams, water, grip by compound).
+ * 2026-11-25: SIM-5 neutralisations (RF-SIM-10): SC/VSC pace measured in OpenF1 (1.52 / 1.39 of the base lap, was
+ * 1.42 / 1.36 from memory), their length from the marshals' cleanup on its own seed::neutral stream instead of
+ * scLaps/vscLaps on the race stream, the incident on the sc/vsc events, the pit lane closed in 2007-08.
  */
 
 import crypto from "crypto";

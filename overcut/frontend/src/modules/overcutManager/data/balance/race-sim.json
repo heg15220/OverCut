@@ -159,10 +159,73 @@
   },
   "safetyCar": {
     "$comment": "Ritmo bajo SC y VSC como múltiplo de la vuelta base (los mismos que el modo rápido). Bajo SC el que está a más de trainGapMetres del de delante recupera a catchUp veces el ritmo del SC sin superar el suyo.",
-    "lapFactor": 1.42,
-    "virtualLapFactor": 1.36,
+    "lapFactor": 1.52,
+    "virtualLapFactor": 1.39,
     "trainGapMetres": 25,
-    "catchUp": 1.6
+    "catchUp": 1.6,
+    "factorNote": "SIM-5 (F1M24-GAMEPLAY §2.11): lapFactor y virtualLapFactor medidos en OpenF1 2023-2025 (measured.scLapFactor, measured.vscLapFactor): mediana por carrera de las vueltas completas bajo SC/VSC entre la mediana de las vueltas en verde de esa carrera. Antes 1,42 y 1,36 de memoria (y como literales en race.js). Se aplican sobre la vuelta base, algo más rápida que la mediana en verde: el ritmo bajo neutralización queda un poco rápido (pending: medir la relación vuelta en verde / vuelta base del motor).",
+    "sc": {
+      "$comment": "SIM-5 sc-fisico (RF-SIM-10, RF-SIM-01): el coche de seguridad como un coche más en el anillo del modo por pasos (engine/sim/safetyCar.js). Sale del final del limitador del pit lane (sale por el pit lane, pitLane.js) y acelera a exitAccelMps2 hasta su traza; su traza es la del circuito con las rectas limitadas a la punta del coche de la era (cars[].topKmh) y escalada para que su vuelta dure lapFactor x la vuelta base (la misma que el modo rápido, SRS 4.2). Fases (F1M24-GAMEPLAY §1.7): DEPLOYED (en el pit lane), PICKUP (en pista a pickupPaceShare de su ritmo hasta tener al líder detrás; los coches entre él y el líder pasan, art. 55.9), TRAIN (todos en fila a no más de trainMaxLengths largos, art. 55.7 y 55.10; termina cuando acaba la limpieza y el tren está agrupado, o maxWaitSec después), UNLAPPING (si la era lo tiene: los doblados pasan a los de la vuelta del líder y al SC, art. 55.13, y el SC entra al final de la vuelta siguiente), IN_THIS_LAP (luces apagadas; entra en el pit lane en la siguiente entrada tras recorrer al menos inThisLapMinShare de vuelta, art. 55.14) y RESTART (el líder marca el ritmo y arranca a restartGoMetres de la línea; nadie adelanta hasta la línea de control, o hasta la primera línea de SC en las eras 'sc1', art. 55.8). Citas en era-defaults.json (scUnlapping, scRestartLine...).",
+      "trainMaxLengths": 10,
+      "trainMaxLengthsSource": "FIA 2024 Sporting Regulations art. 55.7 'form up in line behind the safety car no more than ten car lengths apart' y 55.10.",
+      "pickupPaceShare": 0.8,
+      "exitAccelMps2": 5,
+      "inThisLapMinShare": 0.5,
+      "restartGoMetres": 500,
+      "maxWaitSec": 240,
+      "unlapLateralShare": 0.6,
+      "cars": [
+        { "from": 1993, "to": 1995, "model": "pending", "topKmh": 240, "status": "pending", "note": "F1M24-GAMEPLAY §2.11 (NV): Porsche 911 y otros según el GP en 1993-1995; punta de memoria, solo da forma a la traza (la vuelta la fija lapFactor)." },
+        { "from": 1996, "to": 2020, "model": "Mercedes-Benz", "topKmh": 270, "status": "pending", "note": "NV: varios modelos de Mercedes-Benz (C, CLK, SL, SLS, AMG GT); punta de memoria." },
+        { "from": 2021, "to": 2026, "model": "Mercedes-AMG GT / Aston Martin Vantage", "topKmh": 290, "status": "pending", "note": "NV: compartido por Mercedes-AMG y Aston Martin desde 2021; punta de memoria." }
+      ],
+      "pending": ["pickupPaceShare", "exitAccelMps2", "inThisLapMinShare", "restartGoMetres", "maxWaitSec", "unlapLateralShare", "cars[].topKmh"],
+      "pendingNote": "Sin fuente: el ritmo del SC esperando al líder, su aceleración al salir, cuánto antes de la línea arranca el líder y cuánto se espera a que se agrupe el tren. OpenF1 location (posición a 3,7 Hz, 2023+) podría medir el ritmo de recogida y el punto de arranque."
+    },
+    "measured": {
+      "source": "OpenF1 race_control + laps (api.openf1.org), carreras 2023-2025 sin sprints. Script: overcut/src/main/resources/scripts/race_neutralisations_from_openf1.py.",
+      "years": [2023, 2024, 2025],
+      "races": 70,
+      "scPerRace": 0.657,
+      "vscPerRace": 0.386,
+      "scLapFactor": { "n": 40, "p10": 1.359, "median": 1.521, "p90": 1.671 },
+      "vscLapFactor": { "n": 8, "p10": 1.346, "median": 1.391, "p90": 1.421 }
+    }
+  },
+  "vsc": {
+    "$comment": "SIM-5 vsc-delta (RF-SIM-10; FIA 2024 art. 56.5 'stay above the minimum time set by the FIA ECU at least once in each marshalling sector'): cada coche lleva su delta (s por encima del tiempo mínimo, que es la traza x safetyCar.virtualLapFactor tramo a tramo) y conduce para quedarse marginSec por encima, más cuanto menos preciso es el piloto (RF-STF-02, ruido por curva de drivers/skills.js, entre precisionClamp). Velocidad = ritmo mínimo x (1 + gain x (delta - margen)), entre speedShare.min y speedShare.max. Con «VSC ENDING» el verde llega entre minSec y maxSec después (era-defaults.json vscEndingWarn), en cualquier punto de la pista.",
+    "marginSec": 0.5,
+    "gain": 0.4,
+    "speedShare": { "min": 0.6, "max": 1.15 },
+    "precisionClamp": [0.5, 2],
+    "measured": { "source": "OpenF1 race_control 2023-2025: de «VIRTUAL SAFETY CAR ENDING» a «TRACK CLEAR».", "endingWarnSec": { "n": 26, "p10": 11.5, "median": 13, "p90": 14 } },
+    "pending": ["marginSec", "gain", "speedShare"],
+    "pendingNote": "El margen que llevan los pilotos sobre el delta no está medido (OpenF1 no publica el delta); gain y speedShare son del controlador, no de la realidad."
+  },
+  "neutralisation": {
+    "$comment": "SIM-5 duracion-neutralizacion (RF-SIM-10, RF-SIM-09). Un accidente con la era de SC pide neutralización con la probabilidad de la era (race-eras.json raceControl.safetyCar.deployChance) x el factor del circuito: calendar[].scRate del pack / circuitRate.reference, entre min y max (sin scRate, 1). Incidente {s, onTrack, severity}: coche parado en pista -> SC; en la escapatoria -> VSC (vscShare de race-eras.json, desde 2015) o amarilla. La limpieza dura una lognormal con la mediana y el p90 medidos (cleanup.base: del despliegue del SC a «lapped cars may overtake» o a «in this lap», recortada a [p10, p90]) x offTrackFactor si es VSC (mediana del VSC entre la del SC) x perSeverity, en el flujo propio seed::neutral (no mueve ninguna otra tirada). El modo rápido lo pasa a vueltas: SC = redondeo((limpieza + unlappingSec si la era desdobla) / vuelta bajo SC) + inThisLapLaps, al menos minSc; VSC = redondeo((limpieza + aviso medio) / vuelta bajo VSC), al menos minVsc. El modo por pasos termina cuando acaba la limpieza y el tren está agrupado.",
+    "circuitRate": { "reference": 0.471, "min": 0.4, "max": 1.7, "source": "curated/circuit-sc-rates.json scRateReference (OpenF1 2023-2025, parte de carreras con SC)." },
+    "severity": {
+      "byReason": { "collision": "impact", "accident": "impact", "crash": "impact", "spin": "impact", "mechanical": "stopped", "fuel": "stopped" },
+      "default": "impact",
+      "debris": "debris"
+    },
+    "cleanup": {
+      "base": { "p10": 254.6, "median": 394, "p90": 620.8 },
+      "offTrackFactor": 0.283,
+      "offTrackNote": "Mediana del VSC (despliegue a «ending», 111,5 s, n=26; p10 54, p90 207) entre la del SC (394 s, n=40).",
+      "perSeverity": { "impact": 1, "stopped": 1, "debris": 1 },
+      "pending": ["perSeverity"],
+      "pendingNote": "OpenF1 no dice qué incidente provocó cada SC: sin medida por gravedad, todas a 1."
+    },
+    "laps": {
+      "unlappingSec": 126,
+      "unlappingNote": "OpenF1 2023-2025: de «LAPPED CARS MAY OVERTAKE» a «SAFETY CAR IN THIS LAP», mediana (n=4, p10 88, p90 188).",
+      "inThisLapLaps": 1,
+      "inThisLapNote": "De «IN THIS LAP» a la reanudación: mediana 103 s (n=40, p10 64, p90 131), una vuelta de SC empezada (art. 55.14).",
+      "minSc": 2,
+      "minVsc": 1
+    }
   },
   "raceControl": {
     "$comment": "RF-SIM-10 en el modo por pasos. Quién, cuándo y qué sanción lo decide race.js con su flujo seed::control (los mismos números de race-eras.json raceControl/penalties); aquí solo cómo se juega en pista: la amarilla local cubre desde approachMetres antes de la curva hasta afterMetres después durante durationSec, los coches van a slowFactor de su velocidad y no hay duelo por esa curva. La bandera roja neutraliza al pelotón como un SC hasta que el líder llega a la línea, donde se forma la parrilla (grid.gapMetres) y se reanuda según la era.",

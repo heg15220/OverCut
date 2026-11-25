@@ -70,6 +70,7 @@ import { expectedStationary, planStop } from "./sim/pitStop";
 import { fuelSpecOf } from "./energy";
 import { RELIABILITY as REL, calibrationFor, contactOutcome, leavesDebris, pickGroup, raceHazards, turnOnePlan, wetRiskOf } from "./incidents";
 import simBalance from "../data/balance/race-sim.json";
+import { circuitScFactor, deployNeutralisation, pitClosedFor } from "./sim/safetyCar";
 import {
   DRIVER_BALANCE, aiDefenceStyleOf, contactFactorOf, mistakeFactorOf, passSkillTerm, raceFormOf, skillZ, startSkillTime, volatilityFactorOf, wearSkillOf,
 } from "./drivers/skills";
@@ -1433,7 +1434,8 @@ export const stepLap = (state) => {
       if (!sc && BALANCE.raceControl.yellow.mistakeKinds.includes(kind)) waveYellow(state, corner, car.id);
     }
 
-    if (sc) time = Math.max(time, baseLap * (sc.virtual ? 1.36 : 1.42));
+    // SIM-5 (RNF-07): the pace behind the safety car or on the VSC delta, measured in OpenF1 (race-sim.json safetyCar).
+    if (sc) time = Math.max(time, baseLap * (sc.virtual ? simBalance.safetyCar.virtualLapFactor : simBalance.safetyCar.lapFactor));
 
     car.lapTime = time;
     endLapWear(state, car, plan, { wetness, sc, rules });
@@ -1464,6 +1466,8 @@ export const stepLap = (state) => {
   // ---- pit stops at the end of the lap
   const stationaryByTeam = {};
   running.forEach((car) => {
+    // SIM-5 (era-defaults.json scPitClosed): no stop on the lap the safety car came out in the eras that closed the lane.
+    if (pitClosedFor(state, car, rules, lap)) return;
     const decision = pitDecision(state, car, wetness, stream);
     if (!decision) return;
     const laneLoss = pitLaneLoss(state, sc);
@@ -1815,16 +1819,16 @@ export const applyContact = (state, car, outcome, { otherId = null, corner = nul
 export const debrisResponse = (state, corner, carId, { lap = state.lap, raceLap = lap, stream } = {}) => {
   if (state.safetyCar) return;
   const rules = stateRules(state);
-  const control = BALANCE.raceControl;
   const debris = REL.contact.debris;
+  // SIM-5 duracion-neutralizacion: how long it lasts is the marshals' cleanup (safetyCar.js, seed::neutral stream).
   if (raceLap < state.laps - 1 && rules.raceControl.safetyCar && stream.chance(debris.sc)) {
-    state.safetyCar = { laps: stream.int(control.scLaps[0], control.scLaps[1]), virtual: false };
-    pushEvent(state, { type: "sc", debris: true }, raceLap);
+    const sc = deployNeutralisation(state, { virtual: false, corner, rules, lap: raceLap, debris: true });
+    pushEvent(state, { type: "sc", debris: true, incident: sc.incident, cleanupSec: sc.cleanupSec }, raceLap);
     return;
   }
   if (raceLap < state.laps - 1 && rules.raceControl.vsc && stream.chance(debris.vsc)) {
-    state.safetyCar = { laps: stream.int(control.vscLaps[0], control.vscLaps[1]), virtual: true };
-    pushEvent(state, { type: "vsc", debris: true }, raceLap);
+    const sc = deployNeutralisation(state, { virtual: true, corner, rules, lap: raceLap, debris: true });
+    pushEvent(state, { type: "vsc", debris: true, incident: sc.incident, cleanupSec: sc.cleanupSec }, raceLap);
     return;
   }
   waveYellow(state, corner, carId, lap);
@@ -1881,16 +1885,19 @@ export const retire = (state, car, reason, { lap = state.lap, raceLap = lap, str
   // An accident in the safety-car era brings out the safety car most of the time.
   if (crash && rules.raceControl.safetyCar && !state.safetyCar && raceLap < state.laps - 1) {
     // Early safety-car years used it sparingly; modern race control is quicker to call one.
-    if (stream.chance(rules.raceControl.scDeployChance)) {
+    // SIM-5 duracion-neutralizacion (F1M24-GAMEPLAY §2.11): the car needs the marshals - more often where this circuit
+    // has measured more safety cars (pack calendar[].scRate) - stopped on the track (SC) or in the run-off (VSC, from
+    // 2015); the cleanup sets how long (safetyCar.js deployNeutralisation, its own seed::neutral stream).
+    if (stream.chance(rules.raceControl.scDeployChance * circuitScFactor(state.race))) {
       const virtual = rules.raceControl.vsc && stream.chance(control.vscShare);
-      state.safetyCar = { laps: virtual ? stream.int(control.vscLaps[0], control.vscLaps[1]) : stream.int(control.scLaps[0], control.scLaps[1]), virtual };
-      pushEvent(state, { type: virtual ? "vsc" : "sc" }, raceLap);
+      const sc = deployNeutralisation(state, { virtual, reason, share: car.retireShare, corner, rules, lap: raceLap });
+      pushEvent(state, { type: virtual ? "vsc" : "sc", incident: sc.incident, cleanupSec: sc.cleanupSec }, raceLap);
       return;
     }
     if (!state.safetyCar) waveYellow(state, corner, car.id, lap);
   } else if (!crash && rules.raceControl.vsc && !state.safetyCar && stream.chance(control.vscOnFailure)) {
-    state.safetyCar = { laps: 1, virtual: true };
-    pushEvent(state, { type: "vsc" }, raceLap);
+    const sc = deployNeutralisation(state, { virtual: true, reason, share: car.retireShare, corner, rules, lap: raceLap });
+    pushEvent(state, { type: "vsc", incident: sc.incident, cleanupSec: sc.cleanupSec }, raceLap);
   } else if (crash && !state.safetyCar) {
     waveYellow(state, corner, car.id, lap);
   }
