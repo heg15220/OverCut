@@ -14,11 +14,11 @@
  * by era (an onboard the season lacks is filmed by the chase camera); their
  * vibration is seeded noise on the race clock (RNF-05), and the camera on air is
  * published every frame on `cameraBus` ({ current: { id, kind, mode, subjectId,
- * position, target, fov } }, F1M24-GAMEPLAY §1.7) for the TV listener of the sound. Props arrive every frame from the live
+ * position, target, fov } }, F1M24-GAMEPLAY Â§1.7) for the TV listener of the sound. Props arrive every frame from the live
  * view and are read by the render loop through a ref, so React does no work
  * per frame here beyond handing them over.
  *
- * CAM-3 (F1M24-GAMEPLAY §2.5, §2.9; RF-3D-04, RF-SIM-12, RNF-05, RNF-07):
+ * CAM-3 (F1M24-GAMEPLAY Â§2.5, Â§2.9; RF-3D-04, RF-SIM-12, RNF-05, RNF-07):
  *   - pit and garage sequences: on TV, when the car on air pits (or leaves its garage in a
  *     session) components/director/pitSequence.js tells it with the pit-lane cameras of
  *     three/pitCameras.js, over the zones; the crew steps into the box crewLeadSec before the car.
@@ -29,6 +29,13 @@
  *   - the safety pass (three/viewOverlap.js): no two cars drawn inside one another, every
  *     correction counted (viewOverlapStats).
  * None of it touches the race (RNF-05): it reads poses and draws.
+ *
+ * CAM-5 (F1M24-GAMEPLAY §2.11 sc-pose-from-sim; RF-SIM-10, RF-3D-04, RNF-07): the safety car is
+ * drawn where the engine puts it - `sc`, snapshot.sc of §1.7 (SIM-5) - with its light bar flashing
+ * (broadcast.json scLights; dark when the engine says the lights are off) and only in the seasons
+ * that have one (three/safetyCarView.js). Without the snapshot no safety car runs (the 90 m ahead of
+ * the leader are gone). On TV the director's `shotKind: "sc"` (sequences.scDeploy) films it leaving
+ * the pits.
  */
 
 import React, { useEffect, useRef } from "react";
@@ -41,7 +48,7 @@ import { QUICK_REPLAY, boxSpecFor, countOverlap, overlapPass } from "./viewOverl
 import { boxPointOf, etaToBox, stepSequence } from "../components/director/pitSequence";
 import { recordReplay, replayFrameAt, replayPoseAt, tracksideFor } from "../components/replay/replayBuffer";
 import broadcast from "../data/balance/broadcast.json";
-import { poseAt } from "../engine/trackGeometry";
+import { isScSnapshot, scLightLevels, scLightsOn, scPoseOf } from "./safetyCarView";
 import { createRenderer, environmentFor } from "./studio";
 import { carAssetFor, circuitAssetFor } from "./assets/manifest";
 import { createAssetCar } from "./assets/assetCar";
@@ -56,27 +63,56 @@ const unwrap = (from, to) => {
   return target;
 };
 
-/** A generic safety car: a low silver coupé with a light bar. */
+/**
+ * A generic safety car: a low coupÃ© with a light bar in two halves that flash in turn (CAM-5,
+ * broadcast.json scView.model and scLights; no make or livery of a real one). `setLights([l, r])`
+ * sets each half's brightness (0..1), `roll(metres)` turns the wheels.
+ */
 const buildSafetyCar = () => {
+  const look = SC_VIEW.model;
   const group = new THREE.Group();
-  const paint = new THREE.MeshPhysicalMaterial({ color: "#c9ccd2", metalness: 0.7, roughness: 0.25, clearcoat: 1 });
-  const dark = new THREE.MeshStandardMaterial({ color: "#121418", roughness: 0.3, metalness: 0.4 });
+  const paint = new THREE.MeshPhysicalMaterial({ color: look.paint, metalness: 0.7, roughness: 0.25, clearcoat: 1 });
+  const dark = new THREE.MeshStandardMaterial({ color: look.dark, roughness: 0.3, metalness: 0.4 });
   const body = new THREE.Mesh(new THREE.BoxGeometry(4.6, 0.7, 1.95), paint);
   body.position.y = 0.55;
   const cabin = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.5, 1.6), dark);
   cabin.position.set(-0.3, 1.1, 0);
-  const bar = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.12, 1.2), new THREE.MeshStandardMaterial({ color: "#ffb000", emissive: "#ff9000", emissiveIntensity: 2 }));
-  bar.position.set(-0.3, 1.42, 0);
-  group.add(body, cabin, bar);
+  group.add(body, cabin);
+  // The light bar: one half on each side of the roof.
+  const halves = [0.3, -0.3].map((z) => {
+    const material = new THREE.MeshStandardMaterial({ color: look.lightBase, emissive: look.lightOn, emissiveIntensity: look.emissiveOn });
+    const half = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.12, 0.58), material);
+    half.position.set(-0.3, 1.42, z);
+    group.add(half);
+    return material;
+  });
+  const lit = new THREE.Color(look.lightBase);
+  const off = new THREE.Color(look.lightOff);
+  const wheels = [];
   [[1.45, 0.88], [1.45, -0.88], [-1.45, 0.88], [-1.45, -0.88]].forEach(([x, z]) => {
     const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.28, 20), dark);
     wheel.rotation.x = Math.PI / 2;
     wheel.position.set(x, 0.33, z);
     group.add(wheel);
+    wheels.push(wheel);
   });
   group.traverse((node) => {
     node.castShadow = true;
   });
+  let spun = 0;
+  group.userData.setLights = (levels) => {
+    halves.forEach((material, index) => {
+      const level = levels[index] ?? 0;
+      material.emissiveIntensity = look.emissiveOn * level;
+      material.color.copy(off).lerp(lit, level);
+    });
+  };
+  group.userData.roll = (metres) => {
+    spun += metres;
+    wheels.forEach((wheel) => {
+      wheel.rotation.y = -spun / 0.33;
+    });
+  };
   return group;
 };
 
@@ -98,11 +134,12 @@ const buildCrew = (color) => {
 };
 
 const CREW_LEAD_SEC = broadcast.sequences.pitStop.crewLeadSec;
+const SC_VIEW = broadcast.scView;
 
-export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, teams, onPick, labels, clock, sample, cameraBus, seed, replayBuffer, replay, director }) {
+export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights, sc, safetyCar, teams, onPick, labels, clock, sample, cameraBus, seed, replayBuffer, replay, director }) {
   const mount = useRef(null);
   const props = useRef({});
-  props.current = { cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, onPick, clock, sample, year, cameraBus, seed, replayBuffer, replay, director };
+  props.current = { cars, focusId, mode, wet, lights, sc, safetyCar, onPick, clock, sample, year, cameraBus, seed, replayBuffer, replay, director };
   const world = useRef(null);
 
   // Renderer, sky, sun and camera: once.
@@ -319,7 +356,7 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
  * from the radius it is turning on and wheels that roll at its speed.
  */
 function step(state, props, dt) {
-  const { cars = [], wet, lights, safetyCar, clock, sample, safetyCarOn, year, cameraBus, seed, replayBuffer, replay, director } = props;
+  const { cars = [], wet, lights, sc: scSnapshot, safetyCar, clock, sample, year, cameraBus, seed, replayBuffer, replay, director } = props;
   const { camera, circuit } = state;
   if (!circuit) return;
   const liveTau = clock ? clock.current : null;
@@ -368,7 +405,7 @@ function step(state, props, dt) {
   ordered.forEach((item, index) => {
     const ahead = ordered[index - 1];
     let target = 0;
-    // The step race places cars sideways itself (pose.lateral, SIM-FISICA §3.1): the view only
+    // The step race places cars sideways itself (pose.lateral, SIM-FISICA Â§3.1): the view only
     // pulls a car out of a wake on the quick replay, which has no lateral of its own.
     if (item.pose.lateral === undefined && ahead && !item.pose.inPit && !ahead.pose.inPit && ahead.metres - item.metres < QUICK_REPLAY.wakeMetres) {
       // Pull to whichever side has more road (broadcast.json viewSafety.quickReplay).
@@ -404,7 +441,7 @@ function step(state, props, dt) {
 
     if (entry.last && simDt > 0) {
       const travelled = Math.hypot(x - entry.last.x, z - entry.last.z);
-      // SIM-FISICA §3.7 (WP9): the step race's own speed; the quick replay's from how far it moved.
+      // SIM-FISICA Â§3.7 (WP9): the step race's own speed; the quick replay's from how far it moved.
       const speed = Number.isFinite(pose.v) ? pose.v : travelled / simDt;
       const yawWanted = pose.garage || pose.stopped ? pose.heading : Math.atan2(z - entry.last.z, x - entry.last.x);
       // Yaw follows the direction of travel, eased so sample joints never show.
@@ -497,21 +534,39 @@ function step(state, props, dt) {
     if (lead) focus = { x: lead.object.position.x, y: lead.object.position.y, z: lead.object.position.z, heading: lead.yaw, speed: lead.speed || 0, share: ordered[0].pose.progress, spec: lead.object.userData.spec, item: ordered[0] };
   }
 
-  // Safety car: given, or running 90 m ahead of the leader.
-  let sc = safetyCar;
-  if (!sc && safetyCarOn && ordered[0] && !ordered[0].pose.inPit) sc = poseAt(circuit, ((ordered[0].pose.progress % 1) + 1) % 1 + 90 / circuit.length);
-  // CAM-4: before lights out the safety car waits behind the grid, in the years it exists (the director says so).
-  if (!sc && director?.scParked) sc = scParkedPose(circuit, cars.length);
+  // Safety car (CAM-5): where the engine says it is (snapshot.sc, §1.7, SIM-5, as `sc` - or as
+  // `safetyCar` from a view that hands the snapshot over under that name), never a fixed distance
+  // ahead of the leader; a plain pose handed over is drawn as it is. Not in a replay: the buffer
+  // has no safety car, and the view invents none.
+  const scGiven = isScSnapshot(scSnapshot) ? scSnapshot : isScSnapshot(safetyCar) ? safetyCar : null;
+  let sc = replayed ? null : scGiven ? scPoseOf(scGiven, circuit, year) : safetyCar && Number.isFinite(safetyCar.x) ? safetyCar : null;
+  let scLit = Boolean(sc) && (scGiven ? scLightsOn(scGiven) : true);
+  // CAM-4: before lights out the safety car waits behind the grid, in the years it exists (the director says so); lights off.
+  if (!sc && !replayed && director?.scParked) {
+    sc = scParkedPose(circuit, cars.length);
+    scLit = false;
+  }
   if (sc) {
     if (!state.safetyCar) {
       state.safetyCar = buildSafetyCar();
       state.scene.add(state.safetyCar);
     }
-    state.safetyCar.visible = true;
-    const scShare = Number.isFinite(sc.progress) ? sc.progress : ordered[0] ? ordered[0].pose.progress + 90 / circuit.length : null;
-    state.safetyCar.position.set(sc.x, state.heightAt && scShare !== null ? state.heightAt(scShare) : 0, sc.y);
-    state.safetyCar.rotation.y = -sc.heading;
-  } else if (state.safetyCar) state.safetyCar.visible = false;
+    const object = state.safetyCar;
+    const scShare = Number.isFinite(sc.progress) ? sc.progress : null;
+    const ground = state.heightAt && scShare !== null ? state.heightAt(scShare) : 0;
+    if (object.visible && state.scLast) object.userData.roll(Math.hypot(sc.x - state.scLast.x, sc.y - state.scLast.y));
+    state.scLast = { x: sc.x, y: sc.y };
+    object.visible = true;
+    object.position.set(sc.x, ground, sc.y);
+    object.rotation.y = -sc.heading;
+    // The light bar flashes on the view's own clock (broadcast.json scLights).
+    object.userData.setLights(scLightLevels(state.viewTime || 0, scLit));
+    state.scFocus = { x: sc.x, y: ground, z: sc.y, heading: sc.heading, speed: Number.isFinite(sc.v) ? sc.v : 0, share: scShare ?? 0, turn: 0, spec: null, item: null };
+  } else {
+    if (state.safetyCar) state.safetyCar.visible = false;
+    state.scLast = null;
+    state.scFocus = null;
+  }
 
   state.track?.setLights(typeof lights === "number" ? lights : 0);
 
@@ -574,7 +629,32 @@ function step(state, props, dt) {
       }
       if (scriptShotOn && !scriptBus) scriptBus = { id, kind: kind === "script" ? "script" : kind === "onboard" ? "onboard" : kind };
     }
-    const scriptKey = scriptShotOn ? `${scripted.cameraId}|${focus.item?.car?.id ?? ""}` : null;
+    // CAM-5 sc-pose-from-sim: the safety car sent out (directorState shotKind "sc", broadcast.json
+    // sequences.scDeploy) is filmed from its pit camera - by the chase camera when it is too far from
+    // it (scView.pitCamMaxM) - then chased and flown over; the shot frames the safety car, not a car.
+    let scBus = null;
+    if (!scriptShotOn && mode === "tv" && !replayed && !lockCam && !inGarage && director?.shotKind === "sc" && director.scShot && state.scFocus) {
+      const scFocus = state.scFocus;
+      const id = director.scShot.cam;
+      let shotSc = null;
+      let used = null;
+      if (director.camType === "pit") {
+        shotSc = pitShot(id, scFocus, circuit, state.pitRig || [], null, world);
+        if (shotSc && Math.hypot(shotSc.pos.x - scFocus.x, shotSc.pos.z - scFocus.z) > SC_VIEW.pitCamMaxM) shotSc = null;
+        if (shotSc) used = { id, kind: "pit" };
+      } else if (id === "heli" || id === "chase") {
+        shotSc = frame(id, scFocus, circuit, state.rig, state.camState, dt, world);
+        used = { id, kind: id };
+      }
+      if (!shotSc) {
+        shotSc = frame("chase", scFocus, circuit, state.rig, state.camState, dt, world);
+        used = { id: "chase", kind: "chase" };
+      }
+      scriptShotOn = shotSc;
+      scBus = { ...used, subject: "safetyCar" };
+      scriptBus = scBus;
+    }
+    const scriptKey = scriptShotOn ? `${scBus ? `sc:${scBus.id}` : scripted.cameraId}|${scBus ? "safetyCar" : focus.item?.car?.id ?? ""}` : null;
     if (scriptShotOn && state.lastScriptKey !== scriptKey) scriptShotOn.snap = true;
     // Out of a script the trackside director chooses afresh (and cuts).
     if (!scriptShotOn && state.lastScriptKey) state.camState.tvCam = null;
@@ -644,7 +724,8 @@ function step(state, props, dt) {
         kind: inGarage ? "garage" : scriptOn ? scriptOn.kind : pit ? (pit === "chase" ? "chase" : "pit") : fallback ? "heli" : tv ? tv.type : onboard ? "onboard" : mode,
         mode,
         replay: Boolean(replayed),
-        subjectId: focus.item?.car?.id ?? null,
+        // CAM-5: on the safety car's deployment shots the subject is the safety car.
+        subjectId: scriptOn?.subject === "safetyCar" ? "safetyCar" : focus.item?.car?.id ?? null,
         position: { x: camera.position.x, y: camera.position.y, z: camera.position.z },
         target: { x: cam.look.x, y: cam.look.y, z: cam.look.z },
         fov: camera.fov,

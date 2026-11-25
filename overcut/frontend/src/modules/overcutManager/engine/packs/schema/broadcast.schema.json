@@ -3,13 +3,15 @@
   "$comment": "RNF-07: esquema completo de data/balance/broadcast.json (realización de TV, RF-3D-04, RNF-09). Lo crea CAM-1 con todas las claves que leerán CAM-2..5 y HUD; CAM-3 añade pitRig, las secuencias de boxes y garaje, el bloque replay completo y viewSafety. Lo comprueba components/director/directorState.test.js.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "sources", "director", "views", "cycleOrder", "defaultView", "rigTemplate", "framing", "zonesPolicy", "pitRig", "scriptRig", "sequences", "replay", "viewSafety", "inserts", "scLights"],
+  "required": ["version", "sources", "director", "views", "cycleOrder", "defaultView", "rigTemplate", "framing", "zonesPolicy", "pitRig", "scriptRig", "sequences", "replay", "viewSafety", "inserts", "scLights", "scView"],
   "definitions": {
     "text": {"type": "string", "minLength": 1},
     "status": {"enum": ["current", "pending", "sourced"]},
     "secOrNull": {"oneOf": [{"type": "null"}, {"type": "number", "minimum": 0, "maximum": 600}]},
     "view": {"enum": ["map", "tv", "camera"]},
     "cameraId": {"type": "string", "pattern": "^[a-zA-Z]+$"},
+    "scPhase": {"enum": ["DEPLOYED", "PICKUP", "TRAIN", "UNLAPPING", "IN_THIS_LAP", "RESTART"]},
+    "hexColor": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"},
     "shot": {
       "type": "object",
       "additionalProperties": false,
@@ -400,11 +402,39 @@
     "scLights": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["flashHz", "status"],
+      "required": ["flashHz", "pattern", "dutyCycle", "offLevel", "status"],
       "properties": {
         "flashHz": {"oneOf": [{"type": "null"}, {"type": "number", "minimum": 0, "maximum": 20}]},
+        "pattern": {"enum": ["alternate", "together"]},
+        "dutyCycle": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "offLevel": {"type": "number", "minimum": 0, "maximum": 1},
         "status": {"$ref": "#/definitions/status"},
         "note": {"type": "string"}
+      }
+    },
+    "scView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "drawPhases", "lightsOffPhases", "pitCamMaxM", "model"],
+      "properties": {
+        "status": {"$ref": "#/definitions/status"},
+        "note": {"type": "string"},
+        "drawPhases": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/definitions/scPhase"}},
+        "lightsOffPhases": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/definitions/scPhase"}},
+        "pitCamMaxM": {"type": "number", "exclusiveMinimum": 0, "maximum": 5000},
+        "model": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["paint", "dark", "lightOn", "lightBase", "lightOff", "emissiveOn"],
+          "properties": {
+            "paint": {"$ref": "#/definitions/hexColor"},
+            "dark": {"$ref": "#/definitions/hexColor"},
+            "lightOn": {"$ref": "#/definitions/hexColor"},
+            "lightBase": {"$ref": "#/definitions/hexColor"},
+            "lightOff": {"$ref": "#/definitions/hexColor"},
+            "emissiveOn": {"type": "number", "minimum": 0, "maximum": 10}
+          }
+        }
       }
     }
   }
