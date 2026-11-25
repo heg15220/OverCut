@@ -62,6 +62,17 @@
  *   radio      the engineer to the player's drivers (state.radio, kinds "battle-*"), on those events and on the
  *              gaps at the line, with the thresholds and quiet times of race-sim.json `radio`.
  *
+ * SIM-8 (F1M24-GAMEPLAY §2.7 duelo-geometrico, SIM-FISICA §3.5; RF-SIM-07, RF-STF-02): the fight is kept per
+ * pair. Each attacker counts its held attempts on each defender (`pairTries`) and waits `pairCooldownSec` before
+ * trying the same car again; after `attemptsPerDefender.max` in a row it sits back `restLaps` base laps. The
+ * loser of a corner is in SWITCHBACK until the exit while it has `switchback.attemptsPerFight` left. A third car
+ * claims the corner only if three of the era's boxes fit across the measured asphalt (lateral.js fitsAbreast).
+ * Every claim makes one incident roll: the calibrated touch (entryInside with the attacker on the inside, paid
+ * now; exitOutside with it on the outside, paid at the exit) or, side by side with the winner on the inside, a
+ * squeeze of the car on the outside at the exit (back out or pushed wide, no touch; resolveClaim). The pass
+ * chance is untouched: the geometry decides which attempts end in a pass, how often a pair tries and what a
+ * fight costs, while the passes per lap stay the quick mode's (equivalence.test.js, duelGeometry.test.js).
+ *
  * Every number comes from data/balance/race-sim.json, race-physics.json `lateral` / `duel` and
  * driver-attributes.json (RNF-07);
  * every roll from the duel stream (RF-SIM-15).
@@ -73,7 +84,7 @@ import { contactOutcome } from "../incidents";
 import { coldForPass, gripC, windowFor } from "../tyres/thermal";
 import { drsOpen } from "../rules";
 import { pushEvent, wetnessAt } from "./lapModel";
-import { LANE, LANE_NAMES, LATERAL } from "./lateral";
+import { LANE, LANE_NAMES, LATERAL, fitsAbreast } from "./lateral";
 import physicsData from "../../data/balance/race-physics.json";
 import { DRIVER_BALANCE, contactFactorOf, coverChanceOf, lateBrakeMetresOf, passSkillTerm, switchbackSkillTerm, triggerFactorOf } from "../drivers/skills";
 
@@ -148,6 +159,139 @@ const duelEvent = (state, a, b, phase, extra = {}) => {
     t: r3(sim.clock),
     ...extra,
   });
+};
+
+// ------------------------------------------------------------ SIM-8: the duel's geometry
+
+/** race-physics.json `duel.geometry` (SIM-8, RNF-07). */
+export const DUEL_GEOMETRY = physicsData.duel.geometry;
+
+/** SIM-8: what a claim leaves for the corner's exit (claimKind). */
+const CLAIM = { NONE: 0, CONTACT_EXIT: 1, SQUEEZE: 2 };
+
+/**
+ * SIM-8 (SIM-FISICA §3.5): the per-pair state of the fights (allocated once, RNF-01). `pairTries[i·n+j]` the
+ * attempts of `i` on `j` held in the current fight, `pairCool` until when `i` does not try `j` again,
+ * `pairSwitch` the switchbacks of `i` on `j` in the fight; the claim's incident left for the exit of the
+ * corner (`claim*`, on the attacker's index) and the squeeze being paid (`squeeze*`, on the victim's).
+ */
+export const duelGeometrySetup = (n) => ({
+  pairTries: new Int32Array(n * n),
+  pairCool: new Float64Array(n * n),
+  pairSwitch: new Int32Array(n * n),
+  claimTau: new Float64Array(n).fill(-1),
+  claimKind: new Uint8Array(n),
+  claimOther: new Int32Array(n).fill(-1),
+  claimVictim: new Int32Array(n).fill(-1),
+  claimCorner: new Int32Array(n),
+  claimSign: new Int8Array(n),
+  squeezeUntil: new Float64Array(n),
+  // The time the squeeze costs, paid as a lift (stepRace advance, squeeze.liftFactor).
+  squeezeDelay: new Float64Array(n),
+  squeezeSide: new Int8Array(n),
+  squeezeWide: new Uint8Array(n),
+  squeezeShare: DUEL_GEOMETRY.squeeze.edgeShare,
+});
+
+/** SIM-8: may `i` try `j` now (its pair's cool-down over)? Without the pair arrays, always. */
+export const pairOpen = (sim, i, j) => !sim.pairCool || sim.pairCool[i * sim.n + j] <= sim.clock;
+
+/**
+ * SIM-8: an attempt of `i` on `j` held. The next one on that car waits `pairCooldownSec`; after
+ * `attemptsPerDefender.max` held in a row, the attacker sits back for `restLaps` base laps (its tyres).
+ * Without the pair arrays, the old single cool-down of the attacker.
+ */
+export const heldAttempt = (state, i, j) => {
+  const sim = state._sim;
+  if (!sim.pairCool) {
+    sim.cooldownUntil[i] = sim.clock + sim.balance.duel.cooldownSec;
+    return;
+  }
+  const A = DUEL_GEOMETRY.attemptsPerDefender;
+  const k = i * sim.n + j;
+  sim.pairTries[k] += 1;
+  if (sim.pairTries[k] >= A.max) {
+    sim.pairTries[k] = 0;
+    sim.pairCool[k] = sim.clock + A.restLaps * state.race.baseLap;
+  } else sim.pairCool[k] = sim.clock + A.pairCooldownSec;
+};
+
+/** SIM-8: may the loser `i` of a corner come back at `j` at its exit (switchbacks left in the fight)? */
+export const switchbackLeft = (sim, i, j) => !sim.pairSwitch || sim.pairSwitch[i * sim.n + j] < DUEL_GEOMETRY.switchback.attemptsPerFight;
+
+/** SIM-8: car `i` no longer follows anyone - its fight is over: the counts of its pairs start again. */
+export const resetFight = (sim, i) => {
+  if (!sim.pairTries) return;
+  const row = i * sim.n;
+  for (let j = 0; j < sim.n; j += 1) {
+    sim.pairTries[row + j] = 0;
+    sim.pairSwitch[row + j] = 0;
+  }
+};
+
+/** SIM-8: leave the claim's incident (a touch or a squeeze) for the exit of the corner, on the attacker `a`. */
+const leaveClaim = (sim, a, b, kind, victim, zone) => {
+  sim.claimTau[a] = zone.exitTau;
+  sim.claimKind[a] = kind;
+  sim.claimOther[a] = b;
+  sim.claimVictim[a] = victim;
+  sim.claimCorner[a] = zone.corner || 0;
+  sim.claimSign[a] = zone.sign || 1;
+};
+
+/**
+ * SIM-8: the attacker `a` reaches the exit of a claimed corner whose single incident roll left something
+ * there. A touch on the outside (exitOutside) is paid now, as contact() pays one at the entry. A squeeze
+ * only happens if the two are still within `squeeze.withinMetres`: the one on the outside backs out (it
+ * lifts behind) or is pushed wide towards the edge, and loses its switchback. Rolls on the duel stream.
+ */
+export const resolveClaim = (state, a) => {
+  const sim = state._sim;
+  const kind = sim.claimKind[a];
+  const b = sim.claimOther[a];
+  const victim = sim.claimVictim[a];
+  const corner = sim.claimCorner[a] || null;
+  const sign = sim.claimSign[a];
+  sim.claimTau[a] = -1;
+  sim.claimKind[a] = CLAIM.NONE;
+  sim.claimOther[a] = -1;
+  sim.claimVictim[a] = -1;
+  const lap = sim.laps[a] + 1;
+  if (b < 0 || !sim.active[a] || !sim.active[b] || sim.inPit[a] !== 0 || sim.inPit[b] !== 0) return;
+  // Neutralised before the exit (safety car, VSC, red flag): the fight is off, and so is what it left there.
+  if (state.safetyCar || sim.red) return;
+  if (kind === CLAIM.CONTACT_EXIT) {
+    contact(state, a, b, corner, sim.streams.duel, lap, "exitOutside");
+    sim.cooldownUntil[a] = sim.clock + sim.balance.duel.cooldownSec;
+    return;
+  }
+  if (kind !== CLAIM.SQUEEZE || victim < 0) return;
+  const other = victim === a ? b : a;
+  const S = DUEL_GEOMETRY.squeeze;
+  const gap = sim.P[victim] - sim.P[other];
+  const apart = Math.abs(gap - Math.round(gap)) * sim.tables.length;
+  if (apart > S.withinMetres) return;
+  const backOut = sim.streams.duel.next() < S.backOutShare;
+  sim.squeezeDelay[victim] += backOut ? S.backOutSec : S.pushWideSec;
+  sim.squeezeUntil[victim] = sim.clock + S.wideSec;
+  sim.squeezeWide[victim] = backOut ? 0 : 1;
+  // The outside of the corner (sign + = right-hander, so its outside is to the left).
+  sim.squeezeSide[victim] = -sign;
+  // The counter-attack is gone with the room.
+  if (sim.switchTarget[victim] >= 0) sim.switchTarget[victim] = -1;
+  logDuel(state, { t: round(sim.clock), lap, corner, attacker: state.cars[a].id, defender: state.cars[b].id, outcome: "squeeze", kind: backOut ? "back-out" : "push-wide", victim: state.cars[victim].id, by: state.cars[other].id });
+};
+
+/**
+ * SIM-8 (SIM-FISICA §3.5 `SWITCHBACK`): the state of car `i` in its fight for the view - "CLAIM" while it
+ * fights for a corner, "SWITCHBACK" from losing a corner to its exit with a counter-attack left,
+ * "SQUEEZED" while it pays a squeeze; null otherwise. No roll (RNF-05).
+ */
+export const fightOf = (sim, i) => {
+  if (sim.squeezeUntil && sim.squeezeUntil[i] > sim.clock) return "SQUEEZED";
+  if (sim.switchTarget[i] >= 0) return "SWITCHBACK";
+  if (sim.duelRole[i] !== ROLE.NONE) return "CLAIM";
+  return null;
 };
 
 /** SIM-4: a new attempt of `a` on `b` - the counter restarts when the target changes or the fight broke up (battleStep). */
@@ -308,6 +452,8 @@ export const battleStep = (state) => {
   for (let i = 0; i < sim.n; i += 1) {
     // The fight is over when the car no longer follows anyone: the next try is a first one again.
     if (out[i] === BATTLE.RUNNING && sim.attemptOn[i] >= 0 && !(sim.duelLive && sim.duelLive[i])) sim.attemptOn[i] = -1;
+    // SIM-8: so do the counts of its pairs (tries and switchbacks); a pair's cool-down runs on.
+    if (out[i] === BATTLE.RUNNING && sim.battle[i] !== BATTLE.RUNNING) resetFight(sim, i);
     sim.battle[i] = out[i];
   }
 };
@@ -410,6 +556,28 @@ export const startPass = (state, a, b, sign, extra = {}) => {
 };
 
 /**
+ * The defender `b` keeps the corner from `a` (held, or SIM-8: side by side to a touch at the exit): both
+ * lose a little through it, the attacker on its line, the defender on its one move.
+ */
+const holdCorner = (state, a, b, zone, side, covered, alongside, style) => {
+  const sim = state._sim;
+  const d = sim.balance.duel;
+  sim.duelRole[a] = ROLE.LOST;
+  sim.duelRole[b] = ROLE.HELD;
+  sim.duelOther[a] = b;
+  sim.duelOther[b] = a;
+  sim.duelMult[a] = -style.attackerLoss;
+  sim.duelMult[b] = -style.defenderLoss;
+  sim.duelUntil[a] = sim.clock + d.passMaxSeconds * 0.5;
+  sim.duelUntil[b] = sim.clock + d.passMaxSeconds * 0.5;
+  sim.latTarget[a] = side * LATERAL.attackMetres;
+  // The defender's single move: to the inside if it covered, else it holds its line (FIA ISC App. L ch. IV 2b).
+  sim.latTarget[b] = covered ? zone.sign * LATERAL.blockMetres : alongside ? -side * sim.side.spec.carWidth * 0.5 : 0;
+  sim.latState[a] = alongside ? LANE.ALONGSIDE : side === zone.sign ? LANE.ATTACK_IN : LANE.ATTACK_OUT;
+  sim.latState[b] = alongside ? LANE.ALONGSIDE : LANE.DEFEND;
+};
+
+/**
  * SIM-4: a live duel ends - queue its "resolved" event (told by duelWatch at the end of the step, where the
  * state is at hand): passed if the attacker is ahead on the road, else defended.
  */
@@ -456,13 +624,16 @@ export const endDuel = (sim, i) => {
  * (engine/incidents.js contactOutcome via race.js applyContact: retirement, broken suspension,
  * puncture, front wing or time), paid on the road as a delay; debris may bring race control.
  */
-const contact = (state, a, b, corner, stream, lap) => {
+const contact = (state, a, b, corner, stream, lap, kind = "entryInside") => {
   const sim = state._sim;
   const victim = stream.chance(0.5) ? b : a;
   const other = victim === a ? b : a;
-  logDuel(state, { t: round(sim.clock), lap, corner, attacker: state.cars[a].id, defender: state.cars[b].id, outcome: "incident", victim: state.cars[victim].id });
+  // SIM-8: where in the corner the touch was (the claim's geometry: inside at the entry, outside at the exit).
+  logDuel(state, { t: round(sim.clock), lap, corner, attacker: state.cars[a].id, defender: state.cars[b].id, outcome: "incident", kind, victim: state.cars[victim].id });
   // SIM-4: the corner is settled by the touch.
-  if (sim.duelLive) duelEvent(state, a, b, "resolved", { result: "contact", victimId: state.cars[victim].id });
+  if (sim.duelLive) duelEvent(state, a, b, "resolved", { result: "contact", victimId: state.cars[victim].id, kind });
+  // A touch at the exit ends whatever the two were still doing in the corner.
+  if (sim.duelOther[a] === b) endDuel(sim, a);
   const outcome = contactOutcome(stream);
   if (outcome.kind === "retire") {
     sim.retireAt(victim, "collision", corner);
@@ -490,7 +661,10 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap) => {
   const d = balance.duel;
   // RF-STF-02: an aggressive driver goes for it from further back.
   if (ahead < 0 || gapSec > d.triggerSec * triggerFactorOf(state.cars[i])) return;
-  if (sim.cooldownUntil[i] > sim.clock || sim.duelRole[i] !== ROLE.NONE || sim.duelRole[ahead] === ROLE.PASSING || sim.duelRole[ahead] === ROLE.YIELDING) return;
+  // SIM-8: the cool-down is per pair (a touch still stops the attacker for a while, contact below).
+  if (sim.cooldownUntil[i] > sim.clock || !pairOpen(sim, i, ahead) || sim.duelRole[i] !== ROLE.NONE || sim.duelRole[ahead] === ROLE.PASSING || sim.duelRole[ahead] === ROLE.YIELDING) return;
+  // SIM-8: a corner whose exit still owes the last claim's incident is not claimed again by the same car.
+  if (sim.claimTau && sim.claimTau[i] >= 0) return;
   const zone = sim.tables.attacks[z];
   // RF-SIM-10: no passing under a local yellow at this corner.
   if (sim.yellows.length && sim.yellows.some((flag) => flag.corner === zone.corner)) return;
@@ -512,7 +686,11 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap) => {
 
   const drs = sim.drsOpen[i] > 0 && sim.drsOpen[i] - 1 === zone.drs && drsAllowed(state, lap);
   const chance = duelChance(state, attacker, defender, zone, { drs, lap });
-  const third = d.maxClaim >= 3 && behind >= 0 && behindGap <= d.triggerSec && sim.duelRole[behind] === ROLE.NONE && sim.cooldownUntil[behind] <= sim.clock ? behind : -1;
+  // SIM-8 (SIM-FISICA §3.5 claim): a third car only if three of the era's boxes fit across the asphalt here.
+  const third =
+    Math.min(d.maxClaim, DUEL_GEOMETRY.claim.maxCars) >= 3 && behind >= 0 && behindGap <= d.triggerSec && sim.duelRole[behind] === ROLE.NONE && sim.cooldownUntil[behind] <= sim.clock && fitsAbreast(sim.side, sim.P[ahead], 3)
+      ? behind
+      : -1;
   const style = styleOf(balance, defender);
   // RF-SIM-09: the era's calibration of duel touches against f1db (race-reliability.json calibration.stepCollision).
   // RF-STF-02: the squeeze - aggressive drivers touch more (drivers/skills.js contactFactorOf, as the quick mode).
@@ -543,40 +721,55 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap) => {
     countAttempt(sim, i, ahead, zone.corner, side === zone.sign ? 1 : -1);
     duelEvent(state, i, ahead, "start", { drs, claim: entry.claim });
   }
-  if (stream.chance(incidentChance * (success ? 1 : d.incident.onDefended))) {
-    contact(state, i, ahead, zone.corner, stream, lap);
-    sim.cooldownUntil[i] = sim.clock + d.cooldownSec;
+  // SIM-8 (SIM-FISICA §3.5): one incident roll per claim. The touch keeps the calibrated chance (contacts per
+  // race against the quick mode and f1db); the corner's geometry says which touch it is - the attacker on the
+  // inside hits at the entry (now), on the outside at the exit (paid there, resolveClaim). The winner of the
+  // corner on the inside may instead squeeze the one on the outside at the exit, if still alongside (no touch).
+  const winnerInside = success ? side === zone.sign : side !== zone.sign;
+  const winner = success ? i : ahead;
+  const loser = success ? ahead : i;
+  // The squeeze is rolled here and happens at the exit only if the two are still side by side there (resolveClaim).
+  const squeezeChance = winnerInside && sim.claimTau ? DUEL_GEOMETRY.squeeze.chance * contactFactorOf(state.cars[winner], state.cars[loser]) : 0;
+  const contactChance = incidentChance * (success ? 1 : d.incident.onDefended);
+  const roll = stream.next();
+  if (roll < contactChance) {
+    if (side === zone.sign || !sim.claimTau) {
+      contact(state, i, ahead, zone.corner, stream, lap, "entryInside");
+      sim.cooldownUntil[i] = sim.clock + d.cooldownSec;
+      return;
+    }
+    // On the outside: through the corner side by side, the touch at its exit; no pass, no switchback.
+    closeLive(sim, ahead);
+    holdCorner(state, i, ahead, zone, side, covered, alongside, style);
+    leaveClaim(sim, i, ahead, CLAIM.CONTACT_EXIT, -1, zone);
+    logDuel(state, { ...entry, outcome: "claim-contact" });
     return;
   }
+  const squeeze = roll < contactChance + squeezeChance;
   if (success) {
     startPass(state, i, ahead, side, { corner: zone.corner, drs, alongside, inside: zone.sign, duel: true, exitTau: zone.exitTau });
-    logDuel(state, { ...entry, outcome: "pass" });
-    // The one who lost the corner may come back at its exit.
-    sim.switchTarget[ahead] = i;
-    sim.switchTau[ahead] = zone.exitTau;
-    sim.switchCorner[ahead] = zone.corner;
+    logDuel(state, { ...entry, outcome: "pass", ...(squeeze ? { squeeze: true } : {}) });
+    // The one who lost the corner may come back at its exit (SIM-8: SWITCHBACK, while it has some left).
+    if (switchbackLeft(sim, ahead, i)) {
+      sim.switchTarget[ahead] = i;
+      sim.switchTau[ahead] = zone.exitTau;
+      sim.switchCorner[ahead] = zone.corner;
+    }
+    if (squeeze) leaveClaim(sim, i, ahead, CLAIM.SQUEEZE, loser, zone);
   } else {
     closeLive(sim, ahead);
-    sim.duelRole[i] = ROLE.LOST;
-    sim.duelRole[ahead] = ROLE.HELD;
-    sim.duelOther[i] = ahead;
-    sim.duelOther[ahead] = i;
-    sim.duelMult[i] = -style.attackerLoss;
-    sim.duelMult[ahead] = -style.defenderLoss;
-    sim.duelUntil[i] = sim.clock + d.passMaxSeconds * 0.5;
-    sim.duelUntil[ahead] = sim.clock + d.passMaxSeconds * 0.5;
-    sim.latTarget[i] = side * LATERAL.attackMetres;
-    // The defender's single move: to the inside if it covered, else it holds its line (FIA ISC App. L ch. IV 2b).
-    sim.latTarget[ahead] = covered ? zone.sign * LATERAL.blockMetres : alongside ? -side * sim.side.spec.carWidth * 0.5 : 0;
-    sim.latState[i] = alongside ? LANE.ALONGSIDE : side === zone.sign ? LANE.ATTACK_IN : LANE.ATTACK_OUT;
-    sim.latState[ahead] = alongside ? LANE.ALONGSIDE : LANE.DEFEND;
-    sim.cooldownUntil[i] = sim.clock + d.cooldownSec;
-    sim.switchTarget[i] = ahead;
-    sim.switchTau[i] = zone.exitTau;
-    sim.switchCorner[i] = zone.corner;
+    holdCorner(state, i, ahead, zone, side, covered, alongside, style);
+    // SIM-8: the attempt is held - the pair's cool-down, and after too many a rest (race-physics.json duel.geometry).
+    heldAttempt(state, i, ahead);
+    if (switchbackLeft(sim, i, ahead)) {
+      sim.switchTarget[i] = ahead;
+      sim.switchTau[i] = zone.exitTau;
+      sim.switchCorner[i] = zone.corner;
+    }
+    if (squeeze) leaveClaim(sim, i, ahead, CLAIM.SQUEEZE, loser, zone);
     // SIM-4: a live duel until the defence has held through the corner (settleDuels ends it).
     if (sim.duelLive) sim.duelLive[i] = 1;
-    logDuel(state, { ...entry, outcome: "defended" });
+    logDuel(state, { ...entry, outcome: "defended", ...(squeeze ? { squeeze: true } : {}) });
   }
 
   // Three into one corner: the third car goes for whoever is now in front of it.
@@ -586,6 +779,8 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap) => {
       sim.cooldownUntil[third] = sim.clock + d.cooldownSec;
       return;
     }
+    // SIM-8: the third car's own pair - not while it is cooling down on that car.
+    if (!pairOpen(sim, third, target)) return;
     const thirdChance = duelChance(state, state.cars[third], state.cars[target], zone, { drs: false, lap }) * d.thirdCarFactor;
     const made = stream.next() < thirdChance;
     logDuel(state, { t: round(sim.clock), lap, corner: zone.corner, attacker: state.cars[third].id, defender: state.cars[target].id, chance: round(thirdChance), drs: false, claim: 3, outcome: made ? "pass" : "defended" });
@@ -596,7 +791,7 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap) => {
     }
     if (made) startPass(state, third, target, -zone.sign, { corner: zone.corner, duel: true, exitTau: zone.exitTau });
     else {
-      sim.cooldownUntil[third] = sim.clock + d.cooldownSec;
+      heldAttempt(state, third, target);
       if (sim.duelLive) {
         duelEvent(state, third, target, "resolved", { result: "defended", claim: 3 });
         battleRadioOf(state, third, target, false);
@@ -617,6 +812,8 @@ export const trySwitchback = (state, i, target, gapMetres) => {
   // RF-SIM-10: no switchback under a local yellow either.
   if (sim.yellows.length && sim.yellows.some((flag) => flag.corner === corner)) return;
   if (target < 0 || gapMetres > sb.gapMetres || sim.duelRole[target] === ROLE.PASSING || sim.duelRole[target] === ROLE.YIELDING) return;
+  // SIM-8: one of the fight's switchbacks used (race-physics.json duel.geometry.switchback.attemptsPerFight).
+  if (sim.pairSwitch) sim.pairSwitch[i * sim.n + target] += 1;
   const me = state.cars[i];
   const them = state.cars[target];
   const delta = (them.expected ?? 0) - (me.expected ?? 0);
@@ -634,12 +831,16 @@ export const trySwitchback = (state, i, target, gapMetres) => {
       duelEvent(state, i, target, "start", { switchback: true });
     }
     startPass(state, i, target, -1, { corner, switchback: true, duel: true });
-    sim.cooldownUntil[target] = sim.clock + sim.balance.duel.cooldownSec;
+    // SIM-8: the car passed back waits its pair's cool-down before trying again (it was the global one before).
+    if (sim.pairCool) sim.pairCool[target * sim.n + i] = sim.clock + DUEL_GEOMETRY.attemptsPerDefender.pairCooldownSec;
+    else sim.cooldownUntil[target] = sim.clock + sim.balance.duel.cooldownSec;
   } else if (sim.duelLive) {
     // SIM-4: a switchback tried and not made - an attempt held at once.
     countAttempt(sim, i, target, corner, -1);
     duelEvent(state, i, target, "start", { switchback: true });
     duelEvent(state, i, target, "resolved", { result: "defended", switchback: true });
   }
-  sim.cooldownUntil[i] = sim.clock + sim.balance.duel.cooldownSec;
+  // SIM-8: the cool-down of this pair (without the pair arrays, the attacker's own as before).
+  if (sim.pairCool) sim.pairCool[i * sim.n + target] = sim.clock + DUEL_GEOMETRY.attemptsPerDefender.pairCooldownSec;
+  else sim.cooldownUntil[i] = sim.clock + sim.balance.duel.cooldownSec;
 };

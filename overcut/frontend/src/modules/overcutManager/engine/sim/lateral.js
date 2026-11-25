@@ -102,6 +102,15 @@ export const roomAt = (G, d, sign) => {
   return sign > 0 ? G.hi[k] : G.lo[k];
 };
 
+/**
+ * SIM-8 (SIM-FISICA §3.5 claim): do `cars` boxes of the era fit side by side across the measured asphalt at
+ * distance share `d` - their centres `carWidth + clearanceMetres` apart, inside the room of each edge?
+ */
+export const fitsAbreast = (G, d, cars) => {
+  const k = cellOf(G, d);
+  return G.hi[k] - G.lo[k] + 1e-9 >= (cars - 1) * G.spec.separation;
+};
+
 const clampAt = (G, d, value) => {
   const k = cellOf(G, d);
   return value < G.lo[k] ? G.lo[k] : value > G.hi[k] ? G.hi[k] : value;
@@ -194,6 +203,16 @@ const targets = (sim, roleNone, mistake, yieldShare) => {
       // WP8: a car running wide heads for the outside edge until it has paid its error.
       target = roomAt(G, d, sim.wideSign[i]) * mistake.edgeShare;
       sim.latState[i] = LANE.WIDE;
+    } else if (sim.squeezeUntil && sim.squeezeUntil[i] > sim.clock) {
+      // SIM-8: squeezed on the exit (duel.js) - pushed out towards the outside edge (WIDE), or backing out:
+      // it holds its line on the outside and lifts until it is behind (YIELD).
+      if (sim.squeezeWide[i]) {
+        target = roomAt(G, d, sim.squeezeSide[i]) * sim.squeezeShare;
+        sim.latState[i] = LANE.WIDE;
+      } else {
+        target = sim.lat[i];
+        sim.latState[i] = LANE.YIELD;
+      }
     } else if (sim.blueDelay[i] > 0) {
       // WP4 (SIM-FISICA §3.1): a car being lapped moves over to the outside of the next corner.
       target = roomAt(G, d, -nextTurnSign(sim, sim.tau[i])) * yieldShare;

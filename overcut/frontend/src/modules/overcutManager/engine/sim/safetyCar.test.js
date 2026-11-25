@@ -143,8 +143,11 @@ describe("SIM-5 the safety car on the ring (sc-fisico)", () => {
     runs.forEach(({ events }) => {
       const lightsOff = events.find((event) => event.type === "sc-phase" && event.phase === "IN_THIS_LAP");
       expect(lightsOff).toBeDefined();
-      expect(lightsOff.grouped).toBe(true);
-      expect(lightsOff.forced).toBeFalsy();
+      // SIM-8: the train is judged where it leaves TRAIN - at UNLAPPING when the era lets lapped cars by (art.
+      // 55.13: they then pass the train and the SC, which comes in regardless), else at IN_THIS_LAP itself.
+      const leaving = events.find((event) => event.type === "sc-phase" && (event.phase === "UNLAPPING" || event.phase === "IN_THIS_LAP"));
+      expect(leaving.grouped).toBe(true);
+      expect(leaving.forced).toBeFalsy();
     });
   });
 
