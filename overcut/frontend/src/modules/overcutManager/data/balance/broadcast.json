@@ -96,6 +96,21 @@
     "fovDeg": { "min": 8, "max": 70 },
     "critDamp": 10
   },
+  "scriptRig": {
+    "status": "pending",
+    "note": "CAM-4 (start-finish-scripts): cámaras de los guiones de salida y meta, colocadas sobre la trazada (three/cameras.js scriptShot). anchor: pole (casilla del poleman), gridMid (mitad de la parrilla), gridBack (última casilla), scParked (donde espera el coche de seguridad, scParkedBackM detrás de la última casilla), line (la línea de meta), subject (el coche enfocado). Las casillas salen de race-sim.json grid (poleBackMetres + k·gapMetres por detrás de la línea), las mismas que la parrilla física del motor. alongM: metros a lo largo de la pista desde el ancla (positivo, hacia delante); sideM: metros de lado (positivo, hacia el lado del pit lane, circuit.pit.side); height: metros sobre el suelo; width: metros de encuadre como en rigTemplate; aim: qué mira (anchor, subject, gridMid). label: nombre en ES y EN. Todo diseño propio sin calibrar.",
+    "scParkedBackM": 14,
+    "cams": [
+      { "id": "gridHigh", "anchor": "gridMid", "alongM": 70, "sideM": 22, "height": 24, "width": 120, "aim": "gridMid", "label": ["Parrilla desde arriba", "Grid from above"] },
+      { "id": "gridFront", "anchor": "subject", "alongM": 9, "sideM": 1.5, "height": 1.1, "width": 8, "aim": "subject", "label": ["Frontal en la parrilla", "Grid head-on"] },
+      { "id": "scParked", "anchor": "scParked", "alongM": -16, "sideM": 5, "height": 2.4, "width": 18, "aim": "anchor", "label": ["Coche de seguridad en la parrilla", "Safety car on the grid"] },
+      { "id": "startHeadOn", "anchor": "pole", "alongM": 160, "sideM": 3, "height": 10, "width": 70, "aim": "subject", "label": ["Frontal de la salida", "Start head-on"] },
+      { "id": "lineHigh", "anchor": "line", "alongM": 70, "sideM": 16, "height": 15, "width": 40, "aim": "subject", "label": ["Meta desde arriba", "Finish from above"] },
+      { "id": "lineSide", "anchor": "line", "alongM": 45, "sideM": 9, "height": 1.8, "width": 16, "aim": "subject", "label": ["Meta a ras de pista", "Finish line, low"] }
+    ],
+    "fovDeg": { "min": 6, "max": 75 },
+    "critDamp": 10
+  },
   "sequences": {
     "pitStop": {
       "status": "pending",
@@ -121,9 +136,41 @@
         { "trigger": "runPhase:OUT_LAP", "cam": "merge", "minSec": 1, "maxSec": 3 }
       ]
     },
-    "preRace": { "status": "pending", "note": "CAM-4; saltable; SC aparcado en la parrilla solo desde 1993", "shots": [] },
-    "start": { "status": "pending", "note": "CAM-4; lee snapshot.start (SIM-3)", "shots": [] },
-    "finish": { "status": "pending", "note": "CAM-4; finisherShots por coche que cruza (referencia 1,3-7 s)", "finisherShots": null, "shots": [] },
+    "preRace": {
+      "status": "pending",
+      "note": "CAM-4 (start-finish-scripts, F1M24-GAMEPLAY §2.5 y §2.13): la previa, mientras snapshot.start (SIM-3) está en 'grid' o 'formation' sin luces; saltable (skippable: el botón de la vista, components/director/raceScripts.js skipPreRace). Cada plano corta al siguiente que la temporada y la fase permiten (during: fases de snapshot.start en que vale; requires: regla de engine/rules.js que debe tener la temporada: el coche de seguridad aparcado tras la parrilla solo desde 1993, era-defaults.json safetyCar; las onboard, solo en los años de cameras.json). loop: al acabar vuelve al primero mientras dure la previa. Duraciones sacadas con la semilla entre minSec y maxSec (RNF-05). Orden y duraciones de diseño propio: de la referencia (cameras.md §7: SC aparcado, parrilla, piloto, coche) solo qué planos hay.",
+      "skippable": true,
+      "loop": true,
+      "shots": [
+        { "trigger": "start:pre", "cam": "scParked", "during": ["grid"], "requires": "safetyCar", "minSec": 3, "maxSec": 5 },
+        { "trigger": "next", "cam": "gridHigh", "during": ["grid"], "minSec": 3, "maxSec": 6 },
+        { "trigger": "next", "cam": "closeUp", "subject": "focus", "during": ["grid"], "minSec": 3, "maxSec": 5 },
+        { "trigger": "next", "cam": "gridFront", "subject": "focus", "during": ["grid"], "minSec": 2, "maxSec": 4 },
+        { "trigger": "next", "cam": "heli", "during": ["formation"], "minSec": 8, "maxSec": 14 },
+        { "trigger": "next", "cam": "chase", "subject": "focus", "during": ["formation"], "minSec": 4, "maxSec": 7 }
+      ]
+    },
+    "start": {
+      "status": "pending",
+      "note": "CAM-4: la salida. Empieza con la primera luz (start:lights) y aguanta el plano alto de la parrilla hasta el apagado (until: start:out, al menos minSec); luego el frontal alto de la salida y una ráfaga de cámaras de pista hacia la primera curva ('rig:<tipo>': la cámara de ese tipo del rig de zonas más cercana al coche, three/cameras.js rigCamOfType), y vuelve la TV por zonas. Sin PRE_START (la carrera empieza con las luces ya apagadas) el guion arranca en el plano de start:out si la vista llega antes de lateSec de carrera. Diseño propio; la referencia (cameras.md §7: parrilla alta durante el semáforo, frontal en la salida, 4 planos cortos en T1, alta de T2-T3) solo para la estructura.",
+      "lateSec": 1,
+      "shots": [
+        { "trigger": "start:lights", "cam": "gridHigh", "until": "start:out", "minSec": 1 },
+        { "trigger": "start:out", "cam": "startHeadOn", "subject": "pole", "minSec": 2, "maxSec": 3.5 },
+        { "trigger": "next", "cam": "rig:braking", "minSec": 1, "maxSec": 2.5 },
+        { "trigger": "next", "cam": "rig:corner", "minSec": 0.8, "maxSec": 2 },
+        { "trigger": "next", "cam": "rig:highWide", "minSec": 6, "maxSec": 10 }
+      ]
+    },
+    "finish": {
+      "status": "pending",
+      "note": "CAM-4: la meta. Con el evento finished del ganador (pos 1, §1.7, SIM-3) el realizador se queda con él (subject: winner) y luego da a cada coche que cruza la línea un plano corto (finisherShots: cámara cam de scriptRig, duración sacada con la semilla entre minSec y maxSec; un cruce de hace más de maxLagSec ya no se filma; sin nadie más en idleEndSec, o con todos fuera o con la bandera, se acaba y vuelve la TV por zonas al coche enfocado). La repetición del cruce con primer plano es de la repetición (replay.triggers.finish, CAM-3). Duraciones de diseño propio: la referencia (1,3-7 s por coche, cameras.md §7 y race-2 §6) solo para el orden de magnitud.",
+      "finisherShots": { "minSec": 1.5, "maxSec": 4, "cam": "lineSide", "maxLagSec": 6, "idleEndSec": 30 },
+      "shots": [
+        { "trigger": "finished:winner", "cam": "lineHigh", "subject": "winner", "minSec": 3, "maxSec": 5 },
+        { "trigger": "next", "cam": "chase", "subject": "winner", "minSec": 3, "maxSec": 5 }
+      ]
+    },
     "scDeploy": { "status": "pending", "note": "CAM-5; lee snapshot.sc (SIM-5)", "shots": [] }
   },
   "replay": {
@@ -161,13 +208,15 @@
   },
   "inserts": {
     "onboard": {
-      "enabled": false,
-      "perLap": null,
-      "minSec": null,
-      "maxSec": null,
+      "enabled": true,
+      "perLap": 1,
+      "minSec": 3,
+      "maxSec": 6,
       "zoneKinds": ["straight"],
+      "cam": "visor",
+      "seedSalt": "onboard-inserts",
       "status": "pending",
-      "note": "CAM-4 (onboard-inserts): vista del piloto dentro de la realización; referencia 1-2 por vuelta de 3-16 s, sin fijar."
+      "note": "CAM-4 (onboard-inserts): con la TV por zonas, en perLap zonas de un tipo de zoneKinds por vuelta (sacadas con la semilla por coche y vuelta, components/director/raceScripts.js stepInsert) el realizador corta a la vista del piloto (cam, una onboard de cameras.json: solo en sus años, SRS §6) durante una duración sacada entre minSec y maxSec, o hasta que el coche sale de la zona; nunca en una pelea, en el pit lane ni durante un guion. Valores de diseño propio: la referencia (1-2 por vuelta de 3-16 s en rectas, en el último tercio, cameras.md §3) solo para el orden de magnitud; que los elija el realizador es inferencia (M)."
     }
   },
   "scLights": {

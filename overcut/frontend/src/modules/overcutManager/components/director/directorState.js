@@ -24,7 +24,18 @@
  * - `clock`: { now } wall-clock seconds for the follow-the-action hold, `prev` - the
  *   previous result, so the director keeps its camera while the car is still in it - and
  *   `seed`, the race seed of the zone draw on a zone rig (CAM-2); `tau`, the race clock, for
- *   the pit and garage sequences (CAM-3; the wall clock `now` when absent).
+ *   the pit and garage sequences (CAM-3; the wall clock `now` when absent). CAM-4 reads, all
+ *   optional: `start` (snapshot.start, §1.7), `year` (the season: era-bound shots), `zones`
+ *   (three/cameraZones zonesFor, for the onboard inserts), `viewSec` (the view's own race-time
+ *   clock, running during an intro) and `skipPreRace` (the viewer skipped the build-up).
+ *
+ * CAM-4 (components/director/raceScripts.js): `shotKind: "script"` while the pre-race, start or
+ * finish script has the shot - `cameraId` a scriptRig camera, an onboard, "chase", "heli" or
+ * "rig:<type>" (the nearest trackside camera of that type), `camType` its kind; at the flag the
+ * subject is the winner and then each car that crosses the line (`reason: "finish"`).
+ * `shotKind: "insert"` is an onboard insert (`cameraId` the onboard). `script`, `insert` are the
+ * states to hand back as `prev`; `scParked` says the safety car stands behind the grid (an era
+ * with one, before lights out).
  *
  * `shotKind`: "zone" (one car in a trackside camera), "battle" (the subject and its
  * rival framed together), "pit" (the subject in the pit lane or leaving its garage: while
@@ -38,6 +49,7 @@
 import broadcast from "../../data/balance/broadcast.json";
 import { zoneChoice } from "../../three/cameraZones";
 import { etaToBox, stepSequence } from "./pitSequence";
+import { camKindOf, stepInsert, stepScript } from "./raceScripts";
 
 const wrap = (value) => ((value % 1) + 1) % 1;
 const inSpan = (share, from, to) => {
@@ -130,14 +142,26 @@ export const directorState = (focusId, rows = [], events = [], rig = [], clock =
   const share = subject.pose?.progress;
   // CAM-3: the subject's pit stop or garage exit, told shot by shot (on the race clock: RNF-05).
   const tau = Number.isFinite(clock.tau) ? clock.tau : now;
+  // CAM-4: the pre-race, the start and the finish scripts (snapshot.start and the `finished` events,
+  // §1.7); with neither the script stays idle and the director films as before.
+  const script = stepScript(prev?.script ?? null, { start: clock.start ?? null, events, tau, viewSec: clock.viewSec, seed: clock.seed ?? 0, year: clock.year, subjectId, rows, skipPreRace: clock.skipPreRace });
   const sequence = stepSequence(prev?.sequence ?? null, { carId: subjectId, pose: subject.pose, tau, seed: clock.seed ?? 0, etaSec: etaToBox(subject.pose) });
-  if (sequence.active) return { cameraId: sequence.cam, camType: "pit", reason, hold, sequence, subjectIds: [subjectId], shotKind: "pit" };
-  const cam = cameraFor(rig, share, prev?.camType === "pit" ? null : prev?.cameraId ?? null, { seed: clock.seed });
-  const base = { cameraId: cam?.id ?? null, camType: cam?.type ?? null, reason, hold, sequence };
-  if (subject.pose?.inPit) return { ...base, subjectIds: [subjectId], shotKind: "pit" };
+  if (script.active && script.cam && camKindOf(script.cam) !== "tv") {
+    const scriptSubject = script.subjectId ?? subjectId;
+    return { cameraId: script.cam, camType: camKindOf(script.cam), reason: script.subject === "finisher" ? "finish" : reason, hold, sequence, script, insert: null, scParked: script.scParked, subjectIds: [scriptSubject], shotKind: "script" };
+  }
+  const extra = { script, scParked: script.scParked };
+  if (sequence.active) return { cameraId: sequence.cam, camType: "pit", reason, hold, sequence, ...extra, insert: null, subjectIds: [subjectId], shotKind: "pit" };
+  const cam = cameraFor(rig, share, prev?.camType === "pit" || prev?.shotKind === "script" || prev?.shotKind === "insert" ? null : prev?.cameraId ?? null, { seed: clock.seed });
+  const base = { cameraId: cam?.id ?? null, camType: cam?.type ?? null, reason, hold, sequence, ...extra };
+  if (subject.pose?.inPit) return { ...base, insert: null, subjectIds: [subjectId], shotKind: "pit" };
   const rival = rivalOf(rows, subjectId, config);
-  if (rival !== null) return { ...base, subjectIds: [subjectId, rival], shotKind: "battle" };
-  return { ...base, subjectIds: [subjectId], shotKind: "zone" };
+  // CAM-4 onboard-inserts: now and then the driver's view on a straight (never in a fight, in the
+  // pit lane or during a script); needs the circuit's zones (clock.zones) and the season (clock.year).
+  const insert = stepInsert(prev?.insert ?? null, { carId: subjectId, progress: share, tau, seed: clock.seed ?? 0, year: clock.year, zones: clock.zones, blocked: rival !== null || script.active || Boolean(subject.pose?.finished) });
+  if (rival !== null) return { ...base, insert, subjectIds: [subjectId, rival], shotKind: "battle" };
+  if (insert.active) return { ...base, cameraId: insert.cam, camType: "onboard", insert, subjectIds: [subjectId], shotKind: "insert" };
+  return { ...base, insert, subjectIds: [subjectId], shotKind: "zone" };
 };
 
 export default directorState;

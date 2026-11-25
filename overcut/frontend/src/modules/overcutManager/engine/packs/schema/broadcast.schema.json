@@ -3,7 +3,7 @@
   "$comment": "RNF-07: esquema completo de data/balance/broadcast.json (realización de TV, RF-3D-04, RNF-09). Lo crea CAM-1 con todas las claves que leerán CAM-2..5 y HUD; CAM-3 añade pitRig, las secuencias de boxes y garaje, el bloque replay completo y viewSafety. Lo comprueba components/director/directorState.test.js.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "sources", "director", "views", "cycleOrder", "defaultView", "rigTemplate", "framing", "zonesPolicy", "pitRig", "sequences", "replay", "viewSafety", "inserts", "scLights"],
+  "required": ["version", "sources", "director", "views", "cycleOrder", "defaultView", "rigTemplate", "framing", "zonesPolicy", "pitRig", "scriptRig", "sequences", "replay", "viewSafety", "inserts", "scLights"],
   "definitions": {
     "text": {"type": "string", "minLength": 1},
     "status": {"enum": ["current", "pending", "sourced"]},
@@ -21,7 +21,10 @@
         "minSec": {"type": "number", "minimum": 0},
         "maxSec": {"type": "number", "minimum": 0},
         "skippable": {"type": "boolean"},
-        "lead": {"type": "boolean"}
+        "lead": {"type": "boolean"},
+        "during": {"type": "array", "items": {"enum": ["formation", "grid", "lights", "out"]}, "minItems": 1},
+        "requires": {"enum": ["safetyCar", "vsc"]},
+        "until": {"$ref": "#/definitions/text"}
       }
     },
     "sequence": {
@@ -35,9 +38,21 @@
         "finisherShots": {
           "oneOf": [
             {"type": "null"},
-            {"type": "object", "additionalProperties": false, "required": ["minSec", "maxSec"], "properties": {"minSec": {"type": "number", "minimum": 0}, "maxSec": {"type": "number", "minimum": 0}}}
+            {
+              "type": "object", "additionalProperties": false, "required": ["minSec", "maxSec"],
+              "properties": {
+                "minSec": {"type": "number", "minimum": 0},
+                "maxSec": {"type": "number", "minimum": 0},
+                "cam": {"$ref": "#/definitions/cameraId"},
+                "maxLagSec": {"type": "number", "minimum": 0, "maximum": 120},
+                "idleEndSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 600}
+              }
+            }
           ]
         },
+        "skippable": {"type": "boolean"},
+        "loop": {"type": "boolean"},
+        "lateSec": {"type": "number", "minimum": 0, "maximum": 60},
         "shots": {"type": "array", "items": {"$ref": "#/definitions/shot"}}
       }
     },
@@ -93,6 +108,21 @@
         "height": {"type": "number", "minimum": 0, "maximum": 200},
         "width": {"type": "number", "exclusiveMinimum": 0, "maximum": 500},
         "aim": {"enum": ["car", "box"]}
+      }
+    },
+    "scriptCam": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "anchor", "alongM", "sideM", "height", "width", "aim", "label"],
+      "properties": {
+        "id": {"$ref": "#/definitions/cameraId"},
+        "anchor": {"enum": ["pole", "gridMid", "gridBack", "scParked", "line", "subject"]},
+        "alongM": {"type": "number", "minimum": -500, "maximum": 500},
+        "sideM": {"type": "number", "minimum": -200, "maximum": 200},
+        "height": {"type": "number", "minimum": 0, "maximum": 200},
+        "width": {"type": "number", "exclusiveMinimum": 0, "maximum": 500},
+        "aim": {"enum": ["anchor", "subject", "gridMid"]},
+        "label": {"type": "array", "items": {"$ref": "#/definitions/text"}, "minItems": 2, "maxItems": 2}
       }
     },
     "rigTypeName": {"enum": ["braking", "corner", "straight", "headOn", "passPan", "lateralTrack", "highWide", "grandstand", "cable"]},
@@ -245,6 +275,22 @@
         "critDamp": {"type": "number", "exclusiveMinimum": 0}
       }
     },
+    "scriptRig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "scParkedBackM", "cams", "fovDeg", "critDamp"],
+      "properties": {
+        "status": {"$ref": "#/definitions/status"},
+        "note": {"type": "string"},
+        "scParkedBackM": {"type": "number", "minimum": 0, "maximum": 200},
+        "cams": {"type": "array", "items": {"$ref": "#/definitions/scriptCam"}, "minItems": 1},
+        "fovDeg": {
+          "type": "object", "additionalProperties": false, "required": ["min", "max"],
+          "properties": {"min": {"type": "number", "exclusiveMinimum": 0, "maximum": 120}, "max": {"type": "number", "exclusiveMinimum": 0, "maximum": 120}}
+        },
+        "critDamp": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
     "viewSafety": {
       "type": "object",
       "additionalProperties": false,
@@ -342,7 +388,9 @@
             "perLap": {"oneOf": [{"type": "null"}, {"type": "number", "minimum": 0, "maximum": 10}]},
             "minSec": {"$ref": "#/definitions/secOrNull"},
             "maxSec": {"$ref": "#/definitions/secOrNull"},
-            "zoneKinds": {"type": "array", "items": {"$ref": "#/definitions/text"}, "minItems": 1},
+            "zoneKinds": {"type": "array", "items": {"enum": ["corner", "braking", "straight", "line"]}, "minItems": 1},
+            "cam": {"$ref": "#/definitions/cameraId"},
+            "seedSalt": {"$ref": "#/definitions/text"},
             "status": {"$ref": "#/definitions/status"},
             "note": {"type": "string"}
           }
