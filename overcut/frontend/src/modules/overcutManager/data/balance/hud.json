@@ -150,6 +150,35 @@
     "foldPanel": true,
     "chequeredBannerSec": 8
   },
+  "sc": {
+    "$comment": "HUD-5 (sc-pose-from-sim, el HUD; F1M24-GAMEPLAY §2.11, §1.5 «Coche de seguridad en la vista», §1.7 sc/vsc; RF-SIM-10, RF-3D-04, RNF-09, RNF-07): la vista solo lee el coche de seguridad del motor (snapshot.sc {phase, s, v, lap, lightsOn} y snapshot.vsc {deltaSec[i], ending}, SIM-5); si faltan, no dibuja ni avisa nada (no inventa: se borran los 90 m delante del líder que ponía LiveRace.js). Solo en las eras con SC (desde 1993) y VSC (desde 2015) según rules.raceControl (SRS §6.2). Decisiones de presentación de OverCut, sin fuente que medir; de F1 Manager 24 ningún valor ni texto. Lo comprueba components/hud5.test.js.",
+    "status": "behaviour",
+    "phaseLabels": {
+      "$comment": "La cabecera de bandera y la torre añaden a «Coche de seguridad» la fase que publica el motor (DEPLOYED, PICKUP, TRAIN, UNLAPPING, IN_THIS_LAP, RESTART), con texto propio de OverCut.",
+      "enabled": true
+    },
+    "inThisLap": {
+      "$comment": "Banner «El coche de seguridad entra esta vuelta» mientras dura la vuelta en que se retira: con snapshot.sc, mientras phase sea IN_THIS_LAP; sin él (modo rápido, o motor sin SIM-5), engineFallback deja leerlo del propio motor: la vuelta del líder que termina en el fin del periodo de SC (eventos sc/sc-in; carrera por pasos: periodo cerrado con tolerancia de un paso) o, en la carrera por pasos aún abierta, state.safetyCar con una vuelta pendiente (laps = 1) ya pasada la vuelta de despliegue (since). No es un temporizador de la vista: es la cuenta del motor.",
+      "enabled": true,
+      "engineFallback": true
+    },
+    "vscEnding": {
+      "$comment": "Banner «VSC terminando» mientras snapshot.vsc.ending (el aviso de la dirección de carrera antes del verde, FIA Sporting Regulations desde 2015; su duración la decide el motor, SIM-5). Sin snapshot.vsc no hay banner: el modo rápido no tiene ese aviso.",
+      "enabled": true
+    },
+    "vscDelta": {
+      "$comment": "Delta de VSC en la tarjeta de cada coche propio mientras hay VSC (snapshot.vsc.deltaSec[i], índice del coche en la carrera). positiveMeans: qué significa un delta positivo en el motor; margin = el piloto va más lento que el tiempo mínimo de la FIA (legal, como el delta del volante), deficit = va más rápido. Con margen ≥ tightBelowSec se muestra como en margen, por debajo como justo y con margen negativo como por debajo del delta (aviso, con texto y no solo color, RNF-09). decimals: cifras del número. tightBelowSec es decisión de presentación de OverCut; la tolerancia real la aplica el motor.",
+      "enabled": true,
+      "positiveMeans": "margin",
+      "tightBelowSec": 0.5,
+      "decimals": 1
+    },
+    "map": {
+      "$comment": "Mapa 2D (RaceStage, RNF-09): el coche de seguridad donde lo pone el motor (snapshot.sc.s, fracción de vuelta como yellow.s), interpolado entre las instantáneas por paso del worker si las traen; si solo llega la del tick, se dibuja esa. staleSec: segundos de carrera tras los que una posición del motor ya no se dibuja si la imagen va por detrás o por delante de ella.",
+      "enabled": true,
+      "staleSec": 5
+    }
+  },
   "$transitionSec": "WKD-1 (session-options-transition, §2.12.2: hud.json transitionSec): segundos de la transición con el logotipo de OverCut entre pantallas del fin de semana; saltable y sin animación con prefers-reduced-motion. pending: null = la fija WKD-1; mientras, sin transición (hoy).",
   "transitionSec": null
 }
