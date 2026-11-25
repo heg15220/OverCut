@@ -68,9 +68,10 @@ import {
   applyContact, applyPitStop, cancelPit as quickCancelPit, createRace, decideInvestigations, investigate, pitStopTime, delayStop as quickDelayStop, skipStop as quickSkipStop, duePitPenalty, energyStep, jumpStartChecks, markPenaltyServed, mixEffect, modeEffect, pitLaneLoss,
   rainRedFlagCheck, redFlagRestart, redFlagTyres, requestPit as quickRequestPit, restartProcedureOf, setErs as quickSetErs, setMix as quickSetMix,
   setMode as quickSetMode, setTeamOrder as quickSetTeamOrder, showRedFlag, spotOn, stateRules, waveYellow,
+  activeDebris, applyDebrisPuncture, debrisPass, judgeTrackLimits, rollFloorDamage, rollTrackLimits, setTactics as quickSetTactics, tacticTime,
 } from "../race";
 import { byYear, raceBalance } from "../rules";
-import { calibrationFor } from "../incidents";
+import { calibrationFor, damageOf } from "../incidents";
 import { circuitFor } from "../venue";
 import { LANE_NAMES, ROLE, battleOf, battleSetup, battleStep, drsAllowed, duelWatch, endDuel, lineRadio, openDuel, trySwitchback } from "./duel";
 import { exitBlocked, gateBoxes, lateralSetup, rejoin, roomAt, stepLateral } from "./lateral";
@@ -87,6 +88,10 @@ import { SC_BALANCE, neutralAfter, neutralLeader, neutralLine, neutralStep, pitC
 import { TYRE_THERMAL, heatStep, legacyIndexOf, loadOf, windowFor } from "../tyres/thermal";
 
 export const SIM_BALANCE = balanceData;
+
+/** SIM-7 tacticas (race-sim.json tactics) and the error's trip off the road (race-physics.json mistake.recovery). */
+const TACTICS = balanceData.tactics;
+const RECOVERY = physicsData.mistake.recovery;
 
 const frac = (value) => value - Math.floor(value);
 
@@ -137,6 +142,9 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData, pre
       corners: createStream(`${seed}::step::corners`),
       // SIM-4 (RF-SIM-10): how long each local yellow stays out, its own stream (no other draw moves).
       yellows: createStream(`${seed}::step::yellows`),
+      // SIM-7 (RF-SIM-09/10, RF-DEV-08): track limits and damage (floor, debris), each its own stream (RNF-05).
+      limits: createStream(`${seed}::step::limits`),
+      damage: createStream(`${seed}::step::damage`),
     },
     rules,
     // RF-SIM-06: the era's dirty air is the quick mode's (rules.js), the tow is step-only data.
@@ -208,6 +216,17 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData, pre
     wideSign: new Int8Array(n),
     recoverUntil: new Float64Array(n),
     incident: new Array(n).fill(null),
+    // SIM-7 errores-visibles: until when a paid error shows as LOCKUP (`lon`), and the trip through the run-off
+    // (race-physics.json mistake.recovery): metres beyond the asphalt edge and on which side (+ right).
+    lonUntil: new Float64Array(n),
+    offM: new Float64Array(n),
+    offSide: new Int8Array(n),
+    // SIM-7: this lap's track-limits offence and debris puncture, at a corner (time share, -1 none; corner -1 = unknown).
+    limitsTau: new Float64Array(n).fill(-1),
+    limitsCorner: new Int32Array(n).fill(-1),
+    debrisTau: new Float64Array(n).fill(-1),
+    debrisCorner: new Int32Array(n).fill(-1),
+    debrisLimp: new Float64Array(n),
     lapFlags: new Uint8Array(n),
     lat: new Float64Array(n),
     latTarget: new Float64Array(n),
@@ -523,7 +542,8 @@ const planEnergy = (state, i, battery, energyTime) => {
   en.kCar[i] = 0;
   en.planned[i] = 0;
   if (!ers || car.battery === null || car.battery === undefined) return;
-  const deploy = lapDeployOf({ rules: sim.rules, spec: ers.spec, plan: ers.plan, mode: car.ersMode, battery });
+  // SIM-7: the battle assist's mode for this lap when it differs from the pit wall's (race.js lapBudget car.ersLap).
+  const deploy = lapDeployOf({ rules: sim.rules, spec: ers.spec, plan: ers.plan, mode: car.ersLap || car.ersMode, battery });
   const kCar = cellsFor(ers.plan, deploy);
   en.kCar[i] = kCar;
   en.planned[i] = deploy;
@@ -714,6 +734,33 @@ const beginLap = (state, i, lap, t) => {
     sim.failReason[i] = failure.reason;
     sim.failCorner[i] = corner ?? 0;
   }
+  lapExtras(state, i, lap);
+};
+
+/**
+ * SIM-7 (errores-visibles, danos-visibles): the quick mode's per-lap rolls, at the line on their own streams -
+ * a track-limits offence (judged at its corner, checkpoints), floor damage (from the next lap, as the quick
+ * mode) and a puncture on debris (paid at the debris' corner).
+ */
+const lapExtras = (state, i, lap) => {
+  const sim = state._sim;
+  const car = state.cars[i];
+  const sc = state.safetyCar;
+  car.lapDeleted = false;
+  sim.limitsTau[i] = -1;
+  const limits = rollTrackLimits(state, car, { rules: sim.rules, wetness: wetnessAt(state, lap), sc, stream: sim.streams.limits });
+  if (limits !== undefined) {
+    sim.limitsCorner[i] = limits ?? -1;
+    sim.limitsTau[i] = apexTauOf(sim, limits ?? null, sim.streams.limits);
+  }
+  rollFloorDamage(state, car, { lap, kind: car.pendingMistake ? car.mistakeKind : null, rules: sim.rules, sc, stream: sim.streams.damage });
+  sim.debrisTau[i] = -1;
+  const debris = debrisPass(state, car, { raceLap: sim.leaderLap, stream: sim.streams.damage });
+  if (debris) {
+    sim.debrisCorner[i] = debris.corner ?? -1;
+    sim.debrisLimp[i] = debris.limp;
+    sim.debrisTau[i] = apexTauOf(sim, debris.corner ?? null, sim.streams.damage);
+  }
 };
 
 /**
@@ -784,9 +831,11 @@ const endLap = (state, i, lap, tc) => {
   if (sim.lapFlags[i] & 24) entry.held = true;
   // A lap through a local yellow (RF-SIM-10).
   if (sim.lapFlags[i] & 32) entry.yellow = true;
+  // SIM-7: a lap deleted for track limits (no best lap from it, as in the quick mode).
+  if (sim.lapFlags[i] & 64) entry.deleted = true;
   car.history.push(entry);
   car.pit = null;
-  if (!(sim.lapFlags[i] & 7) && (car.bestLap === null || lapTime < car.bestLap)) car.bestLap = lapTime;
+  if (!(sim.lapFlags[i] & 71) && (car.bestLap === null || lapTime < car.bestLap)) car.bestLap = lapTime;
 
   // Timing at the line: who crossed this line just before, and the leader.
   const baseLap = state.race.baseLap;
@@ -1008,6 +1057,14 @@ const advance = (state, i) => {
   const car = state.cars[i];
   const sc = state.safetyCar;
   const baseLap = state.race.baseLap;
+  // SIM-7 (mistake.recovery.path): out through the run-off while the error is paid, then back to the asphalt.
+  if (sim.offSide[i] !== 0) {
+    if (sim.incident[i]) sim.offM[i] = Math.min(RECOVERY.runoffMetres, sim.offM[i] + RECOVERY.outRate * dt);
+    else {
+      sim.offM[i] = Math.max(0, sim.offM[i] - RECOVERY.rejoinRate * dt);
+      if (sim.offM[i] === 0) sim.offSide[i] = 0;
+    }
+  }
   const a = sim.ahead[i];
   const gapS = sim.gapS[i];
   const gapM = sim.gapM[i];
@@ -1045,6 +1102,8 @@ const advance = (state, i) => {
     // RF-SIM-11: the spray of the car ahead, all round the lap (the quick mode adds it to the wake).
     if (sim.sprayH[i] > 0) mult -= sprayLossOf(sim.sprayH[i], gapS) / sim.budget[i];
     if (sim.drsOpen[i] > 0) mult += balance.drs.speedGain;
+    // SIM-7 tacticas: in clean-air mode the driver lifts within the target gap, maxDropSecPerLap a lap (as the quick mode).
+    if (car.tactics && car.tactics.cleanAir && sim.lapDiff[i] === 0 && gapS < TACTICS.cleanAir.targetGapSec) mult -= TACTICS.cleanAir.maxDropSecPerLap / sim.budget[i];
     // Blue flags: a car about to be lapped moves over, once per car lapping it; both
     // lose the quick mode's time for it (race.js blueFlags).
     if (sim.lapDiff[i] < 0 && gapM < balance.blueFlags.windowMetres && !(sim.blueBy[a] === i && sim.blueUntil[a] > sim.clock)) {
@@ -1091,7 +1150,7 @@ const advance = (state, i) => {
   // on the same lap, more deployment (the era's overtake row against deploy), more drain.
   const ot = sim.overtake;
   if (ot) {
-    const on = !sc && a >= 0 && sim.inPit[i] === 0 && car.ersMode === "overtake" && sim.lapDiff[i] === 0 && gapS < ot.gap && (car.battery ?? 0) > ot.minCharge;
+    const on = !sc && a >= 0 && sim.inPit[i] === 0 && (car.ersLap || car.ersMode) === "overtake" && sim.lapDiff[i] === 0 && gapS < ot.gap && (car.battery ?? 0) > ot.minCharge;
     if (on) {
       mult += ot.gain / sim.budget[i];
       car.battery = Math.max(0, car.battery - (ot.drain * dt) / sim.budget[i]);
@@ -1306,6 +1365,11 @@ const checkpoints = (state, i, from, to) => {
     const turn = sim.tables.attacks.find((attack) => attack.corner === sim.mistakeCorner[i]);
     // Wide on the exit: to the outside of the corner (sign + = right-hander, outside = left).
     sim.wideSign[i] = how.wide ? -(turn?.sign ?? 1) : 0;
+    // SIM-7 errores-visibles (F1M24-GAMEPLAY §1.7 lon[i], §2.10): the lock-up at the start of the error, and the
+    // trip through the run-off on the outside for the kinds that leave the road (race-physics.json mistake.recovery).
+    sim.lonUntil[i] = sim.clock + (how.lockupSec || 0);
+    const recovery = physicsData.mistake.recovery;
+    sim.offSide[i] = recovery && recovery.path && recovery.kinds.includes(sim.incident[i]) ? sim.wideSign[i] || -(turn?.sign ?? 1) : 0;
     if (sim.duelOther[i] >= 0) endDuel(sim, i);
     sim.lapFlags[i] |= 2;
     const corner = sim.mistakeCorner[i] || null;
@@ -1314,6 +1378,21 @@ const checkpoints = (state, i, from, to) => {
     if (!state.safetyCar && raceBalance.raceControl.yellow.mistakeKinds.includes(car.mistakeKind)) {
       waveYellow(state, corner, car.id, lap);
       syncYellows(state);
+    }
+  }
+  // SIM-7: the track-limits offence rolled at the line, judged at its corner (the lap deleted, the era's ladder).
+  if (sim.limitsTau[i] >= 0 && (sim.limitsTau[i] > from && sim.limitsTau[i] <= to)) {
+    sim.limitsTau[i] = -1;
+    if (sim.inPit[i] === 0) {
+      judgeTrackLimits(state, car, sim.limitsCorner[i] >= 0 ? sim.limitsCorner[i] : null, { lap, raceLap: sim.leaderLap, rules: sim.rules });
+      if (car.lapDeleted) sim.lapFlags[i] |= 64;
+    }
+  }
+  // SIM-7: a puncture on debris at the debris' corner - the car limps on (its delay) and stops at the next entry.
+  if (sim.debrisTau[i] >= 0 && (sim.debrisTau[i] > from && sim.debrisTau[i] <= to)) {
+    sim.debrisTau[i] = -1;
+    if (sim.inPit[i] === 0 && !car.puncture) {
+      sim.delay[i] += applyDebrisPuncture(state, car, { corner: sim.debrisCorner[i] >= 0 ? sim.debrisCorner[i] : null, limp: sim.debrisLimp[i] }, lap);
     }
   }
   if (sim.inPit[i] === 0 && (tables.pitEntryTau > from && tables.pitEntryTau <= to)) enterPit(state, i, lap);
@@ -1334,9 +1413,11 @@ const checkpoints = (state, i, from, to) => {
     for (let z = 0; z < tables.attacks.length; z += 1) {
       if (!(tables.attacks[z].tau > from && tables.attacks[z].tau <= to)) continue;
       const a = sim.ahead[i];
-      // WP8: no attack while paying an error or getting back on the line.
-      const recovering = sim.incident[i] !== null || sim.recoverUntil[i] > sim.clock;
-      if (a >= 0 && sim.lapDiff[i] === 0 && !recovering) {
+      // WP8: no attack while paying an error or getting back on the line (SIM-7: or still off the road).
+      const recovering = sim.incident[i] !== null || sim.recoverUntil[i] > sim.clock || sim.offM[i] > 0;
+      // SIM-7 tacticas: in clean-air mode no attack within the target gap (race-sim.json tactics.cleanAir).
+      const holding = car.tactics && car.tactics.cleanAir && sim.gapS[i] < TACTICS.cleanAir.targetGapSec;
+      if (a >= 0 && sim.lapDiff[i] === 0 && !recovering && !holding) {
         const b = sim.behind[i];
         const behindGap = b >= 0 && sim.lapDiff[b] === 0 ? sim.gapS[b] : Infinity;
         openDuel(state, i, z, a, sim.gapS[i], b, behindGap);
@@ -2199,6 +2280,15 @@ export const snapshot = (state) => {
     lane: sim.inPit[i] !== 0 ? "pit" : LANE_NAMES[sim.latState[i]],
     // WP8: an error being paid ("lockup" | "wide" | "spin"), for the view.
     incident: sim.incident[i],
+    // SIM-7 (F1M24-GAMEPLAY §1.7 `lon[i]`): "NORMAL" | "LOCKUP" | "SPIN" (race-physics.json mistake.kinds[].lon).
+    lon: lonOf(sim, i),
+    // SIM-7 (mistake.recovery.path): beyond the asphalt edge on `side` (+1 right, -1 left), going OUT or REJOINing.
+    offTrack: sim.offM[i] > 0 ? { metres: Math.round(sim.offM[i] * 100) / 100, side: sim.offSide[i], phase: sim.incident[i] ? "OUT" : "REJOIN" } : null,
+    // SIM-7 (§1.7 `damage[i]`): front wing and floor as RF-DEV-08 states, a puncture, s a lap lost; null undamaged.
+    damage: damageOf(car),
+    // SIM-7: the driver's tactics and track-limits offences so far (HUD-7).
+    tactics: car.tactics || null,
+    trackLimits: car.trackLimits || 0,
     // RF-SIM-01 / RF-SIM-02 (powertrain.js): gear, rpm, throttle, brake, g, pitch, roll, front load share.
     ...driveSnapshot(sim.pt, sim.drive, i),
     // RF-SIM-04 / RF-SIM-05: the fuel on board (kg) and its flow, and the energy store (MJ, kW, clipping).
@@ -2214,7 +2304,18 @@ export const snapshot = (state) => {
   // SIM-5 / F1M24-GAMEPLAY §1.7 `snapshot.sc` and `snapshot.vsc` (null without one).
   cars.sc = scSnapshot(state);
   cars.vsc = vscSnapshot(state);
+  // SIM-7 danos-visibles: debris on the track, at its corner's apex (distance share `s`), for the view.
+  cars.debris = activeDebris(state, sim.leaderLap).map((item) => ({ corner: item.corner, s: sim.cornerRange.get(item.corner)?.apex ?? null, until: item.until }));
   return cars;
+};
+
+/** SIM-7: the longitudinal state of car `i` for the view (F1M24-GAMEPLAY §1.7 `lon[i]`). */
+const lonOf = (sim, i) => {
+  const kind = sim.incident[i];
+  if (!kind) return "NORMAL";
+  if (sim.clock < sim.lonUntil[i]) return "LOCKUP";
+  const how = physicsData.mistake.kinds[kind];
+  return how ? how.lon : "NORMAL";
 };
 
 /**
@@ -2292,6 +2393,12 @@ export const setOvertakeRisk = (state, carId, level) => {
   if (car && state._sim.balance.risk.levels[level]) car.overtakeRisk = level;
   return state;
 };
+
+/**
+ * SIM-7 tacticas (RF-CMD-01, F1M24-GAMEPLAY §2.8): race.js setTactics (era-checked: battleAssist only with
+ * KERS/ERS), with the kerbs' time felt from now on rather than from the next line (as setMode).
+ */
+export const setTactics = (state, carId, tactics) => retimed(state, carId, () => quickSetTactics(state, carId, tactics), (car) => tacticTime(car, state.race.baseLap));
 
 export const DEFENCE_KEYS = Object.keys(balanceData.defence.styles);
 export const RISK_KEYS = Object.keys(balanceData.risk.levels);

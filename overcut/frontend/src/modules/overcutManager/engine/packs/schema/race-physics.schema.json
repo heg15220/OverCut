@@ -174,10 +174,25 @@
           "type": "object",
           "additionalProperties": false,
           "required": ["lockup", "wide", "spin"],
-          "properties": {"lockup": {"type": "object", "additionalProperties": false, "required": ["slowFactor", "stopShare", "wide"], "properties": {"slowFactor": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}, "stopShare": {"$ref": "#/definitions/share"}, "wide": {"type": "boolean"}}}, "wide": {"type": "object", "additionalProperties": false, "required": ["slowFactor", "stopShare", "wide"], "properties": {"slowFactor": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}, "stopShare": {"$ref": "#/definitions/share"}, "wide": {"type": "boolean"}}}, "spin": {"type": "object", "additionalProperties": false, "required": ["slowFactor", "stopShare", "wide"], "properties": {"slowFactor": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}, "stopShare": {"$ref": "#/definitions/share"}, "wide": {"type": "boolean"}}}}
+          "properties": {"lockup": {"type": "object", "additionalProperties": false, "required": ["slowFactor", "stopShare", "wide", "lon", "lockupSec"], "properties": {"slowFactor": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}, "stopShare": {"$ref": "#/definitions/share"}, "wide": {"type": "boolean"}, "lon": {"enum": ["NORMAL", "LOCKUP", "SPIN"]}, "lockupSec": {"type": "number", "minimum": 0}}}, "wide": {"type": "object", "additionalProperties": false, "required": ["slowFactor", "stopShare", "wide", "lon", "lockupSec"], "properties": {"slowFactor": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}, "stopShare": {"$ref": "#/definitions/share"}, "wide": {"type": "boolean"}, "lon": {"enum": ["NORMAL", "LOCKUP", "SPIN"]}, "lockupSec": {"type": "number", "minimum": 0}}}, "spin": {"type": "object", "additionalProperties": false, "required": ["slowFactor", "stopShare", "wide", "lon", "lockupSec"], "properties": {"slowFactor": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}, "stopShare": {"$ref": "#/definitions/share"}, "wide": {"type": "boolean"}, "lon": {"enum": ["NORMAL", "LOCKUP", "SPIN"]}, "lockupSec": {"type": "number", "minimum": 0}}}}
         },
         "edgeShare": {"$ref": "#/definitions/share"},
-        "recoverySec": {"type": "number", "minimum": 0}
+        "recoverySec": {"type": "number", "minimum": 0},
+        "lonNote": {"type": "string"},
+        "recovery": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "kinds", "runoffMetres", "outRate", "rejoinRate"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "path": {"type": "boolean"},
+            "kinds": {"type": "array", "items": {"enum": ["lockup", "wide", "spin"]}},
+            "runoffMetres": {"type": "number", "minimum": 0, "maximum": 50},
+            "outRate": {"$ref": "#/definitions/positive"},
+            "rejoinRate": {"$ref": "#/definitions/positive"},
+            "status": {"type": "string"}
+          }
+        }
       }
     },
     "lateral": {

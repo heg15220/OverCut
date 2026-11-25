@@ -307,5 +307,13 @@
     "gaining": { "withinSec": 3, "minGainSecPerLap": 0.3 },
     "closing": { "withinSec": 1.5, "minGainSecPerLap": 0.3 },
     "quietSec": { "gaining": 90, "closing": 90, "attack-failed": 30, "passed": 0, "defended": 30, "lost": 0 }
+  },
+  "tactics": {
+    "$comment": "SIM-7 tacticas (RF-CMD-01, RF-SIM-05, RF-SIM-09, F1M24-GAMEPLAY §2.8): las tácticas que el muro da a un piloto en los dos modos (race.js y engine/sim/stepRace.js setTactics). defaults: lo que lleva cada coche al salir (los rivales no las cambian: su IA ya busca aire limpio con su modo, driver-attributes.json effects.ai). avoidKerbs: no pisar los pianos de riesgo; cuesta lapLossShare de la vuelta base en las curvas y multiplica los errores (mistakeFactor), los límites de pista (trackLimitsFactor) y el daño de suelo por pianos (floorDamageFactor, race-reliability.json damage.floor). cleanAir: con el de delante a menos de targetGapSec el piloto no ataca y levanta hasta abrir ese hueco, a lo sumo maxDropSecPerLap por vuelta (modo rápido: en el tráfico al final de la vuelta; por pasos: ritmo reducido en proporción mientras dure). battleAssist: solo en eras con KERS/ERS (engine/rules.js commandsFor); con un rival a menos de withinSec delante o detrás en la línea y al menos minBatteryPct de batería, la vuelta se corre con el modo deploy (overtake en 2026 si ataca) dentro de los límites de energía de la era (engine/energy.js battleAssistModeOf); fuera de pelea vuelve el modo elegido. Todo es comportamiento de diseño propio sin fuente pública: NV (del juego de referencia solo se toma la idea de las tres casillas, ningún valor).",
+    "status": "NV",
+    "defaults": { "avoidKerbs": false, "cleanAir": false, "battleAssist": false },
+    "avoidKerbs": { "lapLossShare": 0.001, "mistakeFactor": 0.8, "trackLimitsFactor": 0.4, "floorDamageFactor": 0.3 },
+    "cleanAir": { "targetGapSec": 1.5, "maxDropSecPerLap": 0.6 },
+    "battleAssist": { "withinSec": 1, "minBatteryPct": 20 }
   }
 }

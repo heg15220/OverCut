@@ -215,7 +215,32 @@
         "aggressionPerZ": 0.5,
         "chanceVer": "NV",
         "penalties": ["time5", "time10", "driveThrough"]
+      },
+      "trackLimits": {
+        "$comment": "SIM-7 errores-visibles (RF-SIM-10): salirse de los límites de pista. No pasa por investigación: el escalón de cada infracción lo fija la era (era-defaults.json trackLimits.race: borrado de vuelta, bandera blanca y negra, 5 s y 10 s). `from` es el primer año con ese procedimiento en era-defaults; `penalties` solo sirve de respaldo si la era no tiene el tipo pedido por el escalón (penaltyFor).",
+        "from": 2023,
+        "penalties": ["time5", "time10", "driveThrough"]
       }
     }
+  },
+  "trackLimits": {
+    "$comment": "SIM-7 errores-visibles (RF-SIM-09, RF-SIM-10, F1M24-GAMEPLAY §2.10). Probabilidad de que un coche se salga de los límites de pista en una vuelta de carrera en verde (ni SC ni VSC), solo en las eras con procedimiento (era-defaults.json trackLimits; null = nadie lo juzga). perCarLap y circuits están MEDIDOS en OpenF1 race_control de las 46 carreras de 2023 y 2024 (overcut/src/main/resources/scripts/track_limits_from_openf1.py, ejecutado el 25/11/2026; 705 infracciones en 55.380 vueltas-coche, contando las 'TIME ... DELETED - TRACK LIMITS' y no los mensajes '(NEXT LAP)'): perCarLap es la media de todas y circuits la de cada circuito (id de f1db); un circuito sin medir usa perCarLap. El resto son factores de comportamiento NV (sin fuente pública): byMode multiplica según el modo de ritmo, aggressionPerZ por desviación típica de la agresividad del piloto (engine/drivers/skills.js skillZ), avoidKerbs (táctica evitar pianos, race-sim.json tactics) la reduce, wornTyreGain la sube por encima de wornFrom de vida usada del neumático, wetFactor con agua. Las tiradas van en su propio flujo (seed::limits en el modo rápido, seed::step::limits por pasos): no mueven ninguna otra tirada (RNF-05). radioCooldownLaps: vueltas antes de repetir el aviso al piloto del jugador.",
+    "status": "source",
+    "source": "https://api.openf1.org/v1/race_control (2023-2024)",
+    "perCarLap": 0.01273,
+    "circuits": {
+      "austin": 0.03214, "baku": 0.00196, "catalunya": 0.00909, "hungaroring": 0.00821, "imola": 0.00873, "interlagos": 0.00761,
+      "jeddah": 0.0165, "las-vegas": 0.011, "lusail": 0.02851, "melbourne": 0.00129, "mexico-city": 0.00704, "miami": 0.01272,
+      "monaco": 0.01154, "montreal": 0.01464, "monza": 0.01299, "bahrain": 0.01579, "shanghai": 0.00446, "silverstone": 0.01202,
+      "marina-bay": 0.01089, "spa-francorchamps": 0.0142, "spielberg": 0.02394, "suzuka": 0.01179, "yas-marina": 0.025, "zandvoort": 0.00174
+    },
+    "byMode": { "conserve": 0.6, "save": 0.75, "normal": 1, "push": 1.3, "attack": 1.6 },
+    "aggressionPerZ": 0.25,
+    "wornFrom": 0.75,
+    "wornTyreGain": 1.5,
+    "wetFactor": 0.5,
+    "max": 0.2,
+    "behaviourStatus": "NV",
+    "radioCooldownLaps": 3
   }
 }

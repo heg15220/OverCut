@@ -162,6 +162,50 @@
         }
       }
     },
+    "damage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["view", "floor", "debris", "radioCooldownLaps"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "status": {"enum": ["NV", "measured"]},
+        "view": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["wing", "floor"],
+          "properties": {
+            "wing": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": false, "required": ["upTo", "state"], "properties": {"upTo": {"type": ["number", "null"], "minimum": 0}, "state": {"enum": ["perfect", "light", "heavy", "destroyed"]}}}},
+            "floor": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": false, "required": ["upTo", "state"], "properties": {"upTo": {"type": ["number", "null"], "minimum": 0}, "state": {"enum": ["perfect", "light", "heavy", "destroyed"]}}}}
+          }
+        },
+        "floor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["retiredPerCarRace", "referencePerCarRace", "nonRetiringPerRetiring", "kerbShare", "offTrackChance", "offTrackKinds", "lossSec"],
+          "properties": {
+            "retiredPerCarRace": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["from", "to", "value"], "properties": {"from": {"type": "integer"}, "to": {"type": "integer"}, "value": {"$ref": "#/definitions/nonNegative"}}}},
+            "retiredSource": {"type": "string"},
+            "referencePerCarRace": {"type": "number", "exclusiveMinimum": 0},
+            "nonRetiringPerRetiring": {"$ref": "#/definitions/nonNegative"},
+            "kerbShare": {"$ref": "#/definitions/share"},
+            "offTrackChance": {"$ref": "#/definitions/share"},
+            "offTrackKinds": {"type": "array", "items": {"enum": ["lockup", "wide", "spin"]}},
+            "lossSec": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"$ref": "#/definitions/nonNegative"}}
+          }
+        },
+        "debris": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["punctureChance", "neutralFactor", "clearLaps"],
+          "properties": {
+            "punctureChance": {"$ref": "#/definitions/share"},
+            "neutralFactor": {"$ref": "#/definitions/nonNegative"},
+            "clearLaps": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "integer", "minimum": 0}}
+          }
+        },
+        "radioCooldownLaps": {"type": "integer", "minimum": 0}
+      }
+    },
     "measured": {
       "type": "object",
       "additionalProperties": false,

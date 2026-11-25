@@ -67,8 +67,11 @@ import { circuitFor } from "./venue";
 import { commandsFor, drsOpen, penaltyFor, pitLaneSpeedFor, raceBalance as BALANCE, rulesFor } from "./rules";
 import { circuitIdOf, pitLaneFor } from "./sim/pitLane";
 import { expectedStationary, planStop } from "./sim/pitStop";
-import { fuelSpecOf } from "./energy";
-import { RELIABILITY as REL, calibrationFor, contactOutcome, leavesDebris, pickGroup, raceHazards, turnOnePlan, wetRiskOf } from "./incidents";
+import { battleAssistModeOf, fuelSpecOf } from "./energy";
+import {
+  RELIABILITY as REL, calibrationFor, contactOutcome, debrisLapsOf, debrisPunctureChanceOf, floorDamageChancesOf, floorLossOf, leavesDebris, pickGroup, raceHazards, turnOnePlan,
+  wetRiskOf,
+} from "./incidents";
 import simBalance from "../data/balance/race-sim.json";
 import { circuitScFactor, deployNeutralisation, pitClosedFor } from "./sim/safetyCar";
 import {
@@ -182,6 +185,22 @@ export const stationaryTime = ({ year, era, refuel = 0, crew = 60, fuelOnly = fa
 export const crewStream = (state) => {
   if (!state._crew) state._crew = createStream(`${state.seed}::crew`);
   return state._crew;
+};
+
+/**
+ * SIM-7 (RNF-05): the track-limits and the damage streams - their own draws, so neither moves any other
+ * roll. The step simulator has its own pair (sim.streams.limits / damage, `seed::step::*`).
+ */
+export const limitsStream = (state) => {
+  if (state._sim && state._sim.streams.limits) return state._sim.streams.limits;
+  if (!state._limits) state._limits = createStream(`${state.seed}::limits`);
+  return state._limits;
+};
+
+export const damageStream = (state) => {
+  if (state._sim && state._sim.streams.damage) return state._sim.streams.damage;
+  if (!state._damage) state._damage = createStream(`${state.seed}::damage`);
+  return state._damage;
 };
 
 /** RF-SIM-04: does this era refuel in the race? Takes a year or an era. */
@@ -639,13 +658,15 @@ export const energyStep = ({ rules, mode, battery, gapAhead = null }) => {
 export const energyPush = (rules, car) => {
   if (car.battery === null || car.battery === undefined || !rules.energy.balance) return { attack: 0, defend: 0 };
   const spec = rules.energy.balance;
+  // SIM-7: the mode the lap runs on (the battle assist may deploy for the pit wall's choice; lapBudget car.ersLap).
+  const mode = car.ersLap || car.ersMode;
   if (rules.energy.kers) {
-    const kers = spec.modes[car.ersMode] || spec.modes.balanced;
-    return { attack: kers.passBonus, defend: car.ersMode === "deploy" ? spec.defendBonus : 0 };
+    const kers = spec.modes[mode] || spec.modes.balanced;
+    return { attack: kers.passBonus, defend: mode === "deploy" ? spec.defendBonus : 0 };
   }
   if (car.battery <= spec.minChargeToAttack) return { attack: 0, defend: 0 };
   if (car.overtakeActive) return { attack: spec.modes.overtake.passBonus, defend: 0 };
-  const deploying = car.ersMode === "deploy" || car.ersMode === "overtake";
+  const deploying = mode === "deploy" || mode === "overtake";
   return { attack: deploying ? spec.modes.deploy.passBonus : 0, defend: deploying ? spec.defendBonus : 0 };
 };
 
@@ -787,6 +808,11 @@ export const createRace = ({
   cars.forEach((car) => {
     car.defence = car.isUser ? simBalance.defence.default : aiDefenceStyleOf(car);
     car.overtakeRisk = simBalance.risk.default;
+    // SIM-7 tacticas / errores-visibles / danos-visibles: the tactics the car starts with (race-sim.json
+    // tactics.defaults), its track-limits offences and a damaged floor (s a lap).
+    car.tactics = { ...TACTICS.defaults };
+    car.trackLimits = 0;
+    car.floorDamage = 0;
     car.form = raceFormOf(car, rules.year ?? year, formStream, race.circuitType);
   });
   // RF-SIM-14 / RF-SIM-09: each car's failure and crash hazards for this race (engine/incidents.js, f1db by era).
@@ -894,11 +920,18 @@ export const pushEvent = (state, event, lap = state.lap) => {
 /** Laps before the engineer repeats the same message to the same driver. */
 const RADIO_COOLDOWN = { drs: 15, overtake: 15, hot: 8, fuel: 6, battery: 6, issue: 12, cliff: 6, penalty: 3 };
 
-const pushRadio = (state, car, kind, extra = {}, lap = state.lap) => {
+/** `cooldown` (laps) overrides the table for kinds whose cooldown lives in their own data block (SIM-7). */
+const pushRadio = (state, car, kind, extra = {}, lap = state.lap, cooldown = undefined) => {
   const last = state.radio.filter((message) => message.carId === car.id && message.kind === kind).pop();
-  if (last && lap - last.lap < (RADIO_COOLDOWN[kind] ?? 4)) return;
+  if (last && lap - last.lap < (cooldown ?? RADIO_COOLDOWN[kind] ?? 4)) return;
   state.radio.push({ lap, carId: car.id, kind, ...extra });
 };
+
+/** SIM-7 (RNF-07): the tactics (race-sim.json tactics), the track limits (race-eras.json trackLimits) and the damage (race-reliability.json damage). */
+const TACTICS = simBalance.tactics;
+const TRACK_LIMITS = BALANCE.trackLimits;
+const DAMAGE = REL.damage;
+export const TACTIC_KEYS = Object.keys(TACTICS.defaults);
 
 /** A corner on this circuit where a move or a mistake happens: the big stops after long straights first. */
 export const spotOn = (state, stream, kind = "pass") => {
@@ -942,6 +975,49 @@ export const setErs = (state, carId, mode) => {
   if (car && car.battery !== null && car.battery !== undefined && modes.includes(mode)) car.ersMode = mode;
   return state;
 };
+
+/**
+ * SIM-7 tacticas (RF-CMD-01, F1M24-GAMEPLAY §2.8): the driver's tactics, in both modes - `avoidKerbs`
+ * (slower in the corners, fewer mistakes, track-limits offences and kerb damage to the floor), `cleanAir`
+ * (no attack within the target gap; drops back into clean air) and `battleAssist` (deploys in a fight,
+ * only in an era with KERS/ERS: commandsFor). Only the keys given change; unknown keys and values that
+ * are not booleans are ignored. Returns the state.
+ */
+export const setTactics = (state, carId, tactics = {}) => {
+  const car = state.cars.find((entry) => entry.id === carId);
+  if (!car || !tactics || typeof tactics !== "object") return state;
+  const allowed = commandsFor(stateRules(state)).tactics;
+  const next = { ...TACTICS.defaults, ...(car.tactics || {}) };
+  TACTIC_KEYS.forEach((key) => {
+    if (typeof tactics[key] === "boolean" && allowed[key]) next[key] = tactics[key];
+  });
+  car.tactics = next;
+  return state;
+};
+
+/** RF-CMD-01 defence style in the quick mode too ("holdCarBehind", "block", "holdRacingLine"; race-sim.json defence). */
+export const setDefence = (state, carId, style) => {
+  const car = state.cars.find((entry) => entry.id === carId);
+  if (car && simBalance.defence.styles[style]) car.defence = style;
+  return state;
+};
+
+/** RF-CMD-01 overtaking risk in the quick mode too ("low", "normal", "high"; race-sim.json risk). */
+export const setOvertakeRisk = (state, carId, level) => {
+  const car = state.cars.find((entry) => entry.id === carId);
+  if (car && simBalance.risk.levels[level]) car.overtakeRisk = level;
+  return state;
+};
+
+/** The lap's effect of avoiding the kerbs (race-sim.json tactics.avoidKerbs), or null. */
+const kerbsOf = (car) => (car.tactics && car.tactics.avoidKerbs ? TACTICS.avoidKerbs : null);
+
+/**
+ * SIM-7: the seconds the tactics and the damage add to a lap both modes plan (lapBudget): the corners
+ * taken off the kerbs (tactics.avoidKerbs.lapLossShare of the base lap) and a damaged floor (s a lap,
+ * race-reliability.json damage.floor). 0 for a car with neither, so the lap is unchanged to the bit.
+ */
+export const tacticTime = (car, baseLap) => (kerbsOf(car) ? TACTICS.avoidKerbs.lapLossShare * baseLap : 0) + (car.floorDamage || 0);
 
 /**
  * RF-CMD-02: box at the next pit entry. `options.fuel` (laps, refuelling eras only) sets
@@ -1254,8 +1330,12 @@ export const lapBudget = (state, car, { lap = state.lap, wetness, sc = state.saf
   // The battery (RF-SIM-05).
   let energyTime = 0;
   car.overtakeActive = false;
+  // SIM-7 tacticas: the battle assist may run this lap on another mode than the pit wall's (engine/energy.js);
+  // `ersLap` holds it only while it differs, so a mode changed mid-lap still reads live (step mode).
+  const ersMode = sc ? car.ersMode : battleAssistModeOf(rules, car, TACTICS.battleAssist);
+  car.ersLap = ersMode !== car.ersMode ? ersMode : null;
   if (car.battery !== null && car.battery !== undefined) {
-    const step = energyStep({ rules, mode: car.ersMode, battery: car.battery, gapAhead: sc ? null : energyGap !== undefined ? energyGap : car.gapAhead });
+    const step = energyStep({ rules, mode: ersMode, battery: car.battery, gapAhead: sc ? null : energyGap !== undefined ? energyGap : car.gapAhead });
     car.battery = step.battery;
     car.overtakeActive = step.overtake;
     energyTime = step.time;
@@ -1270,7 +1350,8 @@ export const lapBudget = (state, car, { lap = state.lap, wetness, sc = state.saf
   // What the car would do with no scatter: the speed a following driver can actually use to pass.
   const expected =
     baseLap - pace * spp + tyre + fuel + mode.time + mix.time + energyTime + thermal + evolution + car.setup + car.damage + car.issue + (car.form || 0) * baseLap -
-    wing * wetness * baseLap * 0.012;
+    wing * wetness * baseLap * 0.012 +
+    tacticTime(car, baseLap);
   car.expected = expected;
   return { expected, wake, volatility, dirty, cold, wing, wetness, mix, energyTime, spray, rubber: state.evolution || 0, heat };
 };
@@ -1289,12 +1370,133 @@ export const startTerm = (car, gridIndex, stream, scrumShare = 1) =>
  * caller's (a corner of the circuit); a lock-up flat-spots the tyre (+0.8 laps of wear).
  */
 export const rollMistake = (car, { wetness, wing, cold, rubber = 0 }, stream) => {
-  const mistakeChance = mistakeChanceOf({ driver: mistakeFactorOf(car, wetness), mode: car.mode, compound: car.compound, wetness, wing, cold, rubber });
+  // SIM-7 tacticas: off the kerbs the driver makes fewer mistakes (race-sim.json tactics.avoidKerbs.mistakeFactor).
+  const kerbs = kerbsOf(car);
+  const base = mistakeChanceOf({ driver: mistakeFactorOf(car, wetness), mode: car.mode, compound: car.compound, wetness, wing, cold, rubber });
+  const mistakeChance = kerbs ? base * kerbs.mistakeFactor : base;
   car.pendingMistake = stream.chance(mistakeChance) ? stream.range(MISTAKE.costSec[0], MISTAKE.costSec[1]) : 0;
   if (!car.pendingMistake) return null;
   const kind = car.pendingMistake > MISTAKE.spinAboveSec ? "spin" : car.pendingMistake > MISTAKE.wideAboveSec ? "wide" : "lockup";
   if (kind === "lockup") car.tyreWear += MISTAKE.lockupWearLaps;
   return kind;
+};
+
+// ------------------------------------------------- SIM-7 track limits and damage
+
+const round1 = (x) => Math.round(x * 10) / 10;
+
+/**
+ * Pure (SIM-7 errores-visibles, RF-SIM-09, RF-SIM-10): the chance a car leaves the track limits on one
+ * green lap - the circuit's rate measured in OpenF1 race_control 2023-2024 (race-eras.json trackLimits,
+ * the mean where the circuit was not measured) × pace mode × the driver's aggression × the kerbs avoided
+ * × a worn tyre × water. 0 in an era without the procedure (era-defaults.json trackLimits).
+ */
+export const trackLimitsChanceOf = ({ rules, circuitId = null, mode = "normal", aggressionZ = 0, avoidKerbs = false, tyreLife = 0, wetness = 0 }) => {
+  if (!rules.raceControl.trackLimits) return 0;
+  const tl = TRACK_LIMITS;
+  const base = circuitId && tl.circuits[circuitId] !== undefined ? tl.circuits[circuitId] : tl.perCarLap;
+  const aggression = Math.max(0, 1 + tl.aggressionPerZ * aggressionZ);
+  const kerbs = avoidKerbs ? TACTICS.avoidKerbs.trackLimitsFactor : 1;
+  const worn = 1 + tl.wornTyreGain * Math.max(0, tyreLife - tl.wornFrom);
+  return clamp(base * (tl.byMode[mode] ?? 1) * aggression * kerbs * worn * (1 + tl.wetFactor * wetness), 0, tl.max);
+};
+
+/**
+ * SIM-7: does the car exceed the track limits this lap (green only, on the limits stream)? Returns the
+ * corner (or null) where it does, or undefined when it does not. The caller judges it where its clock is
+ * (judgeTrackLimits): at once in the quick mode, at that corner in the step mode.
+ */
+export const rollTrackLimits = (state, car, { rules = stateRules(state), wetness = 0, sc = state.safetyCar, stream = limitsStream(state) } = {}) => {
+  if (sc || car.status !== "running" || !rules.raceControl.trackLimits) return undefined;
+  const chance = trackLimitsChanceOf({
+    rules, circuitId: state.pitLane?.circuitId ?? null, mode: car.mode, aggressionZ: skillZ(car, "aggression"), avoidKerbs: Boolean(kerbsOf(car)),
+    tyreLife: isWetTyre(car.compound) ? 0 : tyreLifeUsed(car, rules), wetness,
+  });
+  if (!stream.chance(chance)) return undefined;
+  return spotOn(state, stream, "mistake");
+};
+
+/**
+ * SIM-7 / RF-SIM-10: race control on a track-limits offence, by the era's ladder (era-defaults.json
+ * trackLimits.race): the lap is deleted (no fastest lap from it), the black-and-white flag at
+ * `blackWhiteAt` (with a warning to the player's driver), and the time penalty of each step after it.
+ * `lap` is the car's lap, `raceLap` the race's (the step sim passes both).
+ */
+export const judgeTrackLimits = (state, car, corner, { lap = state.lap, raceLap = lap, rules = stateRules(state) } = {}) => {
+  const procedure = rules.raceControl.trackLimits;
+  if (!procedure || car.status !== "running") return;
+  car.trackLimits = (car.trackLimits || 0) + 1;
+  const strike = car.trackLimits;
+  const deleted = procedure.race.deleteLap;
+  if (deleted) car.lapDeleted = true;
+  pushEvent(state, { type: "track-limits", carId: car.id, corner: corner ?? null, strike, deleted }, lap);
+  if (procedure.race.blackWhiteAt && strike === procedure.race.blackWhiteAt) {
+    pushEvent(state, { type: "black-white", carId: car.id, offence: "trackLimits" }, lap);
+    if (car.isUser) pushRadio(state, car, "track-limits", { strike }, lap, TRACK_LIMITS.radioCooldownLaps);
+  }
+  const step = procedure.race.penalties.find((row) => row.at === strike);
+  if (!step) return;
+  const type = rules.raceControl.penaltyTypes.includes(step.type) ? step.type : penaltyFor(rules, "trackLimits");
+  if (type) givePenalty(state, car, "trackLimits", type, raceLap);
+};
+
+/**
+ * SIM-7 danos-visibles (RF-DEV-08): floor damage this lap - from the kerbs (less when avoiding them) or from
+ * this lap's trip off the road (`kind` of the mistake, race-reliability.json damage.floor.offTrackKinds) - by
+ * the era's rate in f1db (engine/incidents.js floorDamageChancesOf), on the damage stream. The loss (s a lap)
+ * counts from the next lap the car plans; a floor is not changed at a stop. Returns the seconds a lap added.
+ */
+export const rollFloorDamage = (state, car, { lap = state.lap, kind = null, rules = stateRules(state), sc = state.safetyCar, stream = damageStream(state) } = {}) => {
+  if (car.status !== "running") return 0;
+  const kerbs = kerbsOf(car);
+  const chances = floorDamageChancesOf({ year: rules.year ?? state.year, laps: state.laps, kerbFactor: kerbs ? kerbs.floorDamageFactor : 1 });
+  const kerbChance = sc ? 0 : chances.perLap;
+  const chance = kind && DAMAGE.floor.offTrackKinds.includes(kind) ? 1 - (1 - kerbChance) * (1 - chances.offTrack) : kerbChance;
+  if (!(chance > 0) || !stream.chance(chance)) return 0;
+  const loss = floorLossOf(stream);
+  car.floorDamage = (car.floorDamage || 0) + loss;
+  pushEvent(state, { type: "damage", carId: car.id, part: "floor", loss: round1(loss), total: round1(car.floorDamage) }, lap);
+  if (car.isUser) pushRadio(state, car, "floor-damage", { loss: round1(car.floorDamage) }, lap, DAMAGE.radioCooldownLaps);
+  return loss;
+};
+
+/**
+ * SIM-7: debris left at `corner` by a touch (applyContact) - an object on the track for a few laps
+ * (race-reliability.json damage.debris.clearLaps, on the damage stream), cleared when a safety car or VSC
+ * ends (state.restartLap). The live view reads it (snapshot.debris).
+ */
+const dropDebris = (state, corner, carId, raceLap) => {
+  if (!state.debris) state.debris = [];
+  const laps = debrisLapsOf(damageStream(state));
+  state.debris.push({ corner: corner ?? null, carId, lap: raceLap, until: raceLap + laps });
+};
+
+/** SIM-7: the debris still on the track on race lap `raceLap`. */
+export const activeDebris = (state, raceLap = state.lap) =>
+  (state.debris || []).filter((item) => item.lap <= raceLap && item.until >= raceLap && !(state.restartLap && state.restartLap > item.lap));
+
+/**
+ * SIM-7: a car passing debris this lap may pick up a puncture (damage.debris.punctureChance, lower behind
+ * the SC or on the VSC), on the damage stream. Returns `{ corner, limp }` (limp: the share of a lap the
+ * puncture costs, as contact.limpLoss) or null; the caller pays it where its clock is (applyDebrisPuncture).
+ */
+export const debrisPass = (state, car, { raceLap = state.lap, stream = damageStream(state) } = {}) => {
+  if (car.status !== "running" || car.puncture || !state.debris || !state.debris.length) return null;
+  const live = activeDebris(state, raceLap);
+  for (let k = 0; k < live.length; k += 1) {
+    const item = live[k];
+    if (item.carId === car.id && item.lap === raceLap) continue;
+    if (stream.chance(debrisPunctureChanceOf(Boolean(state.safetyCar)))) return { corner: item.corner, limp: stream.range(REL.contact.limpLoss[0], REL.contact.limpLoss[1]) };
+  }
+  return null;
+};
+
+/** SIM-7: the puncture from debris - the car must stop (pitDecision), the seconds it loses now. */
+export const applyDebrisPuncture = (state, car, hit, lap = state.lap) => {
+  car.puncture = true;
+  pushEvent(state, { type: "puncture", carId: car.id, corner: hit.corner, debris: true }, lap);
+  if (car.isUser) pushRadio(state, car, "puncture", {}, lap, DAMAGE.radioCooldownLaps);
+  return hit.limp * (state.race.baseLap || 90);
 };
 
 /** The end of a car's lap: tyre age, fuel burnt (or the stint's lap of it), the tyre's heat at the end of the lap (SIM-6). */
@@ -1483,6 +1685,15 @@ export const stepLap = (state) => {
       if (!sc && BALANCE.raceControl.yellow.mistakeKinds.includes(kind)) waveYellow(state, corner, car.id);
     }
 
+    // SIM-7 errores-visibles / danos-visibles, each on its own stream (RNF-05): track limits (the lap deleted,
+    // the era's ladder), floor damage from the kerbs or from this lap's trip off the road, a puncture on debris.
+    car.lapDeleted = false;
+    const limits = rollTrackLimits(state, car, { rules, wetness, sc });
+    if (limits !== undefined) judgeTrackLimits(state, car, limits, { lap, rules });
+    rollFloorDamage(state, car, { lap, kind, rules, sc });
+    const debris = debrisPass(state, car, { raceLap: lap });
+    if (debris) time += applyDebrisPuncture(state, car, debris, lap);
+
     // SIM-5 (RNF-07): the pace behind the safety car or on the VSC delta, measured in OpenF1 (race-sim.json safetyCar).
     if (sc) time = Math.max(time, baseLap * (sc.virtual ? simBalance.safetyCar.virtualLapFactor : simBalance.safetyCar.lapFactor));
 
@@ -1537,7 +1748,8 @@ export const stepLap = (state) => {
     car.time += car.lapTime;
     car.lastLap = car.lapTime;
     car.lastLapRaced = lap;
-    if (!sc && !car.pendingMistake && !car.pit && (car.bestLap === null || car.lapTime < car.bestLap)) car.bestLap = car.lapTime;
+    // SIM-7: a lap deleted for track limits sets no best lap (nor the fastest lap).
+    if (!sc && !car.pendingMistake && !car.pit && !car.lapDeleted && (car.bestLap === null || car.lapTime < car.bestLap)) car.bestLap = car.lapTime;
   });
 
   // ---- the car in front, and the cars a lap ahead
@@ -1597,7 +1809,7 @@ export const stepLap = (state) => {
     if (lapStart[car.id] === undefined) return;
     if (car.status === "running") {
       // RF-CMD-01 / RF-SIM-13: the pace mode and fuel mix the lap was driven on (the pit wall's call).
-      car.history.push({ lap, start: lapStart[car.id], end: car.time, pit: car.pit || null, compound: car.compound, mode: car.mode, mix: car.fuelMode });
+      car.history.push({ lap, start: lapStart[car.id], end: car.time, pit: car.pit || null, compound: car.compound, mode: car.mode, mix: car.fuelMode, ...(car.lapDeleted ? { deleted: true } : {}) });
     } else if (car.retiredLap === lap) {
       const share = car.retireShare ?? 0.5;
       car.history.push({ lap, start: lapStart[car.id], end: lapStart[car.id] + (car.lapTime || baseLap) * share, retired: true, share });
@@ -1856,8 +2068,14 @@ export const applyContact = (state, car, outcome, { otherId = null, corner = nul
     lost += outcome.limp * (state.race.baseLap || 90);
   } else if (outcome.kind === "wing") {
     car.damage += outcome.wing;
+    // SIM-7 danos-visibles (RF-CMD-03): the engineer offers a new nose at the next stop (pitStop.js stage `wing`).
+    if (car.isUser) pushRadio(state, car, "wing-damage", { loss: round1(car.damage), change: car.damage >= REL.contact.repairAbove }, lap, DAMAGE.radioCooldownLaps);
   }
-  if (leavesDebris(outcome) && stream.chance(REL.contact.debris.chance)) debrisResponse(state, corner, car.id, { lap, raceLap, stream });
+  if (leavesDebris(outcome) && stream.chance(REL.contact.debris.chance)) {
+    debrisResponse(state, corner, car.id, { lap, raceLap, stream });
+    // SIM-7: the debris stays on the track as an object others can puncture on (damage stream).
+    dropDebris(state, corner, car.id, raceLap);
+  }
   return lost;
 };
 
@@ -2193,6 +2411,13 @@ const resolveTraffic = (state, running, beforeIndex, stream, wetness) => {
     // Lapped traffic waves the leaders through: no fight between different laps.
     if (gapBefore > baseLap * 0.5) continue;
     const minGap = 0.22;
+    // SIM-7 tacticas (race-sim.json tactics.cleanAir): within the target gap the driver does not attack and
+    // lifts to open it, at most maxDropSecPerLap a lap (next lap's dirty air reads the gap it leaves).
+    if (!sc && car.tactics && car.tactics.cleanAir && car.time < ahead.time + TACTICS.cleanAir.targetGapSec) {
+      const air = TACTICS.cleanAir;
+      car.time = Math.max(ahead.time + minGap, Math.min(ahead.time + air.targetGapSec, car.time + air.maxDropSecPerLap));
+      continue;
+    }
     if (car.time > ahead.time + minGap) continue;
 
     const teamOrder = car.teamId === ahead.teamId ? state.teamOrders[car.teamId] : null;

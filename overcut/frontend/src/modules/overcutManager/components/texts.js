@@ -99,6 +99,29 @@ const OFFENCE = {
   pitSpeeding: () => t("exceso de velocidad en el pit lane", "speeding in the pit lane"),
   unsafeRelease: () => t("salida insegura del box", "unsafe release"),
   jumpStart: () => t("salida en falso", "a jump start"),
+  trackLimits: () => t("exceder los límites de pista", "exceeding track limits"),
+  pitExitLine: () => t("cruzar la línea de salida del pit lane", "crossing the pit-exit line"),
+  pitEntryLine: () => t("cruzar la línea de entrada del pit lane", "crossing the pit-entry line"),
+};
+
+/** SIM-7: body parts and their RF-DEV-08 states, as the damage events and the live view name them. */
+export const DAMAGE_PART = {
+  frontWing: () => t("alerón delantero", "front wing"),
+  floor: () => t("suelo", "floor"),
+};
+
+export const DAMAGE_STATE = {
+  perfect: () => t("Perfecto", "Perfect"),
+  light: () => t("Daño leve", "Light damage"),
+  heavy: () => t("Daño grave", "Heavy damage"),
+  destroyed: () => t("Destruido", "Destroyed"),
+};
+
+/** SIM-7 tacticas: the driver's tactics (race-sim.json tactics), for the tactics tab (HUD-7). */
+export const TACTIC = {
+  avoidKerbs: () => t("Evitar pianos", "Avoid kerbs"),
+  cleanAir: () => t("Buscar aire limpio", "Find clean air"),
+  battleAssist: () => t("Ayuda de batería en pelea", "Battle energy assist"),
 };
 
 /** A corner by number and, where it has one, its name: "curva 1 (Tarzan)". */
@@ -579,6 +602,16 @@ export const radioText = (career, message, names) => {
       return t(`Ingeniero a ${who}: «A menos de un segundo: modo adelantamiento disponible».`, `Engineer to ${who}: "Within a second: overtake mode is available."`);
     case "penalty":
       return t(`Ingeniero a ${who}: «Tenemos sanción, entra a cumplirla».`, `Engineer to ${who}: "We've got a penalty, box to serve it."`);
+    case "wing-damage":
+      return message.change
+        ? t(`Ingeniero a ${who}: «Alerón delantero dañado, perdemos ${message.loss.toFixed(1)}s por vuelta. Lo cambiamos en la parada».`, `Engineer to ${who}: "Front wing damage, we're losing ${message.loss.toFixed(1)}s a lap. We'll change it at the stop."`)
+        : t(`Ingeniero a ${who}: «Algo de daño en el alerón delantero, ${message.loss.toFixed(1)}s por vuelta. Podemos seguir».`, `Engineer to ${who}: "Some front wing damage, ${message.loss.toFixed(1)}s a lap. We can carry on."`);
+    case "floor-damage":
+      return t(`Ingeniero a ${who}: «Tenemos daño en el suelo, ${message.loss.toFixed(1)}s por vuelta. No se puede cambiar en boxes».`, `Engineer to ${who}: "We have floor damage, ${message.loss.toFixed(1)}s a lap. It can't be changed at a stop."`);
+    case "puncture":
+      return t(`${who}: «¡Pinchazo! He pasado por encima de restos». Ingeniero: «Box, box».`, `${who}: "Puncture! I ran over some debris." Engineer: "Box, box."`);
+    case "track-limits":
+      return t(`Ingeniero a ${who}: «Bandera blanca y negra por límites de pista. Una más y es sanción».`, `Engineer to ${who}: "Black and white flag for track limits. One more and it's a penalty."`);
     default:
       return "";
   }
@@ -613,6 +646,16 @@ export const commentary = (event, names, track) => {
           : t(`${a} bloquea ruedas${at}`, `${a} locks up${at}`);
     case "issue":
       return t(`${a} tiene problemas: pierde ${event.loss.toFixed(1)}s por vuelta`, `${a} has a problem: ${event.loss.toFixed(1)}s a lap down`);
+    case "track-limits":
+      return event.deleted
+        ? t(`${a} excede los límites de pista${at}: vuelta borrada (${event.strike}.ª)`, `${a} exceeds track limits${at}: lap deleted (no. ${event.strike})`)
+        : t(`${a} excede los límites de pista${at}`, `${a} exceeds track limits${at}`);
+    case "black-white":
+      return t(`Bandera blanca y negra para ${a} por límites de pista`, `Black and white flag for ${a} for track limits`);
+    case "damage":
+      return t(`${a} daña el ${DAMAGE_PART[event.part]?.() ?? event.part}: ${event.loss.toFixed(1)}s por vuelta`, `${a} damages the ${DAMAGE_PART[event.part]?.() ?? event.part}: ${event.loss.toFixed(1)}s a lap`);
+    case "puncture":
+      return t(`¡Pinchazo de ${a}${at}${event.debris ? " por los restos" : ""}!`, `${a} has a puncture${at}${event.debris ? " from the debris" : ""}!`);
     case "lead":
       return t(`${a} toma el liderato`, `${a} takes the lead`);
     case "pit":

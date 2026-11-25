@@ -251,6 +251,26 @@
     },
     "penalties": {
       "type": "object"
+    },
+    "trackLimits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["perCarLap", "circuits", "byMode", "aggressionPerZ", "wornFrom", "wornTyreGain", "wetFactor", "max", "radioCooldownLaps"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "type": "string" },
+        "source": { "type": "string" },
+        "behaviourStatus": { "type": "string" },
+        "perCarLap": { "type": "number", "minimum": 0, "maximum": 1 },
+        "circuits": { "type": "object", "additionalProperties": { "type": "number", "minimum": 0, "maximum": 1 } },
+        "byMode": { "type": "object", "additionalProperties": { "type": "number", "minimum": 0 } },
+        "aggressionPerZ": { "type": "number" },
+        "wornFrom": { "type": "number", "minimum": 0 },
+        "wornTyreGain": { "type": "number", "minimum": 0 },
+        "wetFactor": { "type": "number", "minimum": 0 },
+        "max": { "type": "number", "minimum": 0, "maximum": 1 },
+        "radioCooldownLaps": { "type": "integer", "minimum": 0 }
+      }
     }
   }
 }

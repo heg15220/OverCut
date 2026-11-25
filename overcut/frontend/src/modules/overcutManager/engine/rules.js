@@ -21,6 +21,7 @@
 
 import eraDefaults from "../data/seasons/curated/era-defaults.json";
 import balance from "../data/balance/race-eras.json";
+import simBalance from "../data/balance/race-sim.json";
 import { eraProfileFor } from "../../overcutTrayectoria/engine/eras";
 
 export const RULES_YEAR_MIN = 1950;
@@ -73,6 +74,23 @@ const ENERGY_MODES = {
 };
 
 const PIT_PENALTIES = new Set(["driveThrough", "stopGo"]);
+
+/** SIM-7: the era's track-limits procedure in a closed shape, or null (era-defaults.json trackLimits). */
+const trackLimitsOf = (value) => {
+  if (!value || !value.race) return null;
+  const race = value.race;
+  return {
+    race: {
+      deleteLap: Boolean(race.deleteLap),
+      blackWhiteAt: Number.isInteger(race.blackWhiteAt) ? race.blackWhiteAt : null,
+      penalties: (race.penalties || [])
+        .filter((step) => Number.isInteger(step.at) && typeof step.type === "string")
+        .map((step) => ({ at: step.at, type: step.type }))
+        .sort((a, b) => a.at - b.at),
+    },
+    qualifying: { deleteLap: Boolean(value.qualifying && value.qualifying.deleteLap) },
+  };
+};
 
 const resolve = (eraOrYear) => {
   const year = yearOf(eraOrYear);
@@ -150,6 +168,10 @@ const resolve = (eraOrYear) => {
           }
         : null,
       vscEndingWarn: regs.vsc && regs.vscEndingWarn ? { minSec: regs.vscEndingWarn.minSec, maxSec: regs.vscEndingWarn.maxSec } : null,
+      // SIM-7 errores-visibles (F1M24-GAMEPLAY §2.10, RF-SIM-10): track limits as a general procedure - each offence
+      // deletes the lap, the black-and-white flag at `blackWhiteAt`, then the penalties of the ladder - and the lap
+      // deleted in qualifying. Null in an era without it (era-defaults.json trackLimits): nobody is judged.
+      trackLimits: trackLimitsOf(regs.trackLimits),
       penaltyTypes,
       pitPenalties: penaltyTypes.filter((type) => PIT_PENALTIES.has(type)),
       timePenalties: penaltyTypes.filter((type) => type === "time5" || type === "time10"),
@@ -279,6 +301,12 @@ export const commandsFor = (eraOrYear) => {
     teamOrdersBanned: rules.teamOrdersBanned,
     drs: rules.drs.enabled,
     activeAero: rules.activeAero,
+    // SIM-7 tacticas (F1M24-GAMEPLAY §2.8): the driver's tactics in both modes (race.js / stepRace.js setTactics,
+    // race-sim.json tactics); the battle assist only with KERS/ERS. Attack risk and defence style (setOvertakeRisk,
+    // setDefence) exist in every era.
+    tactics: { avoidKerbs: true, cleanAir: true, battleAssist: rules.energy.modes.length > 0 },
+    overtakeRisk: Object.keys(simBalance.risk.levels),
+    defence: Object.keys(simBalance.defence.styles),
   };
 };
 

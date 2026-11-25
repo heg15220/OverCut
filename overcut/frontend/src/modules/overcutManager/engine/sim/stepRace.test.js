@@ -35,6 +35,8 @@ const KNOWN_EVENTS = new Set([
   "duel",
   // SIM-5 (F1M24-GAMEPLAY §2.11): the safety car's phases and the VSC ending.
   "sc-phase", "vsc-ending",
+  // SIM-7 (F1M24-GAMEPLAY §2.10): track limits and their flag, damage and a puncture on debris.
+  "track-limits", "black-white", "damage", "puncture",
 ]);
 
 describe("RF-SIM-01 a race in fixed steps on the circuit", () => {

@@ -291,3 +291,24 @@ export const lapDeployOf = ({ rules, spec, plan, mode, battery }) => {
  * measured: none with KERS (race.js energyStep gives its whole gain), the balanced mode with ERS.
  */
 export const referenceDeployOf = ({ rules, spec, plan }) => (rules.energy.kers ? 0 : lapDeployOf({ rules, spec, plan, mode: "balanced", battery: 100 }));
+
+// ------------------------------------------------------------ battle assist
+
+/**
+ * SIM-7 tacticas (RF-CMD-01, RF-SIM-05, F1M24-GAMEPLAY §2.8): the energy mode a car runs this lap.
+ * With the battle assist on (car.tactics.battleAssist, race-sim.json tactics.battleAssist) and a rival
+ * within `withinSec` ahead or behind at the line, the lap deploys ("deploy"; 2026's "overtake" when the
+ * fight is with the car ahead and the era has the mode) as long as the store holds `minBatteryPct`;
+ * otherwise the mode the pit wall chose. The deployment itself stays inside the era's limits (lapDeployOf,
+ * race.js energyStep). Pure: no draws, so both modes read the same mode at the line (SRS 4.2).
+ */
+export const battleAssistModeOf = (rules, car, cfg = simBalance.tactics.battleAssist) => {
+  const chosen = car.ersMode;
+  if (!car.tactics || !car.tactics.battleAssist || !chosen || !rules.energy.modes.length) return chosen;
+  if (car.battery === null || car.battery === undefined || car.battery < cfg.minBatteryPct) return chosen;
+  const attacking = car.gapAhead !== null && car.gapAhead !== undefined && car.gapAhead < cfg.withinSec;
+  const defending = car.gapBehind !== null && car.gapBehind !== undefined && car.gapBehind < cfg.withinSec;
+  if (!attacking && !defending) return chosen;
+  if (attacking && rules.energy.overtakeMode && rules.energy.modes.includes("overtake")) return "overtake";
+  return rules.energy.modes.includes("deploy") ? "deploy" : chosen;
+};
