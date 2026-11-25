@@ -44,6 +44,12 @@
  * queued by broadcast.json replay.triggers on TV and asked for from a banner; while one runs the race
  * clock stands still (pauseOn replay). The conditions strip reads the engine: local start time from
  * the pack or the circuit's climate, air, water in mm and rubber (hudConditions.js).
+ *
+ * Safety car and VSC (HUD-5, sc-pose-from-sim; hudSafetyCar.js, hud.json sc): the safety car on the 2D map
+ * is where the engine puts it (§1.7 snapshot.sc, raceClock.liveSafetyCarAt) and nowhere else - no more
+ * 90 m ahead of the leader; the flag says its phase, a banner says when it comes in this lap (the engine's
+ * IN_THIS_LAP, or its own count of the spell), another when race control ends the VSC, and your cards
+ * show each car's VSC delta (snapshot.vsc.deltaSec). Only in the eras that have them (rules.raceControl).
  */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -54,7 +60,6 @@ import {
 import { DEFENCE_KEYS, RISK_KEYS } from "../engine/sim";
 import { applyTick, createRaceClient, mirrorOf } from "../engine/worker/raceClient";
 import { circuitFor } from "../engine/venue";
-import { poseAt } from "../engine/trackGeometry";
 import { useManager } from "./context";
 import { Meter, Segmented, Tabs, Tyre, readableOn } from "./atoms";
 import { Dots, EventBanner, Feed, PitTimer, PlaybackBar, SectorBars, SpeedCallout, StatusStrip, TimingTower } from "./Broadcast";
@@ -75,7 +80,8 @@ import { canRender3D } from "../three/support";
 import { useRaceAudio } from "../three/audio";
 import SoundControl from "../three/audio/SoundControl";
 
-import { battlesIn, carAt, computedUntil, eventTime, leaderLap, liveCarAt, liveSafetyCarWindows, liveYellowsAt, raceEndTime, safetyCarWindows, standingsAt } from "./raceClock";
+import { battlesIn, carAt, computedUntil, eventTime, leaderLap, liveCarAt, liveSafetyCarAt, liveSafetyCarWindows, liveVscAt, liveYellowsAt, raceEndTime, safetyCarWindows, standingsAt } from "./raceClock";
+import { SC_HUD, scBannerOf, scInThisLap, scMapPose, scPhaseLabel, scPhaseOf, vscDeltaOf, vscDeltaText, vscEnding } from "./hudSafetyCar";
 import { lightsOutOf, procedureLimit, replayTimelineOf, startProcedureOf, startStateAt, startTimelineOf } from "./startLights";
 import { clockLabel, raceConditionsOf, raceStartOf } from "./hudConditions";
 import { REPLAY, createReplayBuffer, createReplayQueue, enqueueReplay, nextReplay, planReplay, replayFrameAt, replaySpan } from "./replay/replayBuffer";
@@ -175,6 +181,10 @@ const quickSource = (state) => {
     scWindows: (leaderId) => safetyCarWindows(state.events, Object.fromEntries(state.cars.map((car) => [car.id, car])), circuit, leaderId),
     duels: () => [],
     yellows: () => [],
+    // HUD-5: the quick mode places no safety car and times no VSC delta (§1.7: absent, the view draws nothing).
+    safetyCar: () => null,
+    vsc: () => null,
+    engineSafetyCar: () => ({ sc: null, lap: null, tolerance: 1e-6 }),
     command: (name, ...args) => QUICK_COMMANDS[name]?.(state, ...args),
     next: (tau) => {
       for (let guard = 0; guard < 80; guard += 1) {
@@ -274,6 +284,10 @@ const stepSource = (client, mirror) => {
     scWindows: () => liveSafetyCarWindows(mirror),
     yellows: (tau) => liveYellowsAt(mirror, tau),
     duels: () => mirror.duels,
+    // HUD-5 (§1.7 sc/vsc, SIM-5): the engine's safety car and VSC at the pictures' clock; its own spell count.
+    safetyCar: (tau) => liveSafetyCarAt(mirror, tau, SC_HUD.map.staleSec),
+    vsc: (tau) => liveVscAt(mirror, tau),
+    engineSafetyCar: () => ({ sc: mirror.safetyCar || null, lap: mirror.lap ?? null, tolerance: mirror.dt ?? 0 }),
     command: (name, ...args) => client.command(name, ...args),
     next: () => awaitJump("next", () => client.next(NEXT_TYPES)),
     oneLap: () => awaitJump("lap", () => client.lap()),
@@ -331,6 +345,14 @@ function LiveStepRace({ args, onFinished, title }) {
           // HUD-4 status-strip-data: the weather as the engine has it now (weatherNow: water, rubber, track).
           if (view.weather) mirror.weatherNow = view.weather;
           if (view.start) mirror.start = view.start;
+          // HUD-5 (§1.7): snapshot.sc and snapshot.vsc when the engine sends them (SIM-5); null = none now.
+          const sc = view.sc !== undefined ? view.sc : view.snapshot?.sc;
+          if (sc !== undefined) {
+            mirror.sc = sc;
+            mirror.scClock = view.clock;
+          }
+          const vsc = view.vsc !== undefined ? view.vsc : view.snapshot?.vsc;
+          if (vsc !== undefined) mirror.vsc = vsc;
         }
         current.replied(reply);
       },
@@ -609,12 +631,16 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     if (next.item) startReplay(planReplay(next.item, replayBuffer, { year: current.year, seed: current.seed ?? 0 }));
   });
 
-  // The safety car runs a little ahead of the leader on the road.
-  let safetyCar = null;
-  if (scWindow && !scWindow.virtual && !scWindow.red && leader && !leader.pose.inPit) {
-    const share = ((leader.pose.progress % 1) + 1) % 1;
-    safetyCar = poseAt(circuit, share + 90 / circuit.length);
-  }
+  // HUD-5 (sc-pose-from-sim): the safety car where the engine has it (§1.7 snapshot.sc), never placed by the view.
+  const raceRules = rulesOf(current.era, current.year);
+  const scNow = source.safetyCar(tau.current);
+  const vscNow = scWindow && scWindow.virtual ? source.vsc(tau.current) : null;
+  const safetyCar = scWindow && !scWindow.virtual && !scWindow.red ? scMapPose(circuit, scNow, raceRules) : null;
+  const scPhase = scWindow && !scWindow.virtual && !scWindow.red ? scPhaseOf(scNow) : null;
+  const engineSc = source.engineSafetyCar();
+  const scIn = Boolean(scWindow) && scInThisLap({ sc: scNow, window: scWindow, leaderHistory: leader?.car.history || [], tau: tau.current, tolerance: engineSc.tolerance, engineSc: engineSc.sc, engineLap: engineSc.lap, rules: raceRules });
+  const scBanner = scBannerOf({ inThisLap: scIn, ending: vscEnding({ vsc: vscNow, window: scWindow, rules: raceRules }) });
+  const carIndex = useMemo(() => Object.fromEntries(current.cars.map((car, index) => [car.id, index])), [current.cars]);
 
   const stageCars = rows.map((row) => ({ car: row.car, code: code(row.car.name), pose: row.pose, row: row.out ? null : row }));
 
@@ -822,7 +848,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     : scWindow
       ? scWindow.virtual
         ? { kind: "vsc", label: t("Coche de seguridad virtual", "Virtual safety car") }
-        : { kind: "sc", label: t("Coche de seguridad", "Safety car") }
+        : { kind: "sc", label: [t("Coche de seguridad", "Safety car"), scPhaseLabel(scIn ? "IN_THIS_LAP" : scPhase)].filter(Boolean).join(" · ") }
       : leaderFinished
         ? { kind: "chequered", label: t("Bandera a cuadros", "Chequered flag") }
         : yellows.length > 0
@@ -844,7 +870,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const ORDER_LABEL = { free: t("Libres", "Race"), hold: t("Mantener", "Hold"), swap: t("Intercambiar", "Swap") };
 
   return (
-    <div className={`lv lv--race${in3D ? " is-3d" : ""}${replay ? " is-replay" : ""}`} data-engine={source.kind} data-start={startNow.phase} data-testid="live-race">
+    <div className={`lv lv--race${in3D ? " is-3d" : ""}${replay ? " is-replay" : ""}`} data-engine={source.kind} data-start={startNow.phase} data-sc={scPhase || undefined} data-testid="live-race">
       <StatusStrip flag={flag} clock={clock} airTemp={conditions.airC} rainChance={current.weather.forecast ?? 0} change={change} trackTemp={trackTemp} wetness={wetness} waterMm={conditions.waterMm} rubber={conditions.rubber} notes={[current.year, ...eraNotes].join(" · ")} />
 
       <div className="lv-stage">
@@ -901,6 +927,11 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
               {t("Bandera a cuadros", "Chequered flag")} · {leader?.car.name}
             </div>
           )}
+          {!replay && scBanner && (
+            <div className="lv-banner" role="status" aria-live="polite" data-kind={scBanner.kind}>
+              {scBanner.title}
+            </div>
+          )}
           {!replay && <EventBanner banner={banner} names={names} onReplay={onBannerReplay} />}
         </div>
         {hudLive && !replay && <PitTimer entries={pitEntries} />}
@@ -954,6 +985,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
               onFocus={() => setFocusId(car.id)}
               onPitDialog={() => setPitDialogId(car.id)}
               flag={HUD.finish.foldPanel && flagged(car) ? { pos: flagOf[car.id]?.pos ?? rowOf[car.id]?.position ?? car.position } : null}
+              vscDelta={vscNow ? vscDeltaOf(vscNow, carIndex[car.id], raceRules) : null}
             />
           </React.Fragment>
         ))}
@@ -1059,7 +1091,7 @@ const PANEL_TAB = {
  * may not be changed) and "Pit options" opens the pit dialog (PitDialog, which pauses the
  * session). Every order goes through `command` (the race worker for a step race).
  */
-function DriverCard({ car, row, state, commands, energy, command, steps, pitThisLap, focused, onFocus, onPitDialog, flag = null }) {
+function DriverCard({ car, row, state, commands, energy, command, steps, pitThisLap, focused, onFocus, onPitDialog, flag = null, vscDelta = null }) {
   const PANEL = HUD.driverPanel;
   const tabs = PANEL.tabs.filter((tab) => tab !== "telemetry" || steps);
   const [tabPick, setTab] = useState(PANEL.defaultTab);
@@ -1096,6 +1128,8 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
   const dryUsed = new Set((car.compoundsUsed || []).concat(car.compound ? [car.compound] : []).filter((value) => value && value !== "inter" && value !== "wet")).size;
   const lifeClass = life < PANEL.tyreLife.badBelow ? "is-bad" : life < PANEL.tyreLife.warnBelow ? "is-warn" : "";
   const percent = (value) => (Number.isFinite(value) ? `${Math.round(value * 100)}%` : "—");
+  // HUD-5: the car's VSC delta while the VSC is out (snapshot.vsc.deltaSec, hudSafetyCar.vscDeltaOf).
+  const vscText = vscDeltaText(vscDelta);
   return (
     <section className={`lv-card${running ? "" : " is-out"}${flag ? " is-folded" : ""}${focused ? " is-focus" : ""}`} aria-label={car.name}>
       <button type="button" className="lv-card__head" onClick={onFocus}>
@@ -1107,6 +1141,15 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
       </button>
       {running ? (
         <>
+          {vscText && (
+            <div className="lv-ctl" data-testid="vsc-delta" data-state={vscDelta.state}>
+              <span>{t("Delta VSC", "VSC delta")}</span>
+              <div className="lv-ctl__value">
+                <b className={vscText.tone}>{vscText.value}</b>
+                <small>{vscText.word}</small>
+              </div>
+            </div>
+          )}
           <div className="lv-card__tabs">
             <Tabs label={t(`Panel de ${car.name}`, `${car.name} panel`)} value={tab} onChange={setTab} options={tabs.map((value) => ({ value, label: PANEL_TAB[value]() }))} />
           </div>

@@ -368,6 +368,44 @@ export const liveCarAt = (mirror, car, tau, circuit, lapRef = 90) => {
 export const liveSafetyCarWindows = (mirror) =>
   (mirror.safetyCarSpells || []).map((spell) => ({ from: spell.from, to: spell.to ?? Infinity, virtual: Boolean(spell.virtual), red: Boolean(spell.red) }));
 
+/**
+ * HUD-5 (F1M24-GAMEPLAY §1.7 `sc`, SIM-5): the safety car of a live step race at race time `tau`, as the
+ * engine places it - `{ phase, s, v, lap, lightsOn }` with `s` the lap share (as yellow.s). From the worker's
+ * per-step snapshots when they carry `sc` (eased forward between the two around `tau`, the phase and lights
+ * of the nearer one), else the last tick's (`mirror.sc`) if it is within `staleSec` of the pictures. Null when
+ * the engine sends none: the view never places a safety car of its own.
+ */
+export const liveSafetyCarAt = (mirror, tau, staleSec = Infinity) => {
+  const shots = (mirror.snapshots || []).filter((shot) => shot.sc !== undefined);
+  if (shots.length) {
+    const around = bracket(shots, tau);
+    if (!around || Math.abs(tau - (around.f < 0.5 ? around.a : around.b).clock) > staleSec) return null;
+    const { a, b, f } = around;
+    const near = f < 0.5 ? a : b;
+    if (!near.sc || !Number.isFinite(near.sc.s)) return null;
+    if (!a.sc || !b.sc || !Number.isFinite(a.sc.s) || !Number.isFinite(b.sc.s)) return { ...near.sc, s: frac(near.sc.s) };
+    // Forward round the lap (it never reverses), across the line too.
+    const ds = frac(b.sc.s - a.sc.s);
+    const v = Number.isFinite(a.sc.v) && Number.isFinite(b.sc.v) ? a.sc.v + (b.sc.v - a.sc.v) * f : near.sc.v;
+    return { ...near.sc, s: frac(a.sc.s + ds * f), v };
+  }
+  const sc = mirror.sc;
+  if (!sc || !Number.isFinite(sc.s)) return null;
+  if (Number.isFinite(mirror.scClock) && Math.abs(tau - mirror.scClock) > staleSec) return null;
+  return { ...sc, s: frac(sc.s) };
+};
+
+/** HUD-5 (§1.7 `vsc` {deltaSec[i], ending}, SIM-5): the VSC state of a live step race at `tau`, or null. */
+export const liveVscAt = (mirror, tau) => {
+  const shots = (mirror.snapshots || []).filter((shot) => shot.vsc !== undefined);
+  if (shots.length) {
+    const around = bracket(shots, tau);
+    if (!around) return null;
+    return (around.f < 0.5 ? around.a : around.b).vsc || null;
+  }
+  return mirror.vsc || null;
+};
+
 /** Local yellows (RF-SIM-10) of a live step race still waved at race time `tau`. */
 export const liveYellowsAt = (mirror, tau) => (mirror.yellowZones || []).filter((zone) => zone.until === undefined || zone.until === null || zone.until > tau);
 
