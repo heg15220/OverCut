@@ -2,7 +2,7 @@ export const meta = {
   name: 'f1m24-implement-waves',
   description: 'Implement the F1M24-GAMEPLAY work packages wave by wave (one worktree per package), merge and test each wave',
   phases: [
-    { title: 'Wave 1' }, { title: 'Wave 2' }, { title: 'Wave 3' }, { title: 'Wave 4' },
+    { title: 'Wave 4' },
     { title: 'Wave 5' }, { title: 'Wave 6' }, { title: 'Wave 7' }, { title: 'Wave 8' },
     { title: 'Verify', detail: 'independent end-to-end check of the integrated branch' },
   ],
@@ -13,10 +13,9 @@ const FRONT = `${REPO}/overcut/frontend`
 const SPEC = 'docs/manager/F1M24-GAMEPLAY.md'
 const ATTR = 'Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>'
 
+// Waves 1-3 are integrated (merges up to 3d269fbf); OFFSET keeps the real wave numbers.
+const OFFSET = 3
 const WAVES = [
-  ['SIM-1', 'PIT-1', 'SES-1', 'PT-1', 'AUD-1', 'CAM-1', 'HUD-1', 'WKD-1'],
-  ['SIM-2', 'PIT-2', 'SES-2', 'PT-2', 'AUD-2', 'CAM-2', 'HUD-2', 'WKD-2'],
-  ['SIM-3', 'SES-3', 'PT-3', 'AUD-3', 'CAM-3', 'HUD-3'],
   ['SIM-4', 'SES-4', 'AUD-4', 'CAM-4', 'HUD-4'],
   ['SIM-5', 'AUD-5', 'CAM-5', 'HUD-5'],
   ['SIM-6', 'HUD-6', 'WKD-6'],
@@ -51,7 +50,7 @@ const MERGE = {
 }
 
 // Wave-1 packages that already ran keep their original first step so the resume cache still matches.
-const RAN = ['SIM-1', 'PIT-1', 'SES-1', 'PT-1', 'AUD-1']
+const RAN = []
 const startStep = (wp) =>
   RAN.includes(wp)
     ? `1. First command: \`git checkout -b wp/${wp}\` (if the branch exists, \`git checkout wp/${wp}\` and continue from it).`
@@ -116,14 +115,15 @@ const runPackage = async (wp, wave, title) => {
 }
 
 const all = []
-for (let wave = 0; wave < WAVES.length; wave++) {
+for (let w = 0; w < WAVES.length; w++) {
+  const wave = w + OFFSET
   const title = `Wave ${wave + 1}`
   phase(title)
-  const first = await parallel(WAVES[wave].map((wp) => () => runPackage(wp, wave, title)))
+  const first = await parallel(WAVES[w].map((wp) => () => runPackage(wp, wave, title)))
   const results = []
-  for (let i = 0; i < WAVES[wave].length; i++) {
+  for (let i = 0; i < WAVES[w].length; i++) {
     // Belt and braces: anything parallel() dropped runs again on its own.
-    results.push(first[i] || (await runPackage(WAVES[wave][i], wave, title)))
+    results.push(first[i] || (await runPackage(WAVES[w][i], wave, title)))
   }
   const blocked = results.filter((r) => r.status !== 'done').map((r) => `${r.wp}:${r.status}`)
   if (blocked.length) log(`${title}: not fully done → ${blocked.join(', ')}`)
