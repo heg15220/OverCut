@@ -23,6 +23,14 @@
  * (`start`, §1.7, SIM-3) each light that comes on sounds a thump and a tone, the lights going
  * out does not, and the cars standing on the grid idle and then hold their launch revs
  * (ambience.startLights, ambience.gridRevs). Without `start` none of that happens.
+ *
+ * Interface and radio (AUD-4, radio-ui-sounds, F1M24-GAMEPLAY §2.1; uiSounds.js) on their own
+ * bus: a rising stair of tones for the race-control events of the log (audio.json
+ * ui.alert.events), a whoosh into and out of the replay view and on a skip forward, the
+ * «radio» without a voice for each new message of the frame's optional `radio` list (the
+ * engineer's feed; absent, no radio sound), and `cue(kind)` for the view's own moments. The
+ * hook clicks every button of the page while the live view is mounted (ui.click.selector).
+ * None of it draws from the seeded stream or touches the race.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -30,15 +38,17 @@ import { createStream } from "../../../overcutTrayectoria/engine/rng";
 import { loadSeasonPack } from "../../engine/packs/seasonPacks";
 import audioData from "../../data/balance/audio.json";
 import { createEngineVoice, driveStep, engineSpecFor } from "./engineSynth";
-import { assignVoices, blendMix, cameraListener, cameraUsable, createMixer, distanceGain, dopplerFactor, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, viewMix } from "./mixer";
+import { assignVoices, blendMix, busGains, cameraListener, cameraUsable, createMixer, distanceGain, dopplerFactor, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, viewMix } from "./mixer";
 import { airGunsOn, createAmbience, crowdLevel, fieldBedOf, gridRevsOf, kerbRumble, makeNoiseBuffer, rainOf, squeals, startLightsStep, swellFor, windOf } from "./ambience";
 import { firingFrequency } from "./engineSynth";
 import { kerbZonesFor, onKerb } from "./kerbs";
+import { clickCueFor, createUiCueState, gateCue, isUiCue, playCue, uiCuesStep } from "./uiSounds";
 
 export { engineSpecFor, eraFor, firingFrequency, nextGear, parseFormula } from "./engineSynth";
 export { gridRevsOf, startLightsStep } from "./ambience";
 export { blendMix, cameraMix, distanceGain, dopplerFactor, loadSettings, resolveView, saveSettings, sliderToGain, viewMix } from "./mixer";
 export { mixLevels } from "./levels";
+export { clickCueFor, cueShots, uiCuesStep } from "./uiSounds";
 
 const KMH = 3.6;
 const VOICING = audioData.voicing;
@@ -69,6 +79,8 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
   let ctx = null;
   let mixer = null;
   let ambience = null;
+  let noiseBuffer = null;
+  const uiState = createUiCueState();
   let voices = [];
   let panners = [];
   let slots = [];
@@ -134,6 +146,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       ctx = new Ctx();
       mixer = createMixer(ctx);
       const noise = makeNoiseBuffer(ctx, random);
+      noiseBuffer = noise;
       ambience = createAmbience(ctx, mixer.ambience, noise, mixer.engine);
       const size = audioData.mixer.maxVoices;
       voices = Array.from({ length: size }, () => createEngineVoice(ctx, noise, random));
@@ -153,6 +166,17 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       if (ctx) mixer.apply(settings, ctx.currentTime);
       return settings;
     },
+    /**
+     * Play an interface cue now (click, whoosh, alert, radio; uiSounds.cueShots for `opts`),
+     * behind its cooldown and only when the ui bus is audible. Returns whether it sounded.
+     */
+    cue(kind, opts = {}) {
+      if (!ctx || ctx.state === "closed" || !isUiCue(kind)) return false;
+      const gains = busGains(settings);
+      if (gains.master <= 0 || gains.ui <= 0) return false;
+      if (!gateCue(uiState, kind, ctx.currentTime)) return false;
+      return playCue(ctx, mixer.ui, noiseBuffer, kind, opts, ctx.currentTime) > 0;
+    },
     setEngines(map) {
       teamEngines = map || {};
       specs.clear();
@@ -161,7 +185,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
      * One view frame: { tau, playing, mode, focusId, cars: [{ id, teamId, pose }],
      * wetness, events, started } and, optional, start (the engine's snapshot.start).
      */
-    frame({ tau = 0, playing = true, mode = "tv", focusId = null, cars = [], wetness = 0, events = [], started: startedFlag = false, view = null, camera, circuit: frameCircuit, start: frameStart = null }) {
+    frame({ tau = 0, playing = true, mode = "tv", focusId = null, cars = [], wetness = 0, events = [], started: startedFlag = false, view = null, camera, circuit: frameCircuit, start: frameStart = null, radio }) {
       if (!ctx || ctx.state === "closed") return;
       const now = ctx.currentTime;
       const dt = lastTime === null ? 0 : Math.max(0, now - lastTime);
@@ -170,6 +194,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       lastTau = tau;
       // A skip (next event, a lap, to the flag) is not driving: start every car afresh.
       const skipped = dtau < 0 || dtau > 3;
+      const skippedAhead = dtau > 3;
       if (skipped) {
         drive.clear();
         dtau = 0;
@@ -188,6 +213,10 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       }
       // The view's snapshot on the camera's mix, crossfaded on a cut or a change of view.
       const viewName = resolveView({ view, playing, mode });
+      // Interface cues (AUD-4): new alert events and radio messages, the replay, a skip.
+      const uiCues = uiCuesStep(uiState, { events, radio, view: viewName, skipped: skippedAhead }, now);
+      const uiGains = busGains(settings);
+      if (uiGains.master > 0 && uiGains.ui > 0) uiCues.forEach((cue, k) => playCue(ctx, mixer.ui, noiseBuffer, cue.kind, cue.opts, now + k * audioData.ui.cueSpacingSec));
       const target = viewMix(mode, viewName);
       const onAir = camera !== undefined ? camera : cameraBus ? cameraBus.current : null;
       const useCamera = cameraUsable(onAir, mode, target);
@@ -376,7 +405,18 @@ export const useRaceAudio = ({ seed, year, circuitId = null, date = null, circui
       window.removeEventListener("keydown", onGesture, opts);
     };
   }, [enabled, enable]);
+  // Interface clicks (AUD-4): every button of the page while this view is mounted and the
+  // sound is on (ui.click.selector; data-ui-sound="off" silences a container).
+  useEffect(() => {
+    if (!enabled || typeof document === "undefined") return undefined;
+    const onClick = (event) => {
+      if (clickCueFor(event.target) && ref.current) ref.current.cue("click");
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, [enabled]);
   const update = useCallback((patch) => setLocal(ref.current.setSettings(patch)), []);
   const frame = useCallback((data) => ref.current.frame(data), []);
-  return { settings, update, enabled, enable, frame, cameraBus, supported: audioSupported() };
+  const cue = useCallback((kind, opts) => (ref.current ? ref.current.cue(kind, opts) : false), []);
+  return { settings, update, enabled, enable, frame, cue, cameraBus, supported: audioSupported() };
 };

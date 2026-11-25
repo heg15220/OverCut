@@ -16,6 +16,7 @@
     "soundSpeed": "https://en.wikipedia.org/wiki/Speed_of_sound",
     "openf1Downshifts": "https://api.openf1.org/v1/car_data?session_key=9472 (VER 15:30:30-15:33:30, LEC 15:21-15:24, NOR 15:24:20-15:27:20 UTC; leído el 2026-11-24)",
     "openf1PitLane": "https://api.openf1.org/v1/car_data?session_key=9472 y /v1/pit?session_key=9472 (mismas ventanas, alrededor de cada parada; leído el 2026-11-24)",
+    "itutBand": "ITU-T G.712: banda de la telefonía analógica 300-3.400 Hz (la «radio» del equipo se filtra a una banda de este tipo; aquí 300-3.000 Hz, F1M24-GAMEPLAY §2.1)",
     "openf1Grid": "https://api.openf1.org/v1/car_data?session_key=9472 (2024-03-02 15:02:30-15:03:50 UTC; pilotos 1, 4, 11, 16, 44, 63) y session_key=7953 (2023-03-05 15:03:20-15:03:40 UTC; pilotos 1, 11, 14, 16, 44); /v1/race_control SESSION STARTED 15:03:42 (2024) y 15:03:38 (2023); leído el 2026-11-24"
   },
   "eras": [
@@ -312,7 +313,7 @@
   },
   "mixer": {
     "storageKey": "overcut.manager.audio.v1",
-    "defaults": {"master": 0.7, "engine": 0.8, "ambience": 0.6, "muted": false},
+    "defaults": {"master": 0.7, "engine": 0.8, "ambience": 0.6, "muted": false, "ui": 0.6, "uiMuted": false},
     "volumeCurve": {"$comment": "NV: posición del mando a dB lineal, 0 es silencio", "minDb": -42},
     "maxVoices": 6,
     "panningModel": "equalpower",
@@ -393,6 +394,55 @@
         {"from": 2023, "to": 2025, "idleRpm": [3540, 4070], "holdRpm": [8880, 10440], "riseSec": 0.9, "holdLoad": 0.25, "status": "sourced", "source": "openf1Grid"}
       ],
       "fallback": {"riseSec": 0.9, "holdLoad": 0.25, "status": "pending", "note": "Sin telemetría antes de 2023 (OpenF1 empieza en 2023); se reutiliza la forma medida en 2023-2024 sobre el ralentí y las vueltas de salida de cada era (eras[]). 2026 (unidad nueva) también pending."}
+    }
+  },
+  "ui": {
+    "$comment": "Sonidos de interfaz y «radio» (radio-ui-sounds, AUD-4; RF-CMD-03, RNF-07, RNF-08, F1M24-GAMEPLAY §2.1): sintetizados aquí (three/audio/uiSounds.js), diseño propio NV; del juego de referencia solo la idea (clic corto, whoosh de ruido al cambiar de panel o entrar en la repetición, aviso en escalera, radio filtrada en banda) y los órdenes de magnitud que fija la especificación (clic 5-30 ms, whoosh 0,4-0,7 s); ninguna cifra, tono ni grabación suya. Van por un bus propio (mixer 'ui', después del volumen general y antes del limitador, sin los recortes por vista: se oyen también en pausa y menús) que el jugador sube, baja o silencia aparte (defaults.ui, uiMuted). La «radio» no lleva voz: un tono de apertura, un soplo de estática en la banda telefónica (fuente itutBand) y un tono de cierre; es sonido de presentación de la radio del ingeniero de la vista (el texto lo da el feed), no un sonido del mundo, así que no se fecha por era. Los avisos salen de los eventos del motor (alert.events: tipo de evento -> nivel); solo existen los eventos de su era (SC desde 1993, VSC desde 2015: los emite el motor, SRS §6). Nada de esto toca la carrera ni el flujo con semilla (RF-SIM-15, RNF-05): la estática y el whoosh usan el búfer de ruido que ya existe. cooldownSec en segundos del contexto de audio, no de carrera.",
+    "maxPerFrame": 2,
+    "cueSpacingSec": 0.18,
+    "click": {
+      "$comment": "Clic de cualquier botón de la vista en vivo (delegado en el documento con selector; data-ui-sound=\"off\" en un contenedor lo calla). Un transitorio de ruido paso alto más un tono muy corto.",
+      "selector": "button:not([disabled]), [role='button'], [role='tab'], [role='radio'], [role='menuitem'], [role='switch'], select, summary",
+      "durationSec": 0.014,
+      "noiseHz": 3200,
+      "noiseGain": 0.18,
+      "toneHz": 2100,
+      "toneGain": 0.08,
+      "cooldownSec": 0.04
+    },
+    "whoosh": {
+      "$comment": "Ruido en banda que barre de fromHz a toHz (al revés al salir), con subida attackShare de la duración. Suena al entrar o salir de la repetición (frame.view 'replay') y al saltar hacia delante (siguiente evento, fin de carrera).",
+      "durationSec": 0.55,
+      "fromHz": 380,
+      "toHz": 2600,
+      "q": 1.4,
+      "attackShare": 0.55,
+      "gain": 0.32,
+      "cooldownSec": 0.4,
+      "on": {"replay": true, "skip": true}
+    },
+    "alert": {
+      "$comment": "Aviso en escalera: tonos que suben, uno por peldaño (levels[nivel].steps de la lista). events: qué eventos del registro del motor avisan y con qué nivel; si llegan varios en un fotograma (salto, ×16) suena el de nivel más alto. Neutralizaciones y bandera roja alto; investigación y sanción bajo.",
+      "steps": [{"hz": 587}, {"hz": 740}, {"hz": 880}, {"hz": 1175}],
+      "stepSec": 0.085,
+      "toneSec": 0.11,
+      "attackSec": 0.005,
+      "gain": 0.14,
+      "cooldownSec": 1.5,
+      "levels": {"high": {"steps": 4, "rank": 2}, "low": {"steps": 2, "rank": 1}},
+      "events": {"sc": "high", "vsc": "high", "red": "high", "restart": "low", "investigation": "low", "penalty": "low", "driveThrough": "low"}
+    },
+    "radio": {
+      "$comment": "«Radio» sin voz por cada mensaje nuevo del ingeniero (frame.radio, claves nuevas; la primera vez solo se toma nota): tono de apertura, estática en banda y tono de cierre. Un mensaje marcado alert abre con dos tonos. band: paso alto y paso bajo de la estática (fuente itutBand).",
+      "band": {"lowHz": 300, "highHz": 3000},
+      "open": {"hz": 1320, "durationSec": 0.045},
+      "close": {"hz": 990, "durationSec": 0.06},
+      "alertGapSec": 0.07,
+      "staticSec": 0.42,
+      "staticGain": 0.05,
+      "toneGain": 0.1,
+      "attackSec": 0.004,
+      "cooldownSec": 1.2
     }
   }
 }
