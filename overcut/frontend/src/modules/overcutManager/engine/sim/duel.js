@@ -42,7 +42,27 @@
  * boxes never overlap (lateral.js); a pass that cannot be finished within `passSettleSeconds`
  * after the corner is logged as "unfinished".
  *
- * Every number comes from data/balance/race-sim.json, race-physics.json `lateral` and
+ * SIM-4 (F1M24-GAMEPLAY §1.7, §2.7 eventos-duelo; RF-SIM-07, RF-CMD-03, RF-3D-04): what the view, the sound and
+ * the radio read about the fights, all derived from the state above with no roll of its own (RNF-05):
+ *
+ *   battle[i]  RUNNING, FOLLOWING (within `followGapSec` of the car ahead on its lap), ATTACKING (in a duel as
+ *              the attacker, or within `attackGapSec` with the pace or DRS to try), DEFENDING (the car it is
+ *              fighting, or the one attacking it from behind) and TRAIN (following in a run of at least
+ *              `trainMinCars` cars each within the follow gap, with no move on); `hysteresisSec` keeps a car in
+ *              its state until the gap has opened that much more (race-physics.json duel). Nobody battles
+ *              behind the safety car or the red flag, in the pit lane or past the flag.
+ *   duel       events {phase: "start" | "alongside" | "resolved", carId (attacker), otherId, side ("inside" |
+ *              "outside"), corner, attempt (this attacker's tries on this car in the current fight), result
+ *              ("passed" | "defended" | "contact"), t}: "start" when the attempt is made at the attack point,
+ *              "alongside" the first step the two overlap by a car's length, "resolved" when the corner is
+ *              settled on the road (the pass done, the defence held, a touch).
+ *   pass       also carries `confirmedAt`: the race time at which the attacker reaches the first timing line
+ *              (sector line or the line) after the corner, at its lap's pace - the timing point that confirms
+ *              the move (race-2 §4: the banner comes when the timing shows it, not at the move).
+ *   radio      the engineer to the player's drivers (state.radio, kinds "battle-*"), on those events and on the
+ *              gaps at the line, with the thresholds and quiet times of race-sim.json `radio`.
+ *
+ * Every number comes from data/balance/race-sim.json, race-physics.json `lateral` / `duel` and
  * driver-attributes.json (RNF-07);
  * every roll from the duel stream (RF-SIM-15).
  */
@@ -53,9 +73,246 @@ import { contactOutcome } from "../incidents";
 import { drsOpen } from "../rules";
 import { pushEvent, wetnessAt } from "./lapModel";
 import { LANE, LANE_NAMES, LATERAL } from "./lateral";
+import physicsData from "../../data/balance/race-physics.json";
 import { DRIVER_BALANCE, contactFactorOf, coverChanceOf, lateBrakeMetresOf, passSkillTerm, switchbackSkillTerm, triggerFactorOf } from "../drivers/skills";
 
 export const ROLE = { NONE: 0, PASSING: 1, YIELDING: 2, LOST: 3, HELD: 4 };
+
+// ------------------------------------------------------------ SIM-4: battles
+
+/** SIM-4 (§1.7 `battle[i]`): each car's state in the fight, for the director, the crowd and the HUD. */
+export const BATTLE = { RUNNING: 0, FOLLOWING: 1, ATTACKING: 2, DEFENDING: 3, TRAIN: 4 };
+export const BATTLE_NAMES = ["RUNNING", "FOLLOWING", "ATTACKING", "DEFENDING", "TRAIN"];
+/** race-physics.json `duel`: the gaps of the battle states (RNF-07). */
+export const BATTLE_BALANCE = physicsData.duel;
+
+const r3 = (value) => Math.round(value * 1000) / 1000;
+const fracOf = (value) => value - Math.floor(value);
+
+/** SIM-4: the per-car arrays of the battle states, duel events and battle radio (allocated once, RNF-01). */
+export const battleSetup = (n, timingTau) => ({
+  battle: new Uint8Array(n),
+  battleTmp: new Uint8Array(n),
+  battleLink: new Uint8Array(n),
+  // The current fight: whom this car attacks, how many tries so far, and the duel being told.
+  attemptOn: new Int32Array(n).fill(-1),
+  attemptN: new Int32Array(n),
+  duelLive: new Uint8Array(n),
+  duelAlong: new Uint8Array(n),
+  duelCorner: new Int32Array(n),
+  duelLine: new Int8Array(n),
+  duelQueue: [],
+  // The gaps at the last line (for "you're catching him" / "he's coming"), and the radio's quiet times.
+  lineAheadGap: new Float64Array(n).fill(NaN),
+  lineAheadOf: new Int32Array(n).fill(-1),
+  lineBehindGap: new Float64Array(n).fill(NaN),
+  lineBehindOf: new Int32Array(n).fill(-1),
+  radioQuiet: new Map(),
+  // Time shares of the timing lines of a lap (sector lines; the line is 1), for `pass.confirmedAt`.
+  timingTau,
+});
+
+/**
+ * SIM-4 (§1.7 `pass.confirmedAt`): the race time at which car `a` reaches the first timing line after time
+ * share `fromTau` of its lap (a sector line from the circuit's sectors, or the line), at its lap's pace.
+ */
+export const confirmTimeOf = (sim, a, fromTau) => {
+  const lines = sim.timingTau;
+  const from = fracOf(fromTau);
+  let next = 1;
+  for (let k = 0; k < lines.length; k += 1) {
+    if (lines[k] > from + 1e-9) {
+      next = lines[k];
+      break;
+    }
+  }
+  const now = fracOf(sim.tau[a]);
+  // The timing line ahead of the car: past the corner's exit, so never behind it (the exit may wrap the line).
+  let share = next - now;
+  if (share <= 0) share += 1;
+  return r3(sim.clock + share * sim.budget[a]);
+};
+
+/** SIM-4: a `duel` event of the attacker `a` on `b` (§1.7). */
+const duelEvent = (state, a, b, phase, extra = {}) => {
+  const sim = state._sim;
+  pushEvent(state, sim.laps[a] + 1, {
+    type: "duel",
+    phase,
+    carId: state.cars[a].id,
+    otherId: state.cars[b].id,
+    side: sim.duelLine[a] < 0 ? "outside" : "inside",
+    corner: sim.duelCorner[a] || null,
+    attempt: sim.attemptN[a],
+    t: r3(sim.clock),
+    ...extra,
+  });
+};
+
+/** SIM-4: a new attempt of `a` on `b` - the counter restarts when the target changes or the fight broke up (battleStep). */
+const countAttempt = (sim, a, b, corner, line) => {
+  if (sim.attemptOn[a] !== b) {
+    sim.attemptOn[a] = b;
+    sim.attemptN[a] = 0;
+  }
+  sim.attemptN[a] += 1;
+  sim.duelCorner[a] = corner || 0;
+  sim.duelLine[a] = line;
+  sim.duelAlong[a] = 0;
+};
+
+/** RF-CMD-03: the engineer to a player's driver, unless it said the same thing less than `quietSec` ago. */
+const battleRadio = (state, i, kind, extra = {}) => {
+  const sim = state._sim;
+  const cfg = sim.balance.radio;
+  const car = state.cars[i];
+  if (!cfg || !cfg.enabled || !car.isUser) return;
+  const key = `${kind}:${car.id}`;
+  const last = sim.radioQuiet.get(key);
+  const quiet = cfg.quietSec[kind.replace("battle-", "")] ?? 0;
+  if (last !== undefined && sim.clock - last < quiet) return;
+  sim.radioQuiet.set(key, sim.clock);
+  state.radio.push({ lap: sim.laps[i] + 1, carId: car.id, kind, t: r3(sim.clock), ...extra });
+};
+
+/** RF-CMD-03: the radio of a settled corner, to whichever of the two is the player's. */
+const battleRadioOf = (state, a, b, passed) => {
+  const other = { otherId: state.cars[b].id };
+  battleRadio(state, a, passed ? "battle-passed" : "battle-attack-failed", other);
+  battleRadio(state, b, passed ? "battle-lost" : "battle-defended", { otherId: state.cars[a].id });
+};
+
+/**
+ * RF-CMD-03 at car `i`'s line: closing on the car ahead, or the car behind closing in, by more than
+ * `gaining.minGainSecPerLap` since the last line and within `gaining.withinSec` / `closing.withinSec`.
+ */
+export const lineRadio = (state, i) => {
+  const sim = state._sim;
+  const cfg = sim.balance.radio;
+  const car = state.cars[i];
+  const a = sim.ahead[i];
+  const b = sim.behind[i];
+  const aheadGap = car.gapAhead;
+  const behindGap = car.gapBehind;
+  if (cfg && cfg.enabled && car.isUser && !state.safetyCar && !sim.red) {
+    const was = sim.lineAheadGap[i];
+    if (a >= 0 && sim.lineAheadOf[i] === a && Number.isFinite(aheadGap) && Number.isFinite(was)) {
+      const gain = was - aheadGap;
+      if (aheadGap <= cfg.gaining.withinSec && gain >= cfg.gaining.minGainSecPerLap) battleRadio(state, i, "battle-gaining", { otherId: state.cars[a].id, gap: r3(aheadGap), gain: r3(gain) });
+    }
+    const wasBehind = sim.lineBehindGap[i];
+    if (b >= 0 && sim.lineBehindOf[i] === b && Number.isFinite(behindGap) && Number.isFinite(wasBehind)) {
+      const gain = wasBehind - behindGap;
+      if (behindGap <= cfg.closing.withinSec && gain >= cfg.closing.minGainSecPerLap) battleRadio(state, i, "battle-closing", { otherId: state.cars[b].id, gap: r3(behindGap), gain: r3(gain) });
+    }
+  }
+  sim.lineAheadGap[i] = Number.isFinite(aheadGap) ? aheadGap : NaN;
+  sim.lineAheadOf[i] = a;
+  sim.lineBehindGap[i] = Number.isFinite(behindGap) ? behindGap : NaN;
+  sim.lineBehindOf[i] = b;
+};
+
+/**
+ * SIM-4, every step after the duels are settled: the "alongside" of live duels (the two within a car's length)
+ * and the "resolved" of the duels that ended this step (queued by endDuel), with their radio.
+ */
+export const duelWatch = (state) => {
+  const sim = state._sim;
+  // Without its arrays (a test turning the telling off) nothing is told; the race is the same either way.
+  if (!sim.duelLive) return;
+  const L = sim.side.spec.carLength / sim.tables.length;
+  for (let a = 0; a < sim.n; a += 1) {
+    if (!sim.duelLive[a] || sim.duelAlong[a]) continue;
+    const b = sim.duelOther[a];
+    if (b < 0) continue;
+    const d = sim.P[a] - sim.P[b];
+    if (d > -L && d < L) {
+      sim.duelAlong[a] = 1;
+      duelEvent(state, a, b, "alongside");
+    }
+  }
+  flushResolved(state);
+};
+
+/** SIM-4: tell the duels endDuel closed (their "resolved" event and the radio). */
+const flushResolved = (state) => {
+  const sim = state._sim;
+  if (!sim.duelQueue.length) return;
+  for (let k = 0; k < sim.duelQueue.length; k += 1) {
+    const { a, b, passed } = sim.duelQueue[k];
+    duelEvent(state, a, b, "resolved", { result: passed ? "passed" : "defended" });
+    battleRadioOf(state, a, b, passed);
+  }
+  sim.duelQueue.length = 0;
+};
+
+/**
+ * SIM-4 (§1.7 `battle[i]`), every step: the battle state of each car from the gaps measured at the start of
+ * the step, the duel roles and the last states (hysteresis). No roll, no state the race reads (RNF-05).
+ */
+export const battleStep = (state) => {
+  const sim = state._sim;
+  const B = BATTLE_BALANCE;
+  const out = sim.battleTmp;
+  const link = sim.battleLink;
+  const neutral = Boolean(state.safetyCar) || Boolean(sim.red);
+  for (let i = 0; i < sim.n; i += 1) {
+    out[i] = BATTLE.RUNNING;
+    link[i] = 0;
+    if (neutral || !sim.active[i] || sim.inPit[i] !== 0 || (sim.cool && sim.cool[i])) continue;
+    const role = sim.duelRole[i];
+    if (role === ROLE.PASSING || role === ROLE.LOST) {
+      out[i] = BATTLE.ATTACKING;
+      link[i] = 1;
+      continue;
+    }
+    const a = sim.ahead[i];
+    if (a < 0 || sim.lapDiff[i] !== 0 || !sim.active[a] || sim.inPit[a] !== 0) continue;
+    const prev = sim.battle[i];
+    const g = sim.gapS[i];
+    const followLimit = B.followGapSec + (prev === BATTLE.FOLLOWING || prev === BATTLE.ATTACKING || prev === BATTLE.TRAIN ? B.hysteresisSec : 0);
+    const attackLimit = B.attackGapSec + (prev === BATTLE.ATTACKING ? B.hysteresisSec : 0);
+    const pace = (state.cars[a].expected ?? 0) - (state.cars[i].expected ?? 0);
+    if (g <= attackLimit && (pace > B.attackMinPaceSec || sim.drsOpen[i] > 0)) out[i] = BATTLE.ATTACKING;
+    else if (g <= followLimit) out[i] = BATTLE.FOLLOWING;
+    if (g <= followLimit) link[i] = 1;
+  }
+  // The car being fought: the duel's other car, or the one ahead of an attacker.
+  for (let i = 0; i < sim.n; i += 1) {
+    const role = sim.duelRole[i];
+    if ((role === ROLE.YIELDING || role === ROLE.HELD) && out[i] !== BATTLE.ATTACKING && !neutral && sim.active[i] && sim.inPit[i] === 0) out[i] = BATTLE.DEFENDING;
+  }
+  for (let i = 0; i < sim.n; i += 1) {
+    if (out[i] !== BATTLE.ATTACKING) continue;
+    const target = sim.duelOther[i] >= 0 ? sim.duelOther[i] : sim.ahead[i];
+    if (target >= 0 && out[target] !== BATTLE.ATTACKING && sim.active[target] && sim.inPit[target] === 0) out[target] = BATTLE.DEFENDING;
+  }
+  // A train: a run of at least trainMinCars cars, each within the follow gap of the next; its followers with no move on.
+  for (let i = 0; i < sim.n; i += 1) {
+    if (out[i] !== BATTLE.FOLLOWING) continue;
+    let cars = 1;
+    let j = i;
+    for (let k = 0; k < sim.n && link[j]; k += 1) {
+      cars += 1;
+      j = sim.ahead[j];
+      if (j < 0 || j === i) break;
+    }
+    j = sim.behind[i];
+    for (let k = 0; k < sim.n && j >= 0 && j !== i && link[j]; k += 1) {
+      cars += 1;
+      j = sim.behind[j];
+    }
+    if (cars >= B.trainMinCars) out[i] = BATTLE.TRAIN;
+  }
+  for (let i = 0; i < sim.n; i += 1) {
+    // The fight is over when the car no longer follows anyone: the next try is a first one again.
+    if (out[i] === BATTLE.RUNNING && sim.attemptOn[i] >= 0 && !(sim.duelLive && sim.duelLive[i])) sim.attemptOn[i] = -1;
+    sim.battle[i] = out[i];
+  }
+};
+
+/** §1.7 `battle[i]` by name, for the snapshot. */
+export const battleOf = (sim, i) => BATTLE_NAMES[sim.battle[i]];
 
 /** WP4 (SIM-FISICA §3.1): what each car is doing sideways, for the view (snapshot.lane). */
 /** WP4 / SIM-2: what each car is doing sideways (lateral.js), for the view (snapshot.lane). */
@@ -109,6 +366,9 @@ export const startPass = (state, a, b, sign, extra = {}) => {
   const { duel } = sim.balance;
   const lateral = LATERAL;
   const style = styleOf(sim.balance, state.cars[b]);
+  // SIM-4: a car caught while it was itself attacking someone - that fight is over.
+  closeLive(sim, a);
+  closeLive(sim, b);
   sim.duelOther[a] = b;
   sim.duelOther[b] = a;
   sim.duelRole[a] = ROLE.PASSING;
@@ -122,18 +382,48 @@ export const startPass = (state, a, b, sign, extra = {}) => {
   sim.switchTarget[a] = -1;
   sim.latState[a] = extra.alongside ? LANE.ALONGSIDE : sign === (extra.inside ?? sign) ? LANE.ATTACK_IN : LANE.ATTACK_OUT;
   sim.latState[b] = extra.alongside ? LANE.ALONGSIDE : LANE.DEFEND;
+  // SIM-4: a move fought for (not a team order) is a live duel until the road settles it.
+  if (sim.duelLive) sim.duelLive[a] = extra.duel ? 1 : 0;
+  // The corner the move is made at (also for a team order), for the log of a pass left unfinished.
+  if (sim.duelCorner && extra.corner) sim.duelCorner[a] = extra.corner;
   if (extra.event !== false) {
+    const type = extra.type || "pass";
     pushEvent(state, sim.laps[a] + 1, {
-      type: extra.type || "pass", carId: state.cars[a].id, otherId: state.cars[b].id, corner: extra.corner ?? null, drs: Boolean(extra.drs),
+      type, carId: state.cars[a].id, otherId: state.cars[b].id, corner: extra.corner ?? null, drs: Boolean(extra.drs),
       ...(extra.switchback ? { switchback: true } : {}),
       ...(state.cars[a].overtakeActive ? { overtakeMode: true } : {}),
+      // SIM-4 (§1.7): the timing line after the corner confirms the pass.
+      ...(type === "pass" && sim.timingTau ? { confirmedAt: confirmTimeOf(sim, a, extra.exitTau ?? sim.tau[a]) } : {}),
     });
   }
+};
+
+/**
+ * SIM-4: a live duel ends - queue its "resolved" event (told by duelWatch at the end of the step, where the
+ * state is at hand): passed if the attacker is ahead on the road, else defended.
+ */
+const closeLive = (sim, k) => {
+  if (!sim.duelLive || !sim.duelLive[k]) return;
+  const o = sim.duelOther[k];
+  sim.duelLive[k] = 0;
+  if (o >= 0) sim.duelQueue.push({ a: k, b: o, passed: sim.duelRole[k] === ROLE.PASSING && sim.P[k] > sim.P[o] });
+};
+
+const queueResolved = (sim, i, other) => {
+  if (!sim.duelLive) return;
+  const attacking = (k) => k >= 0 && (sim.duelRole[k] === ROLE.PASSING || sim.duelRole[k] === ROLE.LOST);
+  const a = attacking(i) ? i : attacking(other) ? other : -1;
+  if (a < 0 || !sim.duelLive[a]) return;
+  const b = sim.duelOther[a];
+  sim.duelLive[a] = 0;
+  if (b < 0) return;
+  sim.duelQueue.push({ a, b, passed: sim.duelRole[a] === ROLE.PASSING && sim.P[a] > sim.P[b] });
 };
 
 /** The duel is over: both back to their own pace and line. */
 export const endDuel = (sim, i) => {
   const other = sim.duelOther[i];
+  queueResolved(sim, i, other);
   sim.duelRole[i] = ROLE.NONE;
   sim.duelMult[i] = 0;
   sim.duelUntil[i] = 0;
@@ -160,6 +450,8 @@ const contact = (state, a, b, corner, stream, lap) => {
   const victim = stream.chance(0.5) ? b : a;
   const other = victim === a ? b : a;
   logDuel(state, { t: round(sim.clock), lap, corner, attacker: state.cars[a].id, defender: state.cars[b].id, outcome: "incident", victim: state.cars[victim].id });
+  // SIM-4: the corner is settled by the touch.
+  if (sim.duelLive) duelEvent(state, a, b, "resolved", { result: "contact", victimId: state.cars[victim].id });
   const outcome = contactOutcome(stream);
   if (outcome.kind === "retire") {
     sim.retireAt(victim, "collision", corner);
@@ -235,19 +527,25 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap) => {
     line: side === zone.sign ? "inside" : "outside", covered, overlap: round(overlap), alongside,
   };
 
+  // SIM-4: the attempt starts here (its outcome is already drawn; the events tell it as the road plays it out).
+  if (sim.duelLive) {
+    countAttempt(sim, i, ahead, zone.corner, side === zone.sign ? 1 : -1);
+    duelEvent(state, i, ahead, "start", { drs, claim: entry.claim });
+  }
   if (stream.chance(incidentChance * (success ? 1 : d.incident.onDefended))) {
     contact(state, i, ahead, zone.corner, stream, lap);
     sim.cooldownUntil[i] = sim.clock + d.cooldownSec;
     return;
   }
   if (success) {
-    startPass(state, i, ahead, side, { corner: zone.corner, drs, alongside, inside: zone.sign });
+    startPass(state, i, ahead, side, { corner: zone.corner, drs, alongside, inside: zone.sign, duel: true, exitTau: zone.exitTau });
     logDuel(state, { ...entry, outcome: "pass" });
     // The one who lost the corner may come back at its exit.
     sim.switchTarget[ahead] = i;
     sim.switchTau[ahead] = zone.exitTau;
     sim.switchCorner[ahead] = zone.corner;
   } else {
+    closeLive(sim, ahead);
     sim.duelRole[i] = ROLE.LOST;
     sim.duelRole[ahead] = ROLE.HELD;
     sim.duelOther[i] = ahead;
@@ -265,6 +563,8 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap) => {
     sim.switchTarget[i] = ahead;
     sim.switchTau[i] = zone.exitTau;
     sim.switchCorner[i] = zone.corner;
+    // SIM-4: a live duel until the defence has held through the corner (settleDuels ends it).
+    if (sim.duelLive) sim.duelLive[i] = 1;
     logDuel(state, { ...entry, outcome: "defended" });
   }
 
@@ -278,8 +578,19 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap) => {
     const thirdChance = duelChance(state, state.cars[third], state.cars[target], zone, { drs: false, lap }) * d.thirdCarFactor;
     const made = stream.next() < thirdChance;
     logDuel(state, { t: round(sim.clock), lap, corner: zone.corner, attacker: state.cars[third].id, defender: state.cars[target].id, chance: round(thirdChance), drs: false, claim: 3, outcome: made ? "pass" : "defended" });
-    if (made) startPass(state, third, target, -zone.sign, { corner: zone.corner });
-    else sim.cooldownUntil[third] = sim.clock + d.cooldownSec;
+    // SIM-4: the third car's attempt, round the other side; a failed one is settled at once (it never gets alongside).
+    if (sim.duelLive) {
+      countAttempt(sim, third, target, zone.corner, -1);
+      duelEvent(state, third, target, "start", { drs: false, claim: 3 });
+    }
+    if (made) startPass(state, third, target, -zone.sign, { corner: zone.corner, duel: true, exitTau: zone.exitTau });
+    else {
+      sim.cooldownUntil[third] = sim.clock + d.cooldownSec;
+      if (sim.duelLive) {
+        duelEvent(state, third, target, "resolved", { result: "defended", claim: 3 });
+        battleRadioOf(state, third, target, false);
+      }
+    }
   }
 };
 
@@ -305,8 +616,19 @@ export const trySwitchback = (state, i, target, gapMetres) => {
   if (made) {
     if (sim.duelOther[i] >= 0) endDuel(sim, i);
     if (sim.duelOther[target] >= 0) endDuel(sim, target);
-    startPass(state, i, target, -1, { corner, switchback: true });
+    // SIM-4: the corner before is settled, and the switchback is a new attempt, on the outside of the exit.
+    if (sim.duelLive) {
+      flushResolved(state);
+      countAttempt(sim, i, target, corner, -1);
+      duelEvent(state, i, target, "start", { switchback: true });
+    }
+    startPass(state, i, target, -1, { corner, switchback: true, duel: true });
     sim.cooldownUntil[target] = sim.clock + sim.balance.duel.cooldownSec;
+  } else if (sim.duelLive) {
+    // SIM-4: a switchback tried and not made - an attempt held at once.
+    countAttempt(sim, i, target, corner, -1);
+    duelEvent(state, i, target, "start", { switchback: true });
+    duelEvent(state, i, target, "resolved", { result: "defended", switchback: true });
   }
   sim.cooldownUntil[i] = sim.clock + sim.balance.duel.cooldownSec;
 };

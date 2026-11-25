@@ -1,6 +1,14 @@
 {
   "$comment": "RNF-07: física de traza (WP2 de docs/manager/SIM-FISICA.md, §3.2; RF-SIM-01, RF-SIM-02). Coche de punto cuasi estático sobre la trazada: carga, agarre por banda, tracción y frenada dentro de la elipse de fricción, punta por potencia y resistencia. Cada bloque de era describe el MEJOR coche del año en una vuelta de clasificación (pole); los demás se alejan de él con carStats. Calibración contra f1db (pole), punta y mínimas reales (SIM-FISICA §4.1, §4.2): test engine/sim/physics.test.js. Esquema: engine/packs/schema/race-physics.schema.json.",
   "version": 1,
+  "duel": {
+    "$comment": "SIM-4 eventos-duelo (F1M24-GAMEPLAY §1.7 battle[i], SIM-FISICA §3.5; RF-SIM-07, RF-3D-04): estado de batalla de cada coche (engine/sim/duel.js battleStep), solo para la vista, el sonido y la radio (ninguna tirada, RNF-05). FOLLOWING: a menos de followGapSec del de delante en su vuelta; es la ventana de 1 s con la que el modo por pasos ya mide el aire sucio, el rebufo y el seguimiento (race-sim.json dirtyAir/slipstream.windowSec, traffic.followWindowSec), la misma que el hueco de detección del DRS. ATTACKING: en un duelo como atacante, o a menos de attackGapSec con más ritmo (attackMinPaceSec, s/vuelta sin ruido, como el duelo) o con el DRS abierto; attackGapSec es el race-sim.json duel.triggerSec desde el que se abre un duelo (un test comprueba que coinciden). DEFENDING: el coche al que atacan o con el que pelean. TRAIN: siguiendo dentro de una fila de al menos trainMinCars coches, cada uno a menos de followGapSec del siguiente, sin ataque. hysteresisSec: margen para salir de un estado (que no parpadee en el umbral). trainMinCars, hysteresisSec y attackMinPaceSec son comportamiento de diseño propio, sin fuente.",
+    "followGapSec": 1,
+    "attackGapSec": 0.5,
+    "attackMinPaceSec": 0,
+    "hysteresisSec": 0.2,
+    "trainMinCars": 3
+  },
   "constants": {
     "$comment": "g estándar; densidad del aire a ~25 °C y nivel del mar (ISA corregida).",
     "g": 9.81,

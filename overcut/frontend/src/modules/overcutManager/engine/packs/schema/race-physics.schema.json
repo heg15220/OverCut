@@ -3,7 +3,7 @@
   "$comment": "RNF-07: esquema de data/balance/race-physics.json (física de traza, WP2 de docs/manager/SIM-FISICA.md; RF-SIM-01, RF-SIM-02). Lo comprueba engine/sim/physics.test.js.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "constants", "bands", "trace", "eras", "downforce", "carStats", "calibration", "budget", "wake", "mistake", "lateral"],
+  "required": ["version", "constants", "bands", "trace", "eras", "downforce", "carStats", "calibration", "budget", "wake", "mistake", "lateral", "duel"],
   "definitions": {
     "positive": {"type": "number", "exclusiveMinimum": 0},
     "share": {"type": "number", "minimum": 0, "maximum": 1},
@@ -18,6 +18,20 @@
   "properties": {
     "$comment": {"type": "string"},
     "version": {"const": 1},
+    "duel": {
+      "$comment": "SIM-4 (F1M24-GAMEPLAY §1.7 battle[i]): huecos de los estados de batalla (engine/sim/duel.js battleStep).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["followGapSec", "attackGapSec", "attackMinPaceSec", "hysteresisSec", "trainMinCars"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "followGapSec": {"$ref": "#/definitions/positive"},
+        "attackGapSec": {"$ref": "#/definitions/positive"},
+        "attackMinPaceSec": {"type": "number", "minimum": 0, "maximum": 2},
+        "hysteresisSec": {"type": "number", "minimum": 0, "maximum": 1},
+        "trainMinCars": {"type": "integer", "minimum": 3, "maximum": 22}
+      }
+    },
     "constants": {
       "type": "object",
       "additionalProperties": false,

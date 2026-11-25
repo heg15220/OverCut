@@ -163,6 +163,13 @@
       { "from": 1996, "to": 2023, "value": { "lights": "fiveRed", "formationLap": true }, "status": "pending", "note": "De memoria: las cinco rojas que se apagan desde 1996; verificado solo el texto de 2024." },
       { "from": 2024, "to": 2024, "value": { "lights": "fiveRed", "formationLap": true }, "status": "source", "url": "https://www.fia.com/sites/default/files/fia_2024_formula_1_sporting_regulations_-_issue_1_-_2023-09-26.pdf", "quote": "Art. 44.7 'When the green lights are illuminated, all cars on the grid should begin the formation lap'; art. 44.10 b) five-second to one-second lights, 'the race will be started by extinguishing all red lights'." },
       { "from": 2025, "to": 2026, "value": { "lights": "fiveRed", "formationLap": true }, "status": "pending", "note": "Reglamentos 2025 y 2026 (sección B) sin leer." }
+    ],
+    "yellowFlags": [
+      { "from": 1950, "to": 2026, "value": { "double": true }, "status": "pending", "note": "SIM-4 amarilla-sector (RF-SIM-10, F1M24-GAMEPLAY §2.10): banderas de comisario del Código Deportivo Internacional de la FIA, Apéndice H. Amarilla agitada: peligro, reducir y no adelantar; doble agitada: reducir mucho y estar preparado para parar (pista bloqueada en parte o comisarios en pista). De memoria y sin año de cada redacción: copiar la cita del Apéndice H de cada época antes de fijarlo. double=false haría que el modo por pasos solo agite amarillas sencillas." }
+    ],
+    "yellowLapDeleted": [
+      { "from": 1950, "to": 2013, "value": "none", "status": "pending", "note": "SIM-4 / SES-4 (F1M24-GAMEPLAY §2.10): qué vuelta de clasificación se borra por pasar una amarilla. 'none' = el tiempo vale (solo sanción si los comisarios ven que no levantó), 'double' = se borra la vuelta hecha con doble amarilla agitada en su sector, 'any' = también con amarilla sencilla. De memoria: antes de las notas del director de carrera de la era híbrida no había borrado automático. Año exacto por leer." },
+      { "from": 2014, "to": 2026, "value": "double", "status": "pending", "note": "De memoria: las notas del director de carrera de la FIA en la era híbrida (y el reglamento deportivo después) borran la vuelta de clasificación hecha con doble amarilla agitada en ese sector. Año del cambio y artículo por leer en el reglamento FIA de cada año." }
     ]
   }
 }

@@ -15,6 +15,8 @@ import {
   ROLE, airEffect, createStepRace, fromQuickRace, requestPit, runStepToFinish, setDefence, setMode, setOvertakeRisk, snapshot, stepFor, stepOnce, toRaceState,
 } from "./index";
 import { skipFormation, startOf } from "./stepRace";
+import { BATTLE_BALANCE, BATTLE_NAMES, confirmTimeOf } from "./duel";
+import { waveYellow } from "../race";
 import { weekend } from "./simTestKit";
 import eraDefaults from "../../data/seasons/curated/era-defaults.json";
 
@@ -29,6 +31,8 @@ const KNOWN_EVENTS = new Set([
   "yellow", "investigation", "no-action", "penalty", "penalty-served", "penalty-applied", "red", "restart", "grid-penalty",
   // SIM-3 (F1M24-GAMEPLAY §1.7): the lights going out and each car's flag.
   "lightsOut", "finished",
+  // SIM-4 (F1M24-GAMEPLAY §1.7): the phases of every fight for a corner.
+  "duel",
 ]);
 
 describe("RF-SIM-01 a race in fixed steps on the circuit", () => {
@@ -424,5 +428,223 @@ describe("RF-SIM-01 across eras (no SC before 1993, refuelling, VSC from 2015)",
     expect(neutralised).toHaveLength(0);
     const racing = state.cars.flatMap((car) => car.history.filter((entry) => !entry.retired && !entry.pit && entry.lap > 1));
     expect(Math.max(...racing.map((entry) => entry.end - entry.start))).toBeLessThan(state.race.baseLap * 1.8);
+  });
+});
+
+describe("SIM-4 battles, duel events and sector yellows (F1M24-GAMEPLAY §1.7; RF-SIM-07, RF-SIM-10, RF-CMD-03)", () => {
+  /** The output a race leaves behind but what SIM-4 tells about it (duel events, battle radio). */
+  const raceOnly = (state) =>
+    JSON.stringify({
+      rows: classificationOf(state),
+      history: state.cars.map((car) => car.history),
+      duels: state.duels,
+      events: state.events.filter((event) => event.type !== "duel"),
+      radio: state.radio.filter((message) => !String(message.kind).startsWith("battle-")),
+      fastest: state.fastestLap,
+    });
+
+  it("reads its gaps from race-physics.json duel: the attack gap is the duel's trigger", () => {
+    expect(BATTLE_BALANCE.attackGapSec).toBe(balance.duel.triggerSec);
+    expect(BATTLE_BALANCE.followGapSec).toBeGreaterThan(BATTLE_BALANCE.attackGapSec);
+    expect(BATTLE_BALANCE.followGapSec).toBe(balance.traffic.followWindowSec);
+  });
+
+  it("gives every car a battle state: attackers have a defender, nobody fights behind the safety car", () => {
+    const { state } = stepRaceOf({ seed: "battle" });
+    const sim = state._sim;
+    const seen = new Set();
+    let checked = 0;
+    for (let k = 0; k < 4000 && !state.finished; k += 1) {
+      stepOnce(state);
+      const shot = snapshot(state);
+      shot.forEach((car, i) => {
+        expect(BATTLE_NAMES).toContain(car.battle);
+        seen.add(car.battle);
+        if (!sim.active[i] || car.inPit) expect(car.battle).toBe("RUNNING");
+        if (state.safetyCar) expect(car.battle).toBe("RUNNING");
+        if (car.battle === "ATTACKING") {
+          const target = sim.duelOther[i] >= 0 ? sim.duelOther[i] : sim.ahead[i];
+          expect(target).toBeGreaterThanOrEqual(0);
+          if (sim.duelOther[i] < 0) expect(sim.gapS[i]).toBeLessThanOrEqual(BATTLE_BALANCE.attackGapSec + BATTLE_BALANCE.hysteresisSec + 1e-9);
+          if (shot[target].battle !== "ATTACKING" && sim.active[target] && !shot[target].inPit) expect(shot[target].battle).toBe("DEFENDING");
+          checked += 1;
+        }
+        if (car.battle === "FOLLOWING" || car.battle === "TRAIN") expect(sim.gapS[i]).toBeLessThanOrEqual(BATTLE_BALANCE.followGapSec + BATTLE_BALANCE.hysteresisSec + 1e-9);
+      });
+    }
+    expect(checked).toBeGreaterThan(0);
+    ["RUNNING", "FOLLOWING", "ATTACKING", "DEFENDING"].forEach((name) => expect(seen.has(name)).toBe(true));
+  });
+
+  describe("over whole races", () => {
+    const races = ["e1", "e2", "e3"].map((seed) => runStepToFinish(stepRaceOf({ seed }).state));
+
+    it("tells each attempt start → (alongside) → resolved, with its side, corner and attempt number", () => {
+      let started = 0;
+      let resolved = 0;
+      let alongside = 0;
+      races.forEach((state) => {
+        const open = new Map();
+        const corners = new Set(state._sim.tables.attacks.map((zone) => zone.corner));
+        state.events.filter((event) => event.type === "duel").forEach((event) => {
+          const key = `${event.carId}>${event.otherId}`;
+          expect(["inside", "outside"]).toContain(event.side);
+          expect(event.attempt).toBeGreaterThanOrEqual(1);
+          expect(Number.isFinite(event.t)).toBe(true);
+          if (event.corner !== null) expect(corners.has(event.corner)).toBe(true);
+          if (event.phase === "start") {
+            started += 1;
+            open.set(key, event);
+          } else if (event.phase === "alongside") {
+            alongside += 1;
+            expect(open.has(key)).toBe(true);
+          } else {
+            expect(event.phase).toBe("resolved");
+            expect(["passed", "defended", "contact"]).toContain(event.result);
+            const start = open.get(key);
+            expect(start).toBeDefined();
+            expect(event.attempt).toBe(start.attempt);
+            expect(event.t).toBeGreaterThanOrEqual(start.t);
+            open.delete(key);
+            resolved += 1;
+          }
+        });
+        // Only a fight still on at the flag may be left open.
+        expect(open.size).toBeLessThanOrEqual(3);
+      });
+      expect(started).toBeGreaterThan(20);
+      expect(resolved).toBeGreaterThan(started - 10);
+      expect(alongside).toBeGreaterThan(0);
+      const results = new Set(races.flatMap((state) => state.events.filter((event) => event.type === "duel" && event.phase === "resolved").map((event) => event.result)));
+      expect(results.has("passed")).toBe(true);
+      expect(results.has("defended")).toBe(true);
+      // A second try on the same car counts up.
+      expect(races.some((state) => state.events.some((event) => event.type === "duel" && event.attempt >= 2))).toBe(true);
+    });
+
+    it("confirms every pass at the next timing line after its corner (pass.confirmedAt)", () => {
+      races.forEach((state) => {
+        const budget = state.race.baseLap * 1.6;
+        state.events.forEach((event, k) => {
+          if (event.type !== "pass") return;
+          const start = state.events[k - 1];
+          expect(start).toMatchObject({ type: "duel", phase: "start", carId: event.carId, otherId: event.otherId });
+          expect(event.confirmedAt).toBeGreaterThanOrEqual(start.t);
+          expect(event.confirmedAt - start.t).toBeLessThan(budget);
+        });
+      });
+    });
+
+    it("radios the player's drivers only, never the same thing twice inside its quiet time", () => {
+      const battle = races.flatMap((state) => state.radio.filter((message) => String(message.kind).startsWith("battle-")).map((message) => ({ ...message, user: state.cars.find((car) => car.id === message.carId).isUser })));
+      expect(battle.length).toBeGreaterThan(0);
+      battle.forEach((message) => {
+        expect(message.user).toBe(true);
+        expect(["battle-gaining", "battle-closing", "battle-attack-failed", "battle-passed", "battle-defended", "battle-lost"]).toContain(message.kind);
+      });
+      races.forEach((state) => {
+        const last = new Map();
+        state.radio.filter((message) => String(message.kind).startsWith("battle-")).forEach((message) => {
+          const key = `${message.kind}:${message.carId}`;
+          const quiet = balance.radio.quietSec[message.kind.replace("battle-", "")];
+          if (last.has(key)) expect(message.t - last.get(key)).toBeGreaterThanOrEqual(quiet);
+          last.set(key, message.t);
+          if (message.kind === "battle-gaining") {
+            expect(message.gap).toBeLessThanOrEqual(balance.radio.gaining.withinSec);
+            expect(message.gain).toBeGreaterThanOrEqual(balance.radio.gaining.minGainSecPerLap);
+          }
+        });
+      });
+    });
+  });
+
+  it("only tells: with the telling off the race is the same (RNF-05)", () => {
+    const told = runStepToFinish(stepRaceOf({ seed: "tell" }).state);
+    const { state } = stepRaceOf({ seed: "tell" });
+    state._sim.duelLive = null;
+    runStepToFinish(state);
+    expect(state.events.some((event) => event.type === "duel")).toBe(false);
+    expect(raceOnly(state)).toBe(raceOnly(told));
+  });
+
+  it("times the confirmation at the first timing line ahead (sector lines, then the line)", () => {
+    const sim = { timingTau: [0.3, 0.7], tau: [0.25], budget: [100], clock: 10 };
+    expect(confirmTimeOf(sim, 0, 0.28)).toBeCloseTo(15, 9);
+    expect(confirmTimeOf(sim, 0, 0.35)).toBeCloseTo(55, 9);
+    expect(confirmTimeOf(sim, 0, 0.8)).toBeCloseTo(85, 9);
+    // The corner's exit past the line: the first sector line of the next lap.
+    expect(confirmTimeOf({ ...sim, tau: [0.9] }, 0, 0.02)).toBeCloseTo(50, 9);
+  });
+
+  describe("amarilla-sector", () => {
+    const yellowRace = () => {
+      const { state } = stepRaceOf({ seed: "sector-yellow" });
+      stepFor(state, 300);
+      return state;
+    };
+    const sectorOf = (track, s) => (s >= track.sectors[2] ? 3 : s >= track.sectors[1] ? 2 : 1);
+
+    it("waves {sector, marshalPost, double, s, until}: single for a car still going, its time from the measured spread", () => {
+      const state = yellowRace();
+      const sim = state._sim;
+      const corner = sim.tables.attacks[0].corner;
+      const running = state.cars.findIndex((car, i) => car.status === "running" && sim.incident[i] === null);
+      waveYellow(state, corner, state.cars[running].id, sim.laps[running] + 1);
+      sim.raceControl();
+      const event = state.events.filter((item) => item.type === "yellow" && item.corner === corner).pop();
+      const range = sim.cornerRange.get(corner);
+      expect(event).toMatchObject({ marshalPost: corner, double: false, sector: expect.any(Number) });
+      const track = circuitFor(state.race, state.year);
+      expect(event.sector).toBe(sectorOf({ sectors: track.sectors || [0, 1 / 3, 2 / 3] }, range.apex));
+      expect(event.s).toBeCloseTo(range.apex, 3);
+      const held = event.until - event.t;
+      const spread = balance.raceControl.yellow.holdSec.single;
+      expect(held).toBeGreaterThanOrEqual(spread.p10 - 1e-6);
+      expect(held).toBeLessThanOrEqual(spread.p90 + 1e-6);
+      expect(state.yellowZones.find((zone) => zone.corner === corner)).toMatchObject({ sector: event.sector, double: false, marshalPost: corner });
+    });
+
+    it("double for a car stopped on the track, if the era has double yellows (era-defaults yellowFlags)", () => {
+      const state = yellowRace();
+      const sim = state._sim;
+      const [first, second] = sim.tables.attacks.map((zone) => zone.corner).filter((corner, k, all) => all.indexOf(corner) === k);
+      const stopped = state.cars.findIndex((car) => car.status === "running");
+      state.cars[stopped].status = "retired";
+      waveYellow(state, first, state.cars[stopped].id, state.lap + 1);
+      sim.raceControl();
+      const event = state.events.filter((item) => item.type === "yellow" && item.corner === first).pop();
+      expect(event.double).toBe(true);
+      const spread = balance.raceControl.yellow.holdSec.double;
+      expect(event.until - event.t).toBeGreaterThanOrEqual(spread.p10 - 1e-6);
+      expect(event.until - event.t).toBeLessThanOrEqual(spread.p90 + 1e-6);
+      // An era without the double yellow: single, whatever the car.
+      const regs = sim.rules.regulations;
+      const saved = regs.yellowFlags;
+      regs.yellowFlags = { double: false };
+      try {
+        waveYellow(state, second, state.cars[stopped].id, state.lap + 1);
+        sim.raceControl();
+        expect(state.events.filter((item) => item.type === "yellow" && item.corner === second).pop().double).toBe(false);
+      } finally {
+        regs.yellowFlags = saved;
+      }
+    });
+
+    it("ninguna regla fuera de su era: every year has its yellow flags and its lap-deletion rule (pending)", () => {
+      for (let year = 1950; year <= 2026; year += 1) {
+        const regs = rulesFor(year).regulations;
+        expect(typeof regs.yellowFlags.double).toBe("boolean");
+        expect(["none", "double", "any"]).toContain(regs.yellowLapDeleted);
+      }
+      ["yellowFlags", "yellowLapDeleted"].forEach((field) => {
+        const rows = eraDefaults.fields[field];
+        expect(rows[0].from).toBe(1950);
+        expect(rows[rows.length - 1].to).toBe(2026);
+        rows.forEach((row, k) => {
+          if (k > 0) expect(row.from).toBe(rows[k - 1].to + 1);
+          expect(row.status === "pending" ? typeof row.note : "source").toBe(row.status === "pending" ? "string" : "source");
+        });
+      });
+    });
   });
 });

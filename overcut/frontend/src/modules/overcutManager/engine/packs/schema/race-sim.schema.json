@@ -15,6 +15,36 @@
       "minimum": 0,
       "maximum": 1
     },
+    "holdSpread": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["p10", "median", "p90"],
+      "properties": {
+        "p10": { "type": "number", "exclusiveMinimum": 0 },
+        "median": { "type": "number", "exclusiveMinimum": 0 },
+        "p90": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "measuredSpread": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["n", "p10", "median", "p90"],
+      "properties": {
+        "n": { "type": "integer", "minimum": 0 },
+        "p10": { "type": "number", "minimum": 0 },
+        "median": { "type": "number", "minimum": 0 },
+        "p90": { "type": "number", "minimum": 0 }
+      }
+    },
+    "radioGap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["withinSec", "minGainSecPerLap"],
+      "properties": {
+        "withinSec": { "type": "number", "exclusiveMinimum": 0 },
+        "minGainSecPerLap": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
     "eraRange": {
       "type": "object",
       "required": [
@@ -58,7 +88,8 @@
     "mistake",
     "pitRelease",
     "start",
-    "cooldown"
+    "cooldown",
+    "radio"
   ],
   "properties": {
     "$comment": {
@@ -672,9 +703,13 @@
             "approachMetres",
             "afterMetres",
             "durationSec",
-            "slowFactor"
+            "slowFactor",
+            "holdSec",
+            "double",
+            "measured"
           ],
           "properties": {
+            "$comment": { "type": "string" },
             "approachMetres": {
               "$ref": "#/definitions/nonNegative"
             },
@@ -686,7 +721,43 @@
             },
             "slowFactor": {
               "$ref": "#/definitions/nonNegative"
-            }
+            },
+            "holdSec": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["single", "double"],
+              "properties": {
+                "single": { "$ref": "#/definitions/holdSpread" },
+                "double": { "$ref": "#/definitions/holdSpread" }
+              }
+            },
+            "double": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["incidents", "retired"],
+              "properties": {
+                "$comment": { "type": "string" },
+                "incidents": { "type": "array", "items": { "enum": ["lockup", "wide", "spin"] }, "uniqueItems": true },
+                "retired": { "type": "boolean" }
+              }
+            },
+            "measured": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["source", "years", "races", "episodes", "perRace", "doubleShare", "single", "double"],
+              "properties": {
+                "source": { "type": "string", "minLength": 1 },
+                "years": { "type": "array", "items": { "type": "integer" }, "minItems": 1 },
+                "races": { "type": "integer", "minimum": 1 },
+                "episodes": { "type": "integer", "minimum": 0 },
+                "perRace": { "$ref": "#/definitions/nonNegative" },
+                "doubleShare": { "$ref": "#/definitions/share" },
+                "single": { "$ref": "#/definitions/measuredSpread" },
+                "double": { "$ref": "#/definitions/measuredSpread" }
+              }
+            },
+            "pending": { "type": "array", "items": { "type": "string" } },
+            "pendingNote": { "type": "string" }
           }
         }
       }
@@ -782,6 +853,30 @@
         "slowDownSec": { "$ref": "#/definitions/positive" },
         "lateralMetres": { "$ref": "#/definitions/nonNegative" },
         "pending": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "radio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "gaining", "closing", "quietSec"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "enabled": { "type": "boolean" },
+        "gaining": { "$ref": "#/definitions/radioGap" },
+        "closing": { "$ref": "#/definitions/radioGap" },
+        "quietSec": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["gaining", "closing", "attack-failed", "passed", "defended", "lost"],
+          "properties": {
+            "gaining": { "$ref": "#/definitions/nonNegative" },
+            "closing": { "$ref": "#/definitions/nonNegative" },
+            "attack-failed": { "$ref": "#/definitions/nonNegative" },
+            "passed": { "$ref": "#/definitions/nonNegative" },
+            "defended": { "$ref": "#/definitions/nonNegative" },
+            "lost": { "$ref": "#/definitions/nonNegative" }
+          }
+        }
       }
     }
   }
