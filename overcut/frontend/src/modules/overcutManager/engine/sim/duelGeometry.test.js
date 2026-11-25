@@ -164,13 +164,9 @@ describe("SIM-8 the claim and the passes per lap (RF-SIM-07, SRS 4.2, f1db)", ()
       const claimed = duels.find((row) => row.squeeze && row.attacker === duel.attacker && row.defender === duel.defender && row.corner === duel.corner && row.t <= duel.t);
       expect(claimed).toBeDefined();
       // The winner of the corner is on the inside; the one squeezed is the loser, on the outside.
-      if (claimed.outcome === "pass") {
-        expect(claimed.line).toBe("inside");
-        expect(duel.victim).toBe(duel.defender);
-      } else {
-        expect(claimed.line).toBe("outside");
-        expect(duel.victim).toBe(duel.attacker);
-      }
+      const passed = claimed.outcome === "pass";
+      expect(claimed.line).toBe(passed ? "inside" : "outside");
+      expect(duel.victim).toBe(passed ? duel.defender : duel.attacker);
     });
     // No contact event comes from a squeeze: every touch is an "incident" of the log.
     const crashes = steps.reduce((sum, state) => sum + state.events.filter((event) => event.type === "contact" && !event.turnOne).length, 0);
@@ -184,7 +180,8 @@ describe("SIM-8 the claim and the passes per lap (RF-SIM-07, SRS 4.2, f1db)", ()
         if (duel.outcome !== "defended" && duel.outcome !== "pass") return;
         const key = `${duel.attacker}>${duel.defender}`;
         const before = last.get(key);
-        if (before && before.outcome === "defended") expect(duel.t - before.t).toBeGreaterThanOrEqual(G.attemptsPerDefender.pairCooldownSec - 0.26);
+        const gap = before && before.outcome === "defended" ? duel.t - before.t : Infinity;
+        expect(gap).toBeGreaterThanOrEqual(G.attemptsPerDefender.pairCooldownSec - 0.26);
         last.set(key, duel);
       });
     });
