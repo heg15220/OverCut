@@ -466,10 +466,11 @@ describe("SIM-7 errores-visibles · track limits only in their era (criterio 7.2
       const rules = rulesFor(era);
       const procedure = rules.raceControl.trackLimits;
       expect({ year, on: Boolean(procedure) }).toEqual({ year, on: year >= 2023 });
-      if (procedure) {
-        procedure.race.penalties.forEach((step) => expect(rules.raceControl.penaltyTypes).toContain(step.type));
-        expect(procedure.race.blackWhiteAt).toBeLessThan(procedure.race.penalties[0].at);
-      }
+      const steps = procedure ? procedure.race.penalties : [];
+      const illegal = steps.filter((step) => !rules.raceControl.penaltyTypes.includes(step.type));
+      expect({ year, illegal }).toEqual({ year, illegal: [] });
+      const warnedFirst = procedure ? procedure.race.blackWhiteAt < steps[0].at : true;
+      expect({ year, warnedFirst }).toEqual({ year, warnedFirst: true });
       expect(commandsFor(era).tactics.battleAssist).toBe(rules.energy.modes.length > 0);
     });
   });
