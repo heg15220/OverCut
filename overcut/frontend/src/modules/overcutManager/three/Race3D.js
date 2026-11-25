@@ -35,7 +35,7 @@ import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { buildCar } from "./carModel";
 import { buildTrack } from "./trackScene";
-import { buildPitRig, buildZoneRig, critDampStep, fitRig, frame, garageShot, isOnboard, modeForYear, onboardFor, pitShot, seedOf, shakeOffset, tvRival } from "./cameras";
+import { buildPitRig, buildZoneRig, critDampStep, fitRig, frame, garageShot, isOnboard, modeForYear, onboardFor, pitShot, rigCamOfType, scParkedPose, scriptShot, seedOf, shakeOffset, tvRival } from "./cameras";
 import { onRacingLine } from "./racingLine";
 import { QUICK_REPLAY, boxSpecFor, countOverlap, overlapPass } from "./viewOverlap";
 import { boxPointOf, etaToBox, stepSequence } from "../components/director/pitSequence";
@@ -99,10 +99,10 @@ const buildCrew = (color) => {
 
 const CREW_LEAD_SEC = broadcast.sequences.pitStop.crewLeadSec;
 
-export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, teams, onPick, labels, clock, sample, cameraBus, seed, replayBuffer, replay }) {
+export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, teams, onPick, labels, clock, sample, cameraBus, seed, replayBuffer, replay, director }) {
   const mount = useRef(null);
   const props = useRef({});
-  props.current = { cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, onPick, clock, sample, year, cameraBus, seed, replayBuffer, replay };
+  props.current = { cars, focusId, mode, wet, lights, safetyCar, safetyCarOn, onPick, clock, sample, year, cameraBus, seed, replayBuffer, replay, director };
   const world = useRef(null);
 
   // Renderer, sky, sun and camera: once.
@@ -319,7 +319,7 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
  * from the radius it is turning on and wheels that roll at its speed.
  */
 function step(state, props, dt) {
-  const { cars = [], wet, lights, safetyCar, clock, sample, safetyCarOn, year, cameraBus, seed, replayBuffer, replay } = props;
+  const { cars = [], wet, lights, safetyCar, clock, sample, safetyCarOn, year, cameraBus, seed, replayBuffer, replay, director } = props;
   const { camera, circuit } = state;
   if (!circuit) return;
   const liveTau = clock ? clock.current : null;
@@ -500,6 +500,8 @@ function step(state, props, dt) {
   // Safety car: given, or running 90 m ahead of the leader.
   let sc = safetyCar;
   if (!sc && safetyCarOn && ordered[0] && !ordered[0].pose.inPit) sc = poseAt(circuit, ((ordered[0].pose.progress % 1) + 1) % 1 + 90 / circuit.length);
+  // CAM-4: before lights out the safety car waits behind the grid, in the years it exists (the director says so).
+  if (!sc && director?.scParked) sc = scParkedPose(circuit, cars.length);
   if (sc) {
     if (!state.safetyCar) {
       state.safetyCar = buildSafetyCar();
@@ -551,8 +553,35 @@ function step(state, props, dt) {
       else if (was?.active) state.camState.tvCam = null;
     } else state.pitSeq = null;
     state.camState.lockCam = lockCam;
+    // CAM-4 start-finish-scripts and onboard-inserts: on TV (not on a camera the viewer picked, not in
+    // a replay) the director's script or insert shot (`director`, the directorState result) takes the air.
+    const scripted = mode === "tv" && !replayed && !lockCam && director && (director.shotKind === "script" || director.shotKind === "insert") && director.cameraId ? director : null;
+    let scriptShotOn = null;
+    let scriptBus = null;
+    if (scripted && !inGarage) {
+      const id = scripted.cameraId;
+      const kind = scripted.camType;
+      if (kind === "script") scriptShotOn = scriptShot(id, focus, circuit, { gridCount: cars.length, world });
+      else if (kind === "onboard" || kind === "chase" || kind === "heli") scriptShotOn = frame(id, focus, circuit, state.rig, state.camState, dt, world);
+      else if (kind === "rig") {
+        const rigCam = rigCamOfType(state.rig, String(id).slice(4), focus);
+        if (rigCam) {
+          state.camState.lockCam = rigCam;
+          scriptShotOn = frame("tv", focus, circuit, state.rig, state.camState, dt, world);
+          state.camState.lockCam = lockCam;
+          scriptBus = { id: rigCam.id, kind: rigCam.type };
+        }
+      }
+      if (scriptShotOn && !scriptBus) scriptBus = { id, kind: kind === "script" ? "script" : kind === "onboard" ? "onboard" : kind };
+    }
+    const scriptKey = scriptShotOn ? `${scripted.cameraId}|${focus.item?.car?.id ?? ""}` : null;
+    if (scriptShotOn && state.lastScriptKey !== scriptKey) scriptShotOn.snap = true;
+    // Out of a script the trackside director chooses afresh (and cuts).
+    if (!scriptShotOn && state.lastScriptKey) state.camState.tvCam = null;
+    state.lastScriptKey = scriptKey;
     let shot = null;
     if (inGarage) shot = garageShot(focus);
+    else if (scriptShotOn) shot = scriptShotOn;
     else if (seqCam === "chase") shot = frame("chase", focus, circuit, state.rig, state.camState, dt, world);
     else if (seqCam) shot = pitShot(seqCam, focus, circuit, state.pitRig || [], state.pitBox, world);
     if (shot && seqCam && state.lastSeqCam !== seqCam) shot.snap = true;
@@ -598,19 +627,21 @@ function step(state, props, dt) {
     // A little vibration on the onboard cameras, as the real ones have: seeded noise on the race
     // clock (the view's own time when there is none), never Math.random (RNF-05).
     state.viewTime = (state.viewTime || 0) + dt;
-    const mount = !inGarage && onboard ? onboardFor(mode) : null;
+    const mount = !inGarage && scriptBus?.kind === "onboard" ? onboardFor(scriptBus.id) : !inGarage && !scriptBus && onboard ? onboardFor(mode) : null;
     if (mount?.shake) camera.position.y += shakeOffset(mount.shake, focus.speed || 0, tau ?? state.viewTime, seedOf(`${focus.item?.car?.id ?? ""}|${mode}`));
     camera.lookAt(cam.look);
     // The camera on air, for whoever listens (the TV sound, AUD-2).
     if (cameraBus) {
       // A TV shot no tower can take is flown by the helicopter (cameras.js frame).
-      const fallback = mode === "tv" && !inGarage && !seqCam && state.camState.fallback;
-      const tv = mode === "tv" && !inGarage && !seqCam && !fallback ? state.camState.tvCam : null;
+      const fallback = mode === "tv" && !inGarage && !seqCam && !scriptBus && state.camState.fallback;
+      const tv = mode === "tv" && !inGarage && !seqCam && !scriptBus && !fallback ? state.camState.tvCam : null;
       // A pit-sequence shot is named by its pit camera (kind "pit"), the chase shot of a garage exit as the chase camera.
-      const pit = !inGarage && seqCam ? seqCam : null;
+      const pit = !inGarage && !scriptBus && seqCam ? seqCam : null;
+      // A script or insert shot (CAM-4) by its own camera: kind "script", "onboard", "chase", "heli" or the trackside type.
+      const scriptOn = !inGarage ? scriptBus : null;
       cameraBus.current = {
-        id: inGarage ? "garage" : pit ?? (fallback ? "heli" : tv?.id ?? mode),
-        kind: inGarage ? "garage" : pit ? (pit === "chase" ? "chase" : "pit") : fallback ? "heli" : tv ? tv.type : onboard ? "onboard" : mode,
+        id: inGarage ? "garage" : scriptOn ? scriptOn.id : pit ?? (fallback ? "heli" : tv?.id ?? mode),
+        kind: inGarage ? "garage" : scriptOn ? scriptOn.kind : pit ? (pit === "chase" ? "chase" : "pit") : fallback ? "heli" : tv ? tv.type : onboard ? "onboard" : mode,
         mode,
         replay: Boolean(replayed),
         subjectId: focus.item?.car?.id ?? null,

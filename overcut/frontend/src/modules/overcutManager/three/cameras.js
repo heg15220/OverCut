@@ -26,6 +26,7 @@ import * as THREE from "three";
 import { poseAt } from "../engine/trackGeometry";
 import cameraData from "../data/balance/cameras.json";
 import broadcast from "../data/balance/broadcast.json";
+import raceSim from "../data/balance/race-sim.json";
 import { rigType, zoneChoice, zonesFor } from "./cameraZones";
 
 export { buildCameraZones, pickVariant, zoneChoice, zonesFor, zoneIndexAt } from "./cameraZones";
@@ -179,6 +180,7 @@ export const buildZoneRig = (circuit, zones = zonesFor(circuit)) => {
         width: t.width,
         weight: cam.weight ?? t.weight,
         zone: zi,
+        zoneKind: zone.kind ?? null,
         variant: ci,
       };
       if (cam.type === "cable" || cam.type === "lateralTrack") {
@@ -506,11 +508,91 @@ export const tvRival = (ordered, focusId, objects) => {
   return best ? objects.get(best.item.car.id) : null;
 };
 
+// ------------------------------------------------------------- CAM-4 start and finish scripts
+
+const SCRIPT_RIG = broadcast.scriptRig;
+const GRID = raceSim.grid;
+
+/**
+ * Metres along the lap from the line (negative: behind it) of a scriptRig anchor (F1M24-GAMEPLAY
+ * §2.5 start-finish-scripts, CAM-4): the grid slots of the step race (race-sim.json grid:
+ * poleBackMetres + k·gapMetres behind the line), the safety car scParkedBackM behind the last
+ * slot, the line itself. null for `subject` (the car on air).
+ */
+export const scriptAnchorM = (anchor, gridCount = 20) => {
+  const last = Math.max(0, (gridCount || 1) - 1);
+  switch (anchor) {
+    case "pole":
+      return -GRID.poleBackMetres;
+    case "gridMid":
+      return -(GRID.poleBackMetres + (GRID.gapMetres * last) / 2);
+    case "gridBack":
+      return -(GRID.poleBackMetres + GRID.gapMetres * last);
+    case "scParked":
+      return -(GRID.poleBackMetres + GRID.gapMetres * last + SCRIPT_RIG.scParkedBackM);
+    case "line":
+      return 0;
+    default:
+      return null;
+  }
+};
+
+/** Where the safety car waits behind the grid before the start ({ x, y, heading, progress } in the sim plane). */
+export const scParkedPose = (circuit, gridCount = 20) => {
+  const progress = wrap(scriptAnchorM("scParked", gridCount) / circuit.length);
+  return { ...poseAt(circuit, progress), progress };
+};
+
+/**
+ * The shot from a scriptRig camera: { pos, look, fov, critDamp, cameraId, camType: "script", abs }.
+ * `focus` is Race3D's { x, y, z, heading } of the car on air; `opts` { gridCount (cars on the grid),
+ * world ({ field } on a real circuit) }. Positive sideM is towards the pit lane (circuit.pit.side).
+ * null for an id scriptRig does not have.
+ */
+export const scriptShot = (id, focus, circuit, { gridCount = 20, world = null } = {}) => {
+  const cam = SCRIPT_RIG.cams.find((entry) => entry.id === id);
+  if (!cam || !circuit?.length) return null;
+  const L = circuit.length;
+  const sign = circuit.pit?.side || 1;
+  const at = (anchor, alongM = 0) => {
+    if (anchor === "subject") {
+      const x = focus.x + Math.cos(focus.heading) * alongM;
+      const y = focus.z + Math.sin(focus.heading) * alongM;
+      return { x, y, heading: focus.heading };
+    }
+    return poseAt(circuit, wrap((scriptAnchorM(anchor, gridCount) + alongM) / L));
+  };
+  const base = at(cam.anchor, cam.alongM);
+  const px = base.x - Math.sin(base.heading) * sign * cam.sideM;
+  const pz = base.y + Math.cos(base.heading) * sign * cam.sideM;
+  const real = Boolean(world?.field);
+  const level = real ? focus.y || 0 : 0;
+  const floor = real ? world.field.floorNear(px, pz, level) ?? level : 0;
+  const pos = new THREE.Vector3(px, floor + cam.height, pz);
+  const aimAt = cam.aim === "subject" ? { x: focus.x, y: focus.z } : at(cam.aim === "gridMid" ? "gridMid" : cam.anchor);
+  const look = new THREE.Vector3(aimAt.x, level + FRAMING.aimUpM, aimAt.y);
+  const distance = pos.distanceTo(look);
+  const fov = THREE.MathUtils.clamp((2 * Math.atan(cam.width / 2 / Math.max(2, distance)) * 180) / Math.PI, SCRIPT_RIG.fovDeg.min, SCRIPT_RIG.fovDeg.max);
+  return { pos, look, fov, critDamp: SCRIPT_RIG.critDamp, lookLag: SCRIPT_RIG.critDamp, cameraId: id, camType: "script", abs: real };
+};
+
+/** A script's `rig:<type>` shot: the fixed trackside camera of that type nearest the car (null if the rig has none). */
+export const rigCamOfType = (rig, type, focus) => {
+  let best = null;
+  (rig || []).forEach((cam) => {
+    if (cam.type !== type || cam.moving || !Number.isFinite(cam.x)) return;
+    const d = Math.hypot(cam.x - focus.x, cam.z - focus.z);
+    if (!best || d < best.d) best = { cam, d };
+  });
+  return best ? best.cam : null;
+};
+
 export const CAMERA_LABELS = {
   tv: ["TV", "TV"],
   chase: ["Persecución", "Chase"],
   drone: ["Dron", "Drone"],
   heli: ["Helicam", "Helicam"],
   ...Object.fromEntries(ONBOARDS.map((entry) => [entry.id, entry.label])),
+  ...Object.fromEntries(SCRIPT_RIG.cams.map((entry) => [entry.id, entry.label])),
   map: ["Mapa", "Map"],
 };
