@@ -73,7 +73,7 @@ import {
 import { byYear, raceBalance } from "../rules";
 import { calibrationFor, damageOf } from "../incidents";
 import { circuitFor } from "../venue";
-import { LANE_NAMES, ROLE, battleOf, battleSetup, battleStep, drsAllowed, duelWatch, endDuel, lineRadio, openDuel, trySwitchback } from "./duel";
+import { DUEL_GEOMETRY, LANE_NAMES, ROLE, battleOf, battleSetup, battleStep, drsAllowed, duelGeometrySetup, duelWatch, endDuel, fightOf, lineRadio, openDuel, resolveClaim, trySwitchback } from "./duel";
 import { exitBlocked, gateBoxes, lateralSetup, rejoin, roomAt, stepLateral } from "./lateral";
 import { cornerNoiseSigmaOf, profileFactorsOf } from "../drivers/skills";
 import { beginLeaderLap, finishRace, pitDecision, planLap, pushEvent, radioFor, retire, rivalCalls, rollFailure, wetnessAt } from "./lapModel";
@@ -100,6 +100,9 @@ const G_ACCEL = physicsData.constants.g;
 
 /** The quick mode's start stagger per grid slot (race-eras.json `start.gridSpacing`); here the slot is physical. */
 const START_SPACING = raceBalance.start.gridSpacing;
+
+/** SIM-8 (F1M24-GAMEPLAY §3.3 trafico-sesion): what the step simulator runs - a race, or a session's traffic. */
+export const SIM_MODE = { RACE: "race", SESSION: "session" };
 
 // ----------------------------------------------------------------- set up
 
@@ -294,6 +297,12 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData, pre
     // SIM-4 (F1M24-GAMEPLAY §1.7): battle states, duel events and the battle radio (duel.js); the timing lines
     // of a lap - the two sector lines, as time shares - for `pass.confirmedAt`.
     ...battleSetup(n, [tables.tauAt(sectorStarts[1]), tables.tauAt(sectorStarts[2])].filter((tau) => tau > 0 && tau < 1).sort((a, b) => a - b)),
+    // SIM-8 (SIM-FISICA §3.5): the fights per pair - tries, cool-downs, switchbacks, the claim's exit and the squeeze.
+    ...duelGeometrySetup(n),
+    // SIM-8 trafico-sesion: "race" (everything) or "session" (setStepMode: no duels, no grid, no pit wall).
+    mode: SIM_MODE.RACE,
+    onLine: null,
+    sessionYield: new Uint8Array(n),
   };
   // RF-SIM-04 / RF-SIM-05 (engine/energy.js): the era's energy store and fuel flow on this circuit.
   Object.assign(sim, energySetup(state, rules, tables, sim.pt, n));
@@ -1025,6 +1034,9 @@ const measureGaps = (sim) => {
     const dev = sim.dev[i];
     sim.gapS[i] = frac(tauAtD(tables, frac(P[a])) - frac(tau[i])) * budget[i] * (1 - dev + dev * sensAt(tables, tau[i]));
     sim.lapDiff[i] = Math.round(P[a] - P[i] - gapD);
+    // SIM-8: in a session the lap counts mean nothing on the road - one lap for all, except that a car giving
+    // way (on its out- or in-lap, setSessionYield) is let by as a lapped car is in a race (blue flags).
+    if (sim.mode === SIM_MODE.SESSION) sim.lapDiff[i] = sim.sessionYield[a] && !sim.sessionYield[i] ? -1 : 0;
     if (sim.gapM[i] > bestGap) {
       bestGap = sim.gapM[i];
       best = k;
@@ -1145,6 +1157,12 @@ const advance = (state, i) => {
     mult *= slow;
     sim.blueDelay[i] = Math.max(0, sim.blueDelay[i] - dt * (1 - slow));
     sim.lapFlags[i] |= 16;
+  } else if (sim.squeezeDelay[i] > 0) {
+    // SIM-8: squeezed on an exit - a lift (race-physics.json duel.geometry.squeeze.liftFactor), not an error's crawl.
+    const slow = DUEL_GEOMETRY.squeeze.liftFactor;
+    mult *= slow;
+    sim.squeezeDelay[i] = Math.max(0, sim.squeezeDelay[i] - dt * (1 - slow));
+    sim.lapFlags[i] |= 16;
   }
   // RF-SIM-05: 2026's overtake mode, by distance - within the era's gap of the car ahead
   // on the same lap, more deployment (the era's overtake row against deploy), more drain.
@@ -1234,7 +1252,8 @@ const advance = (state, i) => {
     const tc = sim.clock - dt + (dt * (1 - tau0)) / Math.max(1e-12, tau1 - tau0);
     sim.laps[i] = laps + 1;
     sim.tau[i] = tau1 - 1;
-    const going = endLap(state, i, laps + 1, tc);
+    // SIM-8: a session's line is its own (setStepMode onLine: timing, the next lap's budget, back to the garage).
+    const going = sim.mode === SIM_MODE.SESSION && sim.onLine ? sim.onLine(state, i, laps + 1, tc) !== false : endLap(state, i, laps + 1, tc);
     if (going) checkpoints(state, i, 0, sim.tau[i]);
   }
 };
@@ -1331,6 +1350,18 @@ const firstCorner = (state, i, lap) => {
   return false;
 };
 
+/**
+ * May car `i` go for the car ahead now? WP8: not while paying an error or getting back on the line (SIM-7: or
+ * still off the road); SIM-7 tacticas: not within the target gap in clean-air mode (race-sim.json tactics.cleanAir).
+ */
+const mayAttack = (state, i) => {
+  const sim = state._sim;
+  const car = state.cars[i];
+  const recovering = sim.incident[i] !== null || sim.recoverUntil[i] > sim.clock || sim.offM[i] > 0;
+  const holding = car.tactics && car.tactics.cleanAir && sim.gapS[i] < TACTICS.cleanAir.targetGapSec;
+  return !recovering && !holding;
+};
+
 /** Everything that happens between time shares `from` and `to` of car `i`'s lap. */
 const checkpoints = (state, i, from, to) => {
   const sim = state._sim;
@@ -1338,8 +1369,10 @@ const checkpoints = (state, i, from, to) => {
   const car = state.cars[i];
   const lap = sim.laps[i] + 1;
   if (to <= from) return;
+  // SIM-8 trafico-sesion: a session's car has no first-corner plan, no pit wall and no duels.
+  const session = sim.mode === SIM_MODE.SESSION;
 
-  if (sim.t1Tau[i] >= 0 && (sim.t1Tau[i] > from && sim.t1Tau[i] <= to)) {
+  if (!session && sim.t1Tau[i] >= 0 && (sim.t1Tau[i] > from && sim.t1Tau[i] <= to)) {
     sim.t1Tau[i] = -1;
     if (firstCorner(state, i, lap)) return;
   }
@@ -1395,7 +1428,7 @@ const checkpoints = (state, i, from, to) => {
       sim.delay[i] += applyDebrisPuncture(state, car, { corner: sim.debrisCorner[i] >= 0 ? sim.debrisCorner[i] : null, limp: sim.debrisLimp[i] }, lap);
     }
   }
-  if (sim.inPit[i] === 0 && (tables.pitEntryTau > from && tables.pitEntryTau <= to)) enterPit(state, i, lap);
+  if (!session && sim.inPit[i] === 0 && (tables.pitEntryTau > from && tables.pitEntryTau <= to)) enterPit(state, i, lap);
   if (sim.inPit[i] === 2 && (tables.pitExitTau > from && tables.pitExitTau <= to)) {
     sim.inPit[i] = 0;
     rejoin(sim, i);
@@ -1408,17 +1441,16 @@ const checkpoints = (state, i, from, to) => {
     if (zone.tauFrom > from && zone.tauFrom <= to) sim.drsOpen[i] = sim.ahead[i] >= 0 && drsAllowed(state, lap, sim.gapS[i]) ? z + 1 : 0;
     if ((zone.tauTo > from && zone.tauTo <= to) && sim.drsOpen[i] === z + 1) sim.drsOpen[i] = 0;
   }
+  if (session) return;
   // Attack points before the braking zones.
   if (!state.safetyCar) {
     for (let z = 0; z < tables.attacks.length; z += 1) {
       if (!(tables.attacks[z].tau > from && tables.attacks[z].tau <= to)) continue;
       const a = sim.ahead[i];
-      // WP8: no attack while paying an error or getting back on the line (SIM-7: or still off the road).
-      const recovering = sim.incident[i] !== null || sim.recoverUntil[i] > sim.clock || sim.offM[i] > 0;
-      // SIM-7 tacticas: in clean-air mode no attack within the target gap (race-sim.json tactics.cleanAir).
-      const holding = car.tactics && car.tactics.cleanAir && sim.gapS[i] < TACTICS.cleanAir.targetGapSec;
-      if (a >= 0 && sim.lapDiff[i] === 0 && !recovering && !holding) {
-        const b = sim.behind[i];
+      if (a >= 0 && sim.lapDiff[i] === 0 && mayAttack(state, i)) {
+        // SIM-8: the car behind joins the claim as a third only if it may attack too (no error, no clean-air hold).
+        const b0 = sim.behind[i];
+        const b = b0 >= 0 && mayAttack(state, b0) ? b0 : -1;
         const behindGap = b >= 0 && sim.lapDiff[b] === 0 ? sim.gapS[b] : Infinity;
         openDuel(state, i, z, a, sim.gapS[i], b, behindGap);
       }
@@ -1430,6 +1462,8 @@ const checkpoints = (state, i, from, to) => {
     const gap = sim.active[target] && sim.inPit[target] === 0 ? (frac(sim.P[target] - sim.P[i]) * tables.length) : Infinity;
     trySwitchback(state, i, target, gap);
   }
+  // SIM-8: the exit of a claimed corner whose incident roll left a touch on the outside or a squeeze there.
+  if (sim.claimTau[i] >= 0 && (sim.claimTau[i] > from && sim.claimTau[i] <= to)) resolveClaim(state, i);
 };
 
 /** Car `i` reaches pit entry on lap `lap`: a penalty to serve, a stop, or neither? */
@@ -1669,7 +1703,8 @@ const advanceInLane = (state, i) => {
     sim.P[i] = P;
     checkpoints(state, i, fromTau, tau);
     rejoin(sim, i);
-    if (cars.over[i] && L.judgesSpeeding) investigateWithCause(state, car, "pitSpeeding", { kmh: Math.round(cars.maxInZone[i] * 3.6 * 10) / 10, limit: L.kmh });
+    // RF-SIM-10: late on the limiter is only an offence if the car really went over it (held up in the lane, it never did).
+    if (cars.over[i] && L.judgesSpeeding && Math.round(cars.maxInZone[i] * 3.6 * 10) / 10 > L.kmh) investigateWithCause(state, car, "pitSpeeding", { kmh: Math.round(cars.maxInZone[i] * 3.6 * 10) / 10, limit: L.kmh });
     sim.inPit[i] = 0;
     cars.prof[i] = null;
     cars.plan[i] = null;
@@ -2194,6 +2229,125 @@ export const stepOnce = (state) => {
   if (running === 0 || sim.clock > guard) finishRace(state);
 };
 
+// ------------------------------------------- SIM-8: the step simulator for sessions
+
+/**
+ * SIM-8 (F1M24-GAMEPLAY §3.3 trafico-sesion; RF-WKD-02, RF-SIM-01, RF-SIM-06): run a step race's machinery for a
+ * practice or qualifying session (engine/sessionSim/stepSession.js, SES-8). In "session" mode a car still moves
+ * on the circuit's trace with its dirty air, tow, DRS zones, local yellows, its errors and the boxes that never
+ * overlap (lateral.js), but there is no first-corner plan, no pit wall (pit entry is the session's own business),
+ * no duel or switchback (nobody fights in a session), and at the line `onLine(state, i, lap, t)` decides: it
+ * times the lap, plans the next one (beginSessionLap) and returns false to take the car off the road (garage).
+ * Without `onLine` the race's own line runs. "race" puts everything back. No stream is drawn (RNF-05).
+ */
+export const setStepMode = (state, mode, { onLine = null } = {}) => {
+  const sim = state._sim;
+  sim.mode = mode === SIM_MODE.SESSION ? SIM_MODE.SESSION : SIM_MODE.RACE;
+  sim.onLine = sim.mode === SIM_MODE.SESSION ? onLine : null;
+  return state;
+};
+
+/**
+ * SIM-8: car `i` starts lap `lap` of a session at time `t` with a lap budget of `budget` seconds (the session's
+ * own, e.g. sessionSim qualifyingPaceOf: SRS 4.2 equivalence with the quick session). The trace, the wet sectors
+ * and the driver's corners are set as for a race lap (the corners' noise on its own stream, as in a race); no
+ * error, failure or offence is rolled here (the session rolls its own).
+ */
+export const beginSessionLap = (state, i, lap, t, budget) => {
+  const sim = state._sim;
+  sim.lapStart[i] = t;
+  sim.lapFlags[i] = 0;
+  const en = sim.en;
+  en.lapFuel[i] = 0;
+  en.lapDep[i] = 0;
+  en.lapHarv[i] = 0;
+  en.ledgerKg[i] = 0;
+  const drive = sim.drive;
+  drive.debt[i] = 0;
+  drive.allowance[i] = 0;
+  drive.coastZone[i] = 0;
+  drive.coasting[i] = 0;
+  sim.budget[i] = Math.max(1, budget);
+  sim.dev[i] = devOf(sim.tables, sim.budget[i]);
+  const straight = sim.tables.traceLap ? sim.tables.traceLap / (sim.budget[i] * (1 - sim.dev[i] + sim.dev[i] * sim.straightSens)) : 1;
+  drive.powerShare[i] = straight >= 1 ? 1 : straight * straight * straight;
+  wetLap(state, i, lap);
+  driverLap(state, i);
+  sim.t1Tau[i] = -1;
+  sim.mistakeTau[i] = -1;
+  sim.failTau[i] = -1;
+  sim.limitsTau[i] = -1;
+  sim.debrisTau[i] = -1;
+  return state;
+};
+
+/**
+ * SIM-8: a session's car goes on the road (out of the garage, at distance share `at` of the lap, `lat` metres off
+ * the line) or comes off it (`on: false`, back in the garage). Its next lap is the session's to plan
+ * (beginSessionLap). The race's lights are never run in session mode.
+ */
+export const setOnTrack = (state, i, { on = true, at = 0, lat = 0 } = {}) => {
+  const sim = state._sim;
+  sim.started = true;
+  if (!on) {
+    sim.active[i] = 0;
+    sim.v[i] = 0;
+    if (sim.duelOther[i] >= 0) endDuel(sim, i);
+    return state;
+  }
+  const d = frac(at);
+  sim.P[i] = sim.laps[i] + d;
+  sim.P0[i] = sim.P[i];
+  sim.tau[i] = tauAtD(sim.tables, d);
+  sim.tau0[i] = sim.tau[i];
+  sim.lat[i] = lat;
+  sim.side.prev[i] = lat;
+  sim.side.nV[i] = 0;
+  sim.v[i] = 0;
+  sim.inPit[i] = 0;
+  sim.active[i] = 1;
+  return state;
+};
+
+/** SIM-8: in a session, car `i` gives way (out- or in-lap) - the car behind it goes by as past a lapped car. */
+export const setSessionYield = (state, i, on) => {
+  state._sim.sessionYield[i] = on ? 1 : 0;
+  return state;
+};
+
+/**
+ * SIM-8: one fixed step of a session's traffic (the cars on the road, front to back as in a race step), then the
+ * sideways step, the drive and the order. The session's own clock, flags and garage stay in sessionSim; no race
+ * control, safety car or duel runs here.
+ */
+export const advanceField = (state) => {
+  const sim = state._sim;
+  if (sim.mode !== SIM_MODE.SESSION) {
+    stepOnce(state);
+    return state;
+  }
+  sim.clock += sim.dt;
+  sim.steps += 1;
+  buildRing(sim);
+  const first = measureGaps(sim);
+  for (let i = 0; i < sim.n; i += 1) {
+    sim.P0[i] = sim.P[i];
+    sim.tau0[i] = sim.tau[i];
+  }
+  for (let k = 0; k < sim.ringSize; k += 1) {
+    const i = sim.ring[(first - k + sim.ringSize) % sim.ringSize];
+    if (sim.active[i]) advance(state, i);
+  }
+  stepLateral(sim, ROLE.NONE, physicsData.mistake, sim.balance.blueFlags.yieldShare);
+  driveStep(state);
+  sortOrder(state);
+  state.clock = sim.clock;
+  return state;
+};
+
+/** SIM-8 (F1M24-GAMEPLAY §3.2): one car's step, exported for the session mode (setStepMode). */
+export { advance };
+
 // ------------------------------------------------------------------ API
 
 /** Run the race clock forward `seconds` (RF-CMD-04: the view picks ×1…×16 by how much it asks for). */
@@ -2275,6 +2429,8 @@ export const snapshot = (state) => {
     duel: sim.duelRole[i],
     // SIM-4 (F1M24-GAMEPLAY §1.7 `battle[i]`): "RUNNING" | "FOLLOWING" | "ATTACKING" | "DEFENDING" | "TRAIN".
     battle: battleOf(sim, i),
+    // SIM-8 (SIM-FISICA §3.5): the car's fight - "CLAIM" | "SWITCHBACK" | "SQUEEZED", null out of one.
+    fight: fightOf(sim, i),
     // WP4: the lateral state ("racing", "attack-inside", "attack-outside", "defend", "alongside", "yield", "wide"; SIM-2:
     // "pit" in the lane, "pit-exit" back on the pit side of the road after it - F1M24-GAMEPLAY §1.7 lane[i]).
     lane: sim.inPit[i] !== 0 ? "pit" : LANE_NAMES[sim.latState[i]],

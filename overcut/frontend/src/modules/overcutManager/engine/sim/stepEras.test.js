@@ -239,6 +239,8 @@ describe("RF-SIM-10 · race control on the track", () => {
   it("serves a drive-through physically in the pit lane", () => {
     const state = startStep(2012, "step-dt");
     stepFor(state, 900);
+    // A penalty is never served behind the safety car (race.js duePitPenalty): give it with the track green.
+    for (let k = 0; k < 3600 && state.safetyCar && !state.finished; k += 1) stepFor(state, 1);
     const car = state.cars.find((entry) => entry.status === "running" && entry.position > 3);
     car.penalties.push({ type: "driveThrough", offence: "collision", lap: state.lap, kind: "pit", seconds: 0, served: false });
     const laps = car.history.length;
