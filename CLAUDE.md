@@ -56,6 +56,11 @@ Reglas:
   y fiabilidad (`engine/incidents.js`), clima y mojado (`engine/weather/`), motor y marchas (`engine/sim/powertrain.js`),
   energía y combustible (`engine/energy.js`), doce atributos de piloto desde f1db (`driver_attributes.py`, packs 2.1.0,
   guardado v5) e IA de carrera (`engine/drivers/skills.js`). Del repo Pitwall (sin licencia) solo ideas, nunca código.
+- Plan F1M24-GAMEPLAY (2026-11-25, `docs/manager/F1M24-GAMEPLAY.md`, estado por paquete en su §5): ocho olas fusionadas
+  (SC/VSC físicos, holgura lateral, pit lane con líneas, sesiones por pasos, realizador, repeticiones, HUD, sonido);
+  revisión independiente: suite y build en verde, validación 7.2 baja a 34/38 y Spearman 0,918 (1994 cambia de campeón);
+  abiertos SIM-8 (pases invertidos y contactos), CAM-3 (cajas medidas sobre el eje central, no la trazada) y la amarilla
+  duplicada (`era-defaults.json yellowLapDeleted` frente a `sessions.json yellow.laps`).
 - Tests del Manager: `CI=true npx react-scripts test --watchAll=false --testPathPattern overcutManager`.
   `npm install` necesita `--legacy-peer-deps` (conflicto previo de react-vis con React 18).
 - Ningún valor de balance en código (RNF-07): va a los packs de temporada con esquema JSON.

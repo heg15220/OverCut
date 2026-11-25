@@ -1035,3 +1035,57 @@ Se proponen para que el SRS no contradiga ni se quede corto frente a lo de arrib
 
 RF-SIM-08 **no** se enmienda: el SRS ya pide el DRS desactivado en las dos primeras vueltas; el juego es el que se
 equivoca.
+
+---
+
+## 5. Estado
+
+Revisión independiente de la rama `feature/overcut-manager` el 25/11/2026, tras fusionar las ocho olas (último commit
+revisado `de71632c`). Se ha leído el código de cada paquete y se han pasado las pruebas; no se ha confiado en los
+mensajes de commit.
+
+**Pruebas.** Suite del Manager (`CI=true npx react-scripts test --watchAll=false --testPathPattern overcutManager`):
+78 suites, 1.215 tests; 1.213 en verde y 2 rojos, los dos de tiempo de CPU (RNF-01 de `stepRace.test.js`: 6.499 ms
+con límite 4.000; `calibratedCircuit.test.js`: 159 ms por trazado con límite 150) porque la validación corría a la vez.
+Repetidos solos, pasan (22 coches × 70 vueltas en 1.591 ms). Equivalencia SRS 4.2 (`equivalence.test.js`) en verde
+sin tocar tolerancias; golden del modo rápido (`raceGolden.test.js`) en verde. `npm run build` compila; avisos de
+ESLint en el Manager: `LiveRace.js:447` (dependencia `source` intencionada, reinicia el búfer de repetición por
+carrera), `session.js:242` y `assets/cacheStore.js:68` (`no-loop-func`, cierres de solo lectura).
+
+**Validación 7.2** (`node scripts/validateSeasons.js --full`, 1.000 por temporada, informe en `validation/`):
+**34/38** temporadas con el campeón real como más probable (89,5 %) y **Spearman medio 0,918**; cumple (≥ 70 %,
+≥ 0,8), pero empeora frente al 35/38 y 0,929 del 23/11. 1994 cambia de campeón más probable (Williams 54 % → 48 %,
+Benetton delante). Bajan mucho P(campeón real) en 1997 (97 % → 75 %), 2012 (93 % → 73 %), 1986 (98 % → 85 %), 1998,
+2010 y 2013, y el Spearman de 1976–1993 (1992: 0,815 → 0,767). El modo rápido es además ~1,7 veces más lento por
+temporada (446 ms frente a 259 ms hilo-equivalente, parte por la carga de la suite en paralelo). Ninguna ola midió la
+validación al fusionar; sospechosos: SIM-5 (duración de neutralizaciones y `scRate`), SIM-6 (térmica en el modo
+rápido) y SIM-7 (errores y daños).
+
+| WP | Estado | Notas |
+|---|---|---|
+| SIM-1 | Hecho | Literales de la lista leídos de JSON; golden idéntico. Queda deuda RNF-07 anterior al plan en `race.js` (p. ej. paradas a `laps * 0.36/0.62`, `car.issue > 1.4` con `chance(0.35)`, `wearFactorFor`). |
+| SIM-2 | Hecho | 64 carreras: 100 % de pares lado a lado con ≥ 0,3 m. |
+| SIM-3 | Hecho | `startProcedure` por era con `status: "pending"` (de memoria). |
+| SIM-4 | Hecho con contradicción | `era-defaults.json yellowLapDeleted` (doble amarilla borra desde 2014) no lo lee nadie y contradice `sessions.json yellow.laps.eras` (borra desde 2023, abandona 2016–2022), que es lo que usa SES-4. Hay que dejar una sola fuente y verificarla en la FIA. |
+| SIM-5 | Hecho | SC sin voz ni coche antes de 1993 y VSC desde 2015 (`rules.js`); claves `sc*`/`vscEndingWarn` `pending`. |
+| SIM-6 | Hecho | Dos nodos en °C, misma ecuación en el modo rápido. |
+| SIM-7 | Hecho | `trackLimits` `pending`; errores del modo por pasos dentro de ±25 % del rápido. |
+| SIM-8 | Parcial | Pases por coche-vuelta 0,0365 frente a 0,0380 del rápido, pero cuota de pases «invertidos» 0,127 frente a 0,198 de f1db y contactos 150 frente a 89 en 64 carreras. |
+| PIT-1 | Hecho | `previewPit` pura; Baréin 2024 dentro de la tolerancia de OpenF1. |
+| PIT-2 | Hecho | Líneas blancas y cesión; la ofensa `pitExitLine` sigue `pending`. |
+| SES-1 | Hecho | Hora local y pausas desde el pack; evolución Q1→Q3 ±0,15 s de f1db. |
+| SES-2 | Hecho | Fases de garaje; `pitLaneSec`/`boxStopSec` prohibidas por esquema. |
+| SES-3, SES-4 | Hecho | Ver la contradicción de SIM-4. |
+| SES-8 | Hecho | Sesiones sobre el motor por pasos; `impeding` `pending`. |
+| PT-1, PT-2, PT-3 | Hecho | `speeds.test.js` y `powertrain.test.js` en verde. |
+| AUD-1 … AUD-5 | Hecho | `pitLimiterGear` borrado; sin voz de SC antes de 1993 ni VSC antes de 2015. Constantes de forma de envolvente en `uiSounds.js` (0,1/0,9 de ataque, Q 0,7), no de balance. |
+| CAM-1, CAM-2, CAM-4, CAM-5 | Hecho | 18–24 planos por vuelta en Baréin; halo desde 2018 (cita del artículo `pending`). |
+| CAM-3 | Parcial | La prueba pide 0 correcciones de la pasada de seguridad en las 64 carreras de SIM-2 y hay 58.066 (1988) y 72.046 (2024): el motor separa las cajas a lo largo del eje central y la vista dibuja sobre la trazada. La vista lo tapa (≤ 0,05 m tras la pasada); el arreglo es del carril SIM (holgura medida sobre la trazada). |
+| HUD-1 … HUD-7 | Hecho | Velocidades ×1–×16 en carrera y sesión; los 90 m del SC y los literales de HUD-4 borrados. |
+| WKD-1, WKD-2, WKD-6 | Hecho | Puerta, transición, resultados comunes, resumen de libres e informe previo. |
+
+**Coherencia (SRS §6) y RNF-07.** No se ha encontrado ninguna regla fuera de su era en el código revisado (DRS
+2011–2025 y desactivado en las primeras vueltas y con lluvia, SC desde 1993, VSC desde 2015, límites de pista solo
+donde la clave existe); `rules.test.js` recorre las 38 temporadas. Los módulos nuevos no tienen valores de balance en
+código. Pendientes: las 72 claves `pending` de `era-defaults.json` por verificar en la FIA y la contradicción de la
+amarilla de SIM-4; las enmiendas de la §4 siguen sin aplicar en `SRS.md`.
