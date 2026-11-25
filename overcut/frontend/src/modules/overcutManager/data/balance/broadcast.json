@@ -171,7 +171,15 @@
         { "trigger": "next", "cam": "chase", "subject": "winner", "minSec": 3, "maxSec": 5 }
       ]
     },
-    "scDeploy": { "status": "pending", "note": "CAM-5; lee snapshot.sc (SIM-5)", "shots": [] }
+    "scDeploy": {
+      "status": "pending",
+      "note": "CAM-5 (sc-pose-from-sim, F1M24-GAMEPLAY §2.11): cuando el motor despliega el coche de seguridad (snapshot.sc, §1.7, SIM-5) la TV deja unos segundos al coche que seguía y filma el SC: saliendo del pit lane (cámara 'merge' de pitRig, en la pista al final de la línea blanca de salida) y luego con él (chase, heli). trigger 'sc:<FASE>': empieza la primera vez que se ve esa fase después de otra; 'next': corta al siguiente con una duración entre minSec y maxSec sacada con la semilla (RNF-05). subject 'safetyCar': el plano encuadra el coche de seguridad, no un coche de carrera. requires: el coche de seguridad solo desde 1993 (era-defaults.json safetyCar). Tiene prioridad sobre las zonas y la secuencia de boxes; los guiones de salida y meta (CAM-4) se la quedan antes. Orden y duraciones de diseño propio: el vídeo de referencia no muestra ningún SC en pista (§1.3), así que no hay medida que copiar.",
+      "shots": [
+        { "trigger": "sc:DEPLOYED", "cam": "merge", "subject": "safetyCar", "requires": "safetyCar", "minSec": 2.5, "maxSec": 4.5 },
+        { "trigger": "next", "cam": "chase", "subject": "safetyCar", "requires": "safetyCar", "minSec": 3, "maxSec": 5 },
+        { "trigger": "next", "cam": "heli", "subject": "safetyCar", "requires": "safetyCar", "minSec": 3, "maxSec": 5 }
+      ]
+    }
   },
   "replay": {
     "bufferSec": 25,
@@ -220,8 +228,26 @@
     }
   },
   "scLights": {
-    "flashHz": null,
+    "flashHz": 2,
+    "pattern": "alternate",
+    "dutyCycle": 0.5,
+    "offLevel": 0.08,
     "status": "pending",
-    "note": "CAM-5: parpadeo de la barra de luces del coche de seguridad; pending fuente (reglamento deportivo FIA)."
+    "note": "CAM-5: parpadeo de la barra de luces naranjas del coche de seguridad (three/safetyCarView.js scLightLevels), en el reloj propio de la vista (a 16x no estroboscopa; no toca la carrera, RNF-05). El reglamento deportivo FIA solo dice cuándo están encendidas (artículo del SC: encendidas al desplegarse, apagadas con 'safety car in this lap'), no a qué ritmo parpadean: flashHz 2 es diseño propio dentro del rango de destellos de 2-4 Hz de las luces especiales de aviso de UN ECE R65 (pending: verificar el rango en el texto de R65 y si aplica a los SC de cada era). pattern 'alternate' (las dos mitades de la barra se turnan) o 'together'; dutyCycle: parte del ciclo encendida; offLevel: brillo de la mitad apagada (0..1). null en flashHz = luz fija."
+  },
+  "scView": {
+    "status": "pending",
+    "note": "CAM-5 (sc-pose-from-sim): el coche de seguridad en 3D sale de snapshot.sc (§1.7, SIM-5) y nunca de una distancia fija al líder (se borran los 90 m de three/Race3D.js). drawPhases: fases en que el SC está en pista y se dibuja (en RESTART ya ha entrado en boxes). lightsOffPhases: fases sin luces cuando el motor no manda lightsOn (FIA, artículo del SC: las luces naranjas se apagan cuando se anuncia 'safety car in this lap'; años anteriores a 2021 pending de leer cada reglamento). pitCamMaxM: si el SC está más lejos que esto de la cámara de boxes del plano de despliegue, el plano se hace con la cámara de persecución (un SC que el motor no saque por el pit lane no se filma desde la salida de boxes). model: colores del coche genérico (diseño propio, sin marca ni librea real; los modelos por era de race-sim.json safetyCar.cars[] son de SIM-5, pending).",
+    "drawPhases": ["DEPLOYED", "PICKUP", "TRAIN", "UNLAPPING", "IN_THIS_LAP"],
+    "lightsOffPhases": ["IN_THIS_LAP", "RESTART"],
+    "pitCamMaxM": 250,
+    "model": {
+      "paint": "#c9ccd2",
+      "dark": "#121418",
+      "lightOn": "#ff9000",
+      "lightBase": "#ffb000",
+      "lightOff": "#3a2a10",
+      "emissiveOn": 2
+    }
   }
 }

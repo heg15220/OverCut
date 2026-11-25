@@ -37,6 +37,12 @@
  * states to hand back as `prev`; `scParked` says the safety car stands behind the grid (an era
  * with one, before lights out).
  *
+ * CAM-5 (components/director/scSequence.js): `clock.sc` is the engine's snapshot.sc (§1.7, SIM-5;
+ * absent = nothing changes) and `clock.year` the season. When the safety car is sent out,
+ * `shotKind: "sc"` films it for broadcast.json sequences.scDeploy: `cameraId` a pitRig camera
+ * (`camType: "pit"`), "chase" or "heli", `scShot` { cam, subject: "safetyCar" } for the view, the
+ * subject still the chosen car. `scDeploy` is the state to hand back as `prev`.
+ *
  * `shotKind`: "zone" (one car in a trackside camera), "battle" (the subject and its
  * rival framed together), "pit" (the subject in the pit lane or leaving its garage: while
  * components/director/pitSequence.js runs the stop or the garage exit, its pit camera takes
@@ -50,6 +56,11 @@ import broadcast from "../../data/balance/broadcast.json";
 import { zoneChoice } from "../../three/cameraZones";
 import { etaToBox, stepSequence } from "./pitSequence";
 import { camKindOf, stepInsert, stepScript } from "./raceScripts";
+import { stepScDeploy } from "./scSequence";
+
+const PIT_CAMS = new Set(broadcast.pitRig.cams.map((cam) => cam.id));
+/** The kind of a safety-car shot's camera: "pit" for a pitRig camera, else as a script shot's (chase, heli...). */
+export const scCamKind = (cam) => (PIT_CAMS.has(cam) ? "pit" : camKindOf(cam));
 
 const wrap = (value) => ((value % 1) + 1) % 1;
 const inSpan = (share, from, to) => {
@@ -146,13 +157,19 @@ export const directorState = (focusId, rows = [], events = [], rig = [], clock =
   // §1.7); with neither the script stays idle and the director films as before.
   const script = stepScript(prev?.script ?? null, { start: clock.start ?? null, events, tau, viewSec: clock.viewSec, seed: clock.seed ?? 0, year: clock.year, subjectId, rows, skipPreRace: clock.skipPreRace });
   const sequence = stepSequence(prev?.sequence ?? null, { carId: subjectId, pose: subject.pose, tau, seed: clock.seed ?? 0, etaSec: etaToBox(subject.pose) });
+  // CAM-5: the safety car leaving the pits (`clock.sc`, snapshot.sc of §1.7; absent = nothing) takes the
+  // air over the pit sequence and the zones - the start and finish scripts keep theirs. The subject
+  // stays the chosen car; the view frames the safety car (`scShot`). Stepped under a script too, so a
+  // deployment seen then is not filmed late.
+  const scDeploy = stepScDeploy(prev?.scDeploy ?? null, { sc: clock.sc ?? null, tau, seed: clock.seed ?? 0, year: clock.year });
   if (script.active && script.cam && camKindOf(script.cam) !== "tv") {
     const scriptSubject = script.subjectId ?? subjectId;
-    return { cameraId: script.cam, camType: camKindOf(script.cam), reason: script.subject === "finisher" ? "finish" : reason, hold, sequence, script, insert: null, scParked: script.scParked, subjectIds: [scriptSubject], shotKind: "script" };
+    return { cameraId: script.cam, camType: camKindOf(script.cam), reason: script.subject === "finisher" ? "finish" : reason, hold, sequence, script, scDeploy, insert: null, scParked: script.scParked, subjectIds: [scriptSubject], shotKind: "script" };
   }
-  const extra = { script, scParked: script.scParked };
+  const extra = { script, scParked: script.scParked, scDeploy };
+  if (scDeploy.active) return { cameraId: scDeploy.cam, camType: scCamKind(scDeploy.cam), reason, hold, sequence, ...extra, insert: null, scShot: { cam: scDeploy.cam, subject: scDeploy.subject }, subjectIds: [subjectId], shotKind: "sc" };
   if (sequence.active) return { cameraId: sequence.cam, camType: "pit", reason, hold, sequence, ...extra, insert: null, subjectIds: [subjectId], shotKind: "pit" };
-  const cam = cameraFor(rig, share, prev?.camType === "pit" || prev?.shotKind === "script" || prev?.shotKind === "insert" ? null : prev?.cameraId ?? null, { seed: clock.seed });
+  const cam = cameraFor(rig, share, prev?.camType === "pit" || prev?.shotKind === "script" || prev?.shotKind === "insert" || prev?.shotKind === "sc" ? null : prev?.cameraId ?? null, { seed: clock.seed });
   const base = { cameraId: cam?.id ?? null, camType: cam?.type ?? null, reason, hold, sequence, ...extra };
   if (subject.pose?.inPit) return { ...base, insert: null, subjectIds: [subjectId], shotKind: "pit" };
   const rival = rivalOf(rows, subjectId, config);
