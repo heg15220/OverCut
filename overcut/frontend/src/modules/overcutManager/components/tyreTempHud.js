@@ -108,8 +108,10 @@ const resolveWindow = (node, keys, year, status = null, depth = 0) => {
   const range = rangeOf(node);
   if (range) return { ...range, status: (node && node.status) || status };
   if (Array.isArray(node)) {
-    const span = node.find((entry) => entry && typeof entry === "object" && yearIn(entry, year) && (entry.value !== undefined || entry.windowC !== undefined));
-    return span ? resolveWindow(span.value !== undefined ? span.value : span.windowC, keys, year, span.status || status, depth + 1) : null;
+    // Era spans hold the range under `value`, `windowC` or (race-tyres.json `windows`, SIM-6) `compounds`.
+    const inner = (entry) => (entry.value !== undefined ? entry.value : entry.windowC !== undefined ? entry.windowC : entry.compounds);
+    const span = node.find((entry) => entry && typeof entry === "object" && yearIn(entry, year) && inner(entry) !== undefined);
+    return span ? resolveWindow(inner(span), keys, year, span.status || status, depth + 1) : null;
   }
   if (typeof node !== "object") return null;
   const own = node.status || status;
@@ -148,7 +150,7 @@ const windowRoots = (tyres, keys) => {
       if (hit) roots.push(group[hit]);
     });
   });
-  ["eras", "byEra"].forEach((field) => {
+  ["windows", "eras", "byEra"].forEach((field) => {
     if (Array.isArray(tyres[field])) roots.push(tyres[field]);
   });
   return roots;
@@ -165,7 +167,9 @@ export const tyreWindowOf = (tyres, { compound = null, supplier = null, year = n
   if (!tyres || typeof tyres !== "object") return null;
   for (const root of windowRoots(tyres, keys)) {
     const found = resolveWindow(root, keys, year, tyres.status || null);
-    if (found) return { ...found, source: "race-tyres.json" };
+    // SIM-6 measures the window on the grip temperature (model.gripCarcassShare of the carcass, RF-SIM-03).
+    const share = tyres.model && finite(tyres.model.gripCarcassShare) ? tyres.model.gripCarcassShare : null;
+    if (found) return { ...found, gripCarcassShare: share, source: "race-tyres.json" };
   }
   return null;
 };
@@ -173,7 +177,11 @@ export const tyreWindowOf = (tyres, { compound = null, supplier = null, year = n
 /** The tone and word of a temperature against its window (hud.json tyreTemp.nearEdgeC, judgeNode). */
 export const tyreTempVerdict = (tyreC, window, config = TYRE_TEMP) => {
   if (!tyreC || !window) return null;
-  const value = config.judgeNode === "carcass" && finite(tyreC.carcass) ? tyreC.carcass : tyreC.surface;
+  const share = finite(window.gripCarcassShare) ? window.gripCarcassShare : null;
+  const grip = share !== null && finite(tyreC.carcass) ? tyreC.surface * (1 - share) + tyreC.carcass * share : null;
+  const value = config.judgeNode === "carcass" && finite(tyreC.carcass) ? tyreC.carcass
+    : config.judgeNode === "grip" && grip !== null ? grip
+    : tyreC.surface;
   if (!finite(value)) return null;
   const near = config.nearEdgeC;
   if (value < window.lo) return { state: "cold", tone: "info", value };

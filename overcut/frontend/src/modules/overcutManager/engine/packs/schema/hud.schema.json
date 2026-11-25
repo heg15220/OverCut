@@ -293,7 +293,7 @@
             "$comment": { "type": "string" },
             "status": { "$ref": "#/definitions/status" },
             "source": { "type": "string" },
-            "judgeNode": { "enum": ["surface", "carcass"] },
+            "judgeNode": { "enum": ["surface", "carcass", "grip"] },
             "showCarcass": { "type": "boolean" },
             "nearEdgeC": { "type": "number", "minimum": 0, "maximum": 30 },
             "trend": {

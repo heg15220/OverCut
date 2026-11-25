@@ -2,7 +2,7 @@
  * HUD-6 of docs/manager/F1M24-GAMEPLAY.md (driver-panel-units in °C; §2.8, §1.5, §1.6, §1.7 `tyreC[i]`;
  * RF-SIM-03, RF-CMD-01, RNF-05, RNF-07, RNF-09):
  *   - hud.json (driverPanel.tyreTemp) validates against its schema
- *   - the panel shows °C only when the engine sends tyreC; without it, the 0..1 meter as before (§1.5)
+ *   - the panel shows °C only when the engine sends tyreC (SIM-6 always does); without it, the 0..1 meter (§1.5)
  *   - the window comes from race-tyres.json windowC (SIM-6) or the engine's own, in the shapes a data
  *     file may use (era spans, supplier, compound); never from the game's °C (§1.6)
  *   - the verdict against the window (cold, edges, in window, overheating) and the trend on the race
@@ -199,31 +199,51 @@ describe("HUD-6 · the panel (TyreTemp, LiveRace)", () => {
       jest.useRealTimers();
     });
 
-    it("without tyreC the panel keeps the 0..1 meter and shows no °C (§1.5)", () => {
+    // SIM-6 publishes tyreC on every car from the grid (race.js gridSet), so a real race always has it; the
+    // fallback without tyreC (§1.5) is covered by tyreCOf above.
+    it("the engine publishes tyreC on every car from the grid (SIM-6, §1.7)", () => {
       const state = createRace({ ...args, seed: `${args.seed}-plain` });
-      mount(state);
-      expect(screen.queryAllByTestId("tyre-temp")).toHaveLength(0);
-      const me = state.cars.find((car) => car.isUser);
-      const card = screen.getByRole("region", { name: me.name });
-      expect(within(card).getAllByRole("meter", { name: /temperature/i }).length + within(card).queryAllByLabelText(/temperature/i).length).toBeGreaterThan(0);
-      expect(card.textContent).not.toMatch(/°C/);
+      state.cars.forEach((car) => expect(tyreCOf(car)).toMatchObject({ surface: expect.any(Number), carcass: expect.any(Number) }));
     });
 
-    it("with the engine's tyreC and window the panel shows °C and the warning; the race is unchanged (RNF-05)", () => {
+    it("the panel shows the engine's °C and judges it against race-tyres.json; the race is unchanged (RNF-05)", () => {
+      const { windowFor } = require("../engine/tyres/thermal");
       const state = createRace({ ...args, seed: `${args.seed}-hot` });
       const twin = createRace({ ...args, seed: `${args.seed}-hot` });
       const me = state.cars.find((car) => car.isUser);
-      me.tyreC = { surface: 124, carcass: 108, window: { lo: 90, hi: 110 } };
       mount(state);
       const card = screen.getByRole("region", { name: me.name });
       const readout = within(card).getByTestId("tyre-temp");
-      expect(readout).toHaveTextContent("124 °C");
-      expect(readout).toHaveAttribute("data-state", "overheating");
-      expect(readout).toHaveTextContent(/Overheating/);
+      expect(readout).toHaveTextContent(`${Math.round(me.tyreC.surface)} °C`);
+      const [lo, hi] = windowFor(me.compound, state.year);
+      expect(readout.getAttribute("aria-label")).toContain(`window ${Math.round(lo)}–${Math.round(hi)} °C`);
+      const window = tyreWindowOf(loadRaceTyres(), { compound: me.compound, year: state.year });
+      expect(readout).toHaveAttribute("data-state", tyreTempVerdict(tyreCOf(me), window).state);
       // The view only read tyreC: the race itself is the twin's.
       while (twin.lap < state.lap && !twin.finished) stepLap(twin);
       const strip = (s) => s.cars.map((car) => [car.id, car.position, car.totalTime, car.lap, car.compound]);
       expect(strip(state)).toEqual(strip(twin));
     });
+  });
+});
+
+describe("HUD-6 + SIM-6 · the real race-tyres.json (RF-SIM-03, RNF-07)", () => {
+  it("resolves the engine's window for 2024 (Pirelli) per compound, the same one thermal.windowFor gives", () => {
+    const { windowFor } = require("../engine/tyres/thermal");
+    const tyres = loadRaceTyres();
+    ["soft", "medium", "hard", "inter", "wet"].forEach((compound) => {
+      const [lo, hi] = windowFor(compound, 2024);
+      expect(tyreWindowOf(tyres, { compound, supplier: "pirelli", year: 2024 })).toMatchObject({ lo, hi, source: "race-tyres.json" });
+    });
+  });
+
+  it("judges the grip temperature the engine uses (model.gripCarcassShare), not the surface alone", () => {
+    const { gripC } = require("../engine/tyres/thermal");
+    const tyres = loadRaceTyres();
+    const window = tyreWindowOf(tyres, { compound: "soft", year: 2024 });
+    const tyreC = { surface: window.hi + 4, carcass: window.lo - 2 };
+    const verdict = tyreTempVerdict(tyreC, window, { ...TYRE_TEMP, judgeNode: "grip" });
+    expect(verdict.value).toBeCloseTo(gripC(tyreC), 6);
+    expect(TYRE_TEMP.judgeNode).toBe("grip");
   });
 });
