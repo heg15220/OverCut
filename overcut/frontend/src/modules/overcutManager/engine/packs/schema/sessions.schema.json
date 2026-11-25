@@ -36,6 +36,23 @@
       }
     },
     "year": { "type": "integer", "minimum": 1950, "maximum": 2030 },
+    "yellowLapRule": { "enum": ["lift", "delete", "abandon"] },
+    "lossRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["p25", "p75"],
+      "properties": { "p25": { "type": "number", "minimum": 0 }, "p75": { "type": "number", "minimum": 0 } }
+    },
+    "yellowLapsMeasured": {
+      "type": "object",
+      "required": ["laps", "abandonShare", "kept"],
+      "properties": {
+        "laps": { "type": "integer", "minimum": 0 },
+        "abandonShare": { "type": "number", "minimum": 0, "maximum": 1 },
+        "kept": { "type": "integer", "minimum": 0 },
+        "lossSec": { "type": "object" }
+      }
+    },
     "nonNegative": { "type": "number", "minimum": 0 },
     "positive": { "type": "number", "exclusiveMinimum": 0 },
     "status": { "enum": ["source", "measured", "pending"] },
@@ -285,6 +302,63 @@
             "qualifying": { "$ref": "#/definitions/episodes" },
             "single": { "$ref": "#/definitions/spread" },
             "double": { "$ref": "#/definitions/spread" }
+          }
+        },
+        "laps": {
+          "$comment": "SES-4: qué hace la amarilla con la vuelta cronometrada de los demás, según la era (RF-SIM-10, RF-WKD-02).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "abandonShare", "lossSec", "eras", "measured"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "abandonShare": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["single", "double"],
+              "properties": { "single": { "type": "number", "minimum": 0, "maximum": 1 }, "double": { "type": "number", "minimum": 0, "maximum": 1 } }
+            },
+            "lossSec": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "single", "double"],
+              "properties": {
+                "$comment": { "type": "string" },
+                "status": { "$ref": "#/definitions/status" },
+                "single": { "$ref": "#/definitions/lossRange" },
+                "double": { "$ref": "#/definitions/lossRange" }
+              }
+            },
+            "eras": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "allOf": [
+                  { "$ref": "#/definitions/yearRow" },
+                  {
+                    "required": ["single", "double"],
+                    "properties": { "single": { "$ref": "#/definitions/yellowLapRule" }, "double": { "$ref": "#/definitions/yellowLapRule" } }
+                  }
+                ]
+              }
+            },
+            "measured": {
+              "type": "object",
+              "required": ["source", "years", "sessions", "single", "double", "deletedTimes"],
+              "properties": {
+                "source": { "type": "string" },
+                "years": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/year" } },
+                "sessions": { "type": "integer", "minimum": 1 },
+                "controlLaps": { "type": "integer", "minimum": 0 },
+                "single": { "$ref": "#/definitions/yellowLapsMeasured" },
+                "double": { "$ref": "#/definitions/yellowLapsMeasured" },
+                "deletedTimes": {
+                  "type": "object",
+                  "required": ["doubleYellow", "yellow"],
+                  "properties": { "doubleYellow": { "type": "integer", "minimum": 0 }, "yellow": { "type": "integer", "minimum": 0 } }
+                }
+              }
+            }
           }
         }
       }
