@@ -163,5 +163,25 @@
       "wetTyreRaces": 8,
       "list": ["2023 Monaco", "2023 Netherlands", "2024 Canada", "2024 Great Britain", "2024 São Paulo", "2025 Australia", "2025 Great Britain", "2025 Belgium"]
     }
+  },
+  "display": {
+    "$comment": "HUD-4 status-strip-data (F1M24-GAMEPLAY §2.12.1, §3.2: este bloque es del carril HUD; RF-SIM-11, RNF-07): cómo dice la franja de condiciones lo que el motor ya calcula, sin fórmulas de la vista. La hora local sale del pack (calendar[].sessions, f1db) o de climate.json startHour (ERA5); el aire del timeline del motor (weather.air, ERA5); la pista de state.trackTemps; el agua en la trazada en mm del motor (weather.water o weatherNow.waterMm; sin ellos, depthOfWetness del índice de humedad, la inversa del propio motor); la goma de state.evolution (race.js) o de weatherNow.rubber, y en sesiones de sessions.json evolution. Antes eran literales de components/LiveRace.js y Broadcast.js: hora fija 15:00, aire = pista × 0,62 + 4, goma = vuelta / (vueltas × 0,55), mm = humedad × 3. Aquí quedan solo los umbrales de las palabras, los mismos que tenía el código (decisión de presentación de OverCut, sin fuente externa: NV). waterShownAbove: desde esa humedad la franja enseña el agua en mm en vez de la probabilidad de lluvia. sky: icono de lluvia desde rainAbove de humedad, nube desde cloudAbovePct % de probabilidad. rubberBands: palabra de la goma (0 = pista verde, 1 = la goma que el motor acumula a tope; below null = el resto). gripBands: con agua manda la humedad (wet, de mayor a menor), en seco la goma (dry), y si no, dryDefault. De F1 Manager 24 solo la idea de enseñar goma y agarre con palabras; ningún valor.",
+    "status": "NV",
+    "waterShownAbove": 0.05,
+    "sky": { "rainAbove": 0.2, "cloudAbovePct": 30 },
+    "rubberBands": [
+      { "id": "veryLow", "below": 0.2 },
+      { "id": "low", "below": 0.45 },
+      { "id": "medium", "below": 0.75 },
+      { "id": "high", "below": null }
+    ],
+    "gripBands": {
+      "wet": [
+        { "id": "veryLow", "above": 0.55 },
+        { "id": "low", "above": 0.2 }
+      ],
+      "dry": [{ "id": "high", "above": 0.6 }],
+      "dryDefault": "normal"
+    }
   }
 }

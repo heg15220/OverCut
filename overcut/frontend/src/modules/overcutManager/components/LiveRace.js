@@ -33,6 +33,17 @@
  * cars' panel in tabs with its units (status, tactics, telemetry, pit), the pit dialog
  * (PitDialog: engine/sim/pitLane.js previewPit) that holds the session while it is open, and
  * the pit widget (pitTimer.js) reading the engine's pit phase. All from hud.json.
+ *
+ * Start, finish, replays and conditions (HUD-4): a live race asks the engine for its PRE_START
+ * (SIM-3, live-view.json start) and the lights are the engine's own - its grid, light and
+ * lights-out events on the procedure clock, the wait drawn with the race's seed (startLights.js;
+ * the quick replay shows the era's procedure with the same seeded wait). The HUD comes back
+ * hud.json start.hudDelaySec after lights out. Each car's flag is its `finished` event (the tower's
+ * chequered tag, your panel folded to its result), and the view hands the race back
+ * live-view.json finish after the last car. Replays (CAM-3's replayBuffer and ReplayOverlay) are
+ * queued by broadcast.json replay.triggers on TV and asked for from a banner; while one runs the race
+ * clock stands still (pauseOn replay). The conditions strip reads the engine: local start time from
+ * the pack or the circuit's climate, air, water in mm and rubber (hudConditions.js).
  */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -65,6 +76,10 @@ import { useRaceAudio } from "../three/audio";
 import SoundControl from "../three/audio/SoundControl";
 
 import { battlesIn, carAt, computedUntil, eventTime, leaderLap, liveCarAt, liveSafetyCarWindows, liveYellowsAt, raceEndTime, safetyCarWindows, standingsAt } from "./raceClock";
+import { lightsOutOf, procedureLimit, replayTimelineOf, startProcedureOf, startStateAt, startTimelineOf } from "./startLights";
+import { clockLabel, raceConditionsOf, raceStartOf } from "./hudConditions";
+import { REPLAY, createReplayBuffer, createReplayQueue, enqueueReplay, nextReplay, planReplay, replayFrameAt, replaySpan } from "./replay/replayBuffer";
+import ReplayOverlay from "./replay/ReplayOverlay";
 
 // three.js is only fetched when a race is watched in 3D, so the rest of OverCut stays light.
 const Race3D = React.lazy(() => import("../three/Race3D"));
@@ -72,8 +87,8 @@ const Race3D = React.lazy(() => import("../three/Race3D"));
 /** Overhead camera widths, in metres of track across the screen. */
 const ZOOMS = [70, 130, 280];
 
-/** Seconds of the start-lights sequence before the race clock runs. */
-const INTRO_SECONDS = 4.6;
+/** HUD-4: the replay a banner asks for, by banner kind (ReplayOverlay labels them; the rest say "Replay"). */
+const BANNER_REPLAY = { pass: "pass", mistake: "mistake", contact: "contact", investigation: "contact", penalty: "contact", fastest: "fastest" };
 
 /** Three-letter timing code from the surname ("Nelson Piquet Jr." is PIQ, not JR.). */
 const code = (name = "") => {
@@ -102,11 +117,8 @@ const unwrap = (from, to) => {
 
 const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
 
-/** Seconds of the day as hh:mm:ss, for the broadcast clock. */
-export const clockOf = (seconds) => {
-  const whole = Math.floor(seconds);
-  return [Math.floor(whole / 3600) % 24, Math.floor(whole / 60) % 60, whole % 60].map((v) => String(v).padStart(2, "0")).join(":");
-};
+/** Seconds of the day as hh:mm:ss, for the broadcast clock (hudConditions.clockLabel). */
+export const clockOf = clockLabel;
 
 /** Feed lines worth a second look: race control and retirements. */
 const ALERTS = ["sc", "vsc", "sc-in", "red", "restart", "dnf", "contact", "penalty", "investigation", "rain"];
@@ -141,6 +153,8 @@ const quickSource = (state) => {
     if (!times.has(event)) times.set(event, eventTime(event, Object.fromEntries(state.cars.map((car) => [car.id, car])), circuit, leaderId));
     return times.get(event);
   };
+  // HUD-4: the quick mode has no PRE_START; the view shows the era's procedure with the race's seeded wait.
+  const startTimeline = replayTimelineOf({ rules: rulesOf(state.era, state.year), seed: state.seed ?? `${state.year}` });
   const source = {
     kind: "quick",
     current: state,
@@ -149,6 +163,11 @@ const quickSource = (state) => {
     steps: false,
     limit: (tau) => tau,
     advance: (tau) => ensure(tau),
+    timeline: () => startTimeline,
+    procedureLimit: (wanted) => procedureLimit(startTimeline, wanted),
+    advancePre: () => {},
+    raceBegins: () => {},
+    liveStart: () => null,
     rows: (tau) => standingsAt(state.cars, tau, circuit, lapRef),
     sample: (car, tau) => carAt(car, tau, circuit, lapRef),
     eventTime: (event, leaderId) => timeOf(event, leaderId),
@@ -203,6 +222,16 @@ const stepSource = (client, mirror) => {
     jumps.set(client.upcomingId, kind);
     send();
   };
+  // HUD-4: the engine's PRE_START events (SIM-3), read again only when new events arrive.
+  let timelineAt = -1;
+  let timeline = [];
+  const startTimeline = () => {
+    if (timelineAt !== mirror.events.length) {
+      timelineAt = mirror.events.length;
+      timeline = startTimelineOf(mirror.events);
+    }
+    return timeline;
+  };
   const source = {
     kind: client.kind,
     current: mirror,
@@ -221,6 +250,23 @@ const stepSource = (client, mirror) => {
       client.step(ask);
       source.requested += ask;
     },
+    timeline: startTimeline,
+    // The procedure clock never runs ahead of the engine's PRE_START (one step of slack: its clock
+    // starts up to a step before 0 so that lights out falls on a step boundary, SIM-3).
+    procedureLimit: (wanted) => procedureLimit(startTimeline(), wanted, source.requested - mirror.dt),
+    advancePre: (clock, speed) => {
+      if (mirror.finished || client.busy || jumps.size || startTimeline().some((entry) => entry.type === "lightsOut")) return;
+      const ask = engineChunk(source.requested, clock, speed);
+      if (ask <= 0) return;
+      client.step(ask);
+      source.requested += ask;
+    },
+    // Lights out: from now on the requests are counted on the race clock.
+    raceBegins: () => {
+      source.requested = mirror.clock;
+    },
+    // §1.7 snapshot.start, if the worker ever sends it (absent today: the events say the same).
+    liveStart: () => mirror.start || null,
     rows: (tau) => standingsAt(mirror.cars, tau, circuit, lapRef, pose),
     sample: pose,
     eventTime: (event) => event.at ?? 0,
@@ -280,11 +326,18 @@ function LiveStepRace({ args, onFinished, title }) {
         }
         if (!mirror) return;
         const view = reply.type === "tick" ? reply : reply.view;
-        if (view) applyTick(mirror, view);
+        if (view) {
+          applyTick(mirror, view);
+          // HUD-4 status-strip-data: the weather as the engine has it now (weatherNow: water, rubber, track).
+          if (view.weather) mirror.weatherNow = view.weather;
+          if (view.start) mirror.start = view.start;
+        }
         current.replied(reply);
       },
     });
-    client.create(args);
+    // HUD-4: the engine's own start procedure (SIM-3 PRE_START); the race is the same with it or without (RNF-05).
+    const start = LIVE_VIEW.start;
+    client.create(start.preStart ? { ...args, preStart: { formation: start.formation } } : args);
     return () => client.dispose();
   }, [args]);
   if (error) return <div className="lv-loading">{t(`Error del motor de carrera: ${error}`, `Race engine error: ${error}`)}</div>;
@@ -324,8 +377,18 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const audio = useRaceAudio({ seed: current.seed ?? `${current.year}`, year: current.year });
 
   const tau = useRef(0);
-  const intro = useRef(0);
+  // HUD-4: the start procedure's clock (seconds since it began: the formation lap, the grid, the lights);
+  // the race clock `tau` starts at lights out.
+  const procedureClock = useRef(0);
   const introDone = useRef(false);
+  const procedure = useMemo(() => startProcedureOf(rulesOf(current.era, current.year)), [current.era, current.year]);
+  // HUD-4 replays (CAM-3's buffer, filled by Race3D from the race clock; one replay at a time).
+  const replayBuffer = useMemo(() => createReplayBuffer(), [source]);
+  const replayQueue = useRef(createReplayQueue());
+  const replayClock = useRef(0);
+  const [replay, setReplay] = useState(null);
+  const replayRef = useRef(null);
+  replayRef.current = replay;
   const camera = useRef(null);
   // The director's last shot (directorState keeps its camera and its follow-the-action hold).
   const director = useRef(null);
@@ -338,19 +401,34 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     hold("pitDialog");
     return () => release("pitDialog");
   }, [pitDialogId, hold, release]);
+  // HUD-4: a replay on air holds the race clock (live-view.json pauseOn replay, broadcast.json replay.pauseSim).
+  useEffect(() => {
+    if (!replay || !REPLAY.pauseSim || !LIVE_VIEW.pauseOn.list.includes("replay")) return undefined;
+    hold("replay");
+    return () => release("replay");
+  }, [replay, hold, release]);
+  const startReplay = (plan) => {
+    if (!plan) return;
+    replayClock.current = 0;
+    setReplay({ plan, key: `${plan.trigger}:${plan.at}` });
+  };
+  const endReplay = () => setReplay(null);
   // The loop reads the auto-speed machine itself (a drop lands on the very next frame).
-  const playRef = useRef({ playing, auto });
-  playRef.current = { playing: playing && !auto.held, auto };
+  const playRef = useRef({ playing, auto, playingRaw: playing });
+  playRef.current = { playing: playing && !auto.held, auto, playingRaw: playing };
   const repaint = () => setFrame((value) => (value + 1) % 1e9);
 
   // Skips (next event, one lap, to the flag) land here, whenever the engine answers.
   source.jump = (time) => {
+    // A skip during the start procedure goes past lights out (the local clock with it).
+    const out = lightsOutOf(source.timeline());
+    if (out !== null) procedureClock.current = Math.max(procedureClock.current, out);
     introDone.current = true;
     tau.current = Math.max(tau.current, time);
     repaint();
   };
 
-  // The clock: real time times the playback speed, after the start lights; the engine
+  // The clock: real time times the playback speed, after the start procedure; the engine
   // is asked for what the clock is about to need (RF-CMD-04).
   useEffect(() => {
     let last = now();
@@ -362,13 +440,24 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
       const time = now();
       const dt = Math.min(0.1, (time - last) / 1000);
       last = time;
-      const { playing: isPlaying, auto: playback } = playRef.current;
+      const { playing: isPlaying, auto: playback, playingRaw } = playRef.current;
+      // HUD-4: a replay runs on its own clock, in real time, while the race clock is held.
+      if (replayRef.current && playingRaw) replayClock.current += dt;
       if (isPlaying && !finishedRef.current) playback.tick(tau.current);
       const rate = playback.machine.speed;
       if (isPlaying && !finishedRef.current) {
         if (!introDone.current) {
-          intro.current += dt;
-          if (intro.current >= INTRO_SECONDS) introDone.current = true;
+          // HUD-4 (§1.5): the procedure clock runs only as far as the engine has run its PRE_START; the
+          // lights at live-view.json start.lightsSpeed, a driven formation lap at the playback speed.
+          const before = startStateAt(source.timeline(), procedureClock.current, procedure);
+          const lightsSpeed = LIVE_VIEW.start.lightsSpeed;
+          const preRate = before.phase === "formation" || lightsSpeed === null ? rate : lightsSpeed;
+          procedureClock.current = source.procedureLimit(procedureClock.current + dt * preRate);
+          source.advancePre(procedureClock.current, preRate);
+          if (startStateAt(source.timeline(), procedureClock.current, procedure).phase === "out") {
+            introDone.current = true;
+            source.raceBegins();
+          }
         } else {
           tau.current = source.limit(tau.current + dt * rate);
         }
@@ -385,10 +474,11 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     };
     handle = raf(tick);
     return () => cancel(handle);
-  }, [source]);
+  }, [source, procedure]);
 
   const raceEnd = raceEndTime(current);
-  const done = tau.current >= raceEnd + 2;
+  // HUD-4: the view stays on after the last car's flag (live-view.json finish), then hands the race back.
+  const done = tau.current >= raceEnd + LIVE_VIEW.finish.afterLastSec;
 
   // Hand the race back once everyone is home. Keyed on `done` alone: the view
   // re-renders every frame, and a timer cleared on each render would never fire.
@@ -397,7 +487,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   useEffect(() => {
     if (!done) return undefined;
     finishedRef.current = true;
-    const id = setTimeout(() => finish.current(source.finalState()), 1800);
+    const id = setTimeout(() => finish.current(source.finalState()), LIVE_VIEW.finish.handBackRealMs);
     return () => clearTimeout(id);
   }, [done, source]);
 
@@ -410,6 +500,21 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const displayLap = leaderLap(rows, current.laps);
   const wetness = current.weather.wetness[Math.min(displayLap, current.laps)] ?? 0;
   const leaderFinished = Boolean(leader?.pose.finished);
+  // HUD-4 (§1.7 `finished` {carId, t, pos}, SIM-3): each car's flag at its own race time; the quick
+  // replay has no such event and its line crossings say it (pose.finished).
+  const flagOf = {};
+  current.events.forEach((event) => {
+    if (event.type === "finished" && Number.isFinite(event.t) && event.t <= tau.current && !flagOf[event.carId]) flagOf[event.carId] = { t: event.t, pos: event.pos };
+  });
+  const flagged = (car) => Boolean(flagOf[car.id] || rowOf[car.id]?.pose.finished);
+  const winnerFlagAt = Object.values(flagOf).find((entry) => entry.pos === 1)?.t ?? (leaderFinished ? leader.car.history?.[leader.car.history.length - 1]?.end ?? tau.current : null);
+  // The HUD comes back hudDelaySec after lights out (hud.json start; null = at once, as before).
+  const hudLive = introDone.current && tau.current >= (HUD.start.hudDelaySec ?? 0);
+  // §1.7 snapshot.start as the view has it now: from the engine's events at the view's procedure clock
+  // (the engine runs a little ahead of the pictures); the worker's own snapshot only if it sends no events.
+  const startTimeline = source.timeline();
+  const startFromEvents = startTimeline.length || !source.liveStart() ? startStateAt(startTimeline, procedureClock.current, procedure) : { ...source.liveStart(), lamps: procedure ? procedure.spec.lights : 0 };
+  const startNow = introDone.current ? { ...startFromEvents, phase: "out", lights: 0 } : startFromEvents;
 
   const visibleEvents = current.events.filter((event) => source.eventTime(event, leader?.car.id) <= tau.current);
   // Duels the defender won (step race): a line in the commentary when the player's car
@@ -448,7 +553,8 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   // unless broadcast.json followAction is on. SIM-4's battle state when the engine sends it.
   let tvSubjectId = focusId;
   if (cameraMode === "tv") {
-    const tv = tvShotOf({ focusId, rows, events: visibleEvents, battle: current.battle, cars: current.cars, prev: director.current, now: now() / 1000 });
+    // HUD-4 (start-finish-scripts, the hook): the race clock, the seed and the start for CAM-4's sequences.
+    const tv = tvShotOf({ focusId, rows, events: visibleEvents, battle: current.battle, cars: current.cars, prev: director.current, now: now() / 1000, tau: tau.current, seed: current.seed, start: startNow });
     director.current = tv.shot;
     if (tv.subjectId !== null) {
       tvSubjectId = tv.subjectId;
@@ -484,6 +590,23 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     pitBefore.current = inPit;
     const triggers = raceTriggers({ events: fresh, pitEntries, isUser: (id) => Boolean(byId[id]?.isUser) });
     if (triggers.length) auto.notify(triggers, tau.current);
+    // HUD-4 replays: broadcast.json replay.triggers queue themselves on TV (live-view.json replay), one at a time.
+    if (!in3D) return;
+    const users = userCars.map((car) => car.id);
+    if (LIVE_VIEW.replay.auto && LIVE_VIEW.replay.autoViews.includes(cameraMode)) {
+      fresh.forEach((event) => {
+        const at = event.type === "finished" && Number.isFinite(event.t) ? event.t : source.eventTime(event, leader?.car.id);
+        replayQueue.current = enqueueReplay(replayQueue.current, { ...event, at }, { userIds: users, leaderId: leader?.car.id ?? null });
+      });
+    }
+    if (replayRef.current) {
+      if (replayFrameAt(replayRef.current.plan, replayClock.current).phase === "done") endReplay();
+      return;
+    }
+    const pitOnAir = Boolean(director.current?.sequence?.active);
+    const next = nextReplay(replayQueue.current, { tau: tau.current, buffer: replayBuffer, blocked: pitOnAir });
+    replayQueue.current = next.queue;
+    if (next.item) startReplay(planReplay(next.item, replayBuffer, { year: current.year, seed: current.seed ?? 0 }));
   });
 
   // The safety car runs a little ahead of the leader on the road.
@@ -505,6 +628,8 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     wetness,
     events: visibleEvents,
     started: introDone.current,
+    // AUD-3 reads the engine's start (§1.7) for the lights and the revs on the grid.
+    start: startNow,
   };
   useEffect(() => {
     if (audio.enabled) audio.frame(audioFrame);
@@ -526,7 +651,9 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const refuel = commands.pit.fuel;
   const energy = energyEra(rulesOf(current.era, current.year));
   const userTeam = userCars[0]?.teamId;
-  const lightsOn = introDone.current ? 0 : Math.min(5, Math.floor(intro.current / 0.8) + 1);
+  // HUD-4: the lights lit now, from the engine's start (startLights.js), not a timer of the view.
+  const lightsOn = startNow.phase === "out" ? 0 : startNow.lights;
+  const lamps = startNow.lamps || 0;
   const teams = useMemo(() => {
     const seen = new Map();
     current.cars.forEach((car) => {
@@ -548,9 +675,12 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
       break;
     }
   }
-  const clock = clockOf(15 * 3600 + Math.max(0, tau.current));
-  const trackTemp = current.trackTemps ? current.trackTemps[Math.min(displayLap, current.trackTemps.length - 1)] ?? 30 : (current.trackTemp ?? 30) - wetness * 8;
-  const rubber = wetness > 0.3 ? 0.1 : Math.min(1, displayLap / Math.max(10, current.laps * 0.55));
+  // HUD-4 status-strip-data: the local time (the official start time is the formation lap's, so the clock
+  // runs through the procedure), and air, track, water and rubber as the engine has them (hudConditions.js).
+  const raceStart = useMemo(() => raceStartOf(current.race), [current.race]);
+  const clock = clockLabel(raceStart.startSec + procedureClock.current + Math.max(0, tau.current));
+  const conditions = raceConditionsOf(current, Math.min(displayLap, current.laps), source.steps ? current.weatherNow : null);
+  const trackTemp = conditions.trackC;
 
   // user-camera-lock: the camera arrows pick the camera view first, then step through its cameras.
   const onCamera = (step) => {
@@ -619,7 +749,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
         incident: !out && incidentOf(car.id, timedEvents, tau.current, pose),
         outLap: !out && raceOutLap(car, tau.current, pose),
         inLap: !out && raceInLap(car, pose),
-        finished: HUD.tower.flags.finished && Boolean(pose.finished),
+        finished: HUD.tower.flags.finished && flagged(car),
       },
     };
   });
@@ -654,7 +784,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     [current.era, current.year, current.laps, current.weather.wetness, current.track, current.restartLap],
   );
   let banner = null;
-  if (introDone.current) {
+  if (hudLive) {
     offerBanners(
       bannerQueue.current,
       [
@@ -698,16 +828,24 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
         : yellows.length > 0
           ? yellowFlag(circuit, yellows)
           : !introDone.current
-            ? { kind: "session", label: t("Salida", "Start") }
+            ? { kind: "session", label: startNow.phase === "formation" ? t("Vuelta de formación", "Formation lap") : t("Salida", "Start") }
             : { kind: "green", label: t("Bandera verde", "Green flag") };
+
+  // HUD-4 replays: "watch replay" on a banner whose moment the buffer still holds (3D only: Race3D records it).
+  const span = in3D ? replaySpan(replayBuffer) : null;
+  const canReplay = (item) => Boolean(HUD.banners.replay.enabled && span && !replay && Number.isFinite(item?.at) && item.at >= span.from && item.at <= span.to);
+  const onBannerReplay = banner && canReplay(banner)
+    ? (shown) => startReplay(planReplay({ trigger: BANNER_REPLAY[shown.kind] || shown.kind, event: { type: shown.kind, carId: shown.carId, otherId: shown.otherId }, at: shown.at }, replayBuffer, { year: current.year, seed: current.seed ?? 0 }))
+    : null;
+  const chequeredUp = leaderFinished && winnerFlagAt !== null && tau.current < winnerFlagAt + HUD.finish.chequeredBannerSec;
 
   const eraNotes = [commands.drs && "DRS", commands.activeAero && t("Aero activa", "Active aero"), energy === "kers" ? "KERS" : energy ? "ERS" : null, refuel && t("Repostaje", "Refuelling")].filter(Boolean);
   const orderOptions = commands.teamOrders;
   const ORDER_LABEL = { free: t("Libres", "Race"), hold: t("Mantener", "Hold"), swap: t("Intercambiar", "Swap") };
 
   return (
-    <div className={`lv lv--race${in3D ? " is-3d" : ""}`} data-engine={source.kind}>
-      <StatusStrip flag={flag} clock={clock} airTemp={trackTemp * 0.62 + 4} rainChance={current.weather.forecast ?? 0} change={change} trackTemp={trackTemp} wetness={wetness} rubber={rubber} notes={[current.year, ...eraNotes].join(" · ")} />
+    <div className={`lv lv--race${in3D ? " is-3d" : ""}${replay ? " is-replay" : ""}`} data-engine={source.kind} data-start={startNow.phase}>
+      <StatusStrip flag={flag} clock={clock} airTemp={conditions.airC} rainChance={current.weather.forecast ?? 0} change={change} trackTemp={trackTemp} wetness={wetness} waterMm={conditions.waterMm} rubber={conditions.rubber} notes={[current.year, ...eraNotes].join(" · ")} />
 
       <div className="lv-stage">
         {in3D ? (
@@ -726,6 +864,9 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
               teams={teams}
               onPick={setFocusId}
               labels={{ near: t("Retransmisión en 3D", "3D broadcast") }}
+              seed={current.seed}
+              replayBuffer={replayBuffer}
+              replay={replay ? { plan: replay.plan, clock: replayClock } : null}
             />
           </React.Suspense>
         ) : (
@@ -743,26 +884,29 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
           />
         )}
         {wetness > 0.2 && !in3D && <div className="lv-rain" style={{ opacity: Math.min(0.85, wetness + 0.15) }} aria-hidden="true" />}
-        {!introDone.current && !in3D && (
-          <div className="lv-lights" aria-label={t("Semáforo de salida", "Start lights")}>
-            {[0, 1, 2, 3, 4].map((index) => (
+        {!introDone.current && !in3D && lamps > 0 && (
+          <div className="lv-lights" role="img" aria-label={t(`Semáforo de salida: ${lightsOn} de ${lamps} luces`, `Start lights: ${lightsOn} of ${lamps} lit`)} data-procedure={startNow.procedure || undefined}>
+            {Array.from({ length: lamps }, (_, index) => (
               <span key={index} className={index < lightsOn ? "is-on" : ""} />
             ))}
           </div>
         )}
         <div className="lv-overlay">
-          {introDone.current && tau.current < 3 && <div className="lv-banner is-go">{t("Se apagan los semáforos", "Lights out")}</div>}
-          {leaderFinished && (
+          {!replay && introDone.current && tau.current < HUD.start.lightsOutBannerSec && (
+            <div className="lv-banner is-go">{startNow.procedure === "redGreen" ? t("Luz verde", "Green light") : t("Se apagan los semáforos", "Lights out")}</div>
+          )}
+          {!replay && chequeredUp && (
             <div className="lv-banner">
               <IconFlag size={16} />
               {t("Bandera a cuadros", "Chequered flag")} · {leader?.car.name}
             </div>
           )}
-          <EventBanner banner={banner} names={names} />
+          {!replay && <EventBanner banner={banner} names={names} onReplay={onBannerReplay} />}
         </div>
-        <PitTimer entries={pitEntries} />
+        {hudLive && !replay && <PitTimer entries={pitEntries} />}
         <SpeedCallout callout={auto.callout} reasonText={reasonText} />
-        {!leaderFinished && battles[0] && cameraMode !== "tv" && (
+        {replay && <ReplayOverlay plan={replay.plan} elapsed={replayClock.current} names={names} onSkip={endReplay} />}
+        {hudLive && !replay && !leaderFinished && battles[0] && cameraMode !== "tv" && (
           <div className="lv-chip">
             <i aria-hidden="true" />
             {t(`Lucha por P${battles[0].position}`, `Battle for P${battles[0].position}`)} · <b>{code(battles[0].attacker.car.name)}</b> → <b>{code(battles[0].defender.car.name)}</b> · {battles[0].gap.toFixed(1)} s
@@ -809,6 +953,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
               focused={focusId === car.id}
               onFocus={() => setFocusId(car.id)}
               onPitDialog={() => setPitDialogId(car.id)}
+              flag={HUD.finish.foldPanel && flagged(car) ? { pos: flagOf[car.id]?.pos ?? rowOf[car.id]?.position ?? car.position } : null}
             />
           </React.Fragment>
         ))}
@@ -914,13 +1059,14 @@ const PANEL_TAB = {
  * may not be changed) and "Pit options" opens the pit dialog (PitDialog, which pauses the
  * session). Every order goes through `command` (the race worker for a step race).
  */
-function DriverCard({ car, row, state, commands, energy, command, steps, pitThisLap, focused, onFocus, onPitDialog }) {
+function DriverCard({ car, row, state, commands, energy, command, steps, pitThisLap, focused, onFocus, onPitDialog, flag = null }) {
   const PANEL = HUD.driverPanel;
   const tabs = PANEL.tabs.filter((tab) => tab !== "telemetry" || steps);
   const [tabPick, setTab] = useState(PANEL.defaultTab);
   const tab = tabs.includes(tabPick) ? tabPick : tabs[0];
   const [fuelLoad, setFuelLoad] = useState(null);
-  const running = car.status === "running";
+  // HUD-4: past its own chequered flag (on the view's clock, not the engine's) the panel folds to the result.
+  const running = car.status === "running" && !flag;
   const rules = rulesOf(state.era, state.year);
   const refuel = commands.pit.fuel;
   const life = Math.max(0, 1 - tyreLifeUsed(car, rules));
@@ -951,7 +1097,7 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
   const lifeClass = life < PANEL.tyreLife.badBelow ? "is-bad" : life < PANEL.tyreLife.warnBelow ? "is-warn" : "";
   const percent = (value) => (Number.isFinite(value) ? `${Math.round(value * 100)}%` : "—");
   return (
-    <section className={`lv-card${running ? "" : " is-out"}${focused ? " is-focus" : ""}`} aria-label={car.name}>
+    <section className={`lv-card${running ? "" : " is-out"}${flag ? " is-folded" : ""}${focused ? " is-focus" : ""}`} aria-label={car.name}>
       <button type="button" className="lv-card__head" onClick={onFocus}>
         <span className="lv-card__pos">{position}</span>
         <i className="lv-card__stripe" style={{ "--stripe": readableOn(car.color) }} aria-hidden="true" />
@@ -1178,7 +1324,19 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
           </div>
         </>
       ) : (
-        <p className="lv-card__status">{car.status === "finished" ? t("Terminado", "Finished") : STATUS[car.retireReason] ? STATUS[car.retireReason]() : ""}</p>
+        <p className="lv-card__status" data-folded={flag ? "" : undefined}>
+          {flag ? (
+            <>
+              <IconFlag size={14} /> {t(`Bandera a cuadros · P${flag.pos}`, `Chequered flag · P${flag.pos}`)}
+            </>
+          ) : car.status === "finished" ? (
+            t("Terminado", "Finished")
+          ) : STATUS[car.retireReason] ? (
+            STATUS[car.retireReason]()
+          ) : (
+            ""
+          )}
+        </p>
       )}
     </section>
   );

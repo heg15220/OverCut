@@ -97,9 +97,9 @@
       "enabled": false
     },
     "replay": {
-      "$comment": "BotÃ³n Â«ver repeticiÃ³nÂ» en el banner cuando el buffer de CAM-3 cubre el evento; lo engancha HUD-4 (replays). pending: mientras, sin botÃ³n (EventBanner ya acepta onReplay).",
-      "status": "pending",
-      "enabled": false
+      "$comment": "HUD-4 (replays, el enganche): botón «Ver repetición» en el banner cuando el buffer de CAM-3 (components/replay/replayBuffer.js, broadcast.json replay) cubre el instante del evento; solo con la vista 3D, que es la que graba el buffer. Mientras dura, la sesión se para (live-view.json pauseOn replay) si broadcast.json replay.pauseSim.",
+      "status": "behaviour",
+      "enabled": true
     }
   },
   "driverPanel": {
@@ -139,9 +139,16 @@
     "holdRealSec": 4
   },
   "start": {
-    "$comment": "HUD-4: retardo del HUD tras snapshot.start (§1.5: el motor decide los instantes del semáforo; la vista solo guarda este retardo). null = la vista de hoy.",
-    "status": "pending",
-    "hudDelaySec": null
+    "$comment": "HUD-4 (start-lights-sound-and-timing, la vista; §1.5 «Semáforo de salida»): el motor decide los instantes del semáforo con su semilla (SIM-3: eventos formation/grid/light/lightsOut con t, era-defaults.json startProcedure, race-sim.json start.procedures); la vista solo los lee (components/startLights.js) y guarda aquí lo suyo. hudDelaySec: segundos de carrera tras el apagado antes de que vuelvan los banners, el chip de lucha y el widget de parada (el apagado y la primera curva se ven limpios); lightsOutBannerSec: segundos de carrera que dura el rótulo «Se apagan los semáforos» (antes, literal 3 en LiveRace.js). Decisiones de presentación de OverCut, sin fuente que medir; de F1 Manager 24 ningún valor. Sustituyen a INTRO_SECONDS = 4,6 y a la luz cada 0,8 s que tenía la vista.",
+    "status": "behaviour",
+    "hudDelaySec": 1.5,
+    "lightsOutBannerSec": 3
+  },
+  "finish": {
+    "$comment": "HUD-4 (vuelta-enfriamiento y start-finish-scripts, la vista; §2.13): al cruzar cada coche la meta (evento finished {carId, t, pos} de SIM-3, §1.7; en el modo rápido, su última línea) la torre le pone los cuadros y, si es tuyo, su panel se pliega a la posición final (foldPanel). chequeredBannerSec: segundos de carrera que dura el rótulo de la bandera a cuadros con el ganador (antes, mientras durase la vista).",
+    "status": "behaviour",
+    "foldPanel": true,
+    "chequeredBannerSec": 8
   },
   "$transitionSec": "WKD-1 (session-options-transition, §2.12.2: hud.json transitionSec): segundos de la transición con el logotipo de OverCut entre pantallas del fin de semana; saltable y sin animación con prefers-reduced-motion. pending: null = la fija WKD-1; mientras, sin transición (hoy).",
   "transitionSec": null
