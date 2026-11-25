@@ -231,7 +231,8 @@
    "pitStops": {
     "median": 2,
     "cars": 17
-   }
+   },
+   "scRate": 0.389
   },
   {
    "round": 2,
@@ -263,7 +264,8 @@
    "pitStops": {
     "median": 1,
     "cars": 18
-   }
+   },
+   "scRate": 0.789
   },
   {
    "round": 3,
@@ -295,7 +297,8 @@
    "pitStops": {
     "median": 3.5,
     "cars": 16
-   }
+   },
+   "scRate": 0.589
   },
   {
    "round": 4,
@@ -327,7 +330,8 @@
    "pitStops": {
     "median": 1,
     "cars": 18
-   }
+   },
+   "scRate": 0.589
   },
   {
    "round": 5,
@@ -359,7 +363,8 @@
    "pitStops": {
     "median": 1,
     "cars": 20
-   }
+   },
+   "scRate": 0.389
   },
   {
    "round": 6,
@@ -391,7 +396,8 @@
    "pitStops": {
     "median": 2,
     "cars": 18
-   }
+   },
+   "scRate": 0.189
   },
   {
    "round": 7,
@@ -423,7 +429,8 @@
    "pitStops": {
     "median": 2,
     "cars": 20
-   }
+   },
+   "scRate": 0.389
   },
   {
    "round": 8,
@@ -455,7 +462,8 @@
    "pitStops": {
     "median": 2,
     "cars": 18
-   }
+   },
+   "scRate": 0.789
   },
   {
    "round": 9,
@@ -487,7 +495,8 @@
    "pitStops": {
     "median": 3,
     "cars": 19
-   }
+   },
+   "scRate": 0.589
   },
   {
    "round": 10,
@@ -519,7 +528,8 @@
    "pitStops": {
     "median": 1,
     "cars": 17
-   }
+   },
+   "scRate": 0.589
   },
   {
    "round": 11,
@@ -551,7 +561,8 @@
    "pitStops": {
     "median": 2,
     "cars": 18
-   }
+   },
+   "scRate": 0.189
   },
   {
    "round": 12,
@@ -583,7 +594,8 @@
    "pitStops": {
     "median": 2,
     "cars": 18
-   }
+   },
+   "scRate": 0.189
   },
   {
    "round": 13,
@@ -615,7 +627,8 @@
    "pitStops": {
     "median": 5,
     "cars": 17
-   }
+   },
+   "scRate": 0.589
   },
   {
    "round": 14,
@@ -647,7 +660,8 @@
    "pitStops": {
     "median": 1,
     "cars": 18
-   }
+   },
+   "scRate": 0.189
   },
   {
    "round": 15,
@@ -679,7 +693,8 @@
    "pitStops": {
     "median": 1,
     "cars": 16
-   }
+   },
+   "scRate": 0.389
   },
   {
    "round": 16,
@@ -711,7 +726,8 @@
    "pitStops": {
     "median": 2,
     "cars": 15
-   }
+   },
+   "scRate": 0.389
   },
   {
    "round": 17,
@@ -743,7 +759,8 @@
    "pitStops": {
     "median": 3,
     "cars": 17
-   }
+   },
+   "scRate": 0.789
   },
   {
    "round": 18,
@@ -775,7 +792,8 @@
    "pitStops": {
     "median": 2,
     "cars": 17
-   }
+   },
+   "scRate": 0.389
   },
   {
    "round": 19,
@@ -807,7 +825,8 @@
    "pitStops": {
     "median": 2,
     "cars": 17
-   }
+   },
+   "scRate": 0.589
   },
   {
    "round": 20,
@@ -839,7 +858,8 @@
    "pitStops": {
     "median": 4,
     "cars": 14
-   }
+   },
+   "scRate": 0.789
   },
   {
    "round": 21,
@@ -871,7 +891,8 @@
    "pitStops": {
     "median": 2,
     "cars": 19
-   }
+   },
+   "scRate": 0.389
   },
   {
    "round": 22,
@@ -903,7 +924,8 @@
    "pitStops": {
     "median": 2,
     "cars": 20
-   }
+   },
+   "scRate": 0.189
   }
  ],
  "teams": [

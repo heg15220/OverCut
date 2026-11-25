@@ -267,7 +267,8 @@
      "startLocal": "18:00",
      "startUtc": "2024-03-02T15:00Z"
     }
-   ]
+   ],
+   "scRate": 0.389
   },
   {
    "round": 2,
@@ -336,7 +337,8 @@
      "startLocal": "20:00",
      "startUtc": "2024-03-09T17:00Z"
     }
-   ]
+   ],
+   "scRate": 0.789
   },
   {
    "round": 3,
@@ -405,7 +407,8 @@
      "startLocal": "15:00",
      "startUtc": "2024-03-24T04:00Z"
     }
-   ]
+   ],
+   "scRate": 0.589
   },
   {
    "round": 4,
@@ -474,7 +477,8 @@
      "startLocal": "14:00",
      "startUtc": "2024-04-07T05:00Z"
     }
-   ]
+   ],
+   "scRate": 0.389
   },
   {
    "round": 5,
@@ -543,7 +547,8 @@
      "startLocal": "15:00",
      "startUtc": "2024-04-21T07:00Z"
     }
-   ]
+   ],
+   "scRate": 0.486
   },
   {
    "round": 6,
@@ -612,7 +617,8 @@
      "startLocal": "16:00",
      "startUtc": "2024-05-05T20:00Z"
     }
-   ]
+   ],
+   "scRate": 0.389
   },
   {
    "round": 7,
@@ -681,7 +687,8 @@
      "startLocal": "15:00",
      "startUtc": "2024-05-19T13:00Z"
     }
-   ]
+   ],
+   "scRate": 0.486
   },
   {
    "round": 8,
@@ -750,7 +757,8 @@
      "startLocal": "15:00",
      "startUtc": "2024-05-26T13:00Z"
     }
-   ]
+   ],
+   "scRate": 0.189
   },
   {
    "round": 9,
@@ -819,7 +827,8 @@
      "startLocal": "14:00",
      "startUtc": "2024-06-09T18:00Z"
     }
-   ]
+   ],
+   "scRate": 0.789
   },
   {
    "round": 10,
@@ -888,7 +897,8 @@
      "startLocal": "15:00",
      "startUtc": "2024-06-23T13:00Z"
     }
-   ]
+   ],
+   "scRate": 0.389
   },
   {
    "round": 11,
@@ -957,7 +967,8 @@
      "startLocal": "15:00",
      "startUtc": "2024-06-30T13:00Z"
     }
-   ]
+   ],
+   "scRate": 0.589
   },
   {
    "round": 12,
@@ -1026,7 +1037,8 @@
      "startLocal": "15:00",
      "startUtc": "2024-07-07T14:00Z"
     }
-   ]
+   ],
+   "scRate": 0.589
   },
   {
    "round": 13,
@@ -1095,7 +1107,8 @@
      "startLocal": "15:00",
      "startUtc": "2024-07-21T13:00Z"
     }
-   ]
+   ],
+   "scRate": 0.189
   },
   {
    "round": 14,
@@ -1164,7 +1177,8 @@
      "startLocal": "15:00",
      "startUtc": "2024-07-28T13:00Z"
     }
-   ]
+   ],
+   "scRate": 0.189
   },
   {
    "round": 15,
@@ -1233,7 +1247,8 @@
      "startLocal": "15:00",
      "startUtc": "2024-08-25T13:00Z"
     }
-   ]
+   ],
+   "scRate": 0.589
   },
   {
    "round": 16,
@@ -1302,7 +1317,8 @@
      "startLocal": "15:00",
      "startUtc": "2024-09-01T13:00Z"
     }
-   ]
+   ],
+   "scRate": 0.189
   },
   {
    "round": 17,
@@ -1371,7 +1387,8 @@
      "startLocal": "15:00",
      "startUtc": "2024-09-15T11:00Z"
     }
-   ]
+   ],
+   "scRate": 0.589
   },
   {
    "round": 18,
@@ -1440,7 +1457,8 @@
      "startLocal": "20:00",
      "startUtc": "2024-09-22T12:00Z"
     }
-   ]
+   ],
+   "scRate": 0.389
   },
   {
    "round": 19,
@@ -1509,7 +1527,8 @@
      "startLocal": "14:00",
      "startUtc": "2024-10-20T19:00Z"
     }
-   ]
+   ],
+   "scRate": 0.389
   },
   {
    "round": 20,
@@ -1578,7 +1597,8 @@
      "startLocal": "14:00",
      "startUtc": "2024-10-27T20:00Z"
     }
-   ]
+   ],
+   "scRate": 0.589
   },
   {
    "round": 21,
@@ -1647,7 +1667,8 @@
      "startLocal": "12:30",
      "startUtc": "2024-11-03T15:30Z"
     }
-   ]
+   ],
+   "scRate": 0.789
   },
   {
    "round": 22,
@@ -1716,7 +1737,8 @@
      "startLocal": "22:00",
      "startUtc": "2024-11-24T06:00Z"
     }
-   ]
+   ],
+   "scRate": 0.389
   },
   {
    "round": 23,
@@ -1785,7 +1807,8 @@
      "startLocal": "19:00",
      "startUtc": "2024-12-01T16:00Z"
     }
-   ]
+   ],
+   "scRate": 0.789
   },
   {
    "round": 24,
@@ -1854,7 +1877,8 @@
      "startLocal": "17:00",
      "startUtc": "2024-12-08T13:00Z"
     }
-   ]
+   ],
+   "scRate": 0.189
   }
  ],
  "teams": [

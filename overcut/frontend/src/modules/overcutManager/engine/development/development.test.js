@@ -114,8 +114,15 @@ describe("RF-DEV-02/03 design, manufacture and fit", () => {
     expect(manufactureParts(career, { designId: fresh.id, count: 99, fit: "both" }).units).toBe(DEV.parts.frontWing.maxUnits);
     expect(manufactureParts(career, { designId: fresh.id, count: 1 }).error).toBe("units");
     const aeroBefore = team.car.aero;
+    const inboxBefore = career.inbox.length;
     raceOnce(career);
-    expect(team.parts.items.filter((item) => item.design === fresh.id)).toHaveLength(DEV.parts.frontWing.maxUnits);
+    // RF-DEV-08: a wing destroyed in that race is scrapped (both fitted wings are new ones, so it is one of them).
+    const scrapped = career.inbox
+      .slice(0, Math.max(0, career.inbox.length - inboxBefore))
+      .filter((message) => message.kind === "part-damage")
+      .flatMap((message) => message.damage)
+      .filter((row) => row.part === "frontWing" && row.condition === "destroyed").length;
+    expect(team.parts.items.filter((item) => item.design === fresh.id)).toHaveLength(DEV.parts.frontWing.maxUnits - scrapped);
     [0, 1].forEach((car) => expect(team.parts.items.find((item) => item.id === team.parts.loadout[car].frontWing).design).toBe(fresh.id));
     expect(fresh.failed || team.car.aero > aeroBefore - 0.6).toBe(true);
     // Fitting an old spare back is allowed between races, and changes the car.

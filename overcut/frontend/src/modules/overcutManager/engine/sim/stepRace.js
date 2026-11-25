@@ -83,6 +83,7 @@ import { stageAt } from "./pitStop";
 import { WEATHER_BALANCE, gripRatio, sprayLossOf, weatherSnapshot } from "../weather";
 import { POWERTRAIN, coastDecel, coastPlan, createDrive, curvatureBins, driveSnapshot, launchAccel, powertrainFor, updateDrive } from "./powertrain";
 import { ENERGY, cellsFor, energyPlanOf, ersSpecOf, fuelEraOf, fuelFlowOf, lapDeployOf, referenceDeployOf, storeKwAt, traceDriveOf } from "../energy";
+import { SC_BALANCE, neutralAfter, neutralLeader, neutralLine, neutralStep, pitClosedFor, scLimit, scRateCap, scSnapshot, unlapExempt, vscDeltaStep, vscRate, vscSnapshot } from "./safetyCar";
 
 export const SIM_BALANCE = balanceData;
 
@@ -230,6 +231,12 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData, pre
     lane: laneSetup(state, track, n),
     retireAt: null,
     scOpen: null,
+    // SIM-5 (F1M24-GAMEPLAY §2.11, RF-SIM-10): the safety car on the ring or the VSC delta (safetyCar.js), the SC's
+    // speed profile on this circuit, and the side a lapped car let through goes by on (lateral.js).
+    neutral: null,
+    scProfile: null,
+    unlapSide: null,
+    unlapShare: SC_BALANCE.sc.unlapLateralShare,
     // RF-SIM-09: the era's scale of duel touches against f1db (race-reliability.json calibration.stepCollision).
     collisionScale: calibrationFor(rules.year ?? state.year).stepCollision,
     // RF-SIM-01 / RF-SIM-02 / RF-DEV-01: the era's power unit and gearbox, fitted to this circuit, and each car's drive state.
@@ -768,6 +775,9 @@ const endLap = (state, i, lap, tc) => {
     if (sim.red) {
       // RF-SIM-10: the field has come round behind the red flag; restart by the era's procedure.
       sim.red.lineUpLap = lap;
+    } else if (sc && sim.neutral && sim.neutral.ref === sc) {
+      // SIM-5: the safety car's phases end it (safetyCar.js), the restart at this line in the "control" eras.
+      neutralLine(state, pushEvent);
     } else if (sc && lap > sc.since) {
       sc.laps -= 1;
       if (sc.laps <= 0) {
@@ -992,7 +1002,12 @@ const advance = (state, i) => {
   let rate = 1 / (span > floor ? span : floor);
   let mult = 1;
 
-  if (sc && sim.inPit[i] === 0) {
+  const N = sim.neutral && sim.neutral.ref === sc ? sim.neutral : null;
+  if (sc && sim.inPit[i] === 0 && N) {
+    // SIM-5: the VSC delta, or the train behind the safety car on the ring (safetyCar.js).
+    rate = N.virtual ? Math.min(rate, vscRate(sim, N, i, baseLap)) : scRateCap(state, i, rate);
+    sim.lapFlags[i] |= 1;
+  } else if (sc && sim.inPit[i] === 0) {
     const scRate = 1 / (baseLap * (sc.virtual ? balance.safetyCar.virtualLapFactor : balance.safetyCar.lapFactor));
     if (sc.virtual) rate = Math.min(rate, scRate);
     else if (a >= 0 && sim.lapDiff[i] >= 0 && gapM > balance.safetyCar.trainGapMetres && car.position > 1) rate = Math.min(rate, scRate * balance.safetyCar.catchUp);
@@ -1089,7 +1104,9 @@ const advance = (state, i) => {
     const exempt =
       (sim.duelOther[i] === a && (sim.duelRole[i] === ROLE.PASSING || sim.duelRole[i] === ROLE.YIELDING)) ||
       (sim.lapDiff[i] < 0 && !sc) ||
-      (sim.lapDiff[i] > 0 && !sc && gapM < balance.traffic.minGapMetres);
+      (sim.lapDiff[i] > 0 && !sc && gapM < balance.traffic.minGapMetres) ||
+      // SIM-5 (art. 55.13): a lapped car let through passes the cars on the lead lap.
+      unlapExempt(sim, i);
     if (!exempt) {
       const limit = sim.P0[i] + frac(sim.P[a] - sim.P0[i]) - balance.traffic.minGapMetres / tables.length;
       if (P1 > limit) {
@@ -1098,6 +1115,15 @@ const advance = (state, i) => {
         if (tau1 < tau0) tau1 = tau0;
         sim.lapFlags[i] |= 8;
       }
+    }
+  }
+  // SIM-5: the leader stays behind the safety car (the cars between them are waved by, art. 55.9).
+  if (N && !N.virtual && sim.inPit[i] === 0) {
+    const held = scLimit(sim, i, P1);
+    if (held < P1) {
+      P1 = held;
+      tau1 = Math.max(tau0, tauAtD(tables, P1 - laps));
+      sim.lapFlags[i] |= 8;
     }
   }
   // WP11: forming the grid behind a red flag - nobody drives past its slot.
@@ -1118,6 +1144,8 @@ const advance = (state, i) => {
   sim.v[i] = ((P1 - sim.P0[i]) * tables.length) / dt;
   sim.P[i] = P1;
   sim.tau[i] = tau1;
+  // SIM-5 (FIA art. 56.5): the VSC delta, minisector by minisector.
+  if (N && N.virtual && sim.inPit[i] === 0) vscDeltaStep(sim, N, i, tau0, tau1, baseLap);
   checkpoints(state, i, tau0, Math.min(tau1, 1));
   if (sim.active[i] && tau1 >= 1) {
     const tc = sim.clock - dt + (dt * (1 - tau0)) / Math.max(1e-12, tau1 - tau0);
@@ -1324,6 +1352,8 @@ const enterPit = (state, i, lap) => {
     return;
   }
 
+  // SIM-5 (era-defaults.json scPitClosed): the pit lane closed until the train has formed.
+  if (pitClosedFor(state, car, sim.rules, lap)) return;
   const decision = pitDecision(state, car, lap, runningCars(state), stream);
   if (!decision) return;
   const L = sim.lane;
@@ -1893,6 +1923,22 @@ const energyStepOf = (state, i, v, cell, inLane) => {
   en.harvestKw[i] = (harv * 1000) / dt;
 };
 
+/**
+ * SIM-5: the safety car and the VSC as the worker's tick carries them (`state.safetyCar` goes to the view whole):
+ * `car` = snapshot.sc, `deltaSec` = snapshot.vsc.deltaSec. Plain data, nothing the race reads.
+ */
+const mirrorNeutral = (state) => {
+  const sc = state.safetyCar;
+  if (!sc || sc.red) return;
+  if (sc.virtual) {
+    const vsc = vscSnapshot(state);
+    if (vsc) sc.deltaSec = vsc.deltaSec;
+  } else {
+    const car = scSnapshot(state);
+    if (car) sc.car = car;
+  }
+};
+
 /** One fixed step of `dt` seconds for the whole field. */
 export const stepOnce = (state) => {
   const sim = state._sim;
@@ -1910,8 +1956,11 @@ export const stepOnce = (state) => {
   sim.steps += 1;
   if (state.safetyCar && state.safetyCar.since === undefined) state.safetyCar.since = scSince(state);
 
+  // SIM-5: a new neutralisation taken on, the safety car moved and the VSC clock run before the cars move.
+  neutralStep(state, pushEvent);
   buildRing(sim);
   const first = measureGaps(sim);
+  neutralLeader(state);
   for (let i = 0; i < sim.n; i += 1) {
     sim.P0[i] = sim.P[i];
     sim.tau0[i] = sim.tau[i];
@@ -1931,6 +1980,9 @@ export const stepOnce = (state) => {
   }
   settleDuels(state);
   raceControl(state);
+  // SIM-5: the safety car's phase changes once the field has moved (train grouped, lapped cars through, lights off).
+  neutralAfter(state, pushEvent);
+  mirrorNeutral(state);
   // SIM-4 (§1.7): the duel events of this step and every car's battle state (no roll, nothing the race reads).
   duelWatch(state);
   battleStep(state);
@@ -2056,6 +2108,9 @@ export const snapshot = (state) => {
   }));
   // SIM-3 / F1M24-GAMEPLAY §1.7 `snapshot.start` (on the array, so `snapshot(state)[i]` stays per car).
   cars.start = startOf(state);
+  // SIM-5 / F1M24-GAMEPLAY §1.7 `snapshot.sc` and `snapshot.vsc` (null without one).
+  cars.sc = scSnapshot(state);
+  cars.vsc = vscSnapshot(state);
   return cars;
 };
 
@@ -2071,7 +2126,7 @@ export const weatherNow = (state) => weatherSnapshot(state, state._sim ? state._
  * same object without the simulator's internals.
  */
 export const toRaceState = (state) => {
-  const { _sim, _stream, _control, ...rest } = state;
+  const { _sim, _stream, _control, _neutral, ...rest } = state;
   return rest;
 };
 

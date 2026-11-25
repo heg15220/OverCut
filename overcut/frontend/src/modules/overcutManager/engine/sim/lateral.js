@@ -198,6 +198,11 @@ const targets = (sim, roleNone, mistake, yieldShare) => {
       // WP4 (SIM-FISICA §3.1): a car being lapped moves over to the outside of the next corner.
       target = roomAt(G, d, -nextTurnSign(sim, sim.tau[i])) * yieldShare;
       sim.latState[i] = LANE.YIELD;
+    } else if (sim.unlapSide && sim.unlapSide[i] !== 0) {
+      // SIM-5 (FIA art. 55.13): a lapped car let through behind the safety car goes by off the line; the cars on the
+      // lead lap stay on it (safetyCar.js, race-sim.json safetyCar.sc.unlapLateralShare).
+      target = roomAt(G, d, sim.unlapSide[i]) * sim.unlapShare;
+      sim.latState[i] = LANE.ATTACK_OUT;
     } else if (sim.duelRole[i] !== roleNone) {
       target = sim.latTarget[i];
     } else if (G.exitAt[i] >= 0) {

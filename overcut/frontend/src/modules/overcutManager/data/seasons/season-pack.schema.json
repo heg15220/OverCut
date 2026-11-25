@@ -325,6 +325,12 @@
               }
             }
           },
+          "scRate": {
+            "$comment": "SIM-5 duracion-neutralizacion (F1M24-GAMEPLAY §1.5; RF-SIM-10): parte de carreras con al menos un coche de seguridad en este circuito, medida en OpenF1 race_control (curated/circuit-sc-rates.json, race_neutralisations_from_openf1.py). Solo en las temporadas medidas; sin la clave el motor usa el factor neutro.",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
           "pitStops": {
             "$comment": "SIM-FISICA §5 WP11 (RF-SIM-13): paradas reales del GP, de f1db (race_result.pit_stops, desde 1994): mediana de los coches que hicieron al menos el 90 % de las vueltas del ganador y cuántos eran. null sin datos. Si la carrera fue en mojado incluye los cambios por lluvia: el motor solo la usa en carreras secas según refLaps.",
             "oneOf": [

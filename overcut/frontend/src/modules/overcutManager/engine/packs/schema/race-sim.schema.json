@@ -89,7 +89,9 @@
     "pitRelease",
     "start",
     "cooldown",
-    "radio"
+    "radio",
+    "vsc",
+    "neutralisation"
   ],
   "properties": {
     "$comment": {
@@ -666,23 +668,419 @@
         "lapFactor",
         "virtualLapFactor",
         "trainGapMetres",
-        "catchUp"
+        "catchUp",
+        "sc",
+        "measured"
       ],
       "properties": {
         "$comment": {
           "type": "string"
         },
         "lapFactor": {
-          "$ref": "#/definitions/nonNegative"
+          "type": "number",
+          "minimum": 1
         },
         "virtualLapFactor": {
-          "$ref": "#/definitions/nonNegative"
+          "type": "number",
+          "minimum": 1
         },
         "trainGapMetres": {
           "$ref": "#/definitions/nonNegative"
         },
         "catchUp": {
           "$ref": "#/definitions/nonNegative"
+        },
+        "factorNote": {
+          "type": "string"
+        },
+        "sc": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "trainMaxLengths",
+            "pickupPaceShare",
+            "exitAccelMps2",
+            "inThisLapMinShare",
+            "restartGoMetres",
+            "maxWaitSec",
+            "unlapLateralShare",
+            "cars",
+            "pending"
+          ],
+          "properties": {
+            "$comment": {
+              "type": "string"
+            },
+            "trainMaxLengths": {
+              "$ref": "#/definitions/positive"
+            },
+            "trainMaxLengthsSource": {
+              "type": "string"
+            },
+            "pickupPaceShare": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
+            "exitAccelMps2": {
+              "$ref": "#/definitions/positive"
+            },
+            "inThisLapMinShare": {
+              "$ref": "#/definitions/share"
+            },
+            "restartGoMetres": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "maxWaitSec": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "unlapLateralShare": {
+              "$ref": "#/definitions/share"
+            },
+            "cars": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "from",
+                  "to",
+                  "model",
+                  "topKmh",
+                  "status"
+                ],
+                "properties": {
+                  "$comment": {
+                    "type": "string"
+                  },
+                  "from": {
+                    "type": "integer"
+                  },
+                  "to": {
+                    "type": "integer"
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "topKmh": {
+                    "$ref": "#/definitions/positive"
+                  },
+                  "status": {
+                    "enum": [
+                      "source",
+                      "pending"
+                    ]
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "pending": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "pendingNote": {
+              "type": "string"
+            }
+          }
+        },
+        "measured": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "source",
+            "years",
+            "races",
+            "scLapFactor",
+            "vscLapFactor"
+          ],
+          "properties": {
+            "$comment": {
+              "type": "string"
+            },
+            "source": {
+              "type": "string"
+            },
+            "years": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "races": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "scPerRace": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "vscPerRace": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "scLapFactor": {
+              "$ref": "#/definitions/measuredSpread"
+            },
+            "vscLapFactor": {
+              "$ref": "#/definitions/measuredSpread"
+            }
+          }
+        }
+      }
+    },
+    "vsc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "marginSec",
+        "gain",
+        "speedShare",
+        "precisionClamp",
+        "pending"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "marginSec": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "gain": {
+          "$ref": "#/definitions/nonNegative"
+        },
+        "speedShare": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "min",
+            "max"
+          ],
+          "properties": {
+            "$comment": {
+              "type": "string"
+            },
+            "min": {
+              "$ref": "#/definitions/positive"
+            },
+            "max": {
+              "$ref": "#/definitions/positive"
+            }
+          }
+        },
+        "precisionClamp": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/positive"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "measured": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "source",
+            "endingWarnSec"
+          ],
+          "properties": {
+            "$comment": {
+              "type": "string"
+            },
+            "source": {
+              "type": "string"
+            },
+            "endingWarnSec": {
+              "$ref": "#/definitions/measuredSpread"
+            }
+          }
+        },
+        "pending": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pendingNote": {
+          "type": "string"
+        }
+      }
+    },
+    "neutralisation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "circuitRate",
+        "severity",
+        "cleanup",
+        "laps"
+      ],
+      "properties": {
+        "$comment": {
+          "type": "string"
+        },
+        "circuitRate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "reference",
+            "min",
+            "max"
+          ],
+          "properties": {
+            "$comment": {
+              "type": "string"
+            },
+            "reference": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
+            "min": {
+              "$ref": "#/definitions/positive"
+            },
+            "max": {
+              "$ref": "#/definitions/positive"
+            },
+            "source": {
+              "type": "string"
+            }
+          }
+        },
+        "severity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "byReason",
+            "default",
+            "debris"
+          ],
+          "properties": {
+            "$comment": {
+              "type": "string"
+            },
+            "byReason": {
+              "type": "object",
+              "additionalProperties": {
+                "enum": [
+                  "impact",
+                  "stopped",
+                  "debris"
+                ]
+              }
+            },
+            "default": {
+              "enum": [
+                "impact",
+                "stopped",
+                "debris"
+              ]
+            },
+            "debris": {
+              "enum": [
+                "impact",
+                "stopped",
+                "debris"
+              ]
+            }
+          }
+        },
+        "cleanup": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "base",
+            "offTrackFactor",
+            "perSeverity"
+          ],
+          "properties": {
+            "$comment": {
+              "type": "string"
+            },
+            "base": {
+              "$ref": "#/definitions/holdSpread"
+            },
+            "offTrackFactor": {
+              "$ref": "#/definitions/positive"
+            },
+            "offTrackNote": {
+              "type": "string"
+            },
+            "perSeverity": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "impact",
+                "stopped",
+                "debris"
+              ],
+              "properties": {
+                "$comment": {
+                  "type": "string"
+                },
+                "impact": {
+                  "$ref": "#/definitions/positive"
+                },
+                "stopped": {
+                  "$ref": "#/definitions/positive"
+                },
+                "debris": {
+                  "$ref": "#/definitions/positive"
+                }
+              }
+            },
+            "pending": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "pendingNote": {
+              "type": "string"
+            }
+          }
+        },
+        "laps": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "unlappingSec",
+            "inThisLapLaps",
+            "minSc",
+            "minVsc"
+          ],
+          "properties": {
+            "$comment": {
+              "type": "string"
+            },
+            "unlappingSec": {
+              "$ref": "#/definitions/nonNegative"
+            },
+            "unlappingNote": {
+              "type": "string"
+            },
+            "inThisLapLaps": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "inThisLapNote": {
+              "type": "string"
+            },
+            "minSc": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "minVsc": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
         }
       }
     },

@@ -494,6 +494,15 @@ def build_pack(con, year, regs_cur, events_cur, assets_cur, skills=None):
         schedule = session_schedule(r, zones, year)
         if schedule:
             event["sessions"] = schedule
+    # SIM-5 duracion-neutralizacion (RF-SIM-10): the circuit's measured share of races with a safety car
+    # (curated/circuit-sc-rates.json, from OpenF1 by race_neutralisations_from_openf1.py) in the seasons it was
+    # measured for; other packs keep their bytes and the engine reads the neutral factor.
+    sc_rates = load_json("circuit-sc-rates.json")
+    if sc_rates["appliesFrom"] <= year <= sc_rates["appliesTo"]:
+        for event in calendar:
+            row = sc_rates["circuits"].get(event["circuitId"])
+            if row is not None:
+                event["scRate"] = row["scRate"]
 
     # ---------------------------------------------------------------- standings
     def merge_rows(items, key):

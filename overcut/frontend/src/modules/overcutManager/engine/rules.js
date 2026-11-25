@@ -139,6 +139,18 @@ const resolve = (eraOrYear) => {
       vsc: Boolean(regs.vsc),
       scDeployChance: scBalance && regs.safetyCar ? scBalance.deployChance : 0,
       redFlag: { available: true, ...red },
+      // SIM-5 reglas-sc-era (F1M24-GAMEPLAY §2.11, RF-SIM-10): how the era runs a safety car and a VSC - lapped cars
+      // unlapping, the pit lane closed until the train forms, where overtaking is allowed again ("control" line or
+      // "sc1" line) and the VSC ENDING warning. Null in an era without the procedure (criterio 7.2).
+      sc: regs.safetyCar
+        ? {
+            unlapping: Boolean(regs.scUnlapping),
+            pitClosed: Boolean(regs.scPitClosed),
+            restartLine: regs.scRestartLine === "sc1" ? "sc1" : "control",
+            overtakeBeforeLine: Boolean(regs.scOvertakeBeforeLine),
+          }
+        : null,
+      vscEndingWarn: regs.vsc && regs.vscEndingWarn ? { minSec: regs.vscEndingWarn.minSec, maxSec: regs.vscEndingWarn.maxSec } : null,
       penaltyTypes,
       pitPenalties: penaltyTypes.filter((type) => PIT_PENALTIES.has(type)),
       timePenalties: penaltyTypes.filter((type) => type === "time5" || type === "time10"),
