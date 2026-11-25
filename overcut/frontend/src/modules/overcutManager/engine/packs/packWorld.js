@@ -113,6 +113,10 @@ export const packCalendar = ({ pack, reference }) => {
       refLaps: event.refLaps || null,
       // WP11 (RF-SIM-13): the real stops of this Grand Prix, for the circuit's tyre wear (race.js tyreWearScale).
       pitStops: event.pitStops || null,
+      // WKD-6 / SIM-5 (F1M24-GAMEPLAY §1.5 «Probabilidad de SC por circuito»; RF-SIM-10): the share of races here
+      // with a safety car, measured in OpenF1 race_control - read by the engine (sim/safetyCar.js circuitScFactor)
+      // and by the pre-race briefing (CircuitCard). Absent in the seasons not measured: null, the neutral factor.
+      scRate: Number.isFinite(event.scRate) ? event.scRate : null,
       laps: event.laps,
       circuit: facts.circuit || null,
       location: event.place || facts.location || null,
