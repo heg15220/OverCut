@@ -72,6 +72,9 @@ import { RELIABILITY as REL, calibrationFor, contactOutcome, leavesDebris, pickG
 import simBalance from "../data/balance/race-sim.json";
 import { circuitScFactor, deployNeutralisation, pitClosedFor } from "./sim/safetyCar";
 import {
+  TYRE_THERMAL, airOf, coldForPass, freshSet, gridSet, gripC, heatCost, heatInputs, hotForRadio, hotForSave, lapHeat, legacyIndexOf, windowFor,
+} from "./tyres/thermal";
+import {
   DRIVER_BALANCE, aiDefenceStyleOf, contactFactorOf, mistakeFactorOf, passSkillTerm, raceFormOf, skillZ, startSkillTime, volatilityFactorOf, wearSkillOf,
 } from "./drivers/skills";
 
@@ -533,14 +536,53 @@ export const dirtyAirFor = (eraOrYear) => rulesFor(eraOrYear).dirtyAir;
 /** Pure: seconds lost in the wake this lap, for a car `gapAhead` behind (null = clean air). */
 export const dirtyAirTime = ({ gapAhead, rules }) => (gapAhead !== null && gapAhead !== undefined && gapAhead < 1 ? (1 - gapAhead) * rules.dirtyAir : 0);
 
-/** Tyre blankets, from the mid-1990s, send a car out on a warmer tyre. */
-export const outLapTemp = (eraOrYear) => rulesFor(eraOrYear).tyres.outLapTemp;
-
-/** Where a tyre's temperature settles for each pace: 0.45-0.7 is the working window. */
-const TEMP_TARGET = BALANCE.tyres.tempTarget;
-
-/** RNF-07 (rnf07-race): the tyre's heat window, its wear and drift (race-eras.json tyres.thermal). */
+/** RNF-07: the tyre's wear terms and the 0..1 read-out the older views use (race-eras.json tyres.thermal). */
 const THERMAL = BALANCE.tyres.thermal;
+
+/**
+ * SIM-6 (RF-SIM-03, engine/tyres/thermal.js): the car's tyre heat in °C, `{ surface, carcass }`. A race
+ * state from before SIM-6 (an old save, a hand-made test car) gets a set at the blankets' (or the air's)
+ * temperature.
+ */
+export const tyreThermalOf = (state, car, rules = stateRules(state)) => {
+  if (!car.tyreThermal) car.tyreThermal = freshSet(rules.year ?? state.year, airOf(state, state.lap || 0));
+  return car.tyreThermal;
+};
+
+/** The working window of the car's compound this season (race-tyres.json windows). */
+export const tyreWindowOf = (car, rules) => windowFor(car.compound, rules.year);
+
+/** Publish the model's heat on the car: `tyreC` (°C, F1M24-GAMEPLAY §1.7) and the 0..1 `tyreTemp` older views read. */
+const publishHeat = (car, rules) => {
+  const th = car.tyreThermal;
+  car.tyreC = { surface: th.surface, carcass: th.carcass };
+  car.tyreTemp = legacyIndexOf(th, tyreWindowOf(car, rules), THERMAL);
+};
+
+/** SIM-6: a new set on the car (a stop, a red flag): at the blankets' temperature, or the air's without them. */
+export const fitFreshSet = (state, car, rules = stateRules(state), lap = state.lap) => {
+  car.tyreThermal = freshSet(rules.year ?? state.year, airOf(state, lap));
+  // The set as fitted, for the step view (it comes on there when the car leaves its box).
+  car.tyreFitted = { surface: car.tyreThermal.surface, carcass: car.tyreThermal.carcass };
+  car.tyreSet = (car.tyreSet || 0) + 1;
+  publishHeat(car, rules);
+};
+
+/**
+ * SIM-6 (RF-SIM-03, SRS 4.2): this lap's heat, the same equation in both modes - the lap integrated in
+ * race-tyres.json `integration.dtSec` steps from the heat at the line, at the pace mode, the wake, the water
+ * and the safety car's pace. Returns the heat at the end of the lap (`next`, not yet on the car), the lap's
+ * mean and degrees out of the window (`lap`), what they cost (`cost`: seconds and extra wear) and the inputs.
+ */
+export const heatLapOf = (state, car, { lap = state.lap, wetness = 0, sc = state.safetyCar, rules = stateRules(state), dirty = 0 } = {}) => {
+  const th = tyreThermalOf(state, car, rules);
+  const window = tyreWindowOf(car, rules);
+  const inputs = heatInputs({ mode: car.mode, dirty, wetness, sc, trackC: state.trackTemp ?? TYRE_THERMAL.model.fallbackTrackC, airC: airOf(state, lap) });
+  const factor = sc ? (sc.virtual ? simBalance.safetyCar.virtualLapFactor : simBalance.safetyCar.lapFactor) : 1;
+  const next = { surface: th.surface, carcass: th.carcass };
+  const heat = lapHeat(next, inputs, state.race.baseLap * factor, window);
+  return { next, lap: heat, cost: heatCost(heat), inputs, window };
+};
 /** RNF-07: a driver's mistakes (race-eras.json mistake), lap-to-lap scatter (noise) and the start (start). */
 const MISTAKE = BALANCE.mistake;
 const NOISE = BALANCE.noise;
@@ -647,6 +689,8 @@ export const createRace = ({
   const startEvents = [];
   const order = applyGridPenalties(grid && grid.length ? grid : entrants.map((entrant) => entrant.id), gridPenalties, rules, startEvents);
   const startWet = timeline.wetness[0];
+  // SIM-6 (RF-SIM-03): every set on the grid, off the blankets (or at the air's temperature) after the formation lap.
+  const gridHeat = gridSet({ year: rules.year ?? year, airC: airOf({ weather: timeline, trackTemp }, 0), trackC: trackTemp, baseLap: race.baseLap });
   // Top-ten start tyres (2010-2013 Q3, 2014-2021 Q2): the top ten start on the tyre they qualified on, the softest.
   const qualifyingTyre = rules.tyres.topTenStartTyres !== "none" && !tyreForWetness(startWet) ? rules.tyres.compounds[0] : null;
   // Garages along the pit lane in entry order: where each team's cars stop.
@@ -696,7 +740,9 @@ export const createRace = ({
         compoundsUsed: [wetStart || plan.compounds[0]],
         tyreAge: 0,
         tyreWear: 0,
-        tyreTemp: 0.48,
+        tyreThermal: { surface: gridHeat.surface, carcass: gridHeat.carcass },
+        tyreC: { surface: gridHeat.surface, carcass: gridHeat.carcass },
+        tyreTemp: legacyIndexOf(gridHeat, windowFor(wetStart || plan.compounds[0], rules.year ?? year), THERMAL),
         fuel: refuel ? stintLengths(plan, laps)[0] : fuelStart,
         fuelMode: "standard",
         battery: hasEnergy ? 100 : null,
@@ -1023,7 +1069,7 @@ export const rivalCalls = (state, car, lap = state.lap) => {
   const nextStop = car.plan.stops.find((stop) => stop >= lap);
   const stintLeft = (nextStop ?? state.laps) - lap + 1;
   const spare = 1 - life - (stintLeft * (car.wearFactor ?? 1)) / Math.max(1, tyreSpec(car.compound, rules).life);
-  if (car.tyreTemp > 0.74 || life > 0.92) car.mode = "save";
+  if (hotForSave(gripC(tyreThermalOf(state, car, rules)), tyreWindowOf(car, rules)) || life > 0.92) car.mode = "save";
   else if (car.outLap) car.mode = "push";
   else if (stuck && remaining > 3) car.mode = ai.cleanAirMode;
   else if (defending && !attacking && life > ai.defendTyreLife && remaining > 3) car.mode = "normal";
@@ -1188,13 +1234,14 @@ export const lapBudget = (state, car, { lap = state.lap, wetness, sc = state.saf
   const mix = mixEffect(car.fuelMode);
   const pace = car.pace[climate] ?? car.pace.dry;
 
-  // Tyres: their heat at the start of the lap decides how they grip and wear.
-  const overheat = Math.max(0, car.tyreTemp - THERMAL.overheatAbove);
-  const cold = Math.max(0, THERMAL.coldBelow - car.tyreTemp);
+  // Tyres: their heat through the lap, in °C (SIM-6, engine/tyres/thermal.js), decides how they grip and wear.
   const dirty = car.gapAhead !== null && car.gapAhead !== undefined && car.gapAhead < 1 && lap > 1 && !sc ? 1 - car.gapAhead : 0;
+  const heat = heatLapOf(state, car, { lap, wetness, sc, rules, dirty });
+  // The mistake chance reads the cold in its own unit (race-tyres.json gripCurve.mistakeColdPerC).
+  const cold = heat.lap.coldC * TYRE_THERMAL.gripCurve.mistakeColdPerC;
   const wing = car.wing ?? 0;
   const wearRate =
-    car.wearFactor * mode.wear * (1 + overheat * THERMAL.overheatWear + dirty * THERMAL.dirtyWear + Math.max(0, -wing) * THERMAL.negativeWingWear) * (1 + (trackTemp - THERMAL.trackRefC) * THERMAL.trackWearPerC);
+    car.wearFactor * mode.wear * (1 + heat.cost.wear + dirty * THERMAL.dirtyWear + Math.max(0, -wing) * THERMAL.negativeWingWear) * (1 + (trackTemp - THERMAL.trackRefC) * THERMAL.trackWearPerC);
   car.tyreWear += wearRate * (sc ? THERMAL.scWear : 1);
   const tyre = isWetTyre(car.compound)
     ? tyreTime({ compound: car.compound, age: car.tyreAge, wetness, era: rules, baseLap })
@@ -1214,7 +1261,7 @@ export const lapBudget = (state, car, { lap = state.lap, wetness, sc = state.saf
     energyTime = step.time;
   }
 
-  const thermal = cold * THERMAL.coldSecPerUnit + overheat * THERMAL.overheatSecPerUnit;
+  const thermal = heat.cost.time;
   // Dirty air, and in the wet the spray of the car ahead (race-weather.json spray; the step sim applies it by distance).
   const spray = sc || lap <= 1 ? 0 : sprayLossOf(depthOfWetness(wetness), car.gapAhead);
   const wake = dirty * rules.dirtyAir + spray;
@@ -1225,7 +1272,7 @@ export const lapBudget = (state, car, { lap = state.lap, wetness, sc = state.saf
     baseLap - pace * spp + tyre + fuel + mode.time + mix.time + energyTime + thermal + evolution + car.setup + car.damage + car.issue + (car.form || 0) * baseLap -
     wing * wetness * baseLap * 0.012;
   car.expected = expected;
-  return { expected, wake, volatility, dirty, cold, wing, wetness, mix, energyTime, spray, rubber: state.evolution || 0 };
+  return { expected, wake, volatility, dirty, cold, wing, wetness, mix, energyTime, spray, rubber: state.evolution || 0, heat };
 };
 
 /**
@@ -1250,18 +1297,20 @@ export const rollMistake = (car, { wetness, wing, cold, rubber = 0 }, stream) =>
   return kind;
 };
 
-/** The end of a car's lap: tyre age, fuel burnt (or the stint's lap of it), tyre heat drifting toward what the driving asks. */
-export const endLapWear = (state, car, plan, { wetness, sc = state.safetyCar, rules = stateRules(state) } = {}) => {
-  const trackTemp = state.trackTemp ?? 30;
+/** The end of a car's lap: tyre age, fuel burnt (or the stint's lap of it), the tyre's heat at the end of the lap (SIM-6). */
+export const endLapWear = (state, car, plan, { wetness, sc = state.safetyCar, rules = stateRules(state), lap = state.lap } = {}) => {
   car.tyreAge += 1;
   if (rules.refuelling) car.fuel = Math.max(0, car.fuel - 1);
   else car.fuel -= plan.mix.burn * (MODES[car.mode]?.burn ?? MODE_BURN[car.mode] ?? 1) * (sc ? SC_BURN : 1);
 
-  // Temperature drifts toward what the driving asks of it.
-  const target = sc
-    ? THERMAL.scTarget
-    : TEMP_TARGET[car.mode] + plan.dirty * THERMAL.driftDirtyGain + (trackTemp - THERMAL.trackRefC) / THERMAL.driftTrackDivisor - wetness * THERMAL.driftWetCool;
-  car.tyreTemp = clamp(car.tyreTemp + (target - car.tyreTemp) * THERMAL.driftRelax, THERMAL.min, THERMAL.max);
+  // SIM-6: the heat the lap left in the tyre (lapBudget's integration, or the same one now for a caller without it).
+  const heat = plan.heat || heatLapOf(state, car, { lap, wetness, sc, rules, dirty: plan.dirty || 0 });
+  car.tyreThermal = heat.next;
+  // The lap's mean and its heat inputs: the cold-tyre pass bonus reads the mean, the step view the inputs.
+  car.tyreLap = {
+    meanC: heat.lap.meanC, coldC: heat.lap.coldC, hotC: heat.lap.hotC, q: heat.inputs.q, airC: heat.inputs.airC, trackC: heat.inputs.trackC, neutral: heat.inputs.neutral,
+  };
+  publishHeat(car, rules);
 };
 
 /** Race control watches the lights (RF-SIM-10): a jump start is investigated. */
@@ -1344,7 +1393,7 @@ export const applyPitStop = (state, car, decision, stop, { lap = state.lap, queu
     if (!car.compoundsUsed.includes(decision.compound)) car.compoundsUsed.push(decision.compound);
     car.tyreAge = 0;
     car.tyreWear = 0;
-    car.tyreTemp = outLapTemp(rules);
+    fitFreshSet(state, car, rules, lap);
   }
   car.stops += 1;
   car.lastPitLap = lap;
@@ -1733,8 +1782,9 @@ export const redFlagTyres = (state, running, wetness = 0, lap = state.lap) => {
       car.pitRequest = null;
     });
   }
+  // SIM-6: in the red-flag pit lane every set goes back on the blankets (or cools to the air without them).
   running.forEach((car) => {
-    car.tyreTemp = rules.tyres.outLapTemp;
+    fitFreshSet(state, car, rules);
   });
 };
 
@@ -2164,7 +2214,7 @@ const resolveTraffic = (state, running, beforeIndex, stream, wetness) => {
     const defend = energyPush(rules, ahead).defend;
     const passChance = passChanceOf({
       overtaking: profile.overtaking ?? 0.55, delta, drs: drs ? drsBonus : 0, skill: passSkillTerm(car, ahead), style: duelStyleTerm(car, ahead), wetness, attack, defend,
-      aheadColdTyre: ahead.tyreTemp < 0.38, yellow,
+      aheadColdTyre: coldForPass(ahead.tyreLap ? ahead.tyreLap.meanC : gripC(tyreThermalOf(state, ahead, rules)), tyreWindowOf(ahead, rules)), yellow,
     });
     if (stream.chance(passChance)) {
       const corner = spotOn(state, stream, "pass");
@@ -2235,7 +2285,7 @@ export const radioFor = (state, car, wetness, lap = state.lap) => {
   else if (wanted === "wet" && car.compound === "inter" && wetness > 0.72) pushRadio(state, car, "box-wet", { compound: "wet" }, lap);
   else if (!wanted && isWetTyre(car.compound) && wetness < 0.16) pushRadio(state, car, "box-dry", {}, lap);
   else if (!isWetTyre(car.compound) && tyreLifeUsed(car, rules) > 1 && remaining > 5) pushRadio(state, car, "cliff", {}, lap);
-  if (car.tyreTemp > 0.76) pushRadio(state, car, "hot", {}, lap);
+  if (hotForRadio(gripC(tyreThermalOf(state, car, rules)), tyreWindowOf(car, rules))) pushRadio(state, car, "hot", {}, lap);
   if (!rules.refuelling && car.fuel < remaining * (MIXES[car.fuelMode]?.burn ?? 1) + 0.15 && remaining > 1) {
     pushRadio(state, car, "fuel", { short: Math.round((remaining - car.fuel) * 10) / 10 }, lap);
   }

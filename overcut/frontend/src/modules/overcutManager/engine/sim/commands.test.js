@@ -57,7 +57,9 @@ describe("RF-CMD-01/02: every order changes the race", () => {
     ["setErs deploy", [[200, "setErs", user[0], "deploy"]]],
     ["setDefence block", [[30, "setDefence", user[0], "block"], [30, "setDefence", user[1], "block"]]],
     ["setOvertakeRisk high", [[30, "setOvertakeRisk", user[0], "high"], [30, "setOvertakeRisk", user[1], "high"]]],
-    ["setTeamOrder swap", [[30, "setTeamOrder", given.entrants.find((entrant) => entrant.isUser).teamId, "swap"]]],
+    // Given before the first corner, where the two cars start side by side at the back (SIM-6: after 30 s the
+    // new tyre heat leaves them apart all race, so a later order is never obeyed and changes nothing).
+    ["setTeamOrder swap", [[5, "setTeamOrder", given.entrants.find((entrant) => entrant.isUser).teamId, "swap"]]],
   ])("%s", (_, orders) => {
     const changed = play(args, orders);
     expect(fingerprint(changed)).not.toBe(baseLine);

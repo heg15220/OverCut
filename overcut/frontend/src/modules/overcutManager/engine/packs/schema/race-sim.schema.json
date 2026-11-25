@@ -265,7 +265,6 @@
         "wet",
         "wetFrom",
         "coldTyre",
-        "coldTyreTemp",
         "min",
         "max",
         "thirdCarFactor",
@@ -318,9 +317,6 @@
           "$ref": "#/definitions/share"
         },
         "coldTyre": {
-          "$ref": "#/definitions/share"
-        },
-        "coldTyreTemp": {
           "$ref": "#/definitions/share"
         },
         "min": {

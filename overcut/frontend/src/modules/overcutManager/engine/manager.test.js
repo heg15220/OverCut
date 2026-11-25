@@ -148,13 +148,16 @@ describe("a season and the next", () => {
     const quote = projectQuote(career, { area: "aero", size: "medium" });
     expect(quote.cost).toBeGreaterThan(0);
     expect(startProject(career, { area: "aero", size: "medium" }).ok).toBe(true);
-    const before = career.world.teams.williams.car.aero;
     playSeason(career);
     expect(career.phase === PHASES.REVIEW || career.ended).toBeTruthy();
     expect(career.season.results.length).toBe(career.world.races.length);
     expect(driverStandings(career)[0].total).toBeGreaterThan(0);
     expect(career.history).toHaveLength(1);
-    expect(career.world.teams.williams.car.aero).not.toBe(before);
+    // The aero project was finished and fitted (its gain on the car); the car's aero then drifts with the
+    // season's development and events, so its end value can land back on the start one (it did after SIM-6
+    // moved the races: 75.6 -> 77.2 -> 75.6), which says nothing about the project.
+    const fitted = career.inbox.find((entry) => entry.kind === "rd-done" && entry.area === "aero");
+    expect(fitted && fitted.gain).toBeGreaterThan(0);
     if (career.ended) return;
     openOffseason(career);
     expect(nextAction(career).kind).toBe("new-season");

@@ -75,7 +75,6 @@
     "wet": 0.06,
     "wetFrom": 0.3,
     "coldTyre": 0.12,
-    "coldTyreTemp": 0.38,
     "min": 0.02,
     "max": 0.9,
     "thirdCarFactor": 0.5,

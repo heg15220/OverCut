@@ -1,0 +1,101 @@
+{
+  "$comment": "SIM-6 (termica-neumatico, docs/manager/F1M24-GAMEPLAY.md §2.8; RF-SIM-03, RF-SIM-07, RNF-07): temperatura del neumático en °C con dos nodos (superficie y carcasa), engine/tyres/thermal.js. La usan los dos modos con la misma ecuación (SRS 4.2): el modo rápido integra la vuelta en pasos de integration.dtSec y el simulador por pasos integra sus pasos de 0,25 s para la vista (tyreC). Esquema: engine/packs/schema/race-tyres.schema.json. Fuentes: OpenF1 (laps + stints de las carreras de Baréin 2023 y 2024 y España 2024) para la pérdida de la vuelta de salida; Pirelli para la manta de 2024. Las constantes térmicas y las ventanas son NV (status pending): se eligieron para que la pérdida medida en OpenF1 salga y para que los ritmos queden en ventana como antes (sin copiar los °C de F1 Manager 24, §1.6).",
+  "version": 1,
+  "integration": {
+    "$comment": "Paso del modo rápido al integrar una vuelta (s). El simulador por pasos usa su propio dt.",
+    "dtSec": 0.5
+  },
+  "model": {
+    "$comment": "dTs/dt = q·carga − airLoss·(Ts − Taire) − trackLoss·(Ts − Tpista) − surfaceToCarcass·(Ts − Tc); dTc/dt = carcassFromSurface·(Ts − Tc) − carcassLoss·(Tc − Taire). q = surfaceHeatCPerSec × paceHeat × (1 + aire sucio × dirtyAirHeat) × neutralHeat × (1 − mojado × wet.heatCut). Grip a gripC = superficie × (1 − gripCarcassShare) + carcasa × gripCarcassShare. airBelowTrackC solo si el clima no da el aire de la vuelta; fallbackTrackC si la carrera no tiene temperatura de pista. Los sumideros ven el aire y la pista acercados a su referencia (ambientRef*C) por ambientShare: un modelo lineal pondría el neumático 1:1 con el ambiente, y en pista el piloto y el reglaje compensan buena parte (la escala anterior daba ~0,35 °C por °C de pista); un juego nuevo sale con el aire real. Constantes NV: superficie con constante de tiempo ~33 s y carcasa ~70 s.",
+    "status": "pending",
+    "surfaceHeatCPerSec": 1.57,
+    "airLossPerSec": 0.012,
+    "trackLossPerSec": 0.008,
+    "surfaceToCarcassPerSec": 0.01,
+    "carcassFromSurfacePerSec": 0.012,
+    "carcassLossPerSec": 0.002,
+    "gripCarcassShare": 0.5,
+    "airBelowTrackC": 8,
+    "fallbackTrackC": 30,
+    "ambientShare": 0.4,
+    "ambientRefTrackC": 30,
+    "ambientRefAirC": 22
+  },
+  "paceHeat": {
+    "$comment": "Multiplicador del calor por modo de ritmo (RF-CMD-01). NV: elegido para que conservar quede en el borde frío de la ventana y atacar en el borde caliente, como la escala 0..1 anterior.",
+    "status": "pending",
+    "conserve": 0.9,
+    "save": 0.95,
+    "normal": 1,
+    "push": 1.06,
+    "attack": 1.1
+  },
+  "dirtyAirHeat": 0.1,
+  "neutralHeat": {
+    "$comment": "Calor tras el coche de seguridad y con VSC (fracción del de carrera). NV.",
+    "status": "pending",
+    "sc": 0.6,
+    "vsc": 0.7
+  },
+  "wet": {
+    "$comment": "Con agua: menos calor (heatCut × mojado) y una pista más fría (trackDropC × mojado). NV.",
+    "status": "pending",
+    "heatCut": 0.45,
+    "trackDropC": 12
+  },
+  "load": {
+    "$comment": "Solo en el simulador por pasos: carga del paso = latWeight·|g lateral| + lonWeight·|g longitudinal| + floor, dividida por su media de la vuelta anterior (la vuelta sigue sumando lo mismo que en el modo rápido).",
+    "latWeight": 1,
+    "lonWeight": 0.6,
+    "floor": 0.3
+  },
+  "formation": {
+    "$comment": "Vuelta de formación antes de la salida: lapFactor vueltas base de duración, heat el calor de zigzaguear. NV.",
+    "status": "pending",
+    "lapFactor": 1.35,
+    "heat": 1.1
+  },
+  "blankets": [
+    { "from": 1950, "to": 1994, "allowed": false, "status": "pending", "note": "Sin mantas en el modelo (el neumático sale a la temperatura del aire), como la escala anterior (outLapTemp 0,22 hasta 1994). Por verificar el año real de su uso general y el reglamento FIA de cada año." },
+    { "from": 1995, "to": 2020, "allowed": true, "tempC": 95, "status": "pending", "note": "De memoria: mantas a ~100 °C delante y ~80-100 °C detrás según el proveedor; media de un juego. Por verificar con las notas de Pirelli, Bridgestone, Michelin y Goodyear." },
+    { "from": 2021, "to": 2021, "allowed": true, "tempC": 90, "status": "pending", "note": "De memoria: 100 °C delante y 80 °C detrás (Pirelli 2021). Por verificar." },
+    { "from": 2022, "to": 2023, "allowed": true, "tempC": 70, "status": "pending", "note": "De memoria: 70 °C (Pirelli, 18 pulgadas). Por verificar." },
+    { "from": 2024, "to": 2024, "allowed": true, "tempC": 70, "source": "Pirelli 2024 (70 °C, F1M24-GAMEPLAY §2.8)" },
+    { "from": 2025, "to": 2026, "allowed": true, "tempC": 70, "status": "pending", "note": "Se mantiene la de 2024 hasta leer las notas de Pirelli de 2025 y 2026." }
+  ],
+  "windows": [
+    {
+      "from": 1950,
+      "to": 2026,
+      "status": "pending",
+      "note": "Ventanas de trabajo (°C de gripC) por compuesto, NV: de memoria, del orden de los rangos que publica Pirelli, sin distinguir proveedor ni era. Por verificar por proveedor (Goodyear, Bridgestone, Michelin, Pirelli) y año.",
+      "compounds": {
+        "dry": [86, 104],
+        "soft": [86, 99.5],
+        "medium": [86.5, 104],
+        "hard": [87, 108],
+        "inter": [50, 105],
+        "wet": [40, 100]
+      }
+    }
+  ],
+  "gripCurve": {
+    "$comment": "Coste por grado fuera de la ventana: tiempo (s/°C bajo y sobre) y desgaste (× (1 + hotWearPerC × °C sobre)); mistakeColdPerC pasa los °C bajo la ventana a la unidad que lee race-eras.json mistake.coldGain (la escala 0..1 anterior: 0,32 de índice por ~16 °C de ventana). Del orden de la escala 0..1 anterior (3,2 s, 2,5 s y 2,2 por unidad ≈ 0,04 / 0,032 / 0,028 por °C), con coldSecPerC = 0,04 y ventanas que hacen que la vuelta de salida con manta de 2024 cueste lo que mide OpenF1: la pérdida de S2 + S3 de esa vuelta (0 a +0,25 s) más la ganancia de goma nueva que la vuelta lanzada sí muestra en S2 + S3 (−0,17 a −0,27 s), 0,2-0,6 s fuera del pit lane.",
+    "coldSecPerC": 0.04,
+    "hotSecPerC": 0.032,
+    "hotWearPerC": 0.028,
+    "mistakeColdPerC": 0.02
+  },
+  "calls": {
+    "$comment": "Umbrales de decisión sobre la ventana (°C de gripC): bonus de rueda fría al que ataca (passColdBelowC por debajo del inicio), la IA rival que pide ahorrar (saveAboveC por encima del final) y el aviso de radio (radioHotAboveC). Equivalen a los 0,38 / 0,74 / 0,76 que había en race.js sobre la escala 0..1.",
+    "passColdBelowC": 1.6,
+    "saveAboveC": 1.6,
+    "radioHotAboveC": 3.2
+  },
+  "calibration": {
+    "$comment": "Lo que mide engine/tyres/thermal.test.js. OpenF1 (api.openf1.org laps + stints, sesiones 7953, 9472 y 9539): tras una parada con mantas de 70 °C, la vuelta de salida pierde en S2 + S3 frente a las vueltas +3..+6 de 0 a +0,25 s (mediana) y la primera vuelta lanzada ya es más rápida que ellas (−0,29 a −0,41 s: goma nueva, sin pérdida térmica visible). Pérdida térmica = pérdida de S2 + S3 de la vuelta de salida + la ganancia de goma nueva de la primera lanzada en S2 + S3 (≈ 0,3-0,45 s). El modelo debe dar en 2024 una pérdida térmica de la vuelta de salida entre outLapLossSec[0] y [1] y menos de flyingLapLossSec en la siguiente.",
+    "source": "OpenF1 laps/stints: Baréin 2023 (7953), Baréin 2024 (9472), España 2024 (9539); 128 tandas de 10 vueltas o más tras una parada",
+    "outLapLossSec": [0.2, 0.6],
+    "flyingLapLossSec": 0.05
+  }
+}

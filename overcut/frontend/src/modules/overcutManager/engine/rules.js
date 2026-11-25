@@ -121,7 +121,6 @@ const resolve = (eraOrYear) => {
       mandatoryDryCompounds: regs.mandatoryDryCompounds || 0,
       topTenStartTyres: regs.topTenStartTyres || "none",
       scale: byYear(balance.tyres.eraScale, year),
-      outLapTemp: byYear(balance.tyres.outLapTemp, year).value,
     },
     qualifying: {
       formats: qualifyingFormats,
