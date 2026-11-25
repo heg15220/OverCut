@@ -225,3 +225,23 @@
 }
 .lv-tyretemp .is-info { color: var(--mn-info, inherit); }
 .lv-tyretemp__trend { font-variant-numeric: tabular-nums; }
+
+/* HUD-7 (danos-visibles): the damage tag by the driver's name and the damage row; words always (RNF-09). */
+.lv-damage-tag {
+  margin-left: var(--mn-s-2);
+  vertical-align: middle;
+}
+.lv-damage-tag.is-warn {
+  border-color: var(--mn-warn);
+  color: var(--mn-warn);
+}
+.lv-damage-tag.is-bad {
+  border-color: var(--mn-neg);
+  color: var(--mn-neg);
+}
+.lv-damage .lv-ctl__value {
+  flex-wrap: wrap;
+}
+.lv-damage__advice {
+  font-weight: 600;
+}

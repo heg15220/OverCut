@@ -55,6 +55,13 @@
  * each car's tyreC {surface, carcass} (§1.7, SIM-6) your panel shows it in °C with its trend on the race clock
  * and the warning against the compound's window (race-tyres.json windowC, or the engine's own); without it,
  * the 0..1 meter on the engine's window as before - no conversion is invented (§1.5).
+ *
+ * Tactics and damage (HUD-7, tacticas and danos-visibles; tacticsHud.js, hud.json driverPanel.tactics/damage): the
+ * tactics tab offers what the era's commandsFor allows and the engine behind the view takes (the worker's COMMANDS,
+ * race.js's exports in the quick mode): defence and overtaking risk, and avoid kerbs, clean air and the battle
+ * energy assist (only with KERS or ERS) through setTactics once SIM-7 has it. Your card shows the car's damage in
+ * words with its loss a lap (§1.7 damage, or the engine's own front-wing loss and puncture before SIM-7) and when to
+ * change the nose, at the engine's own repair threshold.
  */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -62,7 +69,9 @@ import {
   cancelPit, commandsFor, delayStop, drsOpen, energyEra, mixEffect, requestPit, rulesOf, runToFinish, setErs, setMix, setMode, setTeamOrder, skipStop,
   stepLap, tyreLifeUsed,
 } from "../engine/race";
+import * as RACE from "../engine/race";
 import { DEFENCE_KEYS, RISK_KEYS } from "../engine/sim";
+import { COMMANDS as STEP_COMMANDS } from "../engine/worker/raceSession";
 import { applyTick, createRaceClient, mirrorOf } from "../engine/worker/raceClient";
 import { circuitFor } from "../engine/venue";
 import { useManager } from "./context";
@@ -72,6 +81,7 @@ import { TYRE_TEMP, createTempTrend, loadRaceTyres, mirrorTyreC, pushTempSample,
 import { createBannerQueue, currentBanner, drsBanners, drsCalls, eventBanners, lapCallouts, offerBanners } from "./hudBanners";
 import { createPitClock, stepPitClock } from "./pitTimer";
 import PitDialog from "./PitDialog";
+import { TACTIC_HINT, TACTIC_LABEL, adviceText, damageLines, damageOf, damageVerdict, engineSupports, lossText, mirrorDamage, tacticValue, tacticsFor, tacticsPatch } from "./tacticsHud";
 import RACE_ERAS from "../data/balance/race-eras.json";
 import { tvShotOf } from "./tvDirector";
 import { hasSectorTimes, incidentOf, lapSectorsOf, lastLapOf, raceInLap, raceOutLap, stopsOf, towerModeName, towerModesFor, yellowFlag } from "./tower";
@@ -140,8 +150,24 @@ const NEXT_TYPES = LIVE_VIEW.nextEvent.race;
 
 // ------------------------------------------------------------------ sources
 
+/**
+ * HUD-7: race.js orders the quick mode may have (SIM-7 tacticas: defence, overtaking risk and setTactics in both
+ * modes). Read by name so the view builds before they exist; absent = not offered.
+ */
+const OPTIONAL_QUICK = ["setTactics", "setDefence", "setOvertakeRisk"];
+
 /** The quick-mode orders by name (race.js setters), for a replayed quick race. */
-const QUICK_COMMANDS = { setMode, setMix, setErs, requestPit, cancelPit, delayStop, skipStop, setTeamOrder };
+const QUICK_COMMANDS = {
+  setMode,
+  setMix,
+  setErs,
+  requestPit,
+  cancelPit,
+  delayStop,
+  skipStop,
+  setTeamOrder,
+  ...Object.fromEntries(OPTIONAL_QUICK.map((name) => [name, RACE[name]]).filter(([, fn]) => typeof fn === "function")),
+};
 
 /**
  * A quick-mode race (race.js), run lap by lap just ahead of the pictures and replayed
@@ -192,6 +218,7 @@ const quickSource = (state) => {
     vsc: () => null,
     engineSafetyCar: () => ({ sc: null, lap: null, tolerance: 1e-6 }),
     command: (name, ...args) => QUICK_COMMANDS[name]?.(state, ...args),
+    supports: engineSupports(QUICK_COMMANDS),
     next: (tau) => {
       for (let guard = 0; guard < 80; guard += 1) {
         ensure(tau);
@@ -295,6 +322,8 @@ const stepSource = (client, mirror) => {
     vsc: (tau) => liveVscAt(mirror, tau),
     engineSafetyCar: () => ({ sc: mirror.safetyCar || null, lap: mirror.lap ?? null, tolerance: mirror.dt ?? 0 }),
     command: (name, ...args) => client.command(name, ...args),
+    // HUD-7: the worker throws on an order it does not know, so the view only offers the ones it has.
+    supports: engineSupports(STEP_COMMANDS),
     next: () => awaitJump("next", () => client.next(NEXT_TYPES)),
     oneLap: () => awaitJump("lap", () => client.lap()),
     toFlag: () => awaitJump("finish", () => client.finish()),
@@ -361,6 +390,8 @@ function LiveStepRace({ args, onFinished, title }) {
           if (vsc !== undefined) mirror.vsc = vsc;
           // HUD-6 (§1.7 tyreC[i], SIM-6): the tyre in °C per car when the engine sends it; absent = as before.
           mirrorTyreC(mirror, view);
+          // HUD-7 (§1.7 damage[i], SIM-7): each car's damage when the engine sends it; absent = as before.
+          mirrorDamage(mirror, view);
         }
         current.replied(reply);
       },
@@ -988,6 +1019,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
               energy={energy}
               command={command}
               steps={source.steps}
+              supports={source.supports}
               pitThisLap={(((rowOf[car.id]?.pose?.progress ?? 0) % 1) + 1) % 1 < circuit.pit.entry}
               focused={focusId === car.id}
               onFocus={() => setFocusId(car.id)}
@@ -1079,6 +1111,29 @@ const pitFuelDefault = (state, car) => {
   return Math.max(1, Math.min(remaining + 1, (after ?? state.laps) - state.lap));
 };
 
+/**
+ * HUD-7 danos-visibles: the car's damage on the status tab - every damaged part in words with its state and loss a
+ * lap, the puncture, the total, and the advice (change the nose, box for the puncture) with the pit options.
+ */
+function DamageRow({ damage, verdict, advice, onPitDialog }) {
+  const lines = damageLines(damage);
+  return (
+    <div className="lv-ctl lv-damage" data-testid="damage-row" data-tone={verdict.tone}>
+      <span>{t("Daños", "Damage")}</span>
+      <div className="lv-ctl__value">
+        <b className={verdict.tone === "bad" ? "is-bad" : "is-warn"}>{Number.isFinite(damage.lossSecPerLap) ? lossText(damage.lossSecPerLap) : damage.puncture ? t("Pinchazo", "Puncture") : t("Con daños", "Damaged")}</b>
+        <small>{lines.map((line) => line.text).join(" · ")}</small>
+        {advice && <small className="lv-damage__advice">{advice}</small>}
+        {onPitDialog && (
+          <button type="button" className="mn-btn mn-btn--sm mn-btn--ghost" onClick={onPitDialog}>
+            {t("Opciones de parada", "Pit options")}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /** The panel's tab names (HUD-3 driver-panel-units, hud.json driverPanel.tabs). */
 const PANEL_TAB = {
   status: () => t("Estado", "Status"),
@@ -1102,7 +1157,7 @@ const PANEL_TAB = {
  * may not be changed) and "Pit options" opens the pit dialog (PitDialog, which pauses the
  * session). Every order goes through `command` (the race worker for a step race).
  */
-function DriverCard({ car, row, state, commands, energy, command, steps, pitThisLap, focused, onFocus, onPitDialog, flag = null, vscDelta = null, clock = 0 }) {
+function DriverCard({ car, row, state, commands, energy, command, steps, supports = null, pitThisLap, focused, onFocus, onPitDialog, flag = null, vscDelta = null, clock = 0 }) {
   const PANEL = HUD.driverPanel;
   const tabs = PANEL.tabs.filter((tab) => tab !== "telemetry" || steps);
   const [tabPick, setTab] = useState(PANEL.defaultTab);
@@ -1140,6 +1195,12 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
   const mixKeys = commands.fuelMix.filter((key) => MIX[key]);
   const energyModes = commands.energy.filter((key) => ERS[key]);
   const hasBattery = car.battery !== null && car.battery !== undefined && energyModes.length > 0;
+  // HUD-7 tacticas: the era's tactics the engine takes (setDefence / setOvertakeRisk / setTactics).
+  const tactics = tacticsFor({ commands, supports: supports || ((name) => steps && (name === "setDefence" || name === "setOvertakeRisk")), energyModes: hasBattery ? energyModes : [], defenceKeys: DEFENCE_KEYS, riskKeys: RISK_KEYS });
+  // HUD-7 danos-visibles: the car's damage and what to do about it (the era's stop changes the nose: commands.pit.frontWing).
+  const damage = damageOf(car);
+  const damageCall = damageVerdict(damage, { canChangeWing: Boolean(commands.pit.frontWing), pitCalled: Boolean(car.pitRequest) && car.pitRequest.frontWing !== false });
+  const damageAdvice = adviceText(damageCall);
   const nextStop = nextStopOf(state, car);
   const nextCompound = car.plan.compounds[Math.min(car.plan.compounds.length - 1, (car.stint ?? 0) + 1)];
   const defaultFuel = pitFuelDefault(state, car);
@@ -1155,7 +1216,14 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
       <button type="button" className="lv-card__head" onClick={onFocus}>
         <span className="lv-card__pos">{position}</span>
         <i className="lv-card__stripe" style={{ "--stripe": readableOn(car.color) }} aria-hidden="true" />
-        <span className="lv-card__name">{car.name}</span>
+        <span className="lv-card__name">
+          {car.name}
+          {running && damage && (
+            <span className={`lv-flagword lv-damage-tag is-${damageCall.tone}`} data-testid="damage-tag" title={damageLines(damage).map((line) => line.text).join(" · ")}>
+              {damage.puncture ? t("Pinchazo", "Puncture") : t("Daños", "Damage")}
+            </span>
+          )}
+        </span>
         {commands.drs ? <span className={`lv-flagword${drs ? " is-on" : ""}`}>DRS</span> : commands.activeAero ? <span className="lv-flagword">{t("Aero", "Aero")}</span> : <span />}
         <span className="lv-card__lap">{car.lastLap ? lapTime(car.lastLap) : ""}</span>
       </button>
@@ -1189,6 +1257,7 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
                   {!tyreVerdict && <small>{temp.label}</small>}
                 </div>
               </div>
+              {damage && <DamageRow damage={damage} verdict={damageCall} advice={damageAdvice} onPitDialog={!car.pitRequest && damageCall.advice ? onPitDialog : null} />}
               <div className="lv-ctl">
                 <span>{t("Combustible", "Fuel")}</span>
                 <div className="lv-ctl__value">
@@ -1250,18 +1319,32 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
                   <Dots label={energy === "kers" ? "KERS" : "ERS"} value={car.ersMode} onChange={(mode) => command("setErs", car.id, mode)} options={energyModes.map((mode) => ({ value: mode, label: ERS[mode]() }))} />
                 </div>
               )}
-              {steps && (
-                <>
-                  <div className="lv-ctl">
-                    <span>{t("Defensa", "Defence")}</span>
-                    <Dots label={t("Defensa", "Defence")} value={car.defence} onChange={(style) => command("setDefence", car.id, style)} options={DEFENCE_KEYS.map((style) => ({ value: style, label: DEFENCE[style]() }))} />
-                  </div>
-                  <div className="lv-ctl">
-                    <span>{t("Ataque", "Attack")}</span>
-                    <Dots label={t("Riesgo al adelantar", "Overtaking risk")} value={car.overtakeRisk} onChange={(level) => command("setOvertakeRisk", car.id, level)} options={RISK_KEYS.map((level) => ({ value: level, label: RISK[level]() }))} />
-                  </div>
-                </>
+              {tactics.defence.some((style) => DEFENCE[style]) && (
+                <div className="lv-ctl">
+                  <span>{t("Defensa", "Defence")}</span>
+                  <Dots label={t("Defensa", "Defence")} value={car.defence} onChange={(style) => command("setDefence", car.id, style)} options={tactics.defence.filter((style) => DEFENCE[style]).map((style) => ({ value: style, label: DEFENCE[style]() }))} />
+                </div>
               )}
+              {tactics.overtakeRisk.some((level) => RISK[level]) && (
+                <div className="lv-ctl">
+                  <span>{t("Ataque", "Attack")}</span>
+                  <Dots label={t("Riesgo al adelantar", "Overtaking risk")} value={car.overtakeRisk} onChange={(level) => command("setOvertakeRisk", car.id, level)} options={tactics.overtakeRisk.filter((level) => RISK[level]).map((level) => ({ value: level, label: RISK[level]() }))} />
+                </div>
+              )}
+              {tactics.toggles.map((key) => (
+                <div className="lv-ctl" key={key} title={TACTIC_HINT[key]()} data-tactic={key}>
+                  <span>{TACTIC_LABEL[key]()}</span>
+                  <Segmented
+                    label={TACTIC_LABEL[key]()}
+                    value={tacticValue(car, key) ? "on" : "off"}
+                    onChange={(value) => command("setTactics", car.id, tacticsPatch(car, tactics.toggles, key, value === "on"))}
+                    options={[
+                      { value: "off", label: t("No", "Off") },
+                      { value: "on", label: t("Sí", "On") },
+                    ]}
+                  />
+                </div>
+              ))}
             </>
           )}
           {tab === "telemetry" && (
@@ -1325,6 +1408,15 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
                       {stopWindow.open}–{stopWindow.close}
                     </b>
                     {Number.isFinite(stopWindow.optimal) && <small>{t(`óptima V${stopWindow.optimal}`, `optimal L${stopWindow.optimal}`)}</small>}
+                  </div>
+                </div>
+              )}
+              {damageAdvice && (
+                <div className="lv-ctl" data-testid="damage-advice">
+                  <span>{t("Daños", "Damage")}</span>
+                  <div className="lv-ctl__value">
+                    <b className={damageCall.tone === "bad" ? "is-bad" : "is-warn"}>{damageAdvice}</b>
+                    {Number.isFinite(damage.lossSecPerLap) && <small>{lossText(damage.lossSecPerLap)}</small>}
                   </div>
                 </div>
               )}
