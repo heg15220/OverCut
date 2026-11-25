@@ -51,8 +51,8 @@ describe("SIM-6 race-tyres.json", () => {
     for (let year = 1950; year <= 2026; year += 1) {
       const blankets = blanketsFor(year);
       expect(blankets.allowed).toBe(year >= 1995);
-      if (blankets.allowed) expect(Number.isFinite(blankets.tempC)).toBe(true);
-      else expect(blankets.tempC).toBeNull();
+      // With blankets a finite °C; without them, null.
+      expect(blankets.allowed ? Number.isFinite(blankets.tempC) : blankets.tempC === null).toBe(true);
       ["dry", "soft", "medium", "hard", "inter", "wet"].forEach((compound) => {
         const [lo, hi] = windowFor(compound, year);
         expect(hi).toBeGreaterThan(lo);
