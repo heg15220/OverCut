@@ -591,7 +591,7 @@ function Qualifying({ rules, onLive }) {
           </details>
         </Panel>
         <Panel title={t("El circuito", "The circuit")}>
-          <CircuitCard race={currentRace(career)} year={career.year} preview3D drs={rules.drs.enabled} />
+          <CircuitCard race={currentRace(career)} year={career.year} era={eraOf(career)} crew={career.staff?.operations?.rating} preview3D drs={rules.drs.enabled} />
         </Panel>
       </div>
     </div>
