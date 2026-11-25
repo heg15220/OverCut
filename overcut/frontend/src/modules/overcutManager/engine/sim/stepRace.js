@@ -84,10 +84,14 @@ import { WEATHER_BALANCE, gripRatio, sprayLossOf, weatherSnapshot } from "../wea
 import { POWERTRAIN, coastDecel, coastPlan, createDrive, curvatureBins, driveSnapshot, launchAccel, powertrainFor, updateDrive } from "./powertrain";
 import { ENERGY, cellsFor, energyPlanOf, ersSpecOf, fuelEraOf, fuelFlowOf, lapDeployOf, referenceDeployOf, storeKwAt, traceDriveOf } from "../energy";
 import { SC_BALANCE, neutralAfter, neutralLeader, neutralLine, neutralStep, pitClosedFor, scLimit, scRateCap, scSnapshot, unlapExempt, vscDeltaStep, vscRate, vscSnapshot } from "./safetyCar";
+import { TYRE_THERMAL, heatStep, legacyIndexOf, loadOf, windowFor } from "../tyres/thermal";
 
 export const SIM_BALANCE = balanceData;
 
 const frac = (value) => value - Math.floor(value);
+
+/** g in m/s² (race-physics.json constants), to read the drive's accelerations as g for the tyre's load (SIM-6). */
+const G_ACCEL = physicsData.constants.g;
 
 /** The quick mode's start stagger per grid slot (race-eras.json `start.gridSpacing`); here the slot is physical. */
 const START_SPACING = raceBalance.start.gridSpacing;
@@ -149,6 +153,22 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData, pre
       : null,
     overtakeOn: new Uint8Array(n),
     lapOut: { energyTime: 0 },
+    // SIM-6 (RF-SIM-03): the tyre's two nodes in °C at this step, for the view (snapshot tyreC) and the duels;
+    // the race's own heat is the lap model's (race.js heatLapOf), resynced at every line. `loadSum/loadN` the
+    // lap's g load, its mean (`loadMean`, 0 until a green lap is done) and the set on the car (`set`, a new set resets).
+    heat: {
+      s: new Float64Array(n),
+      c: new Float64Array(n),
+      loadSum: new Float64Array(n),
+      loadN: new Int32Array(n),
+      loadMean: new Float64Array(n),
+      set: new Int32Array(n),
+      // 1 while the lap is all green and out of the pit lane: only such a lap sets `loadMean` (a slow lap would inflate the next).
+      green: new Uint8Array(n),
+      view: state.cars.map(() => ({ surface: 0, carcass: 0 })),
+      inputs: { q: 0, airC: 0, trackC: 0 },
+      node: { surface: 0, carcass: 0 },
+    },
     // RF-SIM-10: local yellows ({ corner, from, to, until, double, sector, s }) and the red flag in progress.
     cornerRange,
     sectorStarts,
@@ -278,6 +298,8 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData, pre
     const profile = profileFactorsOf(car);
     sim.drvBrake[i] = profile.brake;
     sim.drvCorner[i] = profile.corner;
+    // SIM-6: the view's heat starts at the grid's (race.js createRace gridSet).
+    syncHeat(state, i);
   });
   if (preStart) sim.pre = preStartOf(state, preStart);
   return state;
@@ -631,6 +653,8 @@ const beginLap = (state, i, lap, t) => {
   const fuelBefore = car.fuel;
   const lapOut = sim.lapOut;
   lapOut.energyTime = 0;
+  // SIM-6: the view's tyre heat back on the lap model's before this lap is planned (planLap moves it to the lap's end).
+  heatAtLine(state, i);
   let budget = planLap(state, car, lap, stream, { gridIndex: i, scrumShare: sim.balance.lapOne.scrumShare }, lapOut);
   const en = sim.en;
   en.lapFuel[i] = 0;
@@ -1850,6 +1874,82 @@ const coolStep = (state) => {
   }
 };
 
+/**
+ * SIM-6 (RF-SIM-03): the view's heat of car `i` back to the lap model's (race.js heatLapOf leaves the
+ * heat at the line on the car as `tyreThermal`): at the start and at every line before the lap is planned.
+ * A new set (a stop or a red flag bumps `car.tyreSet`, race.js fitFreshSet keeps it as `tyreFitted`) comes
+ * on when the car leaves its box: until then the old set is still on the car (`fresh`).
+ */
+const syncHeat = (state, i, fresh = false) => {
+  const { heat } = state._sim;
+  const car = state.cars[i];
+  const th = fresh && car.tyreFitted ? car.tyreFitted : car.tyreThermal;
+  if (!th) return;
+  heat.s[i] = th.surface;
+  heat.c[i] = th.carcass;
+  heat.set[i] = car.tyreSet || 0;
+  publishStepHeat(state, i);
+};
+
+/** The car's `tyreC` (°C, F1M24-GAMEPLAY §1.7) and the 0..1 `tyreTemp` the older views read, from the step's two nodes. */
+const publishStepHeat = (state, i) => {
+  const { heat, rules } = state._sim;
+  const car = state.cars[i];
+  const view = heat.view[i];
+  view.surface = heat.s[i];
+  view.carcass = heat.c[i];
+  car.tyreC = view;
+  car.tyreTemp = legacyIndexOf(view, windowFor(car.compound, rules.year), raceBalance.tyres.thermal);
+};
+
+/**
+ * SIM-6 (RF-SIM-03): one step of car `i`'s tyre heat, thermal.js heatStep with this lap's inputs (race.js
+ * endLapWear leaves them on the car as `tyreLap`) and the heat put in where the car loads its tyres: its g
+ * (race-tyres.json `load`) over its mean of the last lap, so the lap still takes in what the quick mode's
+ * does. A safety car or VSC out now scales the heat as race-tyres.json `neutralHeat` says. Reads no stream;
+ * the lap model never reads it back (only the duels' cold-tyre term does, duel.js; RF-SIM-15).
+ */
+const heatStepOf = (state, i) => {
+  const sim = state._sim;
+  const { heat, drive } = sim;
+  const car = state.cars[i];
+  const lapIn = car.tyreLap;
+  if (!lapIn) return;
+  if ((car.tyreSet || 0) !== heat.set[i] && !beforeRelease(sim, i)) syncHeat(state, i, true);
+  const load = loadOf(drive.latA[i] / G_ACCEL, drive.lonA[i] / G_ACCEL);
+  heat.loadSum[i] += load;
+  heat.loadN[i] += 1;
+  const sc = state.safetyCar;
+  if (sc || sim.inPit[i] !== 0) heat.green[i] = 0;
+  const neutral = sc ? (sc.virtual ? TYRE_THERMAL.neutralHeat.vsc : TYRE_THERMAL.neutralHeat.sc) : 1;
+  const inputs = heat.inputs;
+  inputs.q = (lapIn.q / (lapIn.neutral || 1)) * neutral;
+  inputs.airC = lapIn.airC;
+  inputs.trackC = lapIn.trackC;
+  const node = heat.node;
+  node.surface = heat.s[i];
+  node.carcass = heat.c[i];
+  heatStep(node, inputs, sim.dt, heat.loadMean[i] > 0 ? load / heat.loadMean[i] : 1);
+  heat.s[i] = node.surface;
+  heat.c[i] = node.carcass;
+  publishStepHeat(state, i);
+};
+
+/** SIM-6: at the line, a green lap's mean g load (the next laps' normaliser), then the view back on the lap model. */
+const heatAtLine = (state, i) => {
+  const { heat } = state._sim;
+  if (heat.green[i] === 1 && heat.loadN[i] > 0) heat.loadMean[i] = heat.loadSum[i] / heat.loadN[i];
+  heat.loadSum[i] = 0;
+  heat.loadN[i] = 0;
+  heat.green[i] = 1;
+  // A line crossed in the pit lane before the crew is done: the old set stays on the view until the release.
+  if (beforeRelease(state._sim, i) && (state.cars[i].tyreSet || 0) !== heat.set[i]) return;
+  syncHeat(state, i);
+};
+
+/** In the pit lane and not yet released from the box (pitLane.js PHASE before RELEASE). */
+const beforeRelease = (sim, i) => sim.inPit[i] !== 0 && Boolean(sim.lane.cars.prof[i]) && sim.lane.cars.phase[i] < PHASE.RELEASE;
+
 /** RF-SIM-01 / RF-SIM-02: every running car's gear, rpm, pedals and g from the speed it did this step. */
 const driveStep = (state) => {
   const sim = state._sim;
@@ -1865,6 +1965,7 @@ const driveStep = (state) => {
     const full = !inLane && sim.fullBin[cell] === 1 && sim.delay[i] <= 0;
     updateDrive(pt, drive, i, v, inLane ? 0 : sim.kappaBin[bin], dt, { coast: drive.lifted[i] === 1, stopped, full });
     energyStepOf(state, i, v, cell, Boolean(inLane));
+    heatStepOf(state, i);
   }
 };
 
@@ -2103,6 +2204,8 @@ export const snapshot = (state) => {
     // RF-SIM-04 / RF-SIM-05: the fuel on board (kg) and its flow, and the energy store (MJ, kW, clipping).
     fuel: fuelSnapshot(sim, car, i),
     energy: energySnapshot(sim, car, i),
+    // SIM-6 (F1M24-GAMEPLAY §1.7 `tyreC[i]`): the tyre's surface and carcass in °C at this step.
+    tyreC: { surface: Math.round(sim.heat.s[i] * 10) / 10, carcass: Math.round(sim.heat.c[i] * 10) / 10 },
     // SIM-3: on its cooldown lap after the flag (a ghost: no duels, no pit lane).
     cooldown: sim.cool[i] === 1,
   }));

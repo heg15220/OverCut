@@ -22,28 +22,15 @@
     ],
     "cliffPerLap": 0.28,
     "wetLifeLaps": 45,
-    "tempTarget": { "conserve": 0.42, "save": 0.46, "normal": 0.56, "push": 0.68, "attack": 0.74 },
-    "outLapTemp": [
-      { "from": 1950, "to": 1994, "value": 0.22 },
-      { "from": 1995, "to": 2026, "value": 0.36, "note": "mantas térmicas desde mediados de los 90" }
-    ],
     "thermal": {
-      "$comment": "RF-SIM-03 (rnf07-race, SIM-1): calor del neumático en escala 0..1 (race.js lapBudget y endLapWear). Ventana: frío por debajo de coldBelow, sobrecalentado por encima de overheatAbove. Desgaste × (1 + exceso × overheatWear + aire sucio × dirtyWear + ala negativa × negativeWingWear) × (1 + (pista − trackRefC) × trackWearPerC); con SC × scWear. Tiempo = frío × coldSecPerUnit + exceso × overheatSecPerUnit. Deriva al final de la vuelta hacia tempTarget[modo] + aire sucio × driftDirtyGain + (pista − trackRefC) / driftTrackDivisor − mojado × driftWetCool (con SC, scTarget), con relajación driftRelax y límites [min, max]. Escala adimensional propia, NV frente a °C reales (la térmica en °C es SIM-6, race-tyres.json); mismos valores que tenía el código.",
+      "$comment": "RF-SIM-03: desde SIM-6 el calor del neumático va en °C (engine/tyres/thermal.js, data/balance/race-tyres.json: dos nodos, mantas por era, ventana por compuesto, coste en tiempo y desgaste). Aquí quedan: (1) la escala 0..1 heredada que leen las vistas antiguas (LiveRace TEMP_LABEL): car.tyreTemp = coldBelow + (gripC − inicio de ventana) / anchura × (overheatAbove − coldBelow), acotada a [min, max]; solo lectura, nada de la carrera la usa; (2) el resto del desgaste: × (1 + calor + aire sucio × dirtyWear + ala negativa × negativeWingWear) × (1 + (pista − trackRefC) × trackWearPerC), con SC × scWear (race.js lapBudget).",
       "overheatAbove": 0.72,
       "coldBelow": 0.4,
-      "overheatWear": 2.2,
       "dirtyWear": 0.18,
       "negativeWingWear": 0.6,
       "trackRefC": 30,
       "trackWearPerC": 0.008,
       "scWear": 0.35,
-      "coldSecPerUnit": 3.2,
-      "overheatSecPerUnit": 2.5,
-      "scTarget": 0.3,
-      "driftDirtyGain": 0.1,
-      "driftTrackDivisor": 220,
-      "driftWetCool": 0.12,
-      "driftRelax": 0.55,
       "min": 0.1,
       "max": 1
     }

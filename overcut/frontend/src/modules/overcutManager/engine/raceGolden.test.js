@@ -16,6 +16,9 @@
  * 2026-11-25: SIM-5 neutralisations (RF-SIM-10): SC/VSC pace measured in OpenF1 (1.52 / 1.39 of the base lap, was
  * 1.42 / 1.36 from memory), their length from the marshals' cleanup on its own seed::neutral stream instead of
  * scLaps/vscLaps on the race stream, the incident on the sc/vsc events, the pit lane closed in 2007-08.
+ * 2026-11-25 again: SIM-6 tyre heat in °C (RF-SIM-03, engine/tyres/thermal.js, race-tyres.json): two nodes integrated
+ * through each lap instead of the 0..1 drift at the line, blankets by era, the grid set after the formation lap, the
+ * out-lap's cold calibrated with OpenF1; the cold-tyre pass bonus, the rivals' save call and the hot radio in °C.
  */
 
 import crypto from "crypto";

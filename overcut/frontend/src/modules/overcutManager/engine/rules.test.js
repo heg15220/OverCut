@@ -22,6 +22,7 @@ import { commandsFor, defaultRegulationsFor, drsOpen, gridPenaltyFor, penaltyFor
 import { eraWithRegulations } from "./packs/packWorld";
 import { loadSeasonPack, seasonPackYears } from "./packs/seasonPacks";
 import { eraRulesFor, satisfiesEraRule } from "./packs/validatePack";
+import { blanketsFor } from "./tyres/thermal";
 
 const SWEEP = [1976, 1988, 1993, 1994, 2005, 2008, 2009, 2010, 2012, 2014, 2015, 2021, 2024, 2026];
 
@@ -42,7 +43,7 @@ const legacy = {
   refuelling: (year) => year >= 1994 && year <= 2009,
   energy: (year) => (year >= 2014 ? "ers" : year === 2009 || (year >= 2011 && year <= 2013) ? "kers" : null),
   dirtyAir: (year) => (year < 1968 ? 0.12 : year < 1977 ? 0.22 : year < 2022 ? 0.42 : 0.24),
-  outLap: (year) => (year >= 1995 ? 0.36 : 0.22),
+  blankets: (year) => year >= 1995,
 };
 
 /** Seasons the offline data can field a grid for (bootstrap years and pack years). */
@@ -89,7 +90,8 @@ describe("SRS 6.2 / RNF-07 · the resolver reads data, not years", () => {
       expect(rules.qualifying.knockout).toBe(features.knockoutQualifying);
       expect(rules.tyres.mandatoryDryCompounds >= 2).toBe(year >= 2007);
       expect(rules.dirtyAir).toBe(legacy.dirtyAir(year));
-      expect(rules.tyres.outLapTemp).toBe(legacy.outLap(year));
+      // SIM-6: blankets (race-tyres.json, engine/tyres/thermal.js) exactly where the 0..1 out-lap scale had them.
+      expect(blanketsFor(year).allowed).toBe(legacy.blankets(year));
       // WP7 (RF-SIM-12): the stop is by stages now (engine/sim/pitStop.test.js calibrates it per era);
       // here only the era rule: fuel lengthens the stop only where refuelling is legal.
       const dry = stationaryTime({ year, refuel: 0, crew: 70 });

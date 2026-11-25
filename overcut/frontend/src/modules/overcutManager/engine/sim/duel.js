@@ -70,6 +70,7 @@
 import { clamp } from "../../../overcutTrayectoria/engine/rng";
 import { applyContact, collisionInvestigation, energyPush } from "../race";
 import { contactOutcome } from "../incidents";
+import { coldForPass, gripC, windowFor } from "../tyres/thermal";
 import { drsOpen } from "../rules";
 import { pushEvent, wetnessAt } from "./lapModel";
 import { LANE, LANE_NAMES, LATERAL } from "./lateral";
@@ -331,6 +332,15 @@ export const drsAllowed = (state, lap, gapSec) => {
   return drsOpen(sim.rules, { lap, wetness: wetnessAt(state, lap), zones: sim.tables.drsZones.length, restartLap: state.restartLap || 0, gapAhead: gapSec });
 };
 
+/**
+ * SIM-6 (RF-SIM-07, race-tyres.json calls.passColdBelowC): is the defender's tyre cold right now - its heat
+ * at this step (`tyreC`, the step simulator's two nodes), or the model's at the line - against its window?
+ */
+const coldDefender = (state, car) => {
+  const th = car.tyreC || car.tyreThermal;
+  return Boolean(th) && coldForPass(gripC(th), windowFor(car.compound, state._sim.rules.year ?? state.year));
+};
+
 /** The attacker's chance of making it through this corner. */
 export const duelChance = (state, attacker, defender, zone, { drs = false, lap }) => {
   const { balance } = state._sim;
@@ -350,7 +360,8 @@ export const duelChance = (state, attacker, defender, zone, { drs = false, lap }
     (wet ? d.wet : 0) +
     attack -
     defend +
-    (defender.tyreTemp < d.coldTyreTemp ? d.coldTyre : 0) +
+    // SIM-6 (RF-SIM-07): the defender on a cold tyre, by its heat at this step (tyreC) against its compound's window.
+    (coldDefender(state, defender) ? d.coldTyre : 0) +
     riskOf(balance, attacker).chance +
     styleOf(balance, defender).chance;
   return clamp(raw, d.min, d.max) * zone.weight;

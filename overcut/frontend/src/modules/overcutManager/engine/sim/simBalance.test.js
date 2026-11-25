@@ -110,21 +110,25 @@ describe("rnf07-race: the quick mode's terms read the JSON", () => {
     expect(later - base).toBeCloseTo(1, 9);
   });
 
-  test("endLapWear: fuel behind the safety car and the heat drift come from race-eras.json", () => {
+  test("endLapWear: fuel behind the safety car from race-eras.json; the heat (SIM-6) from race-tyres.json in °C", () => {
     const rules = rulesFor(2024);
     expect(rules.refuelling).toBe(false);
     const lapOf = (sc, mode = "normal") => {
-      const state = { trackTemp: erasData.tyres.thermal.trackRefC, safetyCar: sc };
-      const car = { tyreAge: 0, fuel: 50, mode, tyreTemp: 0.5 };
+      const state = { trackTemp: erasData.tyres.thermal.trackRefC, safetyCar: sc, race: { baseLap: 90 }, year: 2024 };
+      const car = { tyreAge: 0, fuel: 50, mode, compound: "medium", tyreThermal: { surface: 95, carcass: 85 } };
       endLapWear(state, car, { mix: { burn: 1 }, dirty: 0 }, { wetness: 0, sc, rules });
       return car;
     };
     expect((50 - lapOf(true).fuel) / (50 - lapOf(false).fuel)).toBeCloseTo(erasData.fuel.scBurn, 12);
     expect(50 - lapOf(false, "push").fuel).toBeCloseTo(erasData.fuel.modeBurn.push, 12);
     expect(50 - lapOf(false, "save").fuel).toBeCloseTo(erasData.fuel.modeBurn.save, 12);
+    // Behind the safety car the tyre cools; pushing heats it more than the normal pace (engine/tyres/thermal.js).
+    expect(lapOf(true).tyreC.surface).toBeLessThan(lapOf(false).tyreC.surface);
+    expect(lapOf(false, "push").tyreC.surface).toBeGreaterThan(lapOf(false).tyreC.surface);
+    // The 0..1 read-out the older views use stays on race-eras.json's scale.
     const t = erasData.tyres.thermal;
-    expect(lapOf(true).tyreTemp).toBeCloseTo(0.5 + (t.scTarget - 0.5) * t.driftRelax, 12);
-    expect(lapOf(false).tyreTemp).toBeCloseTo(0.5 + (erasData.tyres.tempTarget.normal - 0.5) * t.driftRelax, 12);
+    expect(lapOf(false).tyreTemp).toBeGreaterThanOrEqual(t.min);
+    expect(lapOf(false).tyreTemp).toBeLessThanOrEqual(t.max);
   });
 
   test("the step simulator's release reads race-sim.json pitRelease, not a literal", () => {

@@ -71,9 +71,7 @@
     "tyres": {
       "type": "object",
       "required": [
-        "thermal",
-        "tempTarget",
-        "outLapTemp"
+        "thermal"
       ],
       "properties": {
         "thermal": {
@@ -82,19 +80,11 @@
           "required": [
             "overheatAbove",
             "coldBelow",
-            "overheatWear",
             "dirtyWear",
             "negativeWingWear",
             "trackRefC",
             "trackWearPerC",
             "scWear",
-            "coldSecPerUnit",
-            "overheatSecPerUnit",
-            "scTarget",
-            "driftDirtyGain",
-            "driftTrackDivisor",
-            "driftWetCool",
-            "driftRelax",
             "min",
             "max"
           ],
@@ -107,9 +97,6 @@
             },
             "coldBelow": {
               "$ref": "#/definitions/share"
-            },
-            "overheatWear": {
-              "$ref": "#/definitions/nonNegative"
             },
             "dirtyWear": {
               "$ref": "#/definitions/nonNegative"
@@ -126,27 +113,6 @@
             "scWear": {
               "$ref": "#/definitions/nonNegative"
             },
-            "coldSecPerUnit": {
-              "$ref": "#/definitions/nonNegative"
-            },
-            "overheatSecPerUnit": {
-              "$ref": "#/definitions/nonNegative"
-            },
-            "scTarget": {
-              "$ref": "#/definitions/share"
-            },
-            "driftDirtyGain": {
-              "$ref": "#/definitions/nonNegative"
-            },
-            "driftTrackDivisor": {
-              "$ref": "#/definitions/positive"
-            },
-            "driftWetCool": {
-              "$ref": "#/definitions/nonNegative"
-            },
-            "driftRelax": {
-              "$ref": "#/definitions/share"
-            },
             "min": {
               "$ref": "#/definitions/share"
             },
@@ -154,15 +120,6 @@
               "$ref": "#/definitions/share"
             }
           }
-        },
-        "tempTarget": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/share"
-          }
-        },
-        "outLapTemp": {
-          "type": "array"
         }
       }
     },
