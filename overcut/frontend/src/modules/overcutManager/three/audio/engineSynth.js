@@ -22,6 +22,8 @@
  *   pit limiter       a flat tone: the fixed pit gear (pose.gear, or race-powertrain.json
  *                     eras[].pitLimiter once the engine publishes it) at the era's pit-lane
  *                     speed limit (rules.js pitLaneSpeedFor); no limiter tone before a limit existed
+ *   safety car        the season's road car (audio.json safetyCar.cars[], AUD-5) in the same
+ *                     spec shape, from 1993 only (rules.js raceControl.safetyCar, SRS 6.2)
  *
  * The voice (Web Audio, only in the browser after a click):
  *   oscillator(PeriodicWave per cylinder count) ─┐
@@ -32,7 +34,7 @@
 
 import audioData from "../../data/balance/audio.json";
 import powertrainData from "../../data/balance/race-powertrain.json";
-import { pitLaneSpeedFor } from "../../engine/rules";
+import { pitLaneSpeedFor, rulesFor } from "../../engine/rules";
 
 const VOICING = audioData.voicing;
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
@@ -156,6 +158,61 @@ export const engineSpecFor = (year, engine = null, where = {}) => {
     voice,
     halfOrder: voice.halfOrder * (VOICING.layoutHalfOrder[facts.layout] ?? 1),
     source: rule.source,
+  };
+};
+
+/**
+ * Does the season have a safety car / a virtual safety car at all (rules.js: pack or
+ * era-defaults; SC from 1993, VSC from 2015, SRS 6.2)? False when the rules cannot be read.
+ */
+export const neutralisationsOf = (year) => {
+  try {
+    const control = rulesFor(year).raceControl || {};
+    return { safetyCar: Boolean(control.safetyCar), vsc: Boolean(control.vsc) };
+  } catch (error) {
+    return { safetyCar: false, vsc: false };
+  }
+};
+
+/** The safety car's row for a season (audio.json safetyCar.cars[]), or null. */
+export const safetyCarRowFor = (year, cars = audioData.safetyCar.cars) => cars.find((row) => year >= row.from && year <= row.to) || null;
+
+/**
+ * The voice of the safety car (sc-vsc-sound, AUD-5; RF-SIM-10): the road car of the season
+ * (audio.json safetyCar.cars[], its formula parsed as the F1 engines are), with its own
+ * gearbox, idle, rev limit and turbo, in the same spec shape as engineSpecFor so the pooled
+ * voices play it. Null in a season without a safety car (before 1993, SRS 6.2) or without
+ * a row: no voice is invented.
+ */
+export const safetyCarSpecFor = (year, cars = audioData.safetyCar.cars) => {
+  if (!neutralisationsOf(year).safetyCar) return null;
+  const row = safetyCarRowFor(year, cars);
+  const parsed = row && parseFormula(row.formula);
+  if (!parsed) return null;
+  const voice = VOICING.byCylinders[String(parsed.cylinders)] || VOICING.byCylinders["8"];
+  const charged = parsed.aspiration !== "na";
+  return {
+    year,
+    era: `safety-car:${row.id}`,
+    engine: { ...parsed, engineId: null, manufacturer: null },
+    revLimit: row.revLimit,
+    shiftRpm: row.shiftRpm,
+    idleRpm: row.idleRpm,
+    launchRpm: Math.min(row.launchRpm, row.shiftRpm),
+    gears: row.gearShares.length,
+    gearShares: row.gearShares,
+    gearingPerTrack: false,
+    refTopKmh: row.refTopKmh,
+    shiftCutMs: row.shift.transient.ms,
+    shift: { id: `safety-car:${row.id}`, glideMs: row.shift.glideMs, transient: { ...row.shift.transient } },
+    pitLimiter: { kmh: null, gear: null },
+    turbo: charged && row.turbo ? row.turbo : null,
+    electric: null,
+    crackle: row.crackle,
+    voice,
+    halfOrder: voice.halfOrder * (VOICING.layoutHalfOrder[parsed.layout] ?? 1),
+    source: row.source,
+    safetyCar: true,
   };
 };
 

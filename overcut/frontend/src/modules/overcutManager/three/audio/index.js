@@ -31,24 +31,34 @@
  * engineer's feed; absent, no radio sound), and `cue(kind)` for the view's own moments. The
  * hook clicks every button of the page while the live view is mounted (ui.click.selector).
  * None of it draws from the seeded stream or touches the race.
+ *
+ * Safety car and VSC (AUD-5, sc-vsc-sound, F1M24-GAMEPLAY §2.11; safetyCarSound.js): with the
+ * engine's `sc` (snapshot.sc, §1.7, SIM-5) on the road and a place for it (its x/y, the view's
+ * optional `scPose`, or its `s` on the frame's `circuit`), the season's safety car sounds on
+ * the voice pool (audio.json safetyCar.cars[]); deploying and withdrawing the SC or the VSC
+ * (`vsc`, snapshot.vsc) sound the alert and the «radio». None before 1993 (SC) or 2015 (VSC),
+ * nothing without `sc`/`vsc`; the F1 cars slow down by their own poses.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createStream } from "../../../overcutTrayectoria/engine/rng";
 import { loadSeasonPack } from "../../engine/packs/seasonPacks";
 import audioData from "../../data/balance/audio.json";
-import { createEngineVoice, driveStep, engineSpecFor } from "./engineSynth";
+import { createEngineVoice, driveStep, engineSpecFor, safetyCarSpecFor } from "./engineSynth";
 import { assignVoices, blendMix, busGains, cameraListener, cameraUsable, createMixer, distanceGain, dopplerFactor, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, viewMix } from "./mixer";
 import { airGunsOn, createAmbience, crowdLevel, fieldBedOf, gridRevsOf, kerbRumble, makeNoiseBuffer, rainOf, squeals, startLightsStep, swellFor, windOf } from "./ambience";
 import { firingFrequency } from "./engineSynth";
 import { kerbZonesFor, onKerb } from "./kerbs";
 import { clickCueFor, createUiCueState, gateCue, isUiCue, playCue, uiCuesStep } from "./uiSounds";
+import { SAFETY_CAR_ID, createScCueState, scCarOf, scCuesStep } from "./safetyCarSound";
 
 export { engineSpecFor, eraFor, firingFrequency, nextGear, parseFormula } from "./engineSynth";
 export { gridRevsOf, startLightsStep } from "./ambience";
 export { blendMix, cameraMix, distanceGain, dopplerFactor, loadSettings, resolveView, saveSettings, sliderToGain, viewMix } from "./mixer";
 export { mixLevels } from "./levels";
 export { clickCueFor, cueShots, uiCuesStep } from "./uiSounds";
+export { SAFETY_CAR_ID, scCarOf, scCuesStep, scPoseOf } from "./safetyCarSound";
+export { safetyCarSpecFor } from "./engineSynth";
 
 const KMH = 3.6;
 const VOICING = audioData.voicing;
@@ -81,6 +91,9 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
   let ambience = null;
   let noiseBuffer = null;
   const uiState = createUiCueState();
+  const scState = createScCueState();
+  // The season's safety car (null before 1993 or without a row: then it never sounds).
+  const scSpec = safetyCarSpecFor(year);
   let voices = [];
   let panners = [];
   let slots = [];
@@ -183,9 +196,10 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
     },
     /**
      * One view frame: { tau, playing, mode, focusId, cars: [{ id, teamId, pose }],
-     * wetness, events, started } and, optional, start (the engine's snapshot.start).
+     * wetness, events, started } and, optional, start (the engine's snapshot.start), sc and
+     * vsc (snapshot.sc / snapshot.vsc) with scPose (where the view draws the safety car).
      */
-    frame({ tau = 0, playing = true, mode = "tv", focusId = null, cars = [], wetness = 0, events = [], started: startedFlag = false, view = null, camera, circuit: frameCircuit, start: frameStart = null, radio }) {
+    frame({ tau = 0, playing = true, mode = "tv", focusId = null, cars = [], wetness = 0, events = [], started: startedFlag = false, view = null, camera, circuit: frameCircuit, start: frameStart = null, radio, sc = null, vsc = null, scPose = null }) {
       if (!ctx || ctx.state === "closed") return;
       const now = ctx.currentTime;
       const dt = lastTime === null ? 0 : Math.max(0, now - lastTime);
@@ -214,7 +228,9 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       // The view's snapshot on the camera's mix, crossfaded on a cut or a change of view.
       const viewName = resolveView({ view, playing, mode });
       // Interface cues (AUD-4): new alert events and radio messages, the replay, a skip.
-      const uiCues = uiCuesStep(uiState, { events, radio, view: viewName, skipped: skippedAhead }, now);
+      // AUD-5: deploying and withdrawing the SC/VSC; the log's own sc/vsc alert shares the cooldown.
+      const scCues = scCuesStep(scState, { sc, vsc, year }).filter((cue) => gateCue(uiState, cue.kind, now));
+      const uiCues = [...uiCuesStep(uiState, { events, radio, view: viewName, skipped: skippedAhead }, now), ...scCues].slice(0, audioData.ui.maxPerFrame);
       const uiGains = busGains(settings);
       if (uiGains.master > 0 && uiGains.ui > 0) uiCues.forEach((cue, k) => playCue(ctx, mixer.ui, noiseBuffer, cue.kind, cue.opts, now + k * audioData.ui.cueSpacingSec));
       const target = viewMix(mode, viewName);
@@ -248,8 +264,16 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         const heading = pose.heading || 0;
         placed.push({ id, spec, state, pose, x: pose.x, y: pose.y, vx: Math.cos(heading) * state.v, vy: Math.sin(heading) * state.v, gone: Boolean(pose.gone || (pose.finished && state.v < 1)) });
       });
+      // The safety car on the road (AUD-5): one more car for the pool, after the field.
+      const scCar = scCarOf(scSpec, sc, { pose: scPose, circuit: kerbCircuit });
+      if (scCar) {
+        const state = driveStep(scSpec, drive.get(SAFETY_CAR_ID), scCar.pose, dtau, dt);
+        drive.set(SAFETY_CAR_ID, state);
+        const heading = scCar.pose.heading || 0;
+        placed.push({ id: SAFETY_CAR_ID, spec: scSpec, state, pose: scCar.pose, x: scCar.pose.x, y: scCar.pose.y, vx: Math.cos(heading) * state.v, vy: Math.sin(heading) * state.v, gone: false });
+      } else drive.delete(SAFETY_CAR_ID);
       const byId = new Map(placed.map((car) => [car.id, car]));
-      const focus = byId.get(focusId) || placed[0];
+      const focus = byId.get(focusId) || placed.find((car) => car.id !== SAFETY_CAR_ID);
       let listener;
       let heading;
       if (useCamera) {
@@ -281,7 +305,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         const sy = atEar ? listener.y : car.y;
         mixer.setPosition(panners[index], sx, sy, atEar ? listener.z : 0.6, now);
         const doppler = atEar ? 1 : dopplerFactor({ x: car.x, y: car.y, z: 0.6, vx: car.vx, vy: car.vy }, listener);
-        const share = car.id === focus?.id ? mix.focus : mix.field;
+        const share = (car.id === focus?.id ? mix.focus : mix.field) * (car.spec.safetyCar ? audioData.safetyCar.voiceGain : 1);
         const overrun = car.state.load < 0.2 && car.state.rpm > car.spec.revLimit * 0.5;
         const crackle = overrun && random() < VOICING.crackleRatePerSec * car.spec.crackle * Math.max(dt, 0.016) ? 1 : 0;
         voice.update(
