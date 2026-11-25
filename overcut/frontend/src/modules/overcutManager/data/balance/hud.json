@@ -41,7 +41,7 @@
     }
   },
   "banners": {
-    "$comment": "HUD-3 (event-banners, F1M24-GAMEPLAY Â§2.12.1): banners de uno en uno arriba en el centro, en orden de carrera. kinds: los que se muestran. durationSec: segundos reales por defecto de cada banner (byKind[kind].durationSec lo cambia); decisiÃ³n de diseÃ±o de OverCut, no el tiempo del juego. lapsToGoCallouts: avisos de vueltas para el final al cruzar el lÃ­der la lÃ­nea (1 = Â«Ãºltima vueltaÂ»), propuesta de Â§2.12.1. queueMax: banners como mucho en espera (si hay mÃ¡s, se va el de menor prioridad; el de un coche propio suma 1). staleSimSec: un banner que llega con mÃ¡s de esos segundos de carrera de retraso (un salto adelante) no se enseÃ±a. byKind.scope: all (cualquiera), own (solo tus coches) o top (tus coches y los top primeros). El pase se enseÃ±a en pass.confirmedAt cuando el motor lo manda (Â§1.7, SIM-4), si no a su hora; nunca con un retardo fijo de la vista. DRS: lo anuncia la direcciÃ³n de carrera segÃºn la regla de la era (rules.drs: desde la vuelta fromLap, restartLaps tras un reinicio, apagado con lluvia; FIA Sporting Regulations 2011-2025, RF-SIM-08); en una era sin DRS no hay banner. Lo comprueba components/hud3.test.js.",
+    "$comment": "HUD-3 (event-banners, F1M24-GAMEPLAY §2.12.1): banners de uno en uno arriba en el centro, en orden de carrera. kinds: los que se muestran. durationSec: segundos reales por defecto de cada banner (byKind[kind].durationSec lo cambia); decisión de diseño de OverCut, no el tiempo del juego. lapsToGoCallouts: avisos de vueltas para el final al cruzar el líder la línea (1 = «última vuelta»), propuesta de §2.12.1. queueMax: banners como mucho en espera (si hay más, se va el de menor prioridad; el de un coche propio suma 1). staleSimSec: un banner que llega con más de esos segundos de carrera de retraso (un salto adelante) no se enseña. byKind.scope: all (cualquiera), own (solo tus coches) o top (tus coches y los top primeros). El pase se enseña en pass.confirmedAt cuando el motor lo manda (§1.7, SIM-4), si no a su hora; nunca con un retardo fijo de la vista. DRS: lo anuncia la dirección de carrera según la regla de la era (rules.drs: desde la vuelta fromLap, restartLaps tras un reinicio, apagado con lluvia; FIA Sporting Regulations 2011-2025, RF-SIM-08); en una era sin DRS no hay banner. Lo comprueba components/hud3.test.js.",
     "status": "behaviour",
     "kinds": ["pass", "mistake", "contact", "investigation", "penalty", "fastest", "drs", "lapsToGo", "lastLap"],
     "durationSec": 4,
@@ -92,7 +92,7 @@
       }
     },
     "activeAero": {
-      "$comment": "2026: aerodinÃ¡mica activa en lugar del DRS (SRS Â§6.2). pending: sin fuente todavÃ­a de si la direcciÃ³n de carrera la anuncia como el DRS; mientras, ningÃºn banner de aero.",
+      "$comment": "2026: aerodinámica activa en lugar del DRS (SRS §6.2). pending: sin fuente todavía de si la dirección de carrera la anuncia como el DRS; mientras, ningún banner de aero.",
       "status": "pending",
       "enabled": false
     },
@@ -103,7 +103,7 @@
     }
   },
   "driverPanel": {
-    "$comment": "HUD-3 (driver-panel-units, Â§2.12.1): panel de cada coche propio con pestaÃ±as. tabs en orden: status (neumÃ¡tico con % de vida y temperatura, combustible con margen en vueltas y en kg, baterÃ­a en %), tactics (ritmo, mezcla, energÃ­a, defensa, ataque), telemetry (velocidad, marcha, rpm, acelerador y freno del motor por pasos: pose.v/gear/rpm/throttle/brake; el modo rÃ¡pido no los tiene) y pit (plan, ventana si el estratega la da, regla de compuestos). tyreLife.warnBelow/badBelow y fuel.warnLaps: umbrales de color que antes eran literales de LiveRace.js (mismos valores, decisiÃ³n de diseÃ±o). La temperatura del neumÃ¡tico usa la ventana del propio motor (race-eras.json tyres.thermal coldBelow/overheatAbove, escala 0..1); en Â°C solo cuando el motor dÃ© car.tyreC {surface, carcass} (SIM-6), sin inventar conversiÃ³n (Â§1.5). engineTemp: pending, el motor no la modela. stopWindow: se muestra si el estratega publica car.plan.window {open, optimal, close} (RF-SIM-13); pending hasta entonces.",
+    "$comment": "HUD-3 (driver-panel-units, §2.12.1): panel de cada coche propio con pestañas. tabs en orden: status (neumático con % de vida y temperatura, combustible con margen en vueltas y en kg, batería en %), tactics (ritmo, mezcla, energía, defensa, ataque), telemetry (velocidad, marcha, rpm, acelerador y freno del motor por pasos: pose.v/gear/rpm/throttle/brake; el modo rápido no los tiene) y pit (plan, ventana si el estratega la da, regla de compuestos). tyreLife.warnBelow/badBelow y fuel.warnLaps: umbrales de color que antes eran literales de LiveRace.js (mismos valores, decisión de diseño). La temperatura del neumático usa la ventana del propio motor (race-eras.json tyres.thermal coldBelow/overheatAbove, escala 0..1); en °C solo cuando el motor dé car.tyreC {surface, carcass} (SIM-6), sin inventar conversión (§1.5). engineTemp: pending, el motor no la modela. stopWindow: se muestra si el estratega publica car.plan.window {open, optimal, close} (RF-SIM-13); pending hasta entonces.",
     "status": "behaviour",
     "tabs": ["status", "tactics", "telemetry", "pit"],
     "defaultTab": "status",
@@ -137,10 +137,26 @@
         "staleSec": 120,
         "keepSec": 60
       }
+    },
+    "tactics": {
+      "$comment": "HUD-7 (tacticas, la parte de UI; §2.8; RF-CMD-01, RF-SIM-05, RNF-07): pestaña de tácticas. Se ofrece solo lo que el motor detrás de la vista acepta (COMMANDS del worker en carrera por pasos, exportaciones de race.js en el modo rápido) y lo que commandsFor da en la era. toggles: tácticas sí/no de setTactics(state, carId, {avoidKerbs, cleanAir, battleAssist}) (SIM-7), en este orden. requires.battleAssist = energy: la ayuda de energía en batalla solo existe en una era con KERS o ERS (SRS §6). Defensa y riesgo al adelantar salen de las claves del motor (race-sim.json defence.styles y risk.levels) o de commandsFor si las da por era. Sin setTactics en el motor la pestaña queda como antes. Decisión de presentación, status behaviour.",
+      "status": "behaviour",
+      "toggles": ["avoidKerbs", "cleanAir", "battleAssist"],
+      "requires": { "battleAssist": "energy" }
+    },
+    "damage": {
+      "$comment": "HUD-7 (danos-visibles, la parte de UI; §2.10, §1.7 damage[i]; RF-DEV-08, RF-SIM-09, RF-CMD-02, RNF-09): daño del coche propio en la tarjeta. Lee snapshot.damage {frontWing, floor, puncture, lossSecPerLap} de SIM-7 (cada pieza en s/vuelta, en estado o {lossSecPerLap, state}); antes de SIM-7, la pérdida del alerón que ya lleva el motor (car.damage, s/vuelta) y car.puncture. parts: piezas que se muestran, en orden. states: los cuatro estados de RF-DEV-08 (development.json damage.states); stateAlias: otros nombres que el motor pueda usar. severeStates: estados que piden cambiar la pieza. minShownSec: pérdida por debajo de la cual no se muestra (ruido de redondeo, decisión de diseño). El umbral para aconsejar cambiar el alerón es el del propio motor (race-reliability.json contact.repairAbove), para que el consejo coincida con lo que hacen los estrategas rivales. Siempre con palabras, nunca solo color (RNF-09).",
+      "status": "behaviour",
+      "parts": ["frontWing", "floor"],
+      "states": ["perfect", "light", "heavy", "destroyed"],
+      "stateAlias": { "none": "perfect", "ok": "perfect", "minor": "light", "severe": "heavy", "major": "heavy", "broken": "destroyed" },
+      "severeStates": ["heavy", "destroyed"],
+      "minShownSec": 0.05,
+      "repairFrom": "race-reliability.json contact.repairAbove"
     }
   },
   "pitDialog": {
-    "$comment": "HUD-3 (pit-widget-and-dialog): diÃ¡logo de parada (un Sheet). pauseOnOpen: la sesiÃ³n se para mientras estÃ¡ abierto (live-view.json pauseOn pitDialog: el reloj de la vista no corre y no se piden pasos al motor). Lee engine/sim/pitLane.js previewPit (PIT-1): pÃ©rdida neta frente a seguir en pista (verde; SC y VSC solo si la era los tiene), parada tÃ­pica, espera por parada doble, posiciÃ³n estimada a la salida y distancia a la entrada del pit. quickCall: los botones de compuesto de la tarjeta siguen pidiendo la parada sin abrir el diÃ¡logo. lapPicker: pending, requestPit siempre es la prÃ³xima entrada al pit.",
+    "$comment": "HUD-3 (pit-widget-and-dialog): diálogo de parada (un Sheet). pauseOnOpen: la sesión se para mientras está abierto (live-view.json pauseOn pitDialog: el reloj de la vista no corre y no se piden pasos al motor). Lee engine/sim/pitLane.js previewPit (PIT-1): pérdida neta frente a seguir en pista (verde; SC y VSC solo si la era los tiene), parada típica, espera por parada doble, posición estimada a la salida y distancia a la entrada del pit. quickCall: los botones de compuesto de la tarjeta siguen pidiendo la parada sin abrir el diálogo. lapPicker: pending, requestPit siempre es la próxima entrada al pit.",
     "status": "behaviour",
     "pauseOnOpen": true,
     "quickCall": true,
@@ -150,7 +166,7 @@
     }
   },
   "pitTimer": {
-    "$comment": "HUD-3 (pit-widget-and-dialog): widget de parada sobre la imagen para tus coches: tiempo en el pit desde la lÃ­nea de entrada, tiempo parado (pitPhase STATIONARY), saliendo, y el total congelado en la lÃ­nea de salida durante holdRealSec segundos reales. Solo lee pose.inPit/pitPhase/pitStage del motor (Â§1.7). holdRealSec es decisiÃ³n de diseÃ±o.",
+    "$comment": "HUD-3 (pit-widget-and-dialog): widget de parada sobre la imagen para tus coches: tiempo en el pit desde la línea de entrada, tiempo parado (pitPhase STATIONARY), saliendo, y el total congelado en la línea de salida durante holdRealSec segundos reales. Solo lee pose.inPit/pitPhase/pitStage del motor (§1.7). holdRealSec es decisión de diseño.",
     "status": "behaviour",
     "holdRealSec": 4
   },

@@ -227,7 +227,7 @@
     "driverPanel": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["$comment", "status", "tabs", "defaultTab", "tyreLife", "fuel", "engineTemp", "stopWindow", "tyreTemp"],
+      "required": ["$comment", "status", "tabs", "defaultTab", "tyreLife", "fuel", "engineTemp", "stopWindow", "tyreTemp", "tactics", "damage"],
       "properties": {
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
@@ -309,6 +309,61 @@
                 "keepSec": { "type": "number", "exclusiveMinimum": 0, "maximum": 3600 }
               }
             }
+          }
+        },
+        "tactics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "toggles", "requires"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "toggles": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": { "enum": ["avoidKerbs", "cleanAir", "battleAssist"] }
+            },
+            "requires": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "avoidKerbs": { "enum": ["energy"] },
+                "cleanAir": { "enum": ["energy"] },
+                "battleAssist": { "enum": ["energy"] }
+              }
+            }
+          }
+        },
+        "damage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "parts", "states", "stateAlias", "severeStates", "minShownSec", "repairFrom"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "parts": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "enum": ["frontWing", "floor"] }
+            },
+            "states": {
+              "type": "array",
+              "minItems": 2,
+              "uniqueItems": true,
+              "items": { "type": "string" }
+            },
+            "stateAlias": {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            },
+            "severeStates": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": { "type": "string" }
+            },
+            "minShownSec": { "type": "number", "minimum": 0, "maximum": 5 },
+            "repairFrom": { "type": "string" }
           }
         }
       }
