@@ -3,7 +3,7 @@
   "$comment": "RNF-07: esquema de data/balance/audio.json (sonido de la vista en vivo, RF-3D-04, RNF-02). Lo comprueba three/audio/audio.test.js.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "sources", "eras", "shiftProfiles", "voicing", "mixer", "ambience"],
+  "required": ["version", "sources", "eras", "shiftProfiles", "voicing", "mixer", "ambience", "ui"],
   "definitions": {
     "shiftProfile": {
       "type": "object",
@@ -36,6 +36,7 @@
     "positive": {"type": "number", "exclusiveMinimum": 0},
     "nonNegative": {"type": "number", "minimum": 0},
     "share": {"type": "number", "minimum": 0, "maximum": 1},
+    "uiTone": {"type": "object", "additionalProperties": false, "required": ["hz", "durationSec"], "properties": {"hz": {"$ref": "#/definitions/positive"}, "durationSec": {"$ref": "#/definitions/positive"}}},
     "rpm": {"type": "integer", "minimum": 1000, "maximum": 25000},
     "text": {"type": "string", "minLength": 1},
     "engine": {
@@ -228,6 +229,104 @@
         "smoothingSec": {"$ref": "#/definitions/positive"}
       }
     },
+    "ui": {
+      "$comment": "Sonidos de interfaz y «radio» sin voz (radio-ui-sounds, AUD-4; RF-CMD-03, RNF-07). Los rangos de duración son los de F1M24-GAMEPLAY §2.1 (clic 5-30 ms, whoosh 0,4-0,7 s) y la banda de la radio cabe en la telefónica (300-3.400 Hz).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxPerFrame", "cueSpacingSec", "click", "whoosh", "alert", "radio"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "maxPerFrame": {"type": "integer", "minimum": 1, "maximum": 4},
+        "cueSpacingSec": {"$ref": "#/definitions/nonNegative"},
+        "click": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["selector", "durationSec", "noiseHz", "noiseGain", "toneHz", "toneGain", "cooldownSec"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "selector": {"$ref": "#/definitions/text"},
+            "durationSec": {"type": "number", "minimum": 0.005, "maximum": 0.03},
+            "noiseHz": {"$ref": "#/definitions/positive"},
+            "noiseGain": {"$ref": "#/definitions/share"},
+            "toneHz": {"$ref": "#/definitions/positive"},
+            "toneGain": {"$ref": "#/definitions/share"},
+            "cooldownSec": {"$ref": "#/definitions/nonNegative"}
+          }
+        },
+        "whoosh": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["durationSec", "fromHz", "toHz", "q", "attackShare", "gain", "cooldownSec", "on"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "durationSec": {"type": "number", "minimum": 0.4, "maximum": 0.7},
+            "fromHz": {"$ref": "#/definitions/positive"},
+            "toHz": {"$ref": "#/definitions/positive"},
+            "q": {"$ref": "#/definitions/positive"},
+            "attackShare": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+            "gain": {"$ref": "#/definitions/share"},
+            "cooldownSec": {"$ref": "#/definitions/nonNegative"},
+            "on": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["replay", "skip"],
+              "properties": {"replay": {"type": "boolean"}, "skip": {"type": "boolean"}}
+            }
+          }
+        },
+        "alert": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["steps", "stepSec", "toneSec", "attackSec", "gain", "cooldownSec", "levels", "events"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "steps": {
+              "type": "array",
+              "minItems": 2,
+              "items": {"type": "object", "additionalProperties": false, "required": ["hz"], "properties": {"hz": {"$ref": "#/definitions/positive"}}}
+            },
+            "stepSec": {"$ref": "#/definitions/positive"},
+            "toneSec": {"$ref": "#/definitions/positive"},
+            "attackSec": {"$ref": "#/definitions/positive"},
+            "gain": {"$ref": "#/definitions/share"},
+            "cooldownSec": {"$ref": "#/definitions/nonNegative"},
+            "levels": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["steps", "rank"],
+                "properties": {"steps": {"type": "integer", "minimum": 1}, "rank": {"type": "integer", "minimum": 1}}
+              }
+            },
+            "events": {"type": "object", "additionalProperties": {"type": "string", "minLength": 1}}
+          }
+        },
+        "radio": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["band", "open", "close", "alertGapSec", "staticSec", "staticGain", "toneGain", "attackSec", "cooldownSec"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "band": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["lowHz", "highHz"],
+              "properties": {"lowHz": {"type": "number", "minimum": 300}, "highHz": {"type": "number", "maximum": 3400}}
+            },
+            "open": {"$ref": "#/definitions/uiTone"},
+            "close": {"$ref": "#/definitions/uiTone"},
+            "alertGapSec": {"$ref": "#/definitions/positive"},
+            "staticSec": {"$ref": "#/definitions/positive"},
+            "staticGain": {"$ref": "#/definitions/share"},
+            "toneGain": {"$ref": "#/definitions/share"},
+            "attackSec": {"$ref": "#/definitions/positive"},
+            "cooldownSec": {"$ref": "#/definitions/nonNegative"}
+          }
+        }
+      }
+    },
     "mixer": {
       "type": "object",
       "additionalProperties": false,
@@ -237,8 +336,8 @@
         "defaults": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["master", "engine", "ambience", "muted"],
-          "properties": {"master": {"$ref": "#/definitions/share"}, "engine": {"$ref": "#/definitions/share"}, "ambience": {"$ref": "#/definitions/share"}, "muted": {"type": "boolean"}}
+          "required": ["master", "engine", "ambience", "muted", "ui", "uiMuted"],
+          "properties": {"master": {"$ref": "#/definitions/share"}, "engine": {"$ref": "#/definitions/share"}, "ambience": {"$ref": "#/definitions/share"}, "muted": {"type": "boolean"}, "ui": {"$ref": "#/definitions/share"}, "uiMuted": {"type": "boolean"}}
         },
         "volumeCurve": {
           "type": "object",

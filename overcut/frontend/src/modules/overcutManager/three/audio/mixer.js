@@ -7,6 +7,10 @@
  * Graph: voices > panner > engine bus > view trim -+
  *        field bed ------> engine bus            |
  *        ambience -----> ambience bus > view trim -+> master > compressor > destination
+ *        clicks, whoosh, alerts, radio > ui bus ---+
+ *
+ * The ui bus (AUD-4, radio-ui-sounds) has its own level and mute and no view trim, so the
+ * interface still clicks in a pause or a menu; the master mute silences it too.
  *
  * Per view (F1M24-GAMEPLAY §2.1, mix-snapshots-per-view): a snapshot (map, paused, replay,
  * menu) on top of the camera's mix, crossfaded on every cut, and the TV and helicopter ear
@@ -27,20 +31,23 @@ export const sliderToGain = (value, minDb = MIXER.volumeCurve.minDb) => {
   return 10 ** ((minDb * (1 - v)) / 20);
 };
 
-/** Bus gains from the settings: engine and ambience each through master, and mute. */
+/** Bus gains from the settings: engine, ambience and ui each through master, and mute (ui also its own). */
 export const busGains = (settings) => {
   const master = settings.muted ? 0 : sliderToGain(settings.master);
-  return { master, engine: sliderToGain(settings.engine), ambience: sliderToGain(settings.ambience) };
+  const ui = settings.uiMuted ? 0 : sliderToGain(Number.isFinite(settings.ui) ? settings.ui : MIXER.defaults.ui);
+  return { master, engine: sliderToGain(settings.engine), ambience: sliderToGain(settings.ambience), ui };
 };
 
 const sanitize = (raw) => {
   const base = MIXER.defaults;
   const out = { ...base };
   if (raw && typeof raw === "object") {
-    ["master", "engine", "ambience"].forEach((key) => {
+    ["master", "engine", "ambience", "ui"].forEach((key) => {
       if (Number.isFinite(raw[key])) out[key] = clamp(raw[key], 0, 1);
     });
-    if (typeof raw.muted === "boolean") out.muted = raw.muted;
+    ["muted", "uiMuted"].forEach((key) => {
+      if (typeof raw[key] === "boolean") out[key] = raw[key];
+    });
   }
   return out;
 };
@@ -240,7 +247,7 @@ export const assignVoices = (previous, wanted, size) => {
 
 // ------------------------------------------------------------------ Web Audio buses
 
-/** Master, engine and ambience buses with a gentle compressor at the end. */
+/** Master, engine, ambience and ui buses with a gentle compressor at the end. */
 export const createMixer = (ctx) => {
   const master = ctx.createGain();
   const comp = ctx.createDynamicsCompressor();
@@ -255,6 +262,9 @@ export const createMixer = (ctx) => {
   const ambienceView = ctx.createGain();
   engine.connect(engineView).connect(master);
   ambience.connect(ambienceView).connect(master);
+  // Interface and radio (AUD-4): straight to master, no view trim.
+  const ui = ctx.createGain();
+  ui.connect(master);
 
   const panner = () => {
     const node = ctx.createPanner();
@@ -274,6 +284,7 @@ export const createMixer = (ctx) => {
   return {
     engine,
     ambience,
+    ui,
     panner,
     /** Scene metres (x, y on the ground, z up) to Web Audio (x right, y up, z towards the viewer). */
     setPosition(node, x, y, z, at) {
@@ -307,6 +318,7 @@ export const createMixer = (ctx) => {
       master.gain.setTargetAtTime(gains.master, at, 0.05);
       engine.gain.setTargetAtTime(gains.engine, at, 0.05);
       ambience.gain.setTargetAtTime(gains.ambience, at, 0.05);
+      ui.gain.setTargetAtTime(gains.ui, at, 0.05);
     },
     /** The view snapshot's bus trims (already crossfaded by the caller). */
     applyView(mix, at) {

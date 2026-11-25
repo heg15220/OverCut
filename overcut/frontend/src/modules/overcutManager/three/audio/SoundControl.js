@@ -1,7 +1,8 @@
 /**
  * The sound button of the live race (RF-3D-04): the first click turns the sound on (the
  * browser only lets audio start from a gesture), then it opens the mix: mute and the
- * master, engine and ambience levels, saved per viewer (mixer.js). Texts in ES and EN
+ * master, engine and ambience levels, and the interface and radio bus with its own level
+ * and mute (AUD-4, radio-ui-sounds), saved per viewer (mixer.js). Texts in ES and EN
  * (RNF-08).
  */
 
@@ -59,6 +60,11 @@ export default function SoundControl({ audio }) {
           {slider("master", t("General", "Master"))}
           {slider("engine", t("Motores", "Engines"))}
           {slider("ambience", t("Ambiente", "Ambience"))}
+          {slider("ui", t("Interfaz y radio", "Interface and radio"))}
+          <label className="snd-row snd-row--check">
+            <input type="checkbox" checked={Boolean(settings.uiMuted)} onChange={(event) => update({ uiMuted: event.target.checked })} />
+            <span>{t("Silenciar interfaz y radio", "Mute interface and radio")}</span>
+          </label>
         </div>
       )}
     </div>

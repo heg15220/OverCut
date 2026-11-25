@@ -228,7 +228,8 @@ describe("mixer", () => {
     const store = new Map();
     const fake = { getItem: (key) => (store.has(key) ? store.get(key) : null), setItem: (key, value) => store.set(key, value) };
     saveSettings({ master: 0.3, engine: 2, ambience: -1, muted: true }, fake);
-    expect(loadSettings(fake)).toEqual({ master: 0.3, engine: 1, ambience: 0, muted: true });
+    // AUD-4 adds the ui bus to the saved mix: an old save without it gets its defaults.
+    expect(loadSettings(fake)).toEqual({ master: 0.3, engine: 1, ambience: 0, muted: true, ui: audioData.mixer.defaults.ui, uiMuted: audioData.mixer.defaults.uiMuted });
     const broken = {
       getItem: () => {
         throw new Error("blocked");
@@ -394,7 +395,7 @@ describe("race audio controller (mocked Web Audio)", () => {
   });
 
   test("seeded: no Math.random or Date in the audio code (RF-SIM-15, RNF-05)", () => {
-    ["engineSynth.js", "mixer.js", "ambience.js", "index.js", "levels.js", "kerbs.js"].forEach((file) => {
+    ["engineSynth.js", "mixer.js", "ambience.js", "index.js", "levels.js", "kerbs.js", "uiSounds.js"].forEach((file) => {
       const text = fs.readFileSync(path.join(__dirname, file), "utf8");
       expect(text).not.toMatch(/Math\.random|Date\.now|new Date/);
     });
