@@ -21,14 +21,10 @@ describe("safety car voice per season (sc-vsc-sound, RF-SIM-10, SRS 6.2)", () =>
   test("no safety car voice before 1993; one for every season from 1993 to 2026", () => {
     for (let year = FIRST; year <= LAST; year += 1) {
       const spec = safetyCarSpecFor(year);
-      if (year < 1993) {
-        expect(neutralisationsOf(year).safetyCar).toBe(false);
-        expect(spec).toBeNull();
-      } else {
-        expect(neutralisationsOf(year).safetyCar).toBe(true);
-        expect(spec).not.toBeNull();
-        expect(spec.safetyCar).toBe(true);
-      }
+      const hasSc = year >= 1993;
+      expect(neutralisationsOf(year).safetyCar).toBe(hasSc);
+      expect(spec !== null).toBe(hasSc);
+      expect(Boolean(spec && spec.safetyCar)).toBe(hasSc);
     }
   });
 
@@ -37,7 +33,7 @@ describe("safety car voice per season (sc-vsc-sound, RF-SIM-10, SRS 6.2)", () =>
     expect(rows[0].from).toBe(1993);
     rows.forEach((row, i) => {
       expect(row.to).toBeGreaterThanOrEqual(row.from);
-      if (i > 0) expect(row.from).toBe(rows[i - 1].to + 1);
+      expect(row.from).toBe(i > 0 ? rows[i - 1].to + 1 : 1993);
     });
     expect(rows[rows.length - 1].to).toBeGreaterThanOrEqual(LAST);
     // Written from memory: every row says so until it is checked (CLAUDE.md, §1.4 rule 4).

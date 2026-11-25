@@ -200,9 +200,8 @@ describe("SIM-5 the VSC delta (vsc-delta)", () => {
     expect(settled.length).toBeGreaterThan(10);
     settled.forEach((row) => {
       expect(row.vsc.deltaSec).toHaveLength(state.cars.length);
-      row.vsc.deltaSec.forEach((delta, i) => {
-        if (row.active[i] && !row.pit[i]) expect(delta).toBeGreaterThanOrEqual(-0.05);
-      });
+      const racing = row.vsc.deltaSec.filter((delta, i) => row.active[i] && !row.pit[i]);
+      expect(racing.filter((delta) => delta < -0.05)).toEqual([]);
       expect(row.sc).toBeNull();
     });
   });
@@ -213,9 +212,9 @@ describe("SIM-5 the VSC delta (vsc-delta)", () => {
     expect(ending).toBeDefined();
     expect(green).toBeDefined();
     const warn = rulesFor(2024).raceControl.vscEndingWarn;
-    const wait = green.t - ending.t;
-    expect(wait).toBeGreaterThanOrEqual(warn.minSec - state._sim.dt);
-    expect(wait).toBeLessThanOrEqual(warn.maxSec + state._sim.dt);
+    const waitSec = green.t - ending.t;
+    expect(waitSec).toBeGreaterThanOrEqual(warn.minSec - state._sim.dt);
+    expect(waitSec).toBeLessThanOrEqual(warn.maxSec + state._sim.dt);
   });
 
   it("draws the warning on the neutral stream only (the same seed gives the same wait)", () => {
