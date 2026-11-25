@@ -21,6 +21,11 @@
  * Simulate. Each era's `simYear` pack, its first `rounds` dry rounds, one playable qualifying
  * each (seed `evo-<year>-<round>`), the same statistic.
  *
+ * SES-8 trafico-sesion (RF-WKD-02, RF-SIM-06): `q1ToQ2Iqr`, per race the interquartile range of
+ * (Q1 - Q2) over the drivers with both times (at least eight), median over races - how much what
+ * each driver gains between segments scatters (lap-to-lap pace, traffic and mistakes together);
+ * sessions.json traffic.measured.q1ToQ2Iqr copies the f1db column.
+ *
  * No personal data, no network: f1db is a local file (CC BY 4.0, release in the pack's sources).
  */
 
@@ -53,6 +58,17 @@ const median = (values) => {
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 };
 const round3 = (value) => (value === null ? null : Math.round(value * 1000) / 1000);
+const quantile = (values, q) => {
+  const sorted = [...values].sort((a, b) => a - b);
+  const at = (sorted.length - 1) * q;
+  const lo = Math.floor(at);
+  return sorted[lo] + (sorted[Math.min(sorted.length - 1, lo + 1)] - sorted[lo]) * (at - lo);
+};
+/** SES-8: the IQR of (Q1 - Q2) over the cars with both times (seconds), null under eight cars. */
+const iqrOf = (cars) => {
+  const gains = cars.filter((car) => Number.isFinite(car.q1) && Number.isFinite(car.q2)).map((car) => car.q1 - car.q2);
+  return gains.length >= 8 ? quantile(gains, 0.75) - quantile(gains, 0.25) : null;
+};
 const eraRowOf = (year) => S.evolution.byEra.find((row) => year >= row.from && year <= row.to) || null;
 
 const packCache = {};
@@ -79,15 +95,18 @@ const measure = (file) => {
     // The dry rule needs the pack's refLaps; a year without a pack is skipped.
     const event = packOf(race.year)?.calendar.find((item) => item.round === race.round);
     if (!event || !isDry(event.refLaps)) return;
-    const cars = rows.all(race.id).filter((car) => car.q1_millis && car.q3_millis);
+    const all = rows.all(race.id);
+    const cars = all.filter((car) => car.q1_millis && car.q3_millis);
     if (cars.length < 6) return;
     const q3 = median(cars.map((car) => (car.q1_millis - car.q3_millis) / 1000));
     const q2 = median(cars.filter((car) => car.q2_millis).map((car) => (car.q1_millis - car.q2_millis) / 1000));
+    const iqr = iqrOf(all.map((car) => ({ q1: car.q1_millis ? car.q1_millis / 1000 : null, q2: car.q2_millis ? car.q2_millis / 1000 : null })));
     const key = `${row.from}-${row.to}`;
-    (byEra[key] = byEra[key] || { q3: [], q2: [] }).q3.push(q3);
+    (byEra[key] = byEra[key] || { q3: [], q2: [], iqr: [] }).q3.push(q3);
     byEra[key].q2.push(q2);
+    if (iqr !== null) byEra[key].iqr.push(iqr);
   });
-  return Object.fromEntries(Object.entries(byEra).map(([key, v]) => [key, { q1ToQ3: round3(median(v.q3)), q1ToQ2: round3(median(v.q2)), races: v.q3.length }]));
+  return Object.fromEntries(Object.entries(byEra).map(([key, v]) => [key, { q1ToQ3: round3(median(v.q3)), q1ToQ2: round3(median(v.q2)), races: v.q3.length, q1ToQ2Iqr: round3(median(v.iqr)), iqrRaces: v.iqr.length }]));
 };
 
 /** The playable session with the current balance, the same statistic. */
@@ -110,6 +129,7 @@ const simulate = () => {
     const dry = packs[row.simYear].calendar.map((event, index) => ({ event, index })).filter(({ event }) => isDry(event.refLaps)).slice(0, args.rounds);
     const q3 = [];
     const q2 = [];
+    const iqr = [];
     dry.forEach(({ event, index }) => {
       c.round = index;
       career.runPractice(c, {});
@@ -117,8 +137,9 @@ const simulate = () => {
       const r = evolutionImprovement({ ...career.sessionOptions(c, "qualifying"), wetness: 0, seed: `evo-${row.simYear}-${event.round}` });
       if (r.q1ToQ3 !== null) q3.push(r.q1ToQ3);
       if (r.q1ToQ2 !== null) q2.push(r.q1ToQ2);
+      if (r.q1ToQ2Iqr !== null) iqr.push(r.q1ToQ2Iqr);
     });
-    out[`${row.from}-${row.to}`] = { simYear: row.simYear, q1ToQ3: round3(median(q3)), q1ToQ2: round3(median(q2)), races: q3.length };
+    out[`${row.from}-${row.to}`] = { simYear: row.simYear, q1ToQ3: round3(median(q3)), q1ToQ2: round3(median(q2)), races: q3.length, q1ToQ2Iqr: round3(median(iqr)) };
   });
   return out;
 };

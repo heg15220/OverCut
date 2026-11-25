@@ -70,7 +70,15 @@
  * OpenF1's drivers did (yellow.laps.abandonShare). Events
  * {type: "yellowLap", outcome, double, lossSec} and {type: "lapDeleted", time, reason}. The choice and
  * the loss draw from one more stream of the car's own (two draws per meeting), so the same seed and
- * orders give the same session (RF-SIM-15, RNF-05). Traffic and slipstream stay for SES-8.
+ * orders give the same session (RF-SIM-15, RNF-05).
+ *
+ * Traffic (SES-8, F1M24-GAMEPLAY §2.12.3 trafico-sesion; RF-WKD-02, RF-SIM-01, RF-SIM-06, RNF-07): at the start
+ * of every step the cars on the track are placed on the step race's trace and stepSession.js says what the car
+ * ahead does to each timed lap over the step - the era's dirty air in the corners and tow on the straights
+ * (stepRace airEffect), or a meeting with a slow car that may be in the way (`impeding`, its own stream). The
+ * change is written into the lap like a lift (a warp at the step's start), so the view and the timing read it.
+ * Rival pit walls hold their car in the garage while another car passes the pit exit within ai.spacingSec of the
+ * moment it would join. carStatus(...).traffic {aheadId, gapSec, effect} and exitTrafficOf() only read.
  */
 
 import { clamp, createStream } from "../../../overcutTrayectoria/engine/rng";
@@ -82,6 +90,7 @@ import { distanceAtTimeShare, timeShareAtDistance } from "../trackGeometry";
 import { circuitFor } from "../venue";
 import { climateFor, hourlyConditions } from "../weather";
 import { SESSION_BALANCE as B, sessionFormat, tyreAllocation } from "./formats";
+import { impedingPenaltyOf, trafficContextOf, trafficStep } from "./stepSession";
 
 const EPS = 1e-9;
 const round3 = (value) => Math.round(value * 1000) / 1000;
@@ -270,7 +279,7 @@ const metresToEntry = (state, share, thisLap) => {
  */
 export const createSession = ({
   kind, entrants, race, era, seed, wetness = 0, practice = {}, raceFuel = {}, runOrder = null, sectorShares = [1 / 3, 2 / 3], pitEntryShare = null, tyres = null,
-  sessionName = null, setups = null, crews = null, circuit = null,
+  sessionName = null, setups = null, crews = null, circuit = null, traffic = true,
 }) => {
   const rules = rulesFor(era);
   const built = circuit || circuitFor(race, rules.year);
@@ -325,6 +334,8 @@ export const createSession = ({
     carry: 0,
     done: false,
     evolution: evolutionOf(rules.year),
+    // SES-8: traffic on the timed laps and the rivals' spacing at the pit exit (false: every lap as drawn, as before).
+    traffic: traffic !== false,
     schedule: sessionScheduleOf({ kind, race, era, sessionName }),
     climateRace: { date: race.date || null, packCircuitId: race.packCircuitId || null, circuitId: race.circuitId || null, circuit: race.circuit || null },
   };
@@ -351,6 +362,7 @@ const startSegment = (state, index) => {
   state.fieldLaps = 0;
   // SES-2: the times at which cars join the track from the pit exit this segment (the light's queue).
   state.exitQueue = [];
+  state.yellowUntil = 0;
   const segment = currentSegment(state);
   // Single-lap qualifying: one car at a time, in run order, a slot each - the last one with time to
   // drive out of the garage, its out-lap and its lap.
@@ -381,6 +393,9 @@ const startSegment = (state, index) => {
     car.yellowStream = createStream(`${state.seed}::session::${state.kind}::${segment.name}::yellow::${car.id}`);
     // SES-4: what the car does when it meets somebody else's yellow, a stream of its own as well.
     car.yellowLapStream = createStream(`${state.seed}::session::${state.kind}::${segment.name}::yellowLap::${car.id}`);
+    // SES-8: the meetings with slow cars on its timed laps, a stream of its own (the laps never depend on it).
+    car.trafficStream = createStream(`${state.seed}::session::${state.kind}::${segment.name}::traffic::${car.id}`);
+    car.traffic = null;
     car.aiPlans = car.eliminated ? [] : rivalPlans(state, car, segment);
     if (segment.singleLap && !car.eliminated) car.pending = { at: segment.slots[car.id] ?? 0, plan: null, slot: true };
   });
@@ -614,6 +629,8 @@ const waveYellow = (state, car) => {
     s: Math.round(yellow.s * 10000) / 10000,
     until: round3(yellow.until),
   });
+  // SES-8: until when a waved yellow may still be met, so a lap retimed by traffic looks again.
+  state.yellowUntil = Math.max(state.yellowUntil ?? 0, yellow.until);
   // SES-4: the car that went off does not meet its own yellow on this lap; everybody else may.
   const record = car.record;
   record.seenYellows = [...(record.seenYellows || []), state.events.length - 1];
@@ -697,10 +714,20 @@ const abortLapAt = (state, car, at, extra = {}) => {
 /** The driver lifts at `at` and the lap is `loss` seconds longer from there on (time, end and the sector it is in). */
 const liftAt = (state, record, at, loss) => {
   if (!(loss > 0)) return;
+  shiftLapAt(state, record, at, loss);
+};
+
+/**
+ * The lap is `delta` seconds longer (> 0) or shorter (< 0) from `at` on: a warp at the car's place, the end,
+ * the time and the sector it is in, and the car's own mistake further on (SES-4 lift, SES-8 traffic).
+ */
+const shiftLapAt = (state, record, at, delta) => {
+  if (!delta) return;
   const share = lapShareAt(record, at);
   record.warp = { at, share };
-  record.end += loss;
-  record.flying += loss;
+  record.end += delta;
+  if (Number.isFinite(record.flying)) record.flying += delta;
+  const loss = delta;
   if (Array.isArray(record.sectors)) {
     const [a, b] = state.sectorShares;
     const sector = share < a ? 0 : share < b ? 1 : 2;
@@ -954,8 +981,161 @@ const handleDue = (state, car, at) => {
     if (slot) car.aiPlans = [];
     return;
   }
-  const next = car.aiPlans.shift();
-  if (next && at < segment.duration) leave(state, car, sanitisePlan(state, car, next.plan), at);
+  const next = car.aiPlans[0];
+  // SES-8 ai.spacingSec: the pit wall waits for a gap before it releases the car (one step at a time).
+  if (next && at < segment.duration && spacingHold(state, car, at, next)) {
+    next.at = at + state.dt;
+    next.heldSec = round3((next.heldSec ?? 0) + state.dt);
+    return;
+  }
+  car.aiPlans.shift();
+  if (next && at < segment.duration && leave(state, car, sanitisePlan(state, car, next.plan), at) && next.heldSec) {
+    // The wait for a gap shows on the departure.
+    const out = state.events[state.events.length - 1];
+    if (out?.type === "out" && out.carId === car.id) out.heldSec = next.heldSec;
+  }
+};
+
+// ------------------------------------------------------------------ traffic (SES-8)
+
+/** When the lap timeline of `record` reaches time share `share` of the lap on the track (null if it is past it or off the track). */
+const timeAtTrackShare = (record, share) => {
+  const track = record.track || { at: record.start, from: 0, pace: record.end - record.start };
+  const warp = record.warp;
+  if (warp && share >= warp.share) return warp.at + ((share - warp.share) / Math.max(EPS, 1 - warp.share)) * (record.end - warp.at);
+  if (warp) return null;
+  if (share < track.from) return null;
+  return track.at + (share - track.from) * track.pace;
+};
+
+/**
+ * The session times at which the other cars pass the pit exit around `trackAt` (the moment a car released now
+ * would join): the ones on the track, on this lap or (once past it) about a lap later, and the ones already
+ * leaving the garage. Geometry and the lap timelines only, no draw.
+ */
+const exitPassesOf = (state, car, now) => {
+  const share = state.lane.exitShare;
+  const passes = [...state.exitQueue];
+  state.cars.forEach((other) => {
+    const record = other.record;
+    if (other === car || other.eliminated || !record || record.in) return;
+    if (record.garageExit && now < record.garageExit.trackAt) return; // counted in the queue
+    const at = timeAtTrackShare(record, share);
+    passes.push(at !== null && at >= now ? at : record.end + share * state.baseLap);
+  });
+  return passes;
+};
+
+/** The gaps a car released at `at` would join with: seconds to the nearest car passing the exit before and after it. */
+const exitGapsOf = (state, car, at) => {
+  const trackAt = clearExitAt(state, at + B.garage.exit.rollOutSec + car.lane.exitSec);
+  let ahead = null;
+  let behind = null;
+  exitPassesOf(state, car, at).forEach((pass) => {
+    const gap = pass - trackAt;
+    if (gap <= 0 && (ahead === null || -gap < ahead)) ahead = -gap;
+    if (gap > 0 && (behind === null || gap < behind)) behind = gap;
+  });
+  return { trackAt, ahead, behind };
+};
+
+/**
+ * SES-8: does a rival pit wall hold its car at `at`? While another car passes the exit within ai.spacingSec of
+ * the moment it would join, for at most ai.spacingMaxHoldSec, and never so late that the push lap would start
+ * after the flag (the out-lap from the exit at outLap pace has to fit before it).
+ */
+const spacingHold = (state, car, at, next) => {
+  const { spacingSec, spacingMaxHoldSec } = B.ai;
+  if (!state.traffic || !(spacingSec > 0)) return false;
+  if ((next.heldSec ?? 0) + state.dt > spacingMaxHoldSec) return false;
+  const latest = currentSegment(state).duration - (B.garage.exit.rollOutSec + car.lane.exitSec + (1 - state.lane.exitShare) * state.baseLap * B.laps.outLap) - state.dt;
+  if (at + state.dt > latest) return false;
+  const { ahead, behind } = exitGapsOf(state, car, at);
+  return (ahead !== null && ahead < spacingSec) || (behind !== null && behind < spacingSec);
+};
+
+/**
+ * What the pit wall sees before it sends car `carId` out now (SES-8, read-only): when it would join the track
+ * and the seconds to the nearest car passing the pit exit before (`aheadSec`) and after it (`behindSec`).
+ */
+export const exitTrafficOf = (state, carId) => {
+  const car = carOf(state, carId);
+  if (!car) return null;
+  const { trackAt, ahead, behind } = exitGapsOf(state, car, state.clock);
+  return { trackAt: round3(trackAt), aheadSec: ahead === null ? null : round3(ahead), behindSec: behind === null ? null : round3(behind), spacingSec: B.ai.spacingSec };
+};
+
+/** The cars on the track at `tau`, placed on the trace for stepSession: time share, lap seconds, timed or slow. */
+const trackEntriesOf = (state, tau) => {
+  const out = [];
+  state.cars.forEach((car) => {
+    const record = car.record;
+    if (car.eliminated || !record || tau < record.start || tau >= record.end) return;
+    if (record.in && tau >= record.pit.entryAt) return;
+    const share = trackShareOf(record, tau);
+    if (share === null) return;
+    const timed = isTimedLap(record);
+    out.push({ car, index: car.index, tau: clamp(share, 0, 1 - EPS), lapSec: timed ? record.end - record.start : state.baseLap, timed, slow: !timed, met: record.metSlow || [] });
+  });
+  return out;
+};
+
+/**
+ * SES-8 (RF-SIM-01, RF-SIM-06): one step of traffic from the step's start - the air term written into each
+ * timed lap as a warp, and the meetings with slow cars. Only laps that do not end inside the step are touched.
+ */
+const applyTraffic = (state, to) => {
+  const now = state.clock;
+  state.cars.forEach((car) => {
+    car.traffic = null;
+  });
+  if (!state.traffic) return;
+  const ctx = trafficContextOf(circuitOfState(state), state.era);
+  if (!ctx) return;
+  const actions = trafficStep(state, ctx, trackEntriesOf(state, now), to - now);
+  actions.forEach((action) => {
+    const { car } = action.entry;
+    const record = car.record;
+    if (action.kind === "follow") {
+      car.traffic = { aheadId: action.aheadId, gapSec: action.gapSec, effect: null };
+      return;
+    }
+    if (action.kind === "air") {
+      car.traffic = { aheadId: action.aheadId, gapSec: action.gapSec, effect: action.effect };
+      if (action.deltaSec && record.end - to > EPS) {
+        shiftLapAt(state, record, now, action.deltaSec);
+        if (record.yellowHit || state.yellowUntil > now) planYellowHit(state, car, now);
+      }
+      return;
+    }
+    // A meeting with a slow car: once per pair and lap.
+    record.metSlow = [...(record.metSlow || []), action.slowId];
+    const meeting = action.meeting;
+    car.traffic = { aheadId: action.slowId, gapSec: action.gapSec, effect: meeting ? "impeded" : null };
+    if (!meeting) return;
+    const penalty = impedingPenaltyOf(state.year);
+    state.events.push({
+      t: round3(now),
+      type: "impeding",
+      carId: action.slowId,
+      victimId: car.id,
+      segment: state.segment,
+      outcome: meeting.outcome,
+      lossSec: meeting.outcome === "abandon" ? null : meeting.lossSec,
+      gapM: action.gapM,
+      noted: meeting.noted,
+      // The stewards' decision: the era's penalty once its FIA text is copied; until then only noted.
+      penalty: meeting.noted && penalty?.status === "source" ? penalty.value : null,
+    });
+    if (meeting.outcome === "abandon") {
+      abortLapAt(state, car, now, { reason: "impeding" });
+      return;
+    }
+    if (record.end - to > EPS) {
+      shiftLapAt(state, record, now, meeting.lossSec);
+      if (record.yellowHit || state.yellowUntil > now) planYellowHit(state, car, now);
+    }
+  });
 };
 
 /** One fixed step of session time: every lap end and departure inside it, in time order. */
@@ -963,6 +1143,8 @@ export const stepOnce = (state) => {
   if (state.over || state.done) return state;
   const segment = currentSegment(state);
   const to = state.clock + state.dt;
+  // SES-8: what the traffic does to the timed laps over this step, before anything inside it happens.
+  applyTraffic(state, to);
   for (let guard = 0; guard < 400; guard += 1) {
     let pick = null;
     let when = Infinity;
@@ -1252,6 +1434,8 @@ export const carStatus = (state, carId, tau = state.clock) => {
   const bestSoFar = timed.length ? Math.min(...timed.map((entry) => entry.flying)) : null;
   return {
     car, phase, runPhase, garageExit, boxRequest, localClock: localClockOf(state, tau),
+    // SES-8: the car ahead within the traffic window at the last step, and what it does to this lap.
+    traffic: live && car.record === live ? car.traffic : null,
     record: live, elapsed, sectors, laps: done.length, timedLaps: timed.length, best: bestSoFar, lastLap: timed.length ? timed[timed.length - 1].flying : null,
   };
 };
@@ -1358,7 +1542,7 @@ export const sessionResult = (state) => {
 export const evolutionImprovement = (options) => {
   const state = runSessionToEnd(createSession(options));
   const last = state.segments.length - 1;
-  if (state.combine !== "knockout" || last !== 2) return { q1ToQ3: null, q1ToQ2: null, cars: 0 };
+  if (state.combine !== "knockout" || last !== 2) return { q1ToQ3: null, q1ToQ2: null, cars: 0, q1ToQ2Iqr: null };
   const median = (values) => {
     const sorted = [...values].sort((a, b) => a - b);
     if (!sorted.length) return null;
@@ -1368,5 +1552,14 @@ export const evolutionImprovement = (options) => {
   const finalists = state.cars.filter((car) => car.out === undefined && Number.isFinite(car.results[0]?.best) && Number.isFinite(car.results[last]?.best));
   const q3 = median(finalists.map((car) => car.results[0].best - car.results[last].best));
   const q2 = median(finalists.filter((car) => Number.isFinite(car.results[1]?.best)).map((car) => car.results[0].best - car.results[1].best));
-  return { q1ToQ3: q3 === null ? null : round3(q3), q1ToQ2: q2 === null ? null : round3(q2), cars: finalists.length };
+  // SES-8: the scatter of what each driver gains Q1 -> Q2 (IQR over every car with both times, >= 8 of them).
+  const quantile = (values, q) => {
+    const sorted = [...values].sort((a, b) => a - b);
+    const at = (sorted.length - 1) * q;
+    const lo = Math.floor(at);
+    return sorted[lo] + (sorted[Math.min(sorted.length - 1, lo + 1)] - sorted[lo]) * (at - lo);
+  };
+  const gains = state.cars.filter((car) => Number.isFinite(car.results[0]?.best) && Number.isFinite(car.results[1]?.best)).map((car) => car.results[0].best - car.results[1].best);
+  const iqr = gains.length >= 8 ? quantile(gains, 0.75) - quantile(gains, 0.25) : null;
+  return { q1ToQ3: q3 === null ? null : round3(q3), q1ToQ2: q2 === null ? null : round3(q2), cars: finalists.length, q1ToQ2Iqr: iqr === null ? null : round3(iqr) };
 };
