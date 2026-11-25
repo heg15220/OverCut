@@ -215,3 +215,13 @@
     animation: none;
   }
 }
+
+/* HUD-6: the tyre in °C with its trend and its window's verdict (words beside the colour, RNF-09). */
+.lv-tyretemp {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+.lv-tyretemp .is-info { color: var(--mn-info, inherit); }
+.lv-tyretemp__trend { font-variant-numeric: tabular-nums; }

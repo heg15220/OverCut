@@ -50,6 +50,11 @@
  * 90 m ahead of the leader; the flag says its phase, a banner says when it comes in this lap (the engine's
  * IN_THIS_LAP, or its own count of the spell), another when race control ends the VSC, and your cards
  * show each car's VSC delta (snapshot.vsc.deltaSec). Only in the eras that have them (rules.raceControl).
+ *
+ * Tyre in °C (HUD-6, driver-panel-units; tyreTempHud.js, hud.json driverPanel.tyreTemp): when the engine sends
+ * each car's tyreC {surface, carcass} (§1.7, SIM-6) your panel shows it in °C with its trend on the race clock
+ * and the warning against the compound's window (race-tyres.json windowC, or the engine's own); without it,
+ * the 0..1 meter on the engine's window as before - no conversion is invented (§1.5).
  */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -62,7 +67,8 @@ import { applyTick, createRaceClient, mirrorOf } from "../engine/worker/raceClie
 import { circuitFor } from "../engine/venue";
 import { useManager } from "./context";
 import { Meter, Segmented, Tabs, Tyre, readableOn } from "./atoms";
-import { Dots, EventBanner, Feed, PitTimer, PlaybackBar, SectorBars, SpeedCallout, StatusStrip, TimingTower } from "./Broadcast";
+import { Dots, EventBanner, Feed, PitTimer, PlaybackBar, SectorBars, SpeedCallout, StatusStrip, TimingTower, TyreTemp } from "./Broadcast";
+import { TYRE_TEMP, createTempTrend, loadRaceTyres, mirrorTyreC, pushTempSample, tempTrendOf, tyreCOf, tyreTempVerdict, tyreWindowOf } from "./tyreTempHud";
 import { createBannerQueue, currentBanner, drsBanners, drsCalls, eventBanners, lapCallouts, offerBanners } from "./hudBanners";
 import { createPitClock, stepPitClock } from "./pitTimer";
 import PitDialog from "./PitDialog";
@@ -353,6 +359,8 @@ function LiveStepRace({ args, onFinished, title }) {
           }
           const vsc = view.vsc !== undefined ? view.vsc : view.snapshot?.vsc;
           if (vsc !== undefined) mirror.vsc = vsc;
+          // HUD-6 (§1.7 tyreC[i], SIM-6): the tyre in °C per car when the engine sends it; absent = as before.
+          mirrorTyreC(mirror, view);
         }
         current.replied(reply);
       },
@@ -986,6 +994,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
               onPitDialog={() => setPitDialogId(car.id)}
               flag={HUD.finish.foldPanel && flagged(car) ? { pos: flagOf[car.id]?.pos ?? rowOf[car.id]?.position ?? car.position } : null}
               vscDelta={vscNow ? vscDeltaOf(vscNow, carIndex[car.id], raceRules) : null}
+              clock={tau.current}
             />
           </React.Fragment>
         ))}
@@ -1056,6 +1065,8 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
 
 /** The tyre's heat against the engine's own window (race-eras.json tyres.thermal, 0..1 scale; RNF-07). */
 const THERMAL = RACE_ERAS.tyres.thermal;
+/** HUD-6: race-tyres.json (SIM-6) for the compound's window in °C; null until that file exists. */
+const RACE_TYRES = loadRaceTyres();
 const TEMP_LABEL = (temp) => (temp < THERMAL.coldBelow ? { label: t("Fríos", "Cold"), tone: "info" } : temp > THERMAL.overheatAbove ? { label: t("Sobrecalentados", "Overheating"), tone: "neg" } : { label: t("En ventana", "In window"), tone: "pos" });
 
 /** RF-CMD-02: the next planned stop of a car (one already made is not "next"). */
@@ -1091,7 +1102,7 @@ const PANEL_TAB = {
  * may not be changed) and "Pit options" opens the pit dialog (PitDialog, which pauses the
  * session). Every order goes through `command` (the race worker for a step race).
  */
-function DriverCard({ car, row, state, commands, energy, command, steps, pitThisLap, focused, onFocus, onPitDialog, flag = null, vscDelta = null }) {
+function DriverCard({ car, row, state, commands, energy, command, steps, pitThisLap, focused, onFocus, onPitDialog, flag = null, vscDelta = null, clock = 0 }) {
   const PANEL = HUD.driverPanel;
   const tabs = PANEL.tabs.filter((tab) => tab !== "telemetry" || steps);
   const [tabPick, setTab] = useState(PANEL.defaultTab);
@@ -1103,7 +1114,16 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
   const refuel = commands.pit.fuel;
   const life = Math.max(0, 1 - tyreLifeUsed(car, rules));
   const temp = TEMP_LABEL(car.tyreTemp ?? 0.5);
-  const tyreC = car.tyreC && Number.isFinite(car.tyreC.surface) ? car.tyreC : null;
+  // HUD-6: the engine's °C (§1.7 tyreC, SIM-6), its trend on the race clock and the compound's window
+  // (race-tyres.json windowC, or the one the engine sends with tyreC). Without tyreC: the 0..1 meter as before.
+  const tyreC = tyreCOf(car);
+  const trendRef = useRef(null);
+  if (!trendRef.current) trendRef.current = createTempTrend();
+  if (tyreC) pushTempSample(trendRef.current, clock, tyreC.surface);
+  const tyreTrend = tyreC ? tempTrendOf(trendRef.current, clock) : null;
+  const suppliers = rules.tyres?.suppliers || [];
+  const tyreWindow = tyreC ? tyreWindowOf(RACE_TYRES, { compound: car.compound, supplier: car.tyreSupplier ?? (suppliers.length === 1 ? suppliers[0] : null), year: state.year, engine: tyreC.window }) : null;
+  const tyreVerdict = tyreTempVerdict(tyreC, tyreWindow);
   const remaining = Math.max(0, state.laps - state.lap);
   const burn = mixEffect(car.fuelMode).burn;
   const fuelMargin = refuel ? null : car.fuel / burn - remaining;
@@ -1157,17 +1177,16 @@ function DriverCard({ car, row, state, commands, energy, command, steps, pitThis
             <>
               <div className="lv-ctl">
                 <span>{t("Neumático", "Tyre")}</span>
-                <div className="lv-ctl__value" title={temp.label}>
+                <div className="lv-ctl__value" title={tyreC ? undefined : temp.label}>
                   <Tyre compound={car.compound} age={car.tyreAge} size={20} />
                   <b className={lifeClass}>{Math.round(life * 100)}%</b>
                   {tyreC ? (
-                    <small>
-                      {Math.round(tyreC.surface)} °C{Number.isFinite(tyreC.carcass) ? ` · ${t("carcasa", "carcass")} ${Math.round(tyreC.carcass)} °C` : ""}
-                    </small>
+                    <TyreTemp tyreC={tyreC} window={tyreWindow} verdict={tyreVerdict} trend={tyreTrend} showCarcass={TYRE_TEMP.showCarcass} />
                   ) : (
                     <Meter value={Math.round((car.tyreTemp ?? 0.5) * 100)} tone={temp.tone} label={t("Temperatura", "Temperature")} />
                   )}
-                  <small>{temp.label}</small>
+                  {/* Without a window in °C the verdict stays the engine's own 0..1 window (race-eras.json tyres.thermal). */}
+                  {!tyreVerdict && <small>{temp.label}</small>}
                 </div>
               </div>
               <div className="lv-ctl">

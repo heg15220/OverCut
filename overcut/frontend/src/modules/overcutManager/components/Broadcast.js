@@ -24,6 +24,8 @@
  *   EventBanner   HUD-3: the event banner up now (passes, incidents, fastest lap,
  *                 DRS, laps to go), one at a time.
  *   PitTimer      HUD-3: your cars' stops as they happen - lane, stationary, total.
+ *   TyreTemp      HUD-6: the tyre in °C (surface and carcass, §1.7 tyreC), its trend and
+ *                 the warning against the compound's window, all in words too.
  */
 
 import React, { useRef, useState } from "react";
@@ -453,6 +455,56 @@ export const PitTimer = ({ entries = [] }) => {
         </div>
       ))}
     </div>
+  );
+};
+
+/** HUD-6: the words of a temperature against its window and of its trend (never a colour or an arrow alone, RNF-09). */
+const TEMP_STATE_WORD = {
+  cold: () => t("Fríos", "Cold"),
+  lowEdge: () => t("Al borde frío", "Near cold edge"),
+  window: () => t("En ventana", "In window"),
+  highEdge: () => t("Al borde caliente", "Near hot edge"),
+  overheating: () => t("Sobrecalentados", "Overheating"),
+};
+const TREND_WORD = {
+  rising: () => t("subiendo", "rising"),
+  falling: () => t("bajando", "falling"),
+  steady: () => t("estable", "steady"),
+};
+const TREND_GLYPH = { rising: "↑", falling: "↓", steady: "→" };
+const TONE_CLASS = { info: "is-info", warn: "is-warn", neg: "is-bad", pos: "is-good" };
+
+/**
+ * HUD-6 (driver-panel-units in °C, F1M24-GAMEPLAY §2.8): the engine's tyre temperature (§1.7 `tyreC`,
+ * SIM-6) with its trend and, when race-tyres.json gives the compound's window, the warning against it.
+ * `tyreC` { surface, carcass } in °C; `window` { lo, hi } or null; `verdict` from tyreTempHud.tyreTempVerdict
+ * or null; `trend` { dir } or null; `showCarcass` from hud.json. The window and the trend go in words too.
+ */
+export const TyreTemp = ({ tyreC, window = null, verdict = null, trend = null, showCarcass = true }) => {
+  if (!tyreC) return null;
+  const round = (value) => Math.round(value);
+  const stateWord = verdict ? TEMP_STATE_WORD[verdict.state]?.() : null;
+  const trendWord = trend ? TREND_WORD[trend.dir]?.() : null;
+  const windowWord = window ? t(`ventana ${round(window.lo)}–${round(window.hi)} °C`, `window ${round(window.lo)}–${round(window.hi)} °C`) : null;
+  const label = [t(`Superficie ${round(tyreC.surface)} °C`, `Surface ${round(tyreC.surface)} °C`), trendWord, windowWord, stateWord].filter(Boolean).join(", ");
+  return (
+    <span className="lv-tyretemp" data-testid="tyre-temp" data-state={verdict ? verdict.state : "unjudged"} data-trend={trend ? trend.dir : "none"} title={label} aria-label={label}>
+      <small className={verdict ? TONE_CLASS[verdict.tone] || "" : ""}>
+        {round(tyreC.surface)} °C
+        {trend && (
+          <span className="lv-tyretemp__trend" aria-hidden="true">
+            {" "}
+            {TREND_GLYPH[trend.dir]}
+          </span>
+        )}
+      </small>
+      {showCarcass && Number.isFinite(tyreC.carcass) && (
+        <small>
+          {t("carcasa", "carcass")} {round(tyreC.carcass)} °C
+        </small>
+      )}
+      {stateWord && <small className={TONE_CLASS[verdict.tone] || ""}>{stateWord}</small>}
+    </span>
   );
 };
 
