@@ -18,6 +18,11 @@
  * RNF-07, RNF-09): the session waves local yellows from mistakes, at OpenF1 2023-2024's rate per session
  * and double share, with the sector from circuit.sectors, from a stream of their own (the laps do not
  * change), at their own instant, and the tower says it in words.
+ *
+ * SES-4 (F1M24-GAMEPLAY §2.10 amarilla-sector; RF-SIM-10, RF-WKD-02, RF-SIM-15, RNF-05, RNF-07, SRS §6): a
+ * timed lap that reaches somebody else's waved yellow meets it there; the era's rule (sessions.json
+ * yellow.laps, OpenF1 race_control 2023-2024 for the double-yellow deletions) lifts, deletes or abandons
+ * the lap, the deleted times never classify, and the same seed gives the same session however it is sliced.
  */
 
 import Ajv from "ajv";
@@ -35,7 +40,7 @@ import {
   RUN_PHASES, advanceTo, carStatus, command, createSession, nextSegment, rankOf, replaySession, runSegmentToEnd, runSessionToEnd, sessionFormat, sessionResult, stepOnce,
 } from ".";
 import { PIT_LANE_BALANCE, buildProfile, garageExitProfile, laneGeometry } from "../sim/pitLane";
-import { evolutionImprovement, evolutionOf, garageWorkOf, localClockOf, sessionConditions, sessionScheduleOf, sessionYellows, yellowEraOf } from "./session";
+import { evolutionImprovement, evolutionOf, garageWorkOf, localClockOf, sessionConditions, sessionScheduleOf, sessionYellows, yellowEraOf, yellowLapRuleOf } from "./session";
 import { sectorOfShare, sessionYellowsAt, yellowFlag } from "../../components/tower";
 
 let context = null;
@@ -549,7 +554,8 @@ describe("SES-3: local yellows in the session (F1M24-GAMEPLAY §1.5, §1.7 yello
     return { ...sessionOptions(career, kind), wetness: 0 };
   };
   const yellowsOf = (state) => state.events.filter((event) => event.type === "yellow");
-  const lapsOf = (state) => JSON.stringify(state.cars.map((car) => car.history.map(({ yellow, ...lap }) => lap)));
+  // `seenYellows` is SES-4's bookkeeping of the yellows a lap has met (no time of its own).
+  const lapsOf = (state) => JSON.stringify(state.cars.map((car) => car.history.map(({ yellow, seenYellows, ...lap }) => lap)));
   /** Every segment to the end, keeping each segment's laps (startSegment clears the history). */
   const playAll = (options) => {
     const state = createSession(options);
@@ -625,24 +631,46 @@ describe("SES-3: local yellows in the session (F1M24-GAMEPLAY §1.5, §1.7 yello
     });
   });
 
+  // SES-4 changes on purpose what a yellow does to the others' laps; with its effects neutralised (every
+  // era "lift", no loss, nobody gives up) the SES-3 guarantee stands as it was: the yellows' draws never
+  // touch the laps' streams.
+  const withoutLapEffects = (fn) => {
+    const L = Y.laps;
+    const saved = JSON.stringify({ eras: L.eras, lossSec: L.lossSec, abandonShare: L.abandonShare });
+    try {
+      L.eras.forEach((row) => Object.assign(row, { single: "lift", double: "lift" }));
+      ["single", "double"].forEach((flag) => {
+        L.lossSec[flag] = { p25: 0, p75: 0 };
+        L.abandonShare[flag] = 0;
+      });
+      return fn();
+    } finally {
+      Object.assign(L, JSON.parse(saved));
+    }
+  };
+
   it("the yellows draw from their own stream: every lap is the same without them, and the same seed gives the same yellows (RF-SIM-15, RNF-05)", () => {
     const options = optionsFor(2024, "qualifying", 0, "ses3-det");
     const a = playAll(options);
     const b = playAll(options);
     expect(JSON.stringify(yellowsOf(b.state))).toBe(JSON.stringify(yellowsOf(a.state)));
     expect(yellowsOf(a.state).length).toBeGreaterThan(0);
-    const saved = { ...Y.chance };
-    try {
-      Object.keys(Y.chance).forEach((key) => {
-        Y.chance[key] = 0;
-      });
-      const calm = playAll(options);
-      expect(yellowsOf(calm.state)).toEqual([]);
-      expect(calm.segments.map((segment) => segment.laps)).toEqual(a.segments.map((segment) => segment.laps));
-      expect(JSON.stringify(sessionResult(calm.state))).toBe(JSON.stringify(sessionResult(a.state)));
-    } finally {
-      Object.assign(Y.chance, saved);
-    }
+    withoutLapEffects(() => {
+      const plain = playAll(options);
+      expect(yellowsOf(plain.state).length).toBeGreaterThan(0);
+      const saved = { ...Y.chance };
+      try {
+        Object.keys(Y.chance).forEach((key) => {
+          Y.chance[key] = 0;
+        });
+        const calm = playAll(options);
+        expect(yellowsOf(calm.state)).toEqual([]);
+        expect(calm.segments.map((segment) => segment.laps)).toEqual(plain.segments.map((segment) => segment.laps));
+        expect(JSON.stringify(sessionResult(calm.state))).toBe(JSON.stringify(sessionResult(plain.state)));
+      } finally {
+        Object.assign(Y.chance, saved);
+      }
+    });
   });
 
   /** A 2024 practice whose first segment has a yellow (the first of rounds 0-9 that does), engineers driving every car. */
@@ -704,5 +732,183 @@ describe("SES-3: local yellows in the session (F1M24-GAMEPLAY §1.5, §1.7 yello
     expect(command(state, "abortLap", target.id)).toBe(true);
     advanceTo(state, at + 60);
     expect(yellowsOf(state).filter((event) => event.carId === target.id && Math.abs(event.t - at) < 0.001)).toEqual([]);
+  });
+});
+
+describe("SES-4: the lap under a yellow - lifted, abandoned or deleted by era (F1M24-GAMEPLAY §2.10 amarilla-sector)", () => {
+  const L = balance.yellow.laps;
+  const optionsFor = (year, kind, round, seed) => {
+    const career = createCareer(contextOf(), { year, teamId: "ferrari", seed });
+    career.round = round % packs[year].calendar.length;
+    runPractice(career, {});
+    return { ...sessionOptions(career, kind), wetness: 0 };
+  };
+  /** Every segment to the end, with each segment's records and best lap. */
+  const playAll = (options) => {
+    const state = createSession(options);
+    const segments = [];
+    for (let guard = 0; guard < 10; guard += 1) {
+      runSegmentToEnd(state);
+      segments.push(state.cars.map((car) => ({ id: car.id, history: car.history.slice(), best: car.best })));
+      if (state.done) break;
+      nextSegment(state);
+    }
+    return { state, segments };
+  };
+  const ofType = (state, type) => state.events.filter((event) => event.type === type);
+  const sessionsOf = (year, rounds, tag) => Array.from({ length: rounds }, (_, index) => playAll(optionsFor(year, "qualifying", index, `${tag}-${index}`)));
+  /** Every meeting with the lap that met it (the timed lap of that car under way at the instant). */
+  const meetings = (played) =>
+    played.flatMap(({ state, segments }) =>
+      ofType(state, "yellowLap").map((event) => ({
+        event,
+        state,
+        lap: segments[event.segment]
+          .find((row) => row.id === event.carId)
+          .history.find((record) => record.start <= event.t + 0.001 && record.end >= event.t - 0.001 && (record.kind === "push" || record.kind === "timed")),
+        yellow: state.events.find((other) => other.type === "yellow" && other.segment === event.segment && Math.abs(other.t - event.yellowAt) < 0.001),
+      })),
+    );
+  const RULES = ["lift", "delete", "abandon"];
+
+  it("sessions.json yellow.laps matches its schema, dates every year 1976-2026 and copies OpenF1's measure (RNF-07, SRS §6)", () => {
+    const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
+    expect(validate(balance)).toBe(true);
+    for (let year = 1976; year <= 2026; year += 1) {
+      const rule = yellowLapRuleOf(year);
+      expect(rule).not.toBeNull();
+      expect(RULES).toContain(rule.single);
+      expect(RULES).toContain(rule.double);
+    }
+    // Measured where OpenF1's race_control deletes the double-yellow times; pending (and never "delete") before.
+    expect(yellowLapRuleOf(2024)).toMatchObject({ status: "measured", single: "lift", double: "delete" });
+    expect(yellowLapRuleOf(2023).status).toBe("measured");
+    expect(L.measured.deletedTimes.doubleYellow).toBeGreaterThan(0);
+    expect(L.measured.deletedTimes.yellow).toBe(0);
+    for (let year = 1976; year <= 2022; year += 1) {
+      expect(yellowLapRuleOf(year)).toMatchObject({ status: "pending", single: "lift" });
+      expect(yellowLapRuleOf(year).double).not.toBe("delete");
+    }
+    expect(L.abandonShare.single).toBe(L.measured.single.abandonShare);
+    expect(L.abandonShare.double).toBe(L.measured.double.abandonShare);
+    // The loss is a working value (OpenF1 cannot resolve it): pending, never above the measured p75.
+    expect(L.lossSec.status).toBe("pending");
+    expect(L.lossSec.single.p75).toBeLessThanOrEqual(L.measured.single.lossSec.p75);
+    expect(L.lossSec.double.p75).toBeLessThanOrEqual(L.measured.double.lossSec.p75);
+    expect(validate({ ...balance, yellow: { ...balance.yellow, laps: { ...L, eras: [{ ...L.eras[0], double: "ignore" }] } } })).toBe(false);
+  });
+
+  it("a car meets a yellow where it is waved, on its own timed lap, while it is out (RF-SIM-10, RF-WKD-02)", () => {
+    const met = meetings(sessionsOf(2024, 8, "ses4-meet"));
+    expect(met.length).toBeGreaterThan(3);
+    met.forEach(({ event, lap, yellow }) => {
+      expect(Object.keys(event).sort()).toEqual(["carId", "double", "lossSec", "outcome", "segment", "t", "type", "yellowAt"]);
+      expect(yellow).toBeDefined();
+      expect(event.double).toBe(yellow.double);
+      expect(event.t).toBeGreaterThanOrEqual(yellow.t - 0.001);
+      expect(event.t).toBeLessThan(yellow.until + 0.001);
+      expect(lap).toBeDefined();
+      // Never the lap whose mistake waved that very yellow.
+      expect(Boolean(lap.yellow?.waved && Math.abs(lap.yellow.at - event.yellowAt) < 0.001)).toBe(false);
+    });
+  });
+
+  it("2024: a single yellow lifts or abandons; a double abandons or has the time deleted, and a deleted time never classifies", () => {
+    const played = sessionsOf(2024, 8, "ses4-2024");
+    const met = meetings(played).map(({ event }) => event);
+    met.filter((event) => !event.double).forEach((event) => expect(["lift", "abandon"]).toContain(event.outcome));
+    met.filter((event) => event.double).forEach((event) => expect(["delete", "abandon"]).toContain(event.outcome));
+    expect(met.filter((event) => event.double).length).toBeGreaterThan(0);
+    const deletions = played.flatMap(({ state, segments }) =>
+      ofType(state, "lapDeleted").map((event) => {
+        const row = segments[event.segment].find((entry) => entry.id === event.carId);
+        const timed = row.history.filter((record) => Number.isFinite(record.flying)).map((record) => record.flying);
+        return { event, row, timed, lap: row.history.find((record) => record.deleted && Math.abs(record.end - event.t) < 0.001) };
+      }),
+    );
+    played.forEach(({ state }) => {
+      // Every deletion follows a meeting that said "delete".
+      expect(ofType(state, "lapDeleted").length).toBeLessThanOrEqual(ofType(state, "yellowLap").filter((event) => event.outcome === "delete").length);
+    });
+    deletions.forEach(({ event, row, timed, lap }) => {
+      expect(event.reason).toBe("doubleYellow");
+      expect(lap).toBeDefined();
+      expect(lap.deleted.time).toBeCloseTo(event.time, 2);
+      expect(lap.flying).toBeUndefined();
+      expect(lap.sectors).toBeUndefined();
+      // The segment's best is another lap (or none), never the deleted time.
+      expect(row.best).toBe(timed.length ? Math.min(...timed) : null);
+    });
+    expect(deletions.length + met.filter((event) => event.outcome === "abandon").length).toBeGreaterThan(0);
+  });
+
+  it("before 2023 nothing is deleted: 2019 doubles must be abandoned, 2012 and 1990 lift or give up (SRS §6, pending rows)", () => {
+    [[2019, ["abandon"]], [2012, ["lift", "abandon"]], [1990, ["lift", "abandon"]]].forEach(([year, allowed]) => {
+      const played = sessionsOf(year, 6, `ses4-era-${year}`);
+      played.forEach(({ state }) => expect(ofType(state, "lapDeleted")).toEqual([]));
+      const met = meetings(played).map(({ event }) => event);
+      met.filter((event) => event.double).forEach((event) => expect(allowed).toContain(event.outcome));
+      met.filter((event) => !event.double).forEach((event) => expect(["lift", "abandon"]).toContain(event.outcome));
+    });
+  });
+
+  it("a lift adds its loss to the lap, its end and the sector it is in; an abandon leaves no time", () => {
+    const met = meetings(sessionsOf(2024, 8, "ses4-loss"));
+    const abandoned = met.filter(({ event }) => event.outcome === "abandon");
+    const lifted = met.filter(({ event, lap }) => event.outcome === "lift" && !lap.aborted && Number.isFinite(lap.flying));
+    expect(abandoned.length + lifted.length).toBeGreaterThan(0);
+    abandoned.forEach(({ event, lap }) => {
+      expect(lap.aborted).toBe(true);
+      expect(lap.flying).toBeUndefined();
+      expect(event.lossSec).toBeNull();
+    });
+    met
+      .filter(({ event }) => event.outcome !== "abandon")
+      .forEach(({ event }) => {
+        const spread = L.lossSec[event.double ? "double" : "single"];
+        expect(event.lossSec).toBeGreaterThanOrEqual(spread.p25 - 0.001);
+        expect(event.lossSec).toBeLessThanOrEqual(spread.p75 + 0.001);
+      });
+    lifted.forEach(({ lap }) => {
+      // The lap stays whole: its time is its duration and the sum of its sectors.
+      expect(lap.end - lap.start).toBeCloseTo(lap.flying, 6);
+      expect(lap.sectors.reduce((sum, time) => sum + time, 0)).toBeCloseTo(lap.flying, 6);
+    });
+  });
+
+  it("the same seed gives the same meetings and laps, however the view slices time (RF-SIM-15, RNF-05)", () => {
+    const options = optionsFor(2024, "qualifying", 3, "ses4-det");
+    const a = playAll(options);
+    const b = playAll(options);
+    expect(ofType(a.state, "yellowLap").length).toBeGreaterThan(0);
+    expect(JSON.stringify(b.state.events)).toBe(JSON.stringify(a.state.events));
+    expect(JSON.stringify(sessionResult(b.state))).toBe(JSON.stringify(sessionResult(a.state)));
+    // Fine and coarse slices of the first segment's clock.
+    const fine = createSession(options);
+    const coarse = createSession(options);
+    for (let guard = 0; guard < 200000 && !fine.over; guard += 1) stepOnce(fine);
+    for (let tau = 0; !coarse.over && tau < 20000; tau += 41) advanceTo(coarse, tau);
+    expect(JSON.stringify(coarse.events)).toBe(JSON.stringify(fine.events));
+    expect(JSON.stringify(coarse.cars.map((car) => car.history))).toBe(JSON.stringify(fine.cars.map((car) => car.history)));
+  });
+
+  it("the player's abort still works on a lap that has lifted: the car goes on from where it is", () => {
+    const state = createSession(optionsFor(2024, "qualifying", 3, "ses4-det"));
+    let target = null;
+    for (let guard = 0; guard < 60000 && !target && !state.done; guard += 1) {
+      if (state.over) nextSegment(state);
+      stepOnce(state);
+      target = state.cars.find((car) => car.record?.warp && Number.isFinite(car.record.flying) && !car.record.aborted && car.record.end > state.clock + 5) || null;
+    }
+    expect(target).not.toBeNull();
+    const record = target.record;
+    const lifted = { ...record.warp };
+    expect(command(state, "abortLap", target.id)).toBe(true);
+    expect(record.aborted).toBe(true);
+    expect(record.flying).toBeUndefined();
+    expect(record.yellowHit).toBeUndefined();
+    // The abort's warp starts where the car is, after the lift's.
+    expect(record.warp.at).toBeGreaterThanOrEqual(lifted.at);
+    expect(record.warp.share).toBeGreaterThanOrEqual(lifted.share - 1e-9);
   });
 });

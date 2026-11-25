@@ -58,8 +58,19 @@
  * OpenF1 race_control - and the marshals wave a yellow (or a double, yellow.doubleShare) where it happened,
  * for a log-normal time from the measured durations. The event {t, type: "yellow", carId, segment, sector
  * (circuit.sectors), marshalPost, corner, double, s, until} is pushed at its own instant inside the step.
- * Its draws come from a stream of their own, so every lap is the same with or without yellows. The
- * yellow does not slow or delete anybody's lap yet (SES-4, SES-8).
+ * Its draws come from a stream of their own, so the yellows never change which laps are drawn.
+ *
+ * The lap under a yellow (SES-4, F1M24-GAMEPLAY §2.10 amarilla-sector; RF-SIM-10, RF-WKD-02, RNF-07):
+ * every other car on a timed lap that reaches the place of a yellow while it is waved meets it, at the
+ * instant it gets there (the lap's own timeline, warped like raceClock reads it). What it does is the
+ * era's rule for that flag (sessions.json yellow.laps.eras): "lift" - the driver slows through the
+ * marshal sector and loses some time; "delete" - the same, and the time is deleted at the line (race
+ * control, 2023-2024 double yellows); "abandon" - the attempt must be given up there (the rest at
+ * cool-down pace, no time). Under "lift" and "delete" the driver still gives the lap up as often as
+ * OpenF1's drivers did (yellow.laps.abandonShare). Events
+ * {type: "yellowLap", outcome, double, lossSec} and {type: "lapDeleted", time, reason}. The choice and
+ * the loss draw from one more stream of the car's own (two draws per meeting), so the same seed and
+ * orders give the same session (RF-SIM-15, RNF-05). Traffic and slipstream stay for SES-8.
  */
 
 import { clamp, createStream } from "../../../overcutTrayectoria/engine/rng";
@@ -368,6 +379,8 @@ const startSegment = (state, index) => {
     car.stream = createStream(`${state.seed}::session::${state.kind}::${segment.name}::${car.id}`);
     // SES-3: the yellows' own stream, so the laps never depend on them.
     car.yellowStream = createStream(`${state.seed}::session::${state.kind}::${segment.name}::yellow::${car.id}`);
+    // SES-4: what the car does when it meets somebody else's yellow, a stream of its own as well.
+    car.yellowLapStream = createStream(`${state.seed}::session::${state.kind}::${segment.name}::yellowLap::${car.id}`);
     car.aiPlans = car.eliminated ? [] : rivalPlans(state, car, segment);
     if (segment.singleLap && !car.eliminated) car.pending = { at: segment.slots[car.id] ?? 0, plan: null, slot: true };
   });
@@ -564,6 +577,8 @@ const planYellow = (state, car, record, where) => {
   return {
     at,
     until: at + duration,
+    // SES-4: the time share of the place, to move the yellow with the lap if the driver lifts before it.
+    share: clamp(share, 0, 1),
     sector: sectorOfDistance(circuit, s) ?? where + 1,
     corner: corner?.number ?? null,
     s,
@@ -599,11 +614,138 @@ const waveYellow = (state, car) => {
     s: Math.round(yellow.s * 10000) / 10000,
     until: round3(yellow.until),
   });
+  // SES-4: the car that went off does not meet its own yellow on this lap; everybody else may.
+  const record = car.record;
+  record.seenYellows = [...(record.seenYellows || []), state.events.length - 1];
+  state.cars.forEach((other) => planYellowHit(state, other, yellow.at));
 };
 
 /** SES-3: the yellows of the current segment still waved at session time `tau` (the events). Read-only. */
 export const sessionYellows = (state, tau = state.clock) =>
   state.events.filter((event) => event.type === "yellow" && event.segment === state.segment && event.t <= tau && event.until > tau);
+
+// ------------------------------------------------------------------ the lap under a yellow (SES-4)
+
+/** SES-4: the row of sessions.json yellow.laps.eras for `year`: what a driver must do at a single and a double yellow. */
+export const yellowLapRuleOf = (year) => B.yellow.laps.eras.find((row) => year >= row.from && year <= row.to) || null;
+
+const isTimedLap = (record) => Boolean(record && (record.kind === "push" || record.kind === "timed") && record.flying && !record.aborted);
+
+/** The share of `record`'s lap gone at `tau`, on its warped timeline (the same reading as components/raceClock lapShareAt). */
+const lapShareAt = (record, tau) => {
+  const warp = record.warp;
+  if (!warp) return clamp((tau - record.start) / Math.max(EPS, record.end - record.start), 0, 1);
+  if (tau <= warp.at) return clamp(((tau - record.start) / Math.max(EPS, warp.at - record.start)) * warp.share, 0, 1);
+  return clamp(warp.share + ((tau - warp.at) / Math.max(EPS, record.end - warp.at)) * (1 - warp.share), 0, 1);
+};
+
+/** When `record`'s lap reaches time share `share`, on the same warped timeline. */
+const lapTimeAtShare = (record, share) => {
+  const warp = record.warp;
+  if (!warp) return record.start + share * (record.end - record.start);
+  if (share <= warp.share) return record.start + (warp.share > EPS ? (share / warp.share) * (warp.at - record.start) : 0);
+  return warp.at + ((share - warp.share) / Math.max(EPS, 1 - warp.share)) * (record.end - warp.at);
+};
+
+/** The time share of the lap at distance share `s` (the event's place). */
+const timeShareOfPlace = (state, s) => {
+  const circuit = circuitOfState(state);
+  return circuit?.timeShare && circuit?.distShare ? timeShareAtDistance(circuit, s) : s;
+};
+
+/**
+ * SES-4: the next yellow car `car` meets on its timed lap from `now`: the first waved yellow of the
+ * segment whose place the lap reaches while it is out (t <= pass < until), not yet met on this lap.
+ * Kept as record.yellowHit {at, event}; none on other laps. Pure geometry and the event list, no draw.
+ */
+const planYellowHit = (state, car, now) => {
+  const record = car.record;
+  if (!record) return;
+  delete record.yellowHit;
+  if (!isTimedLap(record)) return;
+  const seen = record.seenYellows || [];
+  let hit = null;
+  state.events.forEach((event, index) => {
+    if (event.type !== "yellow" || event.segment !== state.segment || seen.includes(index)) return;
+    const at = lapTimeAtShare(record, clamp(timeShareOfPlace(state, event.s), 0, 1));
+    if (at < now - EPS || at < event.t - EPS || at >= event.until || at >= record.end - EPS) return;
+    if (!hit || at < hit.at - EPS) hit = { at, event: index };
+  });
+  if (hit) record.yellowHit = hit;
+};
+
+/** When the car meets its next yellow (Infinity without one). */
+const yellowHitDue = (car) => car.record?.yellowHit?.at ?? Infinity;
+
+/** The rest of a timed lap at cool-down pace from `at`, no time (the order "Abortar vuelta" and the yellow's "abandon"). */
+const abortLapAt = (state, car, at, extra = {}) => {
+  const record = car.record;
+  const share = lapShareAt(record, at);
+  record.aborted = true;
+  record.warp = { at, share };
+  // SES-3: aborted before the place of the mistake - it never happens, nor does its yellow.
+  if (record.yellow && !record.yellow.waved && record.yellow.at > at) record.yellow.dropped = true;
+  delete record.flying;
+  delete record.sectors;
+  delete record.yellowHit;
+  delete record.deleteFor;
+  record.end = at + (1 - share) * state.baseLap * B.laps.abortRest;
+  car.state = "cool";
+  state.events.push({ t: round3(at), type: "abort", carId: car.id, ...extra });
+};
+
+/** The driver lifts at `at` and the lap is `loss` seconds longer from there on (time, end and the sector it is in). */
+const liftAt = (state, record, at, loss) => {
+  if (!(loss > 0)) return;
+  const share = lapShareAt(record, at);
+  record.warp = { at, share };
+  record.end += loss;
+  record.flying += loss;
+  if (Array.isArray(record.sectors)) {
+    const [a, b] = state.sectorShares;
+    const sector = share < a ? 0 : share < b ? 1 : 2;
+    record.sectors = record.sectors.map((time, index) => (index === sector ? time + loss : time));
+  }
+  // The car's own mistake further on comes later on the slower lap, and so does its yellow.
+  const own = record.yellow;
+  if (own && !own.waved && !own.dropped && own.at > at) {
+    const duration = own.until - own.at;
+    own.at = lapTimeAtShare(record, own.share);
+    own.until = own.at + duration;
+  }
+};
+
+/**
+ * SES-4 (RF-SIM-10, RF-WKD-02): car `car` reaches the yellow it was due to meet. The era's rule for the
+ * flag decides; under "lift" the driver still gives the lap up as often as OpenF1's drivers did. Two
+ * draws on every meeting, in a fixed order, from the car's yellowLap stream.
+ */
+const meetYellow = (state, car) => {
+  const record = car.record;
+  const { at, event: index } = record.yellowHit;
+  const event = state.events[index];
+  record.seenYellows = [...(record.seenYellows || []), index];
+  delete record.yellowHit;
+  const L = B.yellow.laps;
+  const flag = event.double ? "double" : "single";
+  const rule = yellowLapRuleOf(state.year)?.[flag] || "lift";
+  const giveUp = car.yellowLapStream.range(0, 1);
+  const pick = car.yellowLapStream.range(0, 1);
+  // The lap is spoilt either way: drivers give it up as often as the measured ones did (forced under "abandon").
+  const outcome = rule === "abandon" || giveUp < L.abandonShare[flag] ? "abandon" : rule;
+  const base = { carId: car.id, segment: state.segment, double: event.double, yellowAt: event.t };
+  if (outcome === "abandon") {
+    state.events.push({ t: round3(at), type: "yellowLap", ...base, outcome, lossSec: null });
+    abortLapAt(state, car, at, { reason: "yellow" });
+    return;
+  }
+  const spread = L.lossSec[flag];
+  const loss = spread.p25 + pick * (spread.p75 - spread.p25);
+  liftAt(state, record, at, loss);
+  if (outcome === "delete") record.deleteFor = event.double ? "doubleYellow" : "yellow";
+  state.events.push({ t: round3(at), type: "yellowLap", ...base, outcome, lossSec: round3(loss) });
+  planYellowHit(state, car, at);
+};
 
 /**
  * SES-2: make `record` the in-lap that ends in the garage. The car is on the track from `trackAt` at
@@ -648,6 +790,8 @@ const beginLap = (state, car, kind, at, garageExit = null) => {
   car.history.push(record);
   car.record = record;
   car.state = kind === "push" || kind === "timed" ? "flying" : kind;
+  // SES-4: a yellow already waved ahead of the lap.
+  planYellowHit(state, car, at);
   return record;
 };
 
@@ -676,7 +820,15 @@ const endLap = (state, car) => {
   car.fuel = Math.max(0, car.fuel - 1);
   state.fieldLaps += 1;
   if (record.kind === "burn") car.run.burned += 1;
-  if (record.flying && !record.aborted) {
+  if (record.flying && !record.aborted && record.deleteFor) {
+    // SES-4: a time set through a yellow the era deletes - the attempt counts, the time does not.
+    record.deleted = { time: record.flying, sectors: record.sectors || null, reason: record.deleteFor };
+    delete record.flying;
+    delete record.sectors;
+    if (record.kind === "push") car.run.pushes += 1;
+    else car.run.timed += 1;
+    state.events.push({ t: round3(at), type: "lapDeleted", carId: car.id, time: round3(record.deleted.time), reason: record.deleteFor, segment: state.segment });
+  } else if (record.flying && !record.aborted) {
     if (record.kind === "push") car.run.pushes += 1;
     else car.run.timed += 1;
     car.run.times.push(record.flying);
@@ -815,15 +967,19 @@ export const stepOnce = (state) => {
     let pick = null;
     let when = Infinity;
     let wave = false;
+    let meet = false;
     state.cars.forEach((car) => {
       const lap = nextDue(state, car);
       // SES-3: a yellow planned on the lap under way is waved at its instant, before the lap ends.
       const flagAt = yellowDue(car);
-      const due = Math.min(lap, flagAt);
+      // SES-4: and somebody else's yellow is met where it is waved, before the lap ends too.
+      const hitAt = yellowHitDue(car);
+      const due = Math.min(lap, flagAt, hitAt);
       if (due <= to + EPS && (due < when - EPS || (Math.abs(due - when) <= EPS && pick && car.index < pick.index))) {
         pick = car;
         when = due;
-        wave = flagAt <= lap;
+        wave = flagAt <= lap && flagAt <= hitAt;
+        meet = !wave && hitAt <= lap;
       }
     });
     if (!pick) break;
@@ -835,6 +991,10 @@ export const stepOnce = (state) => {
     }
     if (wave) {
       waveYellow(state, pick);
+      continue;
+    }
+    if (meet) {
+      meetYellow(state, pick);
       continue;
     }
     handleDue(state, pick, Math.max(when, state.clock));
@@ -960,16 +1120,7 @@ const ORDERS = {
   abortLap: (state, car) => {
     const record = car.record;
     if (!record || !record.flying || record.aborted) return false;
-    const share = clamp((state.clock - record.start) / (record.end - record.start), 0, 1);
-    record.aborted = true;
-    record.warp = { at: state.clock, share };
-    // SES-3: aborted before the place of the mistake - it never happens, nor does its yellow.
-    if (record.yellow && !record.yellow.waved && record.yellow.at > state.clock) record.yellow.dropped = true;
-    delete record.flying;
-    delete record.sectors;
-    record.end = state.clock + (1 - share) * state.baseLap * B.laps.abortRest;
-    car.state = "cool";
-    state.events.push({ t: round3(state.clock), type: "abort", carId: car.id });
+    abortLapAt(state, car, state.clock);
     return true;
   },
   /** "Volver a boxes": in this lap if pit entry is still ahead on an out/cool lap, else at the end of it. */
