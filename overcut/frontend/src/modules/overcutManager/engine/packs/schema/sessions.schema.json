@@ -2,8 +2,18 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$comment": "RNF-07: esquema de data/balance/sessions.json (sesiones jugables: RF-WKD-01/02/03/05, RF-SIM-11, RF-SIM-15). Lo comprueba engine/sessionSim/session.test.js. Las tablas por año llevan status: source (con cita del reglamento), measured (calibrado contra datos) o pending (de memoria o NV).",
   "type": "object",
-  "required": ["$comment", "version", "step", "laps", "garage", "evolution", "pace", "programmes", "limits", "durations", "allocation", "ai", "sprint", "clock", "yellow"],
+  "required": ["$comment", "version", "step", "laps", "garage", "evolution", "pace", "programmes", "limits", "durations", "allocation", "ai", "sprint", "clock", "yellow", "traffic"],
   "definitions": {
+    "impedingEpisodes": {
+      "type": "object",
+      "required": ["sessions", "incidents", "perSession", "investigatedShare"],
+      "properties": {
+        "sessions": { "type": "integer", "minimum": 1 },
+        "incidents": { "type": "integer", "minimum": 0 },
+        "perSession": { "type": "number", "minimum": 0 },
+        "investigatedShare": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
     "shareByKind": {
       "type": "object",
       "additionalProperties": false,
@@ -220,8 +230,12 @@
     "allocation": { "type": "object", "required": ["byYear"] },
     "ai": {
       "type": "object",
-      "required": ["practiceRuns", "qualiRuns", "lastSegmentRuns", "twoPushChance", "hourRuns", "fuelBurnShare"],
-      "properties": { "fuelBurnShare": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 } }
+      "required": ["practiceRuns", "qualiRuns", "lastSegmentRuns", "twoPushChance", "hourRuns", "fuelBurnShare", "spacingSec", "spacingMaxHoldSec"],
+      "properties": {
+        "fuelBurnShare": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "spacingSec": { "$ref": "#/definitions/nonNegative" },
+        "spacingMaxHoldSec": { "$ref": "#/definitions/nonNegative" }
+      }
     },
     "sprint": { "type": "object", "required": ["distanceKm"] },
     "clock": {
@@ -357,6 +371,93 @@
                   "required": ["doubleYellow", "yellow"],
                   "properties": { "doubleYellow": { "type": "integer", "minimum": 0 }, "yellow": { "type": "integer", "minimum": 0 } }
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "traffic": {
+      "$comment": "SES-8 trafico-sesion: estorbos en la sesión jugable (RF-WKD-02, RF-SIM-06); el aire es el del motor por pasos (race-sim.json, race-eras.json).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "impeding", "measured"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "impeding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "windowSec", "chance", "lossSec", "abandonShare", "noteShare", "penalty"],
+          "properties": {
+            "status": { "$ref": "#/definitions/status" },
+            "windowSec": { "$ref": "#/definitions/positive" },
+            "chance": { "$ref": "#/definitions/shareByKind" },
+            "lossSec": { "$ref": "#/definitions/lossRange" },
+            "abandonShare": { "type": "number", "minimum": 0, "maximum": 1 },
+            "noteShare": { "$ref": "#/definitions/shareByKind" },
+            "penalty": {
+              "type": "object",
+              "required": ["$comment", "eras"],
+              "properties": {
+                "$comment": { "type": "string" },
+                "eras": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "allOf": [{ "$ref": "#/definitions/yearRow" }],
+                    "required": ["value"],
+                    "properties": {
+                      "value": {
+                        "oneOf": [
+                          { "type": "null" },
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["kind"],
+                            "properties": { "kind": { "enum": ["grid", "reprimand", "time"] }, "places": { "type": "integer", "minimum": 1 }, "sec": { "$ref": "#/definitions/positive" } }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "measured": {
+          "type": "object",
+          "required": ["q1ToQ2Iqr", "openf1", "simulated"],
+          "properties": {
+            "q1ToQ2Iqr": {
+              "type": "object",
+              "required": ["$comment"],
+              "additionalProperties": {
+                "anyOf": [
+                  { "type": "string" },
+                  { "type": "object", "required": ["iqr", "races"], "properties": { "iqr": { "$ref": "#/definitions/positive" }, "races": { "type": "integer", "minimum": 1 } } }
+                ]
+              }
+            },
+            "openf1": {
+              "type": "object",
+              "required": ["source", "years", "practice", "qualifying", "shootout"],
+              "properties": {
+                "source": { "type": "string" },
+                "years": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/year" } },
+                "practice": { "$ref": "#/definitions/impedingEpisodes" },
+                "qualifying": { "$ref": "#/definitions/impedingEpisodes" },
+                "shootout": { "$ref": "#/definitions/impedingEpisodes" }
+              }
+            },
+            "simulated": {
+              "type": "object",
+              "required": ["$comment", "practice", "qualifying", "shootout"],
+              "properties": {
+                "$comment": { "type": "string" },
+                "practice": { "$ref": "#/definitions/positive" },
+                "qualifying": { "$ref": "#/definitions/positive" },
+                "shootout": { "$ref": "#/definitions/positive" }
               }
             }
           }

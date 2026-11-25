@@ -6,5 +6,6 @@
 export { SESSION_BALANCE, qualifyingFormatOf, sessionFormat, sprintLaps, tyreAllocation } from "./formats";
 export {
   COMMANDS, RUN_PHASES, advanceTo, carStatus, command, createSession, defaultCompound, nextSegment, rankOf, replaySession, runSegmentToEnd, runSessionToEnd, sanitisePlan, sessionBestSectors,
-  sessionResult, sessionYellows, stepOnce, yellowEraOf,
+  sessionResult, sessionYellows, stepOnce, yellowEraOf, exitTrafficOf,
 } from "./session";
+export { TRAFFIC, impedingPenaltyOf } from "./stepSession";

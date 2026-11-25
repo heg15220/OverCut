@@ -131,7 +131,7 @@
     ]
   },
   "ai": {
-    "$comment": "Plan de la IA: cuándo sale cada tanda (fracción de la sesión), cuántas vueltas y con qué. fuelBurnShare: parte del último segmento con fuelBurnLast que la IA pasa quemando combustible antes de su intento (NV).",
+    "$comment": "Plan de la IA: cuándo sale cada tanda (fracción de la sesión), cuántas vueltas y con qué. fuelBurnShare: parte del último segmento con fuelBurnLast que la IA pasa quemando combustible antes de su intento (NV). SES-8 (trafico-sesion): spacingSec, el hueco que el muro rival busca en la salida del pit lane antes de soltar el coche (espera mientras otro coche pase la salida a menos de spacingSec del instante en que el suyo entraría a pista), como mucho spacingMaxHoldSec por tanda y nunca tan tarde que la vuelta lanzada empiece después de la bandera. Comportamiento (pending: no hay medida pública del hueco que buscan los equipos); se ajusta junto con traffic contra la dispersión Q1→Q2 de f1db.",
     "practiceRuns": [0.05, 0.36, 0.68],
     "practiceSpread": 0.06,
     "practiceLaps": [4, 9],
@@ -141,7 +141,9 @@
     "hourRuns": [0.12, 0.45, 0.76],
     "hourSpread": 0.06,
     "raceFuelSpread": 3,
-    "fuelBurnShare": 0.9
+    "fuelBurnShare": 0.9,
+    "spacingSec": 3,
+    "spacingMaxHoldSec": 30
   },
   "sprint": {
     "$comment": "Distancia del sprint (2021-): unos 100 km.",
@@ -237,6 +239,47 @@
         "single": { "laps": 15, "abandonShare": 0.333, "kept": 10, "lossSec": { "p25": -0.313, "median": 0.056, "p75": 0.567 } },
         "double": { "laps": 18, "abandonShare": 0.722, "kept": 5, "lossSec": { "p25": -0.299, "median": -0.207, "p75": 0.497 } },
         "deletedTimes": { "doubleYellow": 21, "yellow": 0, "trackLimits": 356, "byYear": { "2023": 6, "2024": 15 } }
+      }
+    }
+  },
+  "traffic": {
+    "$comment": "SES-8 trafico-sesion (F1M24-GAMEPLAY §2.12.3; RF-WKD-02, RF-SIM-01, RF-SIM-06, RNF-07): lo que el coche de delante hace a una vuelta cronometrada en la sesión jugable, paso a paso y sin duelos (engine/sessionSim/stepSession.js). El aire (aire sucio en curva y rebufo en recta) no tiene números propios: es el del motor por pasos, race-eras.json dirtyAir por año y race-sim.json slipstream por era con sus ventanas. Aquí solo el estorbo: una vuelta cronometrada que llega a menos de impeding.windowSec de un coche lento (vuelta de salida, de enfriamiento, de quemar combustible, de entrada o abortada) se lo encuentra una vez por vuelta; chance por tipo de sesión es la probabilidad de que esté en medio, lossSec lo que cuesta (uniforme entre p25 y p75), abandonShare la parte de esos encuentros en que el piloto abandona el intento y noteShare la parte que dirección de carrera anota («NOTED - IMPEDING»). chance, lossSec y abandonShare son comportamiento (pending: sin medida directa), ajustados para que la dispersión de la mejora Q1→Q2 de cada piloto caiga cerca de la de f1db (measured.q1ToQ2Iqr, test en engine/sessionSim/stepSession.test.js); noteShare sale de los incidentes por sesión de OpenF1 (measured.openf1) frente a los encuentros simulados.",
+    "impeding": {
+      "status": "pending",
+      "windowSec": 1,
+      "chance": { "practice": 0.12, "qualifying": 0.1, "shootout": 0.1 },
+      "lossSec": { "p25": 0.1, "p75": 0.5 },
+      "abandonShare": 0.12,
+      "noteShare": { "practice": 0.007, "qualifying": 0.058, "shootout": 0.026 },
+      "penalty": {
+        "$comment": "Lo que hacen los comisarios con un estorbo anotado. pending en todas las eras: OpenF1 race_control trae el aviso y la investigación pero no la decisión (0 sanciones vistas en 2023-2024; llegan por documento de los comisarios), y el artículo del Reglamento Deportivo de cada año no está copiado. Mientras tanto el evento sale con noted y sin sanción (penalty null): no se inventa la de parrilla.",
+        "eras": [
+          { "from": 1950, "to": 2026, "status": "pending", "value": null, "note": "FIA Sporting Regulations (estorbar innecesariamente a otro piloto en clasificación). Copiar el artículo y la sanción de cada año antes de fijarlo." }
+        ]
+      }
+    },
+    "measured": {
+      "q1ToQ2Iqr": {
+        "$comment": "f1db v2026.20.0 (qualifying_result q1/q2, KNOCKOUT, clasificaciones en seco por la regla de refLaps de measureEvolution.js): por carrera, el recorrido intercuartílico de (Q1 − Q2) de los pilotos con los dos tiempos; mediana de carreras por fila de evolution.byEra. Es la dispersión de lo que cada piloto mejora entre segmentos: ritmo vuelta a vuelta, tráfico y errores juntos. Script: overcut/frontend/scripts/measureEvolution.js --f1db.",
+        "2006-2007": { "iqr": 0.458, "races": 34 },
+        "2008-2009": { "iqr": 0.354, "races": 33 },
+        "2010-2013": { "iqr": 0.515, "races": 73 },
+        "2014-2016": { "iqr": 0.433, "races": 35 },
+        "2017-2021": { "iqr": 0.399, "races": 74 },
+        "2022-2026": { "iqr": 0.324, "races": 102 }
+      },
+      "openf1": {
+        "source": "OpenF1 race_control (api.openf1.org), mensajes «- IMPEDING» por par de coches y sesión; libres incluye L1-L3 de los fines de semana sprint. Script: overcut/src/main/resources/scripts/session_impeding_from_openf1.py --years 2023,2024.",
+        "years": [2023, 2024],
+        "practice": { "sessions": 123, "incidents": 25, "perSession": 0.203, "investigatedShare": 0.44 },
+        "qualifying": { "sessions": 47, "incidents": 43, "perSession": 0.915, "investigatedShare": 0.698 },
+        "shootout": { "sessions": 12, "incidents": 4, "perSession": 0.333, "investigatedShare": 0.5 }
+      },
+      "simulated": {
+        "$comment": "Encuentros con estorbo por sesión en la sesión jugable con estos valores (20 sesiones de cada tipo, 2023 y 2024, diez primeras rondas, pista seca): noteShare = openf1.perSession / simulated. Repetir si cambian chance, windowSec o el plan de la IA.",
+        "practice": 29.2,
+        "qualifying": 15.65,
+        "shootout": 12.75
       }
     }
   }
