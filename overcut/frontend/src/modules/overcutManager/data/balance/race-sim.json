@@ -167,10 +167,32 @@
   "raceControl": {
     "$comment": "RF-SIM-10 en el modo por pasos. Quién, cuándo y qué sanción lo decide race.js con su flujo seed::control (los mismos números de race-eras.json raceControl/penalties); aquí solo cómo se juega en pista: la amarilla local cubre desde approachMetres antes de la curva hasta afterMetres después durante durationSec, los coches van a slowFactor de su velocidad y no hay duelo por esa curva. La bandera roja neutraliza al pelotón como un SC hasta que el líder llega a la línea, donde se forma la parrilla (grid.gapMetres) y se reanuda según la era.",
     "yellow": {
+      "$comment": "SIM-4 amarilla-sector (F1M24-GAMEPLAY §2.10, §1.7 evento yellow; RF-SIM-10, RNF-07). La zona y el evento llevan {sector, marshalPost, double, s, until}: sector de cronometraje de la curva (circuit.sectors), puesto = la curva (la numeración de puestos de la FIA no está en los datos del circuito; igual que las sesiones, SES-3), doble si el coche está parado en pista (retirado ahí o en double.incidents) y la era la tiene (era-defaults.json yellowFlags), s = fracción de distancia del vértice. Dura hasta que los comisarios la retiran: lognormal con la mediana y el p90 medidos en carrera de su tipo (holdSec), recortada a [p10, p90], en el flujo propio seed::step::yellows (las demás tiradas no se mueven), y nunca menos que lo que tarda en arrancar un coche trompeado. Medido con overcut/src/main/resources/scripts/race_yellows_from_openf1.py (OpenF1 race_control, carreras 2023-2024 sin sprints: 46 carreras, 58 episodios locales con bandera verde, 1,26 por carrera, 53 % dobles; 68 episodios bajo SC/VSC y 38 de menos de 5 s fuera). durationSec solo se usa para una amarilla sin coche (hoy no se agita ninguna así; antes era la duración de todas). slowFactor es el de siempre para las dos: cuánto más levanta el coche con doble amarilla no está medido (pending).",
       "approachMetres": 150,
       "afterMetres": 60,
       "durationSec": 30,
-      "slowFactor": 0.97
+      "slowFactor": 0.97,
+      "holdSec": {
+        "single": { "p10": 5.6, "median": 15, "p90": 53.4 },
+        "double": { "p10": 8, "median": 32, "p90": 562 }
+      },
+      "double": {
+        "$comment": "FIA ISC Apéndice H (señales con banderas), citado de memoria: amarilla agitada = peligro, reducir y no adelantar; doble agitada = reducir mucho y estar preparado para parar (pista bloqueada en parte o comisarios trabajando). Un coche parado en pista (trompo con v = 0, retirado en la curva) da doble; una salida ancha que vuelve, sencilla.",
+        "incidents": ["spin"],
+        "retired": true
+      },
+      "measured": {
+        "source": "OpenF1 race_control (api.openf1.org), carreras 2023 y 2024 sin sprints; episodio = YELLOW o DOUBLE YELLOW de un sector de comisarios hasta su CLEAR, los solapados como uno, sin los de menos de 5 s ni los solapados con SC/VSC. Script: overcut/src/main/resources/scripts/race_yellows_from_openf1.py.",
+        "years": [2023, 2024],
+        "races": 46,
+        "episodes": 58,
+        "perRace": 1.26,
+        "doubleShare": 0.534,
+        "single": { "n": 27, "p10": 5.6, "median": 15, "p90": 53.4 },
+        "double": { "n": 31, "p10": 8, "median": 32, "p90": 562 }
+      },
+      "pending": ["slowFactor (doble)", "holdSec antes de 2023"],
+      "pendingNote": "Sin race_control de OpenF1 antes de 2023: las demás eras usan las duraciones de 2023-2024 (FastF1 track_status desde 2018 podría medirlas). La velocidad bajo doble amarilla no está medida: se deja la de la sencilla."
     }
   },
   "mistake": {
@@ -216,5 +238,12 @@
     "slowDownSec": 8,
     "lateralMetres": 3,
     "pending": ["slowDownSec", "lateralMetres"]
+  },
+  "radio": {
+    "$comment": "SIM-4 eventos-duelo (RF-CMD-03, F1M24-GAMEPLAY §2.7): la radio del ingeniero a los pilotos del jugador en el modo por pasos, atada a los eventos de duelo y a los huecos en la línea (engine/sim/duel.js battleRadio, lineRadio; state.radio, tipos battle-*). gaining: el de delante a menos de withinSec y le recortas al menos minGainSecPerLap desde la línea anterior; closing: lo mismo con el de detrás. attackFailed / passed / defended / lost: al resolverse un duelo en el que está el coche del jugador. quietSec: segundos de carrera antes de repetir el mismo mensaje al mismo piloto. Umbrales de comportamiento de diseño propio (no son hechos de la F1 ni valores del juego de referencia, del que solo se toma la idea del ciclo «le recortas, no ha salido, conseguido»); el modo rápido conserva su radio por vuelta (golden sin cambios).",
+    "enabled": true,
+    "gaining": { "withinSec": 3, "minGainSecPerLap": 0.3 },
+    "closing": { "withinSec": 1.5, "minGainSecPerLap": 0.3 },
+    "quietSec": { "gaining": 90, "closing": 90, "attack-failed": 30, "passed": 0, "defended": 30, "lost": 0 }
   }
 }

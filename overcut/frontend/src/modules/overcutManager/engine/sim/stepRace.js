@@ -72,7 +72,7 @@ import {
 import { byYear, raceBalance } from "../rules";
 import { calibrationFor } from "../incidents";
 import { circuitFor } from "../venue";
-import { LANE_NAMES, ROLE, drsAllowed, endDuel, openDuel, trySwitchback } from "./duel";
+import { LANE_NAMES, ROLE, battleOf, battleSetup, battleStep, drsAllowed, duelWatch, endDuel, lineRadio, openDuel, trySwitchback } from "./duel";
 import { exitBlocked, gateBoxes, lateralSetup, rejoin, roomAt, stepLateral } from "./lateral";
 import { cornerNoiseSigmaOf, profileFactorsOf } from "../drivers/skills";
 import { beginLeaderLap, finishRace, pitDecision, planLap, pushEvent, radioFor, retire, rivalCalls, rollFailure, wetnessAt } from "./lapModel";
@@ -106,7 +106,10 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData, pre
   // The season's rules (pack regulations or era-defaults), never a bare year (RNF-07, criterio 7.2).
   const rules = stateRules(state);
   const seed = state.seed;
-  const cornerRange = new Map((track.corners || []).map((corner) => [corner.number, { from: frac(corner.from), to: frac(corner.to) }]));
+  // SIM-4: each corner's span and its apex (the `s` of a yellow waved there).
+  const cornerRange = new Map((track.corners || []).map((corner) => [corner.number, { from: frac(corner.from), to: frac(corner.to), apex: frac(corner.apex ?? (corner.from + corner.to) / 2) }]));
+  // SIM-4 / RF-SIM-11: the circuit's three timing sectors (distance shares where each starts), as trackTables reads them.
+  const sectorStarts = Array.isArray(track.sectors) && track.sectors.length === 3 ? track.sectors : [0, 1 / 3, 2 / 3];
   const sim = {
     balance,
     tables,
@@ -127,6 +130,8 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData, pre
       crew: createStream(`${seed}::step::crew`),
       // RF-STF-02 / RNF-05: the per-corner noise of the drivers' accuracy, its own stream.
       corners: createStream(`${seed}::step::corners`),
+      // SIM-4 (RF-SIM-10): how long each local yellow stays out, its own stream (no other draw moves).
+      yellows: createStream(`${seed}::step::yellows`),
     },
     rules,
     // RF-SIM-06: the era's dirty air is the quick mode's (rules.js), the tow is step-only data.
@@ -143,9 +148,12 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData, pre
       : null,
     overtakeOn: new Uint8Array(n),
     lapOut: { energyTime: 0 },
-    // RF-SIM-10: local yellows ({ corner, from, to, until }) and the red flag in progress.
+    // RF-SIM-10: local yellows ({ corner, from, to, until, double, sector, s }) and the red flag in progress.
     cornerRange,
+    sectorStarts,
     yellows: [],
+    // SIM-4: the first event a yellow sync has not looked at yet (the race.js `yellow` events it completes).
+    yellowScan: 0,
     red: null,
     tau: new Float64Array(n),
     laps: new Int32Array(n),
@@ -237,6 +245,9 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData, pre
     coolV: new Float64Array(n),
     cooling: 0,
     finishedCount: 0,
+    // SIM-4 (F1M24-GAMEPLAY §1.7): battle states, duel events and the battle radio (duel.js); the timing lines
+    // of a lap - the two sector lines, as time shares - for `pass.confirmedAt`.
+    ...battleSetup(n, [tables.tauAt(sectorStarts[1]), tables.tauAt(sectorStarts[2])].filter((tau) => tau > 0 && tau < 1).sort((a, b) => a - b)),
   };
   // RF-SIM-04 / RF-SIM-05 (engine/energy.js): the era's energy store and fuel flow on this circuit.
   Object.assign(sim, energySetup(state, rules, tables, sim.pt, n));
@@ -794,6 +805,8 @@ const endLap = (state, i, lap, tc) => {
     if (changed && lap > 3) pushEvent(state, lap, { type: "fastest", carId: car.id, time: car.bestLap });
   }
   if (car.isUser) radioFor(state, car, lap);
+  // SIM-4 (RF-CMD-03): the gaps at this line, and the engineer if the player's car is catching or being caught.
+  lineRadio(state, i);
 
   if (lap >= state.laps) {
     car.status = "finished";
@@ -1549,27 +1562,86 @@ export const laneStateOf = (state, carId) => {
 /** Circular "d is inside the zone" on the unit lap. */
 const inZone = (d, zone) => (zone.from <= zone.to ? d >= zone.from && d <= zone.to : d >= zone.from || d <= zone.to);
 
+/** SIM-4: the timing sector (1-based) of distance share `s`, against the circuit's sector starts. */
+const sectorAt = (sim, s) => {
+  let sector = 1;
+  for (let k = 1; k < sim.sectorStarts.length; k += 1) if (s >= sim.sectorStarts[k]) sector = k + 1;
+  return sector;
+};
+
+/**
+ * SIM-4 (amarilla-sector; FIA ISC Appendix H): is the yellow of car `i` a double one? The era must have it
+ * (era-defaults.json / pack `yellowFlags.double`) and the car be stopped on the track: retired there, or in
+ * one of race-sim.json raceControl.yellow.double.incidents (a spin, v = 0). A car gone wide and back is a single.
+ */
+const doubleYellowFor = (state, i) => {
+  const sim = state._sim;
+  const era = sim.rules.regulations && sim.rules.regulations.yellowFlags;
+  if (i < 0 || (era && era.double === false)) return false;
+  const cfg = sim.balance.raceControl.yellow.double;
+  const car = state.cars[i];
+  return (cfg.retired && car.status === "retired") || cfg.incidents.includes(sim.incident[i]);
+};
+
+/**
+ * SIM-4: how long a yellow of this kind stays out until the marshals clear it - a log-normal with the median and
+ * p90 measured in races (race-sim.json raceControl.yellow.holdSec, OpenF1 race_control), cut to [p10, p90],
+ * on the race's own `yellows` stream - and never before a spun car has got going again. A yellow with no car
+ * to it (none is waved so today) stays the fixed `durationSec`.
+ */
+const yellowHoldOf = (state, i, double) => {
+  const sim = state._sim;
+  const cfg = sim.balance.raceControl.yellow;
+  if (i < 0) return cfg.durationSec;
+  const spread = cfg.holdSec[double ? "double" : "single"];
+  const sigma = Math.log(spread.p90 / spread.median) / 1.2815515655446004;
+  const held = clamp(spread.median * Math.exp(sigma * sim.streams.yellows.normal()), spread.p10, spread.p90);
+  return Math.max(held, i >= 0 ? sim.spinLeft[i] : 0);
+};
+
 /**
  * RF-SIM-10: race.js waveYellow marks a corner on `state.yellow`; here it becomes a
  * local yellow on the track - from `approachMetres` before the corner to `afterMetres`
- * after it, for `durationSec` - where cars lift and no duel is fought for that corner.
+ * after it, until the marshals clear it - where cars lift and no duel is fought for that corner.
+ * SIM-4 (F1M24-GAMEPLAY §1.7, amarilla-sector): the zone and race.js's `yellow` event get
+ * {sector, marshalPost, double, s, until}: the timing sector of the corner (circuit.sectors), the post at that
+ * corner (the FIA marshal-post numbering is not in the circuit data: the corner, as the sessions do), double for
+ * a car stopped on the track, the apex's distance share and the race time it clears. A second incident at a
+ * yellow corner keeps it out longer and may make it double.
  */
 const syncYellows = (state) => {
   const sim = state._sim;
   const flagged = state.yellow;
   if (!flagged) return;
   const cfg = sim.balance.raceControl.yellow;
+  // The race.js `yellow` events this sync answers (pushed since the last one, not yet completed).
+  const fresh = [];
+  for (let k = sim.yellowScan; k < state.events.length; k += 1) if (state.events[k].type === "yellow" && state.events[k].until === undefined) fresh.push(state.events[k]);
+  sim.yellowScan = state.events.length;
   flagged.corners.forEach((corner) => {
     const range = sim.cornerRange.get(corner);
     if (!range) return;
-    const until = sim.clock + cfg.durationSec;
-    const known = sim.yellows.find((zone) => zone.corner === corner);
-    if (known) known.until = until;
-    else sim.yellows.push({ corner, from: frac(range.from - cfg.approachMetres / sim.tables.length), to: frac(range.to + cfg.afterMetres / sim.tables.length), until });
+    const event = fresh.find((item) => item.corner === corner) || null;
+    const i = event ? state.cars.findIndex((car) => car.id === event.carId) : -1;
+    const double = doubleYellowFor(state, i);
+    const until = sim.clock + yellowHoldOf(state, i, double);
+    let zone = sim.yellows.find((item) => item.corner === corner);
+    if (zone) {
+      zone.until = Math.max(zone.until, until);
+      zone.double = zone.double || double;
+    } else {
+      const s = Math.round(range.apex * 10000) / 10000;
+      zone = { corner, from: frac(range.from - cfg.approachMetres / sim.tables.length), to: frac(range.to + cfg.afterMetres / sim.tables.length), until, double, sector: sectorAt(sim, range.apex), marshalPost: corner, s };
+      sim.yellows.push(zone);
+    }
+    if (event) Object.assign(event, { t: Math.round(sim.clock * 1000) / 1000, sector: zone.sector, marshalPost: zone.marshalPost, double: zone.double, s: zone.s, until: Math.round(zone.until * 1000) / 1000 });
   });
   state.yellow = null;
-  state.yellowZones = sim.yellows.map((zone) => ({ corner: zone.corner, until: zone.until }));
+  state.yellowZones = sim.yellows.map(zoneOut);
 };
+
+/** SIM-4: a local yellow as the view reads it (`state.yellowZones`, the worker's tick). */
+const zoneOut = (zone) => ({ corner: zone.corner, until: zone.until, sector: zone.sector, marshalPost: zone.marshalPost, double: zone.double, s: zone.s });
 
 /** Is the corner of attack zone `corner` under a local yellow (no passing there)? */
 export const yellowAt = (sim, corner) => {
@@ -1676,7 +1748,7 @@ const raceControl = (state) => {
     for (let k = 0; k < sim.yellows.length; k += 1) if (sim.yellows[k].until > sim.clock) sim.yellows[kept++] = sim.yellows[k];
     if (kept !== sim.yellows.length) {
       sim.yellows.length = kept;
-      state.yellowZones = sim.yellows.map((zone) => ({ corner: zone.corner, until: zone.until }));
+      state.yellowZones = sim.yellows.map(zoneOut);
     }
   }
 };
@@ -1703,7 +1775,8 @@ const settleDuels = (state) => {
         continue;
       }
       if (sim.clock >= sim.duelUntil[i] + sim.balance.duel.passSettleSeconds) {
-        state.duels.push({ t: Math.round(sim.clock * 100) / 100, lap: sim.laps[i] + 1, attacker: state.cars[i].id, defender: state.cars[other].id, outcome: "unfinished", lead: Math.round(lead * sim.tables.length * 10) / 10 });
+        // SIM-4: with the corner it was tried at (the duels' log always names one).
+        state.duels.push({ t: Math.round(sim.clock * 100) / 100, lap: sim.laps[i] + 1, corner: sim.duelCorner[i] || null, attacker: state.cars[i].id, defender: state.cars[other].id, outcome: "unfinished", lead: Math.round(lead * sim.tables.length * 10) / 10 });
         endDuel(sim, i);
       }
     } else if (sim.duelRole[i] !== ROLE.YIELDING && sim.clock >= sim.duelUntil[i]) {
@@ -1858,6 +1931,9 @@ export const stepOnce = (state) => {
   }
   settleDuels(state);
   raceControl(state);
+  // SIM-4 (§1.7): the duel events of this step and every car's battle state (no roll, nothing the race reads).
+  duelWatch(state);
+  battleStep(state);
   // SIM-2 (RF-SIM-07): sideways, inside the measured asphalt, nobody on top of anybody (lateral.js).
   stepLateral(sim, ROLE.NONE, physicsData.mistake, sim.balance.blueFlags.yieldShare);
   driveStep(state);
@@ -1963,6 +2039,8 @@ export const snapshot = (state) => {
     status: car.status,
     position: car.position,
     duel: sim.duelRole[i],
+    // SIM-4 (F1M24-GAMEPLAY §1.7 `battle[i]`): "RUNNING" | "FOLLOWING" | "ATTACKING" | "DEFENDING" | "TRAIN".
+    battle: battleOf(sim, i),
     // WP4: the lateral state ("racing", "attack-inside", "attack-outside", "defend", "alongside", "yield", "wide"; SIM-2:
     // "pit" in the lane, "pit-exit" back on the pit side of the road after it - F1M24-GAMEPLAY §1.7 lane[i]).
     lane: sim.inPit[i] !== 0 ? "pit" : LANE_NAMES[sim.latState[i]],
