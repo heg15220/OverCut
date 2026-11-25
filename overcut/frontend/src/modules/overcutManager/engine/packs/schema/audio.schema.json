@@ -3,7 +3,7 @@
   "$comment": "RNF-07: esquema de data/balance/audio.json (sonido de la vista en vivo, RF-3D-04, RNF-02). Lo comprueba three/audio/audio.test.js.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "sources", "eras", "shiftProfiles", "voicing", "mixer", "ambience", "ui"],
+  "required": ["version", "sources", "eras", "shiftProfiles", "voicing", "mixer", "ambience", "ui", "safetyCar"],
   "definitions": {
     "shiftProfile": {
       "type": "object",
@@ -39,6 +39,8 @@
     "uiTone": {"type": "object", "additionalProperties": false, "required": ["hz", "durationSec"], "properties": {"hz": {"$ref": "#/definitions/positive"}, "durationSec": {"$ref": "#/definitions/positive"}}},
     "rpm": {"type": "integer", "minimum": 1000, "maximum": 25000},
     "text": {"type": "string", "minLength": 1},
+    "scPhase": {"enum": ["DEPLOYED", "PICKUP", "TRAIN", "UNLAPPING", "IN_THIS_LAP", "RESTART"]},
+    "scCue": {"type": "object", "additionalProperties": false, "required": ["alert", "radio"], "properties": {"alert": {"type": ["string", "null"]}, "radio": {"type": "boolean"}}},
     "engine": {
       "type": "object",
       "additionalProperties": false,
@@ -557,6 +559,76 @@
               "additionalProperties": false,
               "required": ["riseSec", "holdLoad", "status", "note"],
               "properties": {"riseSec": {"$ref": "#/definitions/positive"}, "holdLoad": {"$ref": "#/definitions/share"}, "status": {"enum": ["pending", "sourced"]}, "note": {"$ref": "#/definitions/text"}}
+            }
+          }
+        }
+      }
+    },
+    "safetyCar": {
+      "$comment": "Voz del coche de seguridad por temporada y avisos al desplegar y retirar SC/VSC (sc-vsc-sound, AUD-5; RF-SIM-10, RNF-07). cars[] empieza en 1993 (SC oficial, SRS 6.2); lo comprueba three/audio/safetyCarSound.test.js junto a los años sin huecos.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["voiceGain", "voicePhases", "withdrawPhases", "cues", "cars"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "voiceGain": {"type": "number", "minimum": 0, "maximum": 2},
+        "voicePhases": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/definitions/scPhase"}},
+        "withdrawPhases": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/definitions/scPhase"}},
+        "cues": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["deploy", "withdraw", "vscDeploy", "vscEnding"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "deploy": {"$ref": "#/definitions/scCue"},
+            "withdraw": {"$ref": "#/definitions/scCue"},
+            "vscDeploy": {"$ref": "#/definitions/scCue"},
+            "vscEnding": {"$ref": "#/definitions/scCue"}
+          }
+        },
+        "cars": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "from", "to", "model", "formula", "idleRpm", "launchRpm", "revLimit", "shiftRpm", "gearShares", "refTopKmh", "shift", "crackle", "status", "source"],
+            "properties": {
+              "id": {"$ref": "#/definitions/text"},
+              "from": {"type": "integer", "minimum": 1993, "maximum": 2100},
+              "to": {"type": "integer", "minimum": 1993, "maximum": 2100},
+              "model": {"$ref": "#/definitions/text"},
+              "formula": {"type": "string", "pattern": "^[0-9]+([.][0-9]+)? *[VFWL][0-9]+"},
+              "idleRpm": {"type": "integer", "minimum": 400, "maximum": 3000},
+              "launchRpm": {"type": "integer", "minimum": 1000, "maximum": 10000},
+              "revLimit": {"type": "integer", "minimum": 3000, "maximum": 12000},
+              "shiftRpm": {"type": "integer", "minimum": 3000, "maximum": 12000},
+              "gearShares": {"type": "array", "minItems": 4, "maxItems": 10, "items": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}},
+              "refTopKmh": {"type": "number", "minimum": 150, "maximum": 400},
+              "shift": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["glideMs", "transient"],
+                "properties": {
+                  "glideMs": {"type": "number", "exclusiveMinimum": 0, "maximum": 1000},
+                  "transient": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "db", "ms"],
+                    "properties": {"kind": {"enum": ["pop", "cut"]}, "db": {"type": "number", "minimum": -40, "maximum": 12}, "ms": {"type": "number", "exclusiveMinimum": 0, "maximum": 1000}}
+                  }
+                }
+              },
+              "turbo": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["maxShaftRpm", "lagSec", "gain", "source"],
+                "properties": {"maxShaftRpm": {"type": "integer", "minimum": 10000, "maximum": 300000}, "lagSec": {"$ref": "#/definitions/positive"}, "gain": {"$ref": "#/definitions/share"}, "source": {"$ref": "#/definitions/text"}}
+              },
+              "crackle": {"$ref": "#/definitions/share"},
+              "status": {"enum": ["sourced", "pending"]},
+              "source": {"$ref": "#/definitions/text"},
+              "note": {"$ref": "#/definitions/text"}
             }
           }
         }
