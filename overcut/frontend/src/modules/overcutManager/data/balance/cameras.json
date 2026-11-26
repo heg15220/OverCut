@@ -12,14 +12,14 @@
     {
       "id": "tcam",
       "label": ["T-cam", "T-cam"],
-      "mount": { "anchor": "head", "ahead": -0.55, "side": 0, "up": 0.42, "pitchDeg": 0 },
-      "aim": { "anchor": "road", "ahead": 40, "side": 0, "up": 0.4 },
+      "mount": { "anchor": "head", "ahead": -0.35, "side": 0, "up": 0.52, "pitchDeg": 0 },
+      "aim": { "anchor": "road", "ahead": 12, "side": 0, "up": 0 },
       "fovDeg": 68,
       "near": 0.05,
       "shake": { "perMs": 33, "perSpeed": 0.00012, "max": 0.012, "minSpeed": 5 },
       "eras": [{ "from": 1993, "to": 2100 }],
       "status": "current",
-      "source": "previous; eras: tcamPod (pending)"
+      "source": "Montaje revisado el 26/11/2026 con Playwright (China 2013, F138 GLB): el anterior (cabeza -0,55 / +0,42, mirando a 40 m) quedaba dentro de la toma de aire del GLB y solo se veía su parte trasera; ahora justo detrás del casco, por encima de la toma (cabeza -0,35 / +0,52) y mirando a la pista a 12 m, como la T-cam de las retransmisiones (morro, ruedas delanteras y coche de delante a la vista). eras: tcamPod (pending)"
     },
     {
       "id": "tcamRear",

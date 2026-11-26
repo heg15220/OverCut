@@ -105,6 +105,36 @@ en los modelos: salen de la geometría (`marksSource: "geometry"`) y piden revis
 Una spline entra en el motor solo si cumple el criterio 7.2 (desviación máxima ≤ 2 m medida en ≥ 60 % de la
 vuelta) o si tiene `approved: true`. El manifiesto guarda `meetsCriterion` y `reviewApproved` por separado.
 
+## Motores grabados (`engine_sounds.py`)
+
+```bash
+python tools/assets/engine_sounds.py              # descarga lo que falte y genera los nueve bancos
+python tools/assets/engine_sounds.py --only f1-v10
+```
+
+Fuente: [SpiritsCreations/FiveM-Engine-Sound-Pack](https://github.com/SpiritsCreations/FiveM-Engine-Sound-Pack)
+fijado en un commit (`engine_sounds.config.json`), mods de sonido de Legacy_DMC para GTA V. **No declara licencia**
+(por defecto, todos los derechos reservados): todos los bancos llevan `riskRipped: true`, los WAV no entran en git y
+las builds públicas (`REACT_APP_PUBLIC_BUILD=true`) no los cargan (SRS 3.3, 7.3).
+
+Los `.awc` son PCM de 16 bits sin cifrar. Cada banco trae barridos granulares de motor y escape (aceleración y
+retención) más el ralentí; un grano es un ciclo de cuatro tiempos, así que su tono es rpm / 120. El script corta
+bucles de ~0,3 s cada 12 % de régimen, con todos los ciclos remuestreados al mismo periodo y el cierre del bucle
+fundido con el ciclo siguiente de la grabación. Salida: un WAV estéreo por banco (izquierda motor, derecha escape) en
+`overcut/frontend/public/manager-assets/sounds/engines/` y el manifiesto `data/manager-sounds.json` (en git).
+**Mod de F1 2020** (sección `bdl` de la configuración): 14 motores (plano 12 del 312T2, DFV, Ford V8, MP4/4, V12 de
+1990, V10 de los 90 y de los 2000, MP4/13, Renault V10 de Williams, V8 de Ferrari, Mercedes, Renault y genérico, V6
+híbrido), sacados de F1 2020 según el propio mod; sin licencia, mismo trato `riskRipped`. Copiar la subcarpeta
+`FERRARI` del mod en `tools/assets/.cache/engine_sounds/f1-2020/` (o `--bdl-dir`). Cada `.bdl` es un `bndl` de
+Codemasters con registros `egoer` (cilindros en +0x40, tamaño de tabla en +0x44, PCM mono de 16 bits a 48 kHz tras la
+tabla): aceleración y retención en dos tomas, que van a los canales izquierdo y derecho. No trae granos marcados: el tono
+se sigue con NSDF y Viterbi, se toma el tramo limpio más largo del barrido y la octava se elige con `expectTopRpm`; cada
+bucle se remuestrea con la fase de la curva de tono para que quede a un tono exacto, y su largo se ajusta por correlación
+cruzada. Error de tono mediano de los bucles < 1 %.
+
+Qué motor usa cada banco lo dicen las reglas de `data/balance/audio.json` `samples` (lista de preferencia: F1 2020
+primero, GTA V después); el coche de seguridad de 1996 sigue sintetizado.
+
 ## Estado (2026-11-22)
 
 - Coches: 157 de 455 equipos en las 38 temporadas (completas 2010, 2012, 2013, 2014; sin modelos en 1995 y 1996; ver carCoverage.test.js). Casi todos tienen ruedas giratorias: para mallas

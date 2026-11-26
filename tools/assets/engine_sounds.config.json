@@ -1,0 +1,176 @@
+{
+  "$comment": "Bancos de sonido de motor grabados para la vista en vivo (RF-3D-04). Origen: (1) repositorio SpiritsCreations/FiveM-Engine-Sound-Pack fijado en un commit; sin licencia declarada (todos los derechos reservados por defecto) y recopilación de mods de terceros, así que todo va con riskRipped=true: fuera de git y fuera de las builds públicas (SRS 3.3, 7.3). (2) el mod de F1 2020 de la sección bdl. Lo procesa tools/assets/engine_sounds.py.",
+  "repo": "SpiritsCreations/FiveM-Engine-Sound-Pack",
+  "commit": "325f5dd395d91f9c288dd44e5a349c6791e7890b",
+  "license": null,
+  "riskRipped": true,
+  "output": {
+    "sampleRate": 32000,
+    "binRatio": 1.12,
+    "loopSec": 0.3,
+    "minCycles": 8,
+    "seamSamples": 96,
+    "peakDbfs": -3,
+    "evenLimit": 2.0,
+    "windowPitchTol": 0.03,
+    "windowCandidates": 7,
+    "evenNote": "Cada bucle se iguala ciclo a ciclo (ganancia por ciclo hacia la mediana del bucle, como mucho x2 / x0,5, continua en el cierre) y en el mod de F1 2020 se elige, entre windowCandidates tramos a ±windowPitchTol del tono, el de volumen más estable: un bucle con un ciclo más fuerte o más flojo bombea a ~3 Hz al repetirse (hasta 27 dB de diferencia en el V8 de Ferrari, medido el 26/11/2026)."
+  },
+  "banks": [
+    {
+      "id": "f1-v10",
+      "awc": "Audio_Pack/sfx/dlc_lg115classicf1v10/lg115classicf1v10.awc",
+      "label": "Formula 1 V10",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/formula-1-v10-sound-mod-sp-add-on-fivem"
+    },
+    {
+      "id": "f1-v6-turbo-1988",
+      "awc": "Audio_Pack/sfx/dlc_honf1v6eng/honf1v6eng.awc",
+      "label": "McLaren MP4/4 F1 V6 (Honda RA168E)",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/mclaren-mp4-4-f1-v6-sound-mod-sp-add-on-fivem"
+    },
+    {
+      "id": "f1-v6-hybrid",
+      "awc": "Audio_Pack/sfx/dlc_amg1eng/amg1eng.awc",
+      "label": "Mercedes-AMG One PU106C V6",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/mercedes-amg-one-pu106c-v6-sound-mod-sp-fivem-add-on"
+    },
+    {
+      "id": "v12-f130b",
+      "awc": "Audio_Pack/sfx/dlc_f50gteng/f50gteng.awc",
+      "label": "Ferrari F50 GT F130B V12 (derivado del Tipo 036 de F1)",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/ferrari-f50gt-f130b-4-7l-v12-sound-mod"
+    },
+    {
+      "id": "flat12-f113",
+      "awc": "Audio_Pack/sfx/dlc_f113/f113.awc",
+      "label": "Ferrari Testarossa F113 plano 12",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/ferrari-testarossa-f113-v12-sound-mod-sp-fivem-add-on-legacy_dmc"
+    },
+    {
+      "id": "sc-flat6-911",
+      "awc": "Audio_Pack/sfx/dlc_lg157por911/lg157por911.awc",
+      "label": "Porsche 911 GT3 RS 4.0 F6",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/pfister-911-gt3rs-4-0l-f6-sound-mod"
+    },
+    {
+      "id": "sc-v8-m156",
+      "awc": "Audio_Pack/sfx/dlc_mbnzc63eng/mbnzc63eng.awc",
+      "label": "Mercedes-AMG C63 M156 6.2 V8",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/mercedes-amg-c63-m156-6-3l-v8-sound-mod"
+    },
+    {
+      "id": "sc-v8-sls",
+      "awc": "Audio_Pack/sfx/dlc_lg116slsamg/lg116slsamg.awc",
+      "label": "Mercedes SLS AMG 6.2 V8",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/mercedes-sls-amg-6-3l-v8-sound-mod-sp-add-on-fivem"
+    },
+    {
+      "id": "sc-v8tt-amggt",
+      "awc": "Audio_Pack/sfx/dlc_lg30meramgtr/lg30meramgtr.awc",
+      "label": "Mercedes-AMG GT R 4.0 V8 biturbo",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/mercedes-amg-gtr-4-0l-v8-sound-mod-sp-add-on-fivem"
+    }
+  ],
+  "bdl": {
+    "$comment": "Mod «ENGINE_MOTOR V12,10,V8,V6 (F1 2020) SOUND FULL» para F1 2019: según su README, sonidos sacados de F1 2020 (Codemasters). Sin licencia: riskRipped, fuera de git y de builds públicas. Se copia la subcarpeta FERRARI del mod (las de HONDA, MERCEDES y RENAULT son copias idénticas) a tools/assets/.cache/engine_sounds/f1-2020/ (fuera de git), o se da otra ruta con --bdl-dir o ENGINE_SOUNDS_BDL_DIR. Cada .bdl ('bndl') trae registros 'egoer': cilindros en +0x40, tamaño de tabla en +0x44, PCM s16le mono a 48 kHz tras la tabla; 4 registros = aceleración y retención en dos tomas (izquierda/derecha). Sin granos marcados: el tono se sigue por autocorrelación y Viterbi y la octava se fija con expectTopRpm (régimen máximo aproximado del motor, solo para elegir entre ×½, ×1 y ×2).",
+    "dir": ".cache/engine_sounds/f1-2020",
+    "file": "ferrari_2019.bdl",
+    "author": "Codemasters (F1 2020); mod de autor no identificado",
+    "banks": [
+      {
+        "id": "f20-flat12-312t2",
+        "folder": "FLAT 12",
+        "label": "Ferrari plano 12 (312T2, F1 2020)",
+        "expectTopRpm": 12200
+      },
+      {
+        "id": "f20-dfv-v8",
+        "folder": "COSWORTH V8",
+        "label": "Ford-Cosworth DFV V8 (F1 2020)",
+        "expectTopRpm": 10800
+      },
+      {
+        "id": "f20-ford-v8",
+        "folder": "FORD V8",
+        "label": "Ford V8 (F1 2020)",
+        "expectTopRpm": 13000
+      },
+      {
+        "id": "f20-v6-turbo-mp44",
+        "folder": "MCLAREN MP4-4",
+        "label": "Honda RA168E V6 turbo (McLaren MP4/4, F1 2020)",
+        "expectTopRpm": 12500
+      },
+      {
+        "id": "f20-v12-1990",
+        "folder": "V12 1990",
+        "label": "V12 de 1990 (F1 2020)",
+        "expectTopRpm": 13000
+      },
+      {
+        "id": "f20-v10-1990",
+        "folder": "V10 NORMAL 1990",
+        "label": "V10 de los 90 (F1 2020)",
+        "expectTopRpm": 14500
+      },
+      {
+        "id": "f20-v10-mp413",
+        "folder": "MCLAREN MP4-13",
+        "label": "Mercedes FO110G V10 (McLaren MP4/13, F1 2020)",
+        "expectTopRpm": 17000
+      },
+      {
+        "id": "f20-v10-williams",
+        "folder": "WILLIAMS V10",
+        "label": "V10 de Williams (F1 2020)",
+        "expectTopRpm": 18500
+      },
+      {
+        "id": "f20-v10",
+        "folder": "V10 NORMAL",
+        "label": "V10 de los 2000 (F1 2020)",
+        "expectTopRpm": 18500
+      },
+      {
+        "id": "f20-v8-f10",
+        "folder": "FERRARI F10",
+        "label": "Ferrari 056 V8 (F10, F1 2020)",
+        "expectTopRpm": 18000
+      },
+      {
+        "id": "f20-v8-mp425",
+        "folder": "MCLAREN MP4-25",
+        "label": "Mercedes FO108X V8 (McLaren MP4-25, F1 2020)",
+        "expectTopRpm": 18000
+      },
+      {
+        "id": "f20-v8-renault",
+        "folder": "RENAULT V8",
+        "label": "Renault RS27 V8 (F1 2020)",
+        "expectTopRpm": 18000
+      },
+      {
+        "id": "f20-v8",
+        "folder": "V8 NORMAL",
+        "label": "V8 de 2006-2013 (F1 2020)",
+        "expectTopRpm": 18000
+      },
+      {
+        "id": "f20-v6-hybrid",
+        "folder": "V6 F1 2020",
+        "label": "V6 turbo híbrido (F1 2020)",
+        "expectTopRpm": 12500
+      }
+    ]
+  }
+}

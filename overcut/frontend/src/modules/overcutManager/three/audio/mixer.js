@@ -45,7 +45,7 @@ const sanitize = (raw) => {
     ["master", "engine", "ambience", "ui"].forEach((key) => {
       if (Number.isFinite(raw[key])) out[key] = clamp(raw[key], 0, 1);
     });
-    ["muted", "uiMuted"].forEach((key) => {
+    ["muted", "uiMuted", "recorded"].forEach((key) => {
       if (typeof raw[key] === "boolean") out[key] = raw[key];
     });
   }

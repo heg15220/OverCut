@@ -113,12 +113,15 @@ export const circuitRefFor = (race = {}, year = 2020) => {
   return LAYOUT_REFS[hashOf(race.name || "Grand Prix") % LAYOUT_REFS.length];
 };
 
-/** Era buckets the lap simulation distinguishes - circuits are cached per bucket. */
-const BUCKETS = [1961, 1968, 1977, 1983, 1989, 2009, 2017];
-const bucketYear = (year) => {
-  const index = BUCKETS.findIndex((limit) => year < limit);
-  return index === -1 ? 2020 : BUCKETS[index] - 1;
-};
+/**
+ * The year a circuit is built for: the season itself, so the reference trace runs with the car of
+ * the season's own physics era (race-physics.json eras, via trackGeometry envelopeFor) and the
+ * year's rules (DRS zones from 2011). Circuits are cached per year. Before, fixed buckets mixed
+ * eras: 2009-2013 ran on the 2014-2016 car (heavier, μ 1,45 instead of 1,71 in slow corners) and
+ * every corner of a V8 race came out 7-8 % slow, with the straights 13 km/h too fast (Shanghai
+ * 2013 against OpenF1, 26/11/2026).
+ */
+const bucketYear = (year) => year;
 
 const cache = new Map();
 

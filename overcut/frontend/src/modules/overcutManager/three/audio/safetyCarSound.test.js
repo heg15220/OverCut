@@ -171,6 +171,9 @@ class FakeContext {
   createDynamicsCompressor() {
     return node({ threshold: param(), knee: param(), ratio: param() });
   }
+  createChannelSplitter() {
+    return node();
+  }
   resume() {
     return Promise.resolve();
   }

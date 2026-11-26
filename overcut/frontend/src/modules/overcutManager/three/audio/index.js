@@ -1,6 +1,7 @@
 /**
  * Race audio for the live view (RF-3D-04; RNF-02): engines synthesised per car and era
- * (engineSynth.js), spatialised with distance, Doppler and a mix per camera (mixer.js),
+ * (engineSynth.js), or recorded where the era's engine has a bank and it has loaded
+ * (engineSamples.js, data/manager-sounds.json; never in public builds), spatialised with distance, Doppler and a mix per camera (mixer.js),
  * and the ambience (ambience.js). Nothing plays until the viewer clicks the sound button
  * (browser autoplay policy); the context is suspended while the tab is hidden; at most
  * `mixer.maxVoices` engines sound at once, pooled.
@@ -51,6 +52,7 @@ import { firingFrequency } from "./engineSynth";
 import { kerbZonesFor, onKerb } from "./kerbs";
 import { clickCueFor, createUiCueState, gateCue, isUiCue, playCue, uiCuesStep } from "./uiSounds";
 import { SAFETY_CAR_ID, createScCueState, scCarOf, scCuesStep } from "./safetyCarSound";
+import { createSampledVoice, loadEngineBank, recordedAvailable, sampleBankFor } from "./engineSamples";
 
 export { engineSpecFor, eraFor, firingFrequency, nextGear, parseFormula } from "./engineSynth";
 export { gridRevsOf, startLightsStep } from "./ambience";
@@ -59,9 +61,18 @@ export { mixLevels } from "./levels";
 export { clickCueFor, cueShots, uiCuesStep } from "./uiSounds";
 export { SAFETY_CAR_ID, scCarOf, scCuesStep, scPoseOf } from "./safetyCarSound";
 export { safetyCarSpecFor } from "./engineSynth";
+export { binWeights, layerWeights, recordedAvailable, sampleBankFor, sampleTargets } from "./engineSamples";
 
 const KMH = 3.6;
 const VOICING = audioData.voicing;
+
+/**
+ * A car whose engine is off takes no voice and stays out of the field bed: gone from the view,
+ * parked after retiring (raceClock `parked`, from the moment it stops, not 1.2 laps later when it
+ * becomes `gone`), back in its garage, or stopped after the flag. Before, a retired car idled by
+ * the track until it went: a steady tone at its idle firing frequency (~280 Hz for a V8).
+ */
+export const engineOff = (pose, state = {}) => Boolean(pose && (pose.gone || pose.parked || pose.garage || (pose.finished && (state.v ?? pose.v ?? 0) < 1)));
 
 /** teamId → { id, formula, manufacturer } from a season pack (f1db engines; the first one a team entered). */
 export const teamEnginesOf = (pack) => {
@@ -95,6 +106,12 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
   // The season's safety car (null before 1993 or without a row: then it never sounds).
   const scSpec = safetyCarSpecFor(year);
   let voices = [];
+  // The recorded twin of each pooled voice (engineSamples.js): a car with a loaded bank sounds on it.
+  let sampled = [];
+  const banks = new Map();
+  const bankLoads = new Map();
+  const bankOfSpec = new WeakMap();
+  const sampleRandom = createStream(`${seed}::audio::samples`).next;
   let panners = [];
   let slots = [];
   let settings = loadSettings();
@@ -135,6 +152,37 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
     return specs.get(teamId);
   };
 
+  const bankIdOf = (spec) => {
+    if (!spec) return null;
+    if (!bankOfSpec.has(spec)) bankOfSpec.set(spec, sampleBankFor(spec));
+    return bankOfSpec.get(spec);
+  };
+  /** The loaded bank a car sounds on, or null for the synth (setting off, no bank, still loading). */
+  const bankFor = (spec) => {
+    if (settings.recorded === false) return null;
+    const id = bankIdOf(spec);
+    return (id && banks.get(id)) || null;
+  };
+  /** Start loading every bank this race can use: the teams' engines, the era's default and the safety car. */
+  const ensureBanks = () => {
+    if (!ctx || settings.recorded === false) return;
+    const ids = new Set([...Object.keys(teamEngines), null].map((teamId) => bankIdOf(specOf(teamId))));
+    ids.add(bankIdOf(scSpec));
+    ids.forEach((id) => {
+      if (!id || banks.has(id) || bankLoads.has(id)) return;
+      const job = loadEngineBank(ctx, id).then(
+        (bank) => {
+          banks.set(id, bank);
+        },
+        () => {
+          // Missing on this machine or a failed download: the synth keeps the car; retry next time.
+          bankLoads.delete(id);
+        },
+      );
+      bankLoads.set(id, job);
+    });
+  };
+
   const onVisibility = () => {
     if (!ctx || typeof document === "undefined") return;
     if (document.hidden) ctx.suspend().catch(() => {});
@@ -163,13 +211,16 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       ambience = createAmbience(ctx, mixer.ambience, noise, mixer.engine);
       const size = audioData.mixer.maxVoices;
       voices = Array.from({ length: size }, () => createEngineVoice(ctx, noise, random));
-      panners = voices.map((voice) => {
+      sampled = Array.from({ length: size }, () => createSampledVoice(ctx, sampleRandom));
+      panners = voices.map((voice, index) => {
         const panner = mixer.panner();
         voice.out.connect(panner);
+        sampled[index].out.connect(panner);
         return panner;
       });
       slots = new Array(size).fill(null);
       mixer.apply(settings, ctx.currentTime);
+      ensureBanks();
       if (typeof document !== "undefined") document.addEventListener("visibilitychange", onVisibility);
       ctx.resume().catch(() => {});
       return true;
@@ -177,6 +228,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
     setSettings(next) {
       settings = saveSettings({ ...settings, ...next });
       if (ctx) mixer.apply(settings, ctx.currentTime);
+      ensureBanks();
       return settings;
     },
     /**
@@ -193,6 +245,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
     setEngines(map) {
       teamEngines = map || {};
       specs.clear();
+      ensureBanks();
     },
     /**
      * One view frame: { tau, playing, mode, focusId, cars: [{ id, teamId, pose }],
@@ -262,7 +315,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
           }
         }
         const heading = pose.heading || 0;
-        placed.push({ id, spec, state, pose, x: pose.x, y: pose.y, vx: Math.cos(heading) * state.v, vy: Math.sin(heading) * state.v, gone: Boolean(pose.gone || (pose.finished && state.v < 1)) });
+        placed.push({ id, spec, state, pose, x: pose.x, y: pose.y, vx: Math.cos(heading) * state.v, vy: Math.sin(heading) * state.v, gone: engineOff(pose, state) });
       });
       // The safety car on the road (AUD-5): one more car for the pool, after the field.
       const scCar = scCarOf(scSpec, sc, { pose: scPose, circuit: kerbCircuit });
@@ -273,6 +326,16 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         placed.push({ id: SAFETY_CAR_ID, spec: scSpec, state, pose: scCar.pose, x: scCar.pose.x, y: scCar.pose.y, vx: Math.cos(heading) * state.v, vy: Math.sin(heading) * state.v, gone: false });
       } else drive.delete(SAFETY_CAR_ID);
       const byId = new Map(placed.map((car) => [car.id, car]));
+      // Development only: what the audio hears per car, for browser checks (Playwright). Not in builds.
+      if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
+        window.__ocAudioDebug = {
+          tau,
+          focusId,
+          mode,
+          slots: slots.slice(),
+          cars: placed.map((car) => ({ id: car.id, kmh: car.state.v * KMH, rpm: car.state.rpm, gear: car.state.gear, load: car.state.load, poseRpm: car.pose.rpm, poseGear: car.pose.gear, poseV: car.pose.v, progress: car.pose.progress, lap: car.pose.lap, throttle: car.pose.throttle, brake: car.pose.brake, inPit: car.pose.inPit, bank: bankIdOf(car.spec), loaded: Boolean(bankFor(car.spec)), revLimit: car.spec.revLimit })),
+        };
+      }
       const focus = byId.get(focusId) || placed.find((car) => car.id !== SAFETY_CAR_ID);
       let listener;
       let heading;
@@ -293,12 +356,14 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       slots = assignVoices(slots, selectVoices(placed, listener, focus?.id), voices.length);
       slots.forEach((id, index) => {
         const voice = voices[index];
+        const twin = sampled[index];
         const car = id && byId.get(id);
         if (!car) {
           voice.silence(now);
+          twin.silence(now);
           return;
         }
-        voice.assign(car.spec);
+        const bank = bankFor(car.spec);
         // Onboard and chase ride with the car: its own engine sits at the ear.
         const atEar = car.id === focus?.id && mix.listener === "car";
         const sx = atEar ? listener.x : car.x;
@@ -308,10 +373,17 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         const share = (car.id === focus?.id ? mix.focus : mix.field) * (car.spec.safetyCar ? audioData.safetyCar.voiceGain : 1);
         const overrun = car.state.load < 0.2 && car.state.rpm > car.spec.revLimit * 0.5;
         const crackle = overrun && random() < VOICING.crackleRatePerSec * car.spec.crackle * Math.max(dt, 0.016) ? 1 : 0;
-        voice.update(
-          { ...car.state },
-          { gain: share, doppler, interior: atEar ? mix.interior : 0, lowpassHz: mix.lowpassHz, time: now, crackle },
-        );
+        const voiceMix = { gain: share, doppler, interior: atEar ? mix.interior : 0, lowpassHz: mix.lowpassHz, time: now, crackle };
+        if (bank) {
+          // Recorded: the synth voice of this slot goes quiet (its crackle draw stays, so the seeded stream does not move).
+          voice.silence(now);
+          twin.assign(bank, car.spec);
+          twin.update({ ...car.state }, voiceMix);
+        } else {
+          twin.silence(now);
+          voice.assign(car.spec);
+          voice.update({ ...car.state }, voiceMix);
+        }
       });
 
       // Race log: the crowd and the bangs (only what is new since the last frame).
@@ -367,6 +439,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       if (typeof document !== "undefined") document.removeEventListener("visibilitychange", onVisibility);
       if (!ctx) return;
       voices.forEach((voice) => voice.stop());
+      sampled.forEach((voice) => voice.stop());
       if (ambience) ambience.stop();
       if (mixer) mixer.disconnect();
       ctx.close().catch(() => {});
@@ -442,5 +515,5 @@ export const useRaceAudio = ({ seed, year, circuitId = null, date = null, circui
   const update = useCallback((patch) => setLocal(ref.current.setSettings(patch)), []);
   const frame = useCallback((data) => ref.current.frame(data), []);
   const cue = useCallback((kind, opts) => (ref.current ? ref.current.cue(kind, opts) : false), []);
-  return { settings, update, enabled, enable, frame, cue, cameraBus, supported: audioSupported() };
+  return { settings, update, enabled, enable, frame, cue, cameraBus, supported: audioSupported(), recordedAvailable: recordedAvailable() };
 };

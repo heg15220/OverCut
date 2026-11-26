@@ -17,7 +17,8 @@ import {
 } from "./engineSynth";
 import { assignVoices, blendMix, busGains, cameraListener, cameraMix, cameraUsable, distanceGain, dopplerFactor, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, sliderToGain, viewMix } from "./mixer";
 import { crowdLevel, rainOf, swellFor, windOf, airGunsOn, squeals, fieldBedOf, kerbRumble, startLightsStep, gridRevsOf, gridRevsFor } from "./ambience";
-import { createRaceAudio, teamEnginesOf } from "./index";
+import { createRaceAudio, engineOff, teamEnginesOf } from "./index";
+import { heldGear, loadOf } from "./engineSynth";
 import { mixLevels } from "./levels";
 import { KERB_FILES, kerbZonesFor, onKerb } from "./kerbs";
 import kerbsSchema from "../../engine/packs/schema/kerbs.schema.json";
@@ -229,7 +230,7 @@ describe("mixer", () => {
     const fake = { getItem: (key) => (store.has(key) ? store.get(key) : null), setItem: (key, value) => store.set(key, value) };
     saveSettings({ master: 0.3, engine: 2, ambience: -1, muted: true }, fake);
     // AUD-4 adds the ui bus to the saved mix: an old save without it gets its defaults.
-    expect(loadSettings(fake)).toEqual({ master: 0.3, engine: 1, ambience: 0, muted: true, ui: audioData.mixer.defaults.ui, uiMuted: audioData.mixer.defaults.uiMuted });
+    expect(loadSettings(fake)).toEqual({ master: 0.3, engine: 1, ambience: 0, muted: true, ui: audioData.mixer.defaults.ui, uiMuted: audioData.mixer.defaults.uiMuted, recorded: audioData.mixer.defaults.recorded });
     const broken = {
       getItem: () => {
         throw new Error("blocked");
@@ -357,6 +358,9 @@ class FakeContext {
   createDynamicsCompressor() {
     return node({ threshold: param(), knee: param(), ratio: param() });
   }
+  createChannelSplitter() {
+    return node();
+  }
   resume() {
     return Promise.resolve();
   }
@@ -369,6 +373,48 @@ class FakeContext {
   }
 }
 FakeContext.made = 0;
+
+describe("smooth drive from the engine's powertrain (no stumbles)", () => {
+  test("a gear flicking back within the hold never sounds as a shift; a held one does", () => {
+    const s = { gear: 3 };
+    expect(heldGear(s, { gear: 4 }, 0.016)).toBe(3);
+    expect(heldGear(s, { gear: 3 }, 0.016)).toBe(3);
+    expect(heldGear(s, { gear: 4 }, 0.016)).toBe(3);
+    let g = 3;
+    for (let k = 0; k < 5 && g === 3; k += 1) g = heldGear(s, { gear: 4 }, 0.016);
+    expect(g).toBe(4);
+  });
+
+  test("the load follows the engine's pedals, braking is overrun, and it eases instead of jumping", () => {
+    const s = { load: 0, v: 50 };
+    const first = loadOf(s, { throttle: 1, brake: 0 }, 50, -30, 0.016);
+    expect(first).toBeGreaterThan(0);
+    expect(first).toBeLessThan(0.5);
+    expect(loadOf({ load: 1, v: 50 }, { throttle: 0.9, brake: 0.4 }, 50, 0, 1)).toBe(0);
+    expect(loadOf({ v: 50 }, { throttle: 0.7 }, 50, -30, 0.016)).toBeCloseTo(0.7, 6);
+  });
+
+  test("driveStep keeps the voice's gear and revs together while a new gear is not yet held", () => {
+    const spec = engineSpecFor(2013, { formula: "2.4 V8" });
+    let st = driveStep(spec, null, { x: 0, y: 0, v: 70, rpm: 17000, gear: 5, throttle: 1 }, 0.016, 0.016);
+    st = driveStep(spec, st, { x: 1, y: 0, v: 70.2, rpm: 15500, gear: 6, throttle: 1 }, 0.016, 0.016);
+    expect(st.gear).toBe(5);
+    expect(st.shifted).toBe(false);
+    expect(st.rpm).toBe(17000);
+  });
+});
+
+describe("engines that are off (retired, garage, after the flag)", () => {
+  test("a parked retired car is silent from the moment it stops; a running or pitting car is not", () => {
+    expect(engineOff({ parked: true, v: 0 })).toBe(true);
+    expect(engineOff({ garage: true })).toBe(true);
+    expect(engineOff({ gone: true })).toBe(true);
+    expect(engineOff({ finished: true }, { v: 0 })).toBe(true);
+    expect(engineOff({ finished: true }, { v: 40 })).toBe(false);
+    expect(engineOff({ inPit: true, stopped: true, v: 0 })).toBe(false);
+    expect(engineOff({ v: 60 })).toBe(false);
+  });
+});
 
 describe("race audio controller (mocked Web Audio)", () => {
   afterEach(() => {
@@ -395,7 +441,7 @@ describe("race audio controller (mocked Web Audio)", () => {
   });
 
   test("seeded: no Math.random or Date in the audio code (RF-SIM-15, RNF-05)", () => {
-    ["engineSynth.js", "mixer.js", "ambience.js", "index.js", "levels.js", "kerbs.js", "uiSounds.js"].forEach((file) => {
+    ["engineSynth.js", "engineSamples.js", "mixer.js", "ambience.js", "index.js", "levels.js", "kerbs.js", "uiSounds.js"].forEach((file) => {
       const text = fs.readFileSync(path.join(__dirname, file), "utf8");
       expect(text).not.toMatch(/Math\.random|Date\.now|new Date/);
     });

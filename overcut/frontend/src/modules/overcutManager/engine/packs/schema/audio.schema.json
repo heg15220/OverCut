@@ -195,7 +195,7 @@
           "type": "object",
           "additionalProperties": false,
           "required": ["offAccel", "onAccel", "overrunGain"],
-          "properties": {"$comment": {"type": "string"}, "offAccel": {"type": "number", "maximum": 0}, "onAccel": {"type": "number"}, "overrunGain": {"$ref": "#/definitions/share"}}
+          "properties": {"$comment": {"type": "string"}, "offAccel": {"type": "number", "maximum": 0}, "onAccel": {"type": "number"}, "overrunGain": {"$ref": "#/definitions/share"}, "easeSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}, "easeNote": {"type": "string"}}
         },
         "downshiftShare": {"$ref": "#/definitions/share"},
         "launchShare": {"$ref": "#/definitions/share"},
@@ -226,7 +226,7 @@
             "source": {"$ref": "#/definitions/text"}
           }
         },
-        "crackleRatePerSec": {"$ref": "#/definitions/positive"},
+        "gearHoldSec": {"type": "number", "minimum": 0, "maximum": 0.5}, "gearHoldNote": {"type": "string"}, "crackleRatePerSec": {"$ref": "#/definitions/positive"},
         "crackleGain": {"$ref": "#/definitions/share"},
         "smoothingSec": {"$ref": "#/definitions/positive"}
       }
@@ -329,6 +329,40 @@
         }
       }
     },
+    "samples": {
+      "$comment": "Motores grabados (three/audio/engineSamples.js, data/manager-sounds.json): reglas por año y motor hacia un banco; sin regla, sintetizado. Opcional: sin él todo suena sintetizado.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabledByDefault", "pitchFollow", "minRate", "maxRate", "load", "channels", "gain", "fadeSec", "releaseSec", "cars", "safetyCar"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "enabledByDefault": {"type": "boolean"},
+        "pitchFollow": {"type": "number", "minimum": 0, "maximum": 1},
+        "minRate": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "maxRate": {"type": "number", "minimum": 1, "maximum": 4},
+        "load": {"type": "object", "additionalProperties": false, "required": ["decelBelow", "accelAbove"], "properties": {"$comment": {"type": "string"}, "decelBelow": {"$ref": "#/definitions/share"}, "accelAbove": {"$ref": "#/definitions/share"}}},
+        "channels": {"type": "object", "additionalProperties": false, "required": ["engine", "exhaust", "interiorEngine", "interiorExhaust"], "properties": {"$comment": {"type": "string"}, "engine": {"$ref": "#/definitions/nonNegative"}, "exhaust": {"$ref": "#/definitions/nonNegative"}, "interiorEngine": {"$ref": "#/definitions/nonNegative"}, "interiorExhaust": {"$ref": "#/definitions/nonNegative"}}},
+        "gain": {"type": "number", "minimum": 0, "maximum": 2},
+        "fadeSec": {"$ref": "#/definitions/positive"},
+        "releaseSec": {"$ref": "#/definitions/positive"},
+        "cars": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from", "to", "match", "bank"],
+            "properties": {
+              "from": {"type": "integer", "minimum": 1950, "maximum": 2100},
+              "to": {"type": "integer", "minimum": 1950, "maximum": 2100},
+              "match": {"type": "object", "additionalProperties": false, "properties": {"cylinders": {"type": "integer"}, "layout": {"enum": ["V", "F", "W", "L"]}, "aspiration": {"enum": ["na", "turbo", "hybrid"]}, "engineId": {"type": "string"}, "manufacturer": {"type": "string"}}},
+              "bank": {"oneOf": [{"type": "string", "minLength": 1}, {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}]},
+              "note": {"type": "string"}
+            }
+          }
+        },
+        "safetyCar": {"type": "object", "properties": {"$comment": {"type": "string"}}, "additionalProperties": {"type": "string", "minLength": 1}}
+      }
+    },
     "mixer": {
       "type": "object",
       "additionalProperties": false,
@@ -339,7 +373,7 @@
           "type": "object",
           "additionalProperties": false,
           "required": ["master", "engine", "ambience", "muted", "ui", "uiMuted"],
-          "properties": {"master": {"$ref": "#/definitions/share"}, "engine": {"$ref": "#/definitions/share"}, "ambience": {"$ref": "#/definitions/share"}, "muted": {"type": "boolean"}, "ui": {"$ref": "#/definitions/share"}, "uiMuted": {"type": "boolean"}}
+          "properties": {"master": {"$ref": "#/definitions/share"}, "engine": {"$ref": "#/definitions/share"}, "ambience": {"$ref": "#/definitions/share"}, "muted": {"type": "boolean"}, "ui": {"$ref": "#/definitions/share"}, "uiMuted": {"type": "boolean"}, "recorded": {"type": "boolean"}}
         },
         "volumeCurve": {
           "type": "object",

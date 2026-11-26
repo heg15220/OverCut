@@ -24,6 +24,10 @@
  * it, and the engineer's wing/floor/puncture radio - each on its own seed::limits / seed::damage stream. With default
  * tactics nothing else moves: 1976 and the 2012 classifications are unchanged; 1988/2008/2026 move by debris punctures
  * and floor damage, 2024/2026 by track-limits penalties.
+ * 2026-11-26: the reference trace of each circuit runs with its season's physics era car (venue.js, was fixed
+ * year buckets: 2009-2013 on the 2014-2016 car) and race-physics.json budget.sensitivity holds the weights
+ * measured on OpenF1 race laps; the quick mode reads the trace's lap (pit lane scale, energy tables), so every
+ * race moves.
  */
 
 import crypto from "crypto";

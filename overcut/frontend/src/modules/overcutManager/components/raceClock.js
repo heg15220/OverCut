@@ -307,14 +307,18 @@ const laneAt = (circuit, d) => {
 
 /**
  * RF-SIM-01 / RF-SIM-02: the power unit's state between two snapshots (engine/sim/powertrain.js via the
- * worker trail): gear from the nearer one, rpm, pedals, g, pitch and roll interpolated. Empty for older trails.
+ * worker trail): gear from the nearer one, rpm, pedals, g, pitch and roll interpolated. Across a gear
+ * change the rpm comes from the same snapshot as the gear: blending the old gear's revs into the new
+ * gear's smeared every shift over a whole snapshot (0,25 s) and paired a gear with the other gear's
+ * rpm (heard as stumbles, 26/11/2026). Empty for older trails.
  */
 const driveAt = (a, b, f, index, near) => {
   if (!a.g || !b.g) return {};
   const mix = (key, scale = 1) => ((a[key][index] + (b[key][index] - a[key][index]) * f) / scale);
+  const shifting = a.g[index] !== b.g[index];
   return {
     gear: near.g[index],
-    rpm: Math.round(mix("rpm")),
+    rpm: shifting ? Math.round(near.rpm[index]) : Math.round(mix("rpm")),
     throttle: mix("th", 100),
     brake: mix("br", 100),
     lonG: mix("lon", 100),
@@ -322,6 +326,32 @@ const driveAt = (a, b, f, index, near) => {
     pitch: mix("pi", 100),
     roll: mix("ro", 100),
   };
+};
+
+/**
+ * Lap progress between two snapshots, eased with the engine's speeds at both ends (cubic Hermite)
+ * instead of a straight line: the position and its speed stay continuous across snapshots. With a
+ * straight line the speed was constant inside each 0,25 s step and jumped at every snapshot (~40
+ * km/h at a time under 5 g braking), seen and heard as the cars stumbling along (26/11/2026). The
+ * end speeds are scaled so the step still covers exactly its distance (the view's lap length and
+ * the engine's line differ by a few per cent), and the result never leaves the step. Linear when
+ * the trail has no speeds, the car is (nearly) still, or the step goes backwards.
+ */
+export const easedProgress = (a, b, f, index) => {
+  const p0 = a.p[index];
+  const dp = b.p[index] - p0;
+  if (!a.v || !b.v || !(b.clock > a.clock) || !(dp > 0)) return p0 + dp * f;
+  const va = a.v[index];
+  const vb = b.v[index];
+  const mean = (va + vb) / 2;
+  if (!(va >= 0) || !(vb >= 0) || !(mean > 0.5)) return p0 + dp * f;
+  // Tangents per unit of f, scaled so that (m0 + m1) / 2 = dp: the step's distance is kept.
+  const m0 = (va / mean) * dp;
+  const m1 = (vb / mean) * dp;
+  const f2 = f * f;
+  const f3 = f2 * f;
+  const p = (2 * f3 - 3 * f2 + 1) * p0 + (f3 - 2 * f2 + f) * m0 + (3 * f2 - 2 * f3) * (p0 + dp) + (f3 - f2) * m1;
+  return Math.min(p0 + dp, Math.max(p0, p));
 };
 
 /**
@@ -347,7 +377,7 @@ export const liveCarAt = (mirror, car, tau, circuit, lapRef = 90) => {
     const d = Math.min(0.55, (tau - last.end) / (lapRef * 1.8));
     return { ...poseAt(circuit, d), progress: done + d, laps: done, finished: true };
   }
-  let progress = a.p[index] + (b.p[index] - a.p[index]) * f;
+  let progress = easedProgress(a, b, f, index);
   // Never ahead of a line crossing the view has not reached yet.
   if (progress > done + 1) progress = done + 0.9999;
   const lat = a.l[index] + (b.l[index] - a.l[index]) * f;

@@ -192,8 +192,12 @@ describe("cameras.json (RNF-07, F1M24-GAMEPLAY §2.5 onboard-mounts)", () => {
     const dir = new THREE.Vector3(Math.cos(focus.heading), 0, Math.sin(focus.heading));
     const along = (p) => (p.x - focus.x) * dir.x + (p.z - focus.z) * dir.z;
     const tcam = frame("tcam", focus, circuit, [], {}, 0.016);
-    expect(tcam.pos.y).toBeCloseTo(0.7 + 0.42, 6);
-    expect(along(tcam.pos)).toBeCloseTo(0.15 - 0.55, 6);
+    // Moved on 26/11/2026: just behind the helmet and above the airbox, looking down over the
+    // nose (the broadcast T-cam); the old mount sat inside the GLB airbox and showed only its back.
+    expect(tcam.pos.y).toBeCloseTo(0.7 + 0.52, 6);
+    expect(along(tcam.pos)).toBeCloseTo(0.15 - 0.35, 6);
+    expect(tcam.look.y).toBeLessThan(tcam.pos.y);
+    expect(along(tcam.look)).toBeCloseTo(12, 6);
     expect(tcam.fov).toBe(68);
     expect(tcam.near).toBe(0.05);
     const rear = frame("tcamRear", focus, circuit, [], {}, 0.016);

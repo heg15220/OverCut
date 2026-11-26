@@ -67,28 +67,28 @@
   },
   {
    "fromM": 797.5,
-   "toM": 860.4,
+   "toM": 874.8,
    "kind": "straight",
    "cams": [
     {
      "type": "straight",
-     "atM": 828.9,
+     "atM": 836.1,
      "side": 1
     },
     {
      "type": "passPan",
-     "atM": 828.9,
+     "atM": 836.1,
      "side": 1
     },
     {
      "type": "lateralTrack",
-     "atM": 828.9,
+     "atM": 836.1,
      "side": 1
     }
    ]
   },
   {
-   "fromM": 860.4,
+   "fromM": 874.8,
    "toM": 1199.6,
    "kind": "braking",
    "cams": [

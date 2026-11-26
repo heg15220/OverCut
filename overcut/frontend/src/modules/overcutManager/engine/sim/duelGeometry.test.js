@@ -247,8 +247,15 @@ describe("SIM-8 trafico-sesion: the step simulator in session mode (RF-WKD-02, R
     const b = session("ses2", { budgetOf: (i) => (i === 1 ? 110 : 92), yieldCar: 1 });
     expect(JSON.stringify(a.lines)).toBe(JSON.stringify(b.lines));
     expect(Array.from(a.state._sim.P)).toEqual(Array.from(b.state._sim.P));
-    // The car on its slow lap never holds up the one behind for good: everyone else still laps near its budget.
-    a.lines.filter((line) => line.lap >= 2 && line.i !== 1).forEach((line) => expect(line.time).toBeLessThan(92 * 1.04));
+    // The car on its slow lap never holds up the one behind for good: nobody else loses more than 4 % on two
+    // laps running (one lap stuck while it is let by is a session's traffic), and everyone laps near its budget.
+    const others = {};
+    a.lines.filter((line) => line.lap >= 2 && line.i !== 1).forEach((line) => (others[line.i] = others[line.i] || []).push(line));
+    Object.values(others).forEach((laps) => {
+      laps.sort((x, y) => x.lap - y.lap);
+      laps.slice(1).forEach((line, k) => expect(Math.min(line.time, laps[k].time)).toBeLessThan(92 * 1.04));
+      expect(laps.reduce((sum, line) => sum + line.time, 0) / laps.length).toBeLessThan(92 * 1.02);
+    });
   });
 
   it("puts the race back with the race mode", () => {

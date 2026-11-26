@@ -118,13 +118,13 @@
    "cams": [
     {
      "type": "corner",
-     "atM": 1248.1,
+     "atM": 1242.3,
      "side": -1,
-     "cornerKind": "fast"
+     "cornerKind": "medium"
     },
     {
      "type": "highWide",
-     "atM": 1248.1,
+     "atM": 1242.3,
      "side": -1
     }
    ]
@@ -158,7 +158,7 @@
      "type": "corner",
      "atM": 1696.8,
      "side": 1,
-     "cornerKind": "fast"
+     "cornerKind": "medium"
     },
     {
      "type": "highWide",
@@ -265,7 +265,7 @@
      "type": "corner",
      "atM": 2961.2,
      "side": -1,
-     "cornerKind": "fast"
+     "cornerKind": "medium"
     },
     {
      "type": "highWide",

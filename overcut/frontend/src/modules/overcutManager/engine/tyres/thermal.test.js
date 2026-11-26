@@ -236,8 +236,9 @@ describe("SIM-6 in the race", () => {
     };
     const a = run();
     expect(a.pitted).toBe(true);
-    // The fresh set comes on at the blankets' 70 °C when the car leaves its box (a little lost on the slow pit exit) and warms up after.
-    expect(a.minAfter).toBeGreaterThan(66);
+    // The fresh set comes on at the blankets' 70 °C when the car leaves its box (a little lost on the slow pit exit
+    // and the first straights of the out-lap, more since the budget is spent on straights too) and warms up after.
+    expect(a.minAfter).toBeGreaterThan(62);
     expect(a.minAfter).toBeLessThan(72);
     expect(a.last[0]).toBeGreaterThan(80);
     expect(a.lineChecks).toBeGreaterThan(1);

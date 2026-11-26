@@ -329,7 +329,7 @@
      "type": "corner",
      "atM": 3892.6,
      "side": 1,
-     "cornerKind": "fast"
+     "cornerKind": "medium"
     },
     {
      "type": "highWide",

@@ -97,6 +97,7 @@ const frac = (value) => value - Math.floor(value);
 
 /** g in m/s² (race-physics.json constants), to read the drive's accelerations as g for the tyre's load (SIM-6). */
 const G_ACCEL = physicsData.constants.g;
+const FULL_TOP_SHARE = physicsData.trace.fullThrottleTopShare;
 
 /** The quick mode's start stagger per grid slot (race-eras.json `start.gridSpacing`); here the slot is physical. */
 const START_SPACING = raceBalance.start.gridSpacing;
@@ -489,8 +490,10 @@ const driveSetup = (year, track, tables, n, rules) => {
     pt,
     drive: createDrive(n),
     kappaBin: curvatureBins(track, tables.M),
-    // Where the reference trace is on the power (1), per time-share bin: full throttle there.
-    fullBin: Uint8Array.from(tables.vRef, (v, j) => (tables.vRef[(j + 1) % tables.M] > v * 1.0005 ? 1 : 0)),
+    // Where the reference trace is on the power (1), per time-share bin: full throttle there, and on
+    // the top-speed plateau (holding the top speed down a straight is flat out, race-physics.json
+    // trace.fullThrottleTopShare).
+    fullBin: Uint8Array.from(tables.vRef, (v, j) => (tables.vRef[(j + 1) % tables.M] > v * 1.0005 || v >= top * FULL_TOP_SHARE ? 1 : 0)),
     coast: rules.refuelling ? null : coastPlan(tables, pt, mixEffect("lean").time),
     straightSens: Number.isFinite(straightSens) ? straightSens : 1,
   };

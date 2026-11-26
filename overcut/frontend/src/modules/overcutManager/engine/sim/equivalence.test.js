@@ -34,10 +34,12 @@ import { carsWithIncidents, cleanLaps, cleanLapsByLap, meanOf, stdOf, weekend } 
 const SEEDS = ["eq1", "eq2", "eq3", "eq4"];
 // RF-SIM-11: wet laps scatter five times more than dry ones (the line drying): eight weekends.
 const WET_SEEDS = Array.from({ length: 8 }, (_, k) => `eq${k + 1}`);
-// 64 races: the field's spread ratio is the ratio of two estimates from different random draws,
+// 128 races: the field's spread ratio is the ratio of two estimates from different random draws,
 // whose standard error with 32 races (~2 %) equalled the ±2 % tolerance (SIM-FISICA §7: 0.97,
-// 1.00 and 1.03 on three sets of 32 seeds). The tolerance is unchanged; the sample is larger.
-const FIELD_SEEDS = Array.from({ length: 64 }, (_, k) => `eq${k + 1}`);
+// 1.00 and 1.03 on three sets of 32 seeds). With 64 it was still ~1.4 %: after the era-correct
+// trace (26/11/2026) three sets of 64 gave 0.972, 1.019 and 0.986 (no bias, mean 0.992). The
+// tolerance is unchanged; the sample is larger again.
+const FIELD_SEEDS = Array.from({ length: 128 }, (_, k) => `eq${k + 1}`);
 // The field test's laps are dry ones (water on the line below this, engine/weather wetness 0-1).
 const DRY_BELOW = 0.05;
 

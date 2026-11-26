@@ -276,6 +276,47 @@ export const loadFromAccel = (accel) => {
   return clamp((accel - offAccel) / (onAccel - offAccel), 0, 1);
 };
 
+/**
+ * Load 0..1 the voice plays: the engine's own pedals when the snapshot has them (pose.throttle,
+ * 0..1, and pose.brake: braking is overrun), else from the acceleration. Either way eased over
+ * voicing.load.easeSec of race time: the acceleration of poses eased between 0,25 s snapshots
+ * jumps at every snapshot and flipped the voice between its accel and overrun loops.
+ */
+export const loadOf = (s, pose, v, accel, dtau, cfg = VOICING.load) => {
+  let target;
+  if (Number.isFinite(pose.throttle)) target = clamp(pose.throttle, 0, 1) * (Number.isFinite(pose.brake) && pose.brake > 0.05 ? 0 : 1);
+  else target = s.v === 0 && v === 0 ? 0 : loadFromAccel(accel);
+  if (!Number.isFinite(s.load) || !(dtau > 0) || dtau > 2) return target;
+  const k = Math.min(1, dtau / Math.max(1e-3, cfg.easeSec));
+  return s.load + (target - s.load) * k;
+};
+
+/**
+ * The gear the voice is in: a new gear from the engine counts once it has been held for
+ * voicing.gearHoldSec of race time; one that flicks back before that (two snapshots bracketing
+ * a shift, read a few ms apart) never sounds as a shift.
+ */
+export const heldGear = (s, pose, dtau, holdSec = VOICING.gearHoldSec) => {
+  if (!Number.isFinite(s.gear) || !(dtau >= 0) || dtau > 2) {
+    s.pendingGear = null;
+    return pose.gear;
+  }
+  if (pose.gear === s.gear) {
+    s.pendingGear = null;
+    return s.gear;
+  }
+  if (s.pendingGear !== pose.gear) {
+    s.pendingGear = pose.gear;
+    s.pendingFor = 0;
+  }
+  s.pendingFor += dtau;
+  if (s.pendingFor >= holdSec) {
+    s.pendingGear = null;
+    return pose.gear;
+  }
+  return s.gear;
+};
+
 /** Turbo shaft speed share 0..1 (lags the throttle; spools with rpm and load). */
 export const turboTarget = (rpmShare, load) => clamp(rpmShare ** 1.5 * (0.35 + 0.65 * load), 0, 1);
 
@@ -292,7 +333,7 @@ export const hybridTones = (spec, rpm, turboShare) => ({
  * `state` is mutated and returned; `dtau` race seconds, `dt` real seconds.
  */
 export const driveStep = (spec, state, pose, dtau, dt) => {
-  const s = state || { gear: 1, rpm: spec.idleRpm, v: 0, load: 0, turbo: 0, topKmh: spec.refTopKmh, x: null, y: null, shiftAt: -1 };
+  const s = state || { gear: Number.isFinite(pose.gear) ? pose.gear : 1, rpm: Number.isFinite(pose.rpm) ? pose.rpm : spec.idleRpm, v: 0, load: 0, turbo: 0, topKmh: spec.refTopKmh, x: null, y: null, shiftAt: -1 };
   let v = Number.isFinite(pose.v) ? pose.v : null;
   if (v === null && s.x !== null && dtau > 0 && dtau < 2) v = Math.hypot(pose.x - s.x, pose.y - s.y) / dtau;
   if (v === null) v = s.v;
@@ -303,11 +344,14 @@ export const driveStep = (spec, state, pose, dtau, dt) => {
   // Before 2014 the ratios were chosen per circuit: the top gear meets the shift point at the track's top speed.
   // Only upwards: lowering it as the car slowed past 92 % kept it in top gear down to a hairpin.
   if (spec.gearingPerTrack && kmh > s.topKmh * 0.92) s.topKmh = Math.max(s.topKmh, kmh / 0.97);
-  const load = s.v === 0 && v === 0 ? 0 : loadFromAccel(accel);
+  const load = loadOf(s, pose, v, accel, dtau);
   let drive;
   if (Number.isFinite(pose.rpm) && Number.isFinite(pose.gear)) {
     const pit = pose.pitPhase === "LIMITER" && Boolean(spec.pitLimiter?.kmh);
-    drive = { gear: pose.gear, rpm: Math.min(pose.rpm, spec.revLimit), limiter: !pit && pose.rpm >= spec.revLimit, pitLimiter: pit, shifted: pose.gear !== s.gear };
+    const gear = heldGear(s, pose, dtau);
+    // While a new gear is not yet held, the revs stay with the gear the voice is in.
+    const rpm = gear === pose.gear ? pose.rpm : Number.isFinite(s.rpm) ? s.rpm : pose.rpm;
+    drive = { gear, rpm: Math.min(rpm, spec.revLimit), limiter: !pit && rpm >= spec.revLimit, pitLimiter: pit, shifted: gear !== s.gear };
   } else if (pose.pitPhase === "LIMITER" && spec.pitLimiter?.kmh) {
     // The pit limiter holds the car at the limit in one gear: a flat tone, the same on the way
     // in and out (no bounce, voicing.pitLimiter). The gear is the powertrain's fixed pit gear

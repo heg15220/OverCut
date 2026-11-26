@@ -100,7 +100,7 @@ import { battlesIn, carAt, computedUntil, eventTime, leaderLap, liveCarAt, liveS
 import { SC_HUD, scBannerOf, scInThisLap, scMapPose, scPhaseLabel, scPhaseOf, vscDeltaOf, vscDeltaText, vscEnding } from "./hudSafetyCar";
 import { lightsOutOf, procedureLimit, replayTimelineOf, startProcedureOf, startStateAt, startTimelineOf } from "./startLights";
 import { clockLabel, raceConditionsOf, raceStartOf } from "./hudConditions";
-import { REPLAY, createReplayBuffer, createReplayQueue, enqueueReplay, nextReplay, planReplay, replayFrameAt, replaySpan } from "./replay/replayBuffer";
+import { REPLAY, createReplayBuffer, createReplayQueue, enqueueReplay, nextReplay, planReplay, replayFrameAt, replayPoseAt, replaySpan } from "./replay/replayBuffer";
 import ReplayOverlay from "./replay/ReplayOverlay";
 
 // three.js is only fetched when a race is watched in 3D, so the rest of OverCut stays light.
@@ -476,6 +476,8 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const endReplay = () => setReplay(null);
   // The loop reads the auto-speed machine itself (a drop lands on the very next frame).
   const playRef = useRef({ playing, auto, playingRaw: playing });
+  // The audio is fed from the animation loop, every frame (below), not on React's repaints.
+  const audioPump = useRef(null);
   playRef.current = { playing: playing && !auto.held, auto, playingRaw: playing };
   const repaint = () => setFrame((value) => (value + 1) % 1e9);
 
@@ -525,6 +527,9 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
       }
       // Paused (or held by an open dialog, HUD-3 PitDialog): the engine is asked for nothing.
       if (isPlaying && introDone.current && !finishedRef.current) source.advance(tau.current, rate);
+      // The sound follows the clock every frame, as the 3D view does: fed only on React's repaints
+      // (every 90 ms in 3D) the revs moved in steps eleven times a second and the engines stumbled.
+      if (audioPump.current) audioPump.current();
       // The 3D view samples the clock itself every frame; the data around it
       // only needs repainting a dozen times a second.
       if (!in3DRef.current || time - lastPaint >= 90) {
@@ -683,22 +688,34 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
 
   const stageCars = rows.map((row) => ({ car: row.car, code: code(row.car.name), pose: row.pose, row: row.out ? null : row }));
 
-  // One audio frame per repaint (a no-op until the viewer turns the sound on).
-  const audioFrame = {
-    tau: tau.current,
-    playing: playing && !done,
-    mode: cameraMode,
-    focusId: tvSubjectId,
-    cars: rows.map((row) => ({ id: row.car.id, teamId: row.car.teamId, pose: row.pose })),
-    wetness,
-    events: visibleEvents,
-    started: introDone.current,
-    // AUD-3 reads the engine's start (§1.7) for the lights and the revs on the grid.
-    start: startNow,
-  };
-  useEffect(() => {
-    if (audio.enabled) audio.frame(audioFrame);
-  });
+  // One audio frame per animation frame (a no-op until the viewer turns the sound on), the cars
+  // sampled at that frame's clock. The audio hears what is on screen: the race clock only while it
+  // runs (a hold - a replay, a pit dialog - is a pause, never engines frozen at their last revs),
+  // and during a replay's content the replayed cars at the replay's own race time (the buffer
+  // Race3D draws), on the replay mix. The rest (camera, events, start) is this repaint's.
+  const audioContext = { playing, held: auto.held, done, cameraMode, tvSubjectId, wetness, events: visibleEvents, start: startNow };
+  audioPump.current = audio.enabled
+    ? () => {
+        const ctx = audioContext;
+        const replayNow = replayRef.current ? replayFrameAt(replayRef.current.plan, replayClock.current) : null;
+        const replayLive = Boolean(replayNow && replayNow.phase === "content");
+        const at = replayLive ? replayNow.tau : tau.current;
+        const live = source.rows(tau.current);
+        audio.frame({
+          tau: at,
+          playing: (replayLive ? ctx.playing : ctx.playing && !ctx.held) && !ctx.done,
+          view: replayLive ? "replay" : null,
+          mode: ctx.cameraMode,
+          focusId: replayLive ? replayRef.current.plan.subjectId ?? ctx.tvSubjectId : ctx.tvSubjectId,
+          cars: live.map((row) => ({ id: row.car.id, teamId: row.car.teamId, pose: (replayLive && replayPoseAt(replayBuffer, row.car.id, at)) || row.pose })),
+          wetness: ctx.wetness,
+          events: ctx.events,
+          started: introDone.current,
+          // AUD-3 reads the engine's start (§1.7) for the lights and the revs on the grid.
+          start: ctx.start,
+        });
+      }
+    : null;
 
   // ---- player calls: through the engine (the worker for a step race), RF-CMD-01/02
   const command = (name, ...callArgs) => {

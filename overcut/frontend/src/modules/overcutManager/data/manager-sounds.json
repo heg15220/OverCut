@@ -1,0 +1,3713 @@
+{
+  "$comment": "GENERADO por tools/assets/engine_sounds.py: no editar a mano. Bancos grabados del motor (RF-3D-04); los WAV van a /manager-assets/ (fuera de git). Todos riskRipped: las builds públicas no los cargan (SRS 3.3, 7.3).",
+  "version": 1,
+  "hash": "0ef90d763d0157e2",
+  "baseUrl": "/manager-assets/",
+  "repo": "SpiritsCreations/FiveM-Engine-Sound-Pack",
+  "commit": "325f5dd395d91f9c288dd44e5a349c6791e7890b",
+  "banks": [
+    {
+      "id": "f1-v10",
+      "file": "sounds/engines/f1-v10.wav",
+      "bytes": 1023240,
+      "sha256": "7827803462d1d20657336d2ffd74d37d1ccb1066280471e1705e0ad13cc14f3e",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "Formula 1 V10",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/formula-1-v10-sound-mod-sp-add-on-fivem",
+      "source": "https://github.com/SpiritsCreations/FiveM-Engine-Sound-Pack/blob/325f5dd395d91f9c288dd44e5a349c6791e7890b/Audio_Pack/sfx/dlc_lg115classicf1v10/lg115classicf1v10.awc",
+      "license": null,
+      "riskRipped": true,
+      "layers": {
+        "accel": [
+          {
+            "hz": 40.201,
+            "rpm": 4824,
+            "offset": 0,
+            "length": 9552
+          },
+          {
+            "hz": 45.007,
+            "rpm": 5401,
+            "offset": 9552,
+            "length": 9954
+          },
+          {
+            "hz": 50.394,
+            "rpm": 6047,
+            "offset": 19506,
+            "length": 9525
+          },
+          {
+            "hz": 56.437,
+            "rpm": 6772,
+            "offset": 29031,
+            "length": 9639
+          },
+          {
+            "hz": 63.241,
+            "rpm": 7589,
+            "offset": 38670,
+            "length": 9614
+          },
+          {
+            "hz": 70.796,
+            "rpm": 8496,
+            "offset": 48284,
+            "length": 9492
+          },
+          {
+            "hz": 79.404,
+            "rpm": 9529,
+            "offset": 57776,
+            "length": 9672
+          },
+          {
+            "hz": 88.889,
+            "rpm": 10667,
+            "offset": 67448,
+            "length": 9720
+          },
+          {
+            "hz": 99.688,
+            "rpm": 11963,
+            "offset": 77168,
+            "length": 9630
+          },
+          {
+            "hz": 111.498,
+            "rpm": 13380,
+            "offset": 86798,
+            "length": 9471
+          },
+          {
+            "hz": 125.0,
+            "rpm": 15000,
+            "offset": 96269,
+            "length": 9728
+          },
+          {
+            "hz": 132.231,
+            "rpm": 15868,
+            "offset": 105997,
+            "length": 9680
+          }
+        ],
+        "decel": [
+          {
+            "hz": 37.78,
+            "rpm": 4534,
+            "offset": 115677,
+            "length": 9317
+          },
+          {
+            "hz": 42.328,
+            "rpm": 5079,
+            "offset": 124994,
+            "length": 9828
+          },
+          {
+            "hz": 47.407,
+            "rpm": 5689,
+            "offset": 134822,
+            "length": 9450
+          },
+          {
+            "hz": 53.068,
+            "rpm": 6368,
+            "offset": 144272,
+            "length": 9648
+          },
+          {
+            "hz": 59.48,
+            "rpm": 7138,
+            "offset": 153920,
+            "length": 9684
+          },
+          {
+            "hz": 66.528,
+            "rpm": 7983,
+            "offset": 163604,
+            "length": 9620
+          },
+          {
+            "hz": 74.592,
+            "rpm": 8951,
+            "offset": 173224,
+            "length": 9438
+          },
+          {
+            "hz": 83.551,
+            "rpm": 10026,
+            "offset": 182662,
+            "length": 9575
+          },
+          {
+            "hz": 93.567,
+            "rpm": 11228,
+            "offset": 192237,
+            "length": 9576
+          },
+          {
+            "hz": 104.918,
+            "rpm": 12590,
+            "offset": 201813,
+            "length": 9455
+          },
+          {
+            "hz": 117.216,
+            "rpm": 14066,
+            "offset": 211268,
+            "length": 9555
+          },
+          {
+            "hz": 131.687,
+            "rpm": 15802,
+            "offset": 220823,
+            "length": 9720
+          }
+        ],
+        "idle": [
+          {
+            "hz": 17.738,
+            "rpm": 2129,
+            "offset": 230543,
+            "length": 25256
+          }
+        ]
+      }
+    },
+    {
+      "id": "f1-v6-turbo-1988",
+      "file": "sounds/engines/f1-v6-turbo-1988.wav",
+      "bytes": 796792,
+      "sha256": "2acafcae00de0d8e742508014c2860914d2dea0d31a1bfed973cae45b5a54588",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "McLaren MP4/4 F1 V6 (Honda RA168E)",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/mclaren-mp4-4-f1-v6-sound-mod-sp-add-on-fivem",
+      "source": "https://github.com/SpiritsCreations/FiveM-Engine-Sound-Pack/blob/325f5dd395d91f9c288dd44e5a349c6791e7890b/Audio_Pack/sfx/dlc_honf1v6eng/honf1v6eng.awc",
+      "license": null,
+      "riskRipped": true,
+      "layers": {
+        "accel": [
+          {
+            "hz": 42.838,
+            "rpm": 5141,
+            "offset": 0,
+            "length": 9711
+          },
+          {
+            "hz": 47.976,
+            "rpm": 5757,
+            "offset": 9711,
+            "length": 9338
+          },
+          {
+            "hz": 53.691,
+            "rpm": 6443,
+            "offset": 19049,
+            "length": 9536
+          },
+          {
+            "hz": 60.15,
+            "rpm": 7218,
+            "offset": 28585,
+            "length": 9576
+          },
+          {
+            "hz": 67.368,
+            "rpm": 8084,
+            "offset": 38161,
+            "length": 9500
+          },
+          {
+            "hz": 75.472,
+            "rpm": 9057,
+            "offset": 47661,
+            "length": 9752
+          },
+          {
+            "hz": 84.433,
+            "rpm": 10132,
+            "offset": 57413,
+            "length": 9475
+          },
+          {
+            "hz": 94.675,
+            "rpm": 11361,
+            "offset": 66888,
+            "length": 9464
+          },
+          {
+            "hz": 102.894,
+            "rpm": 12347,
+            "offset": 76352,
+            "length": 9641
+          }
+        ],
+        "decel": [
+          {
+            "hz": 34.152,
+            "rpm": 4098,
+            "offset": 85993,
+            "length": 9370
+          },
+          {
+            "hz": 38.278,
+            "rpm": 4593,
+            "offset": 95363,
+            "length": 9196
+          },
+          {
+            "hz": 42.838,
+            "rpm": 5141,
+            "offset": 104559,
+            "length": 9711
+          },
+          {
+            "hz": 47.976,
+            "rpm": 5757,
+            "offset": 114270,
+            "length": 9338
+          },
+          {
+            "hz": 53.782,
+            "rpm": 6454,
+            "offset": 123608,
+            "length": 9520
+          },
+          {
+            "hz": 60.15,
+            "rpm": 7218,
+            "offset": 133128,
+            "length": 9576
+          },
+          {
+            "hz": 67.368,
+            "rpm": 8084,
+            "offset": 142704,
+            "length": 9500
+          },
+          {
+            "hz": 75.472,
+            "rpm": 9057,
+            "offset": 152204,
+            "length": 9752
+          },
+          {
+            "hz": 84.656,
+            "rpm": 10159,
+            "offset": 161956,
+            "length": 9450
+          },
+          {
+            "hz": 89.136,
+            "rpm": 10696,
+            "offset": 171406,
+            "length": 9693
+          }
+        ],
+        "idle": [
+          {
+            "hz": 24.768,
+            "rpm": 2972,
+            "offset": 181099,
+            "length": 18088
+          }
+        ]
+      }
+    },
+    {
+      "id": "f1-v6-hybrid",
+      "file": "sounds/engines/f1-v6-hybrid.wav",
+      "bytes": 1264544,
+      "sha256": "dd5a47dfc98bf973e01fa7498264326813175a01d0b8048b8378a68724402c0f",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "Mercedes-AMG One PU106C V6",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/mercedes-amg-one-pu106c-v6-sound-mod-sp-fivem-add-on",
+      "source": "https://github.com/SpiritsCreations/FiveM-Engine-Sound-Pack/blob/325f5dd395d91f9c288dd44e5a349c6791e7890b/Audio_Pack/sfx/dlc_amg1eng/amg1eng.awc",
+      "license": null,
+      "riskRipped": true,
+      "layers": {
+        "accel": [
+          {
+            "hz": 20.915,
+            "rpm": 2510,
+            "offset": 0,
+            "length": 12240
+          },
+          {
+            "hz": 23.426,
+            "rpm": 2811,
+            "offset": 12240,
+            "length": 10928
+          },
+          {
+            "hz": 26.23,
+            "rpm": 3148,
+            "offset": 23168,
+            "length": 9760
+          },
+          {
+            "hz": 29.385,
+            "rpm": 3526,
+            "offset": 32928,
+            "length": 9801
+          },
+          {
+            "hz": 32.922,
+            "rpm": 3951,
+            "offset": 42729,
+            "length": 9720
+          },
+          {
+            "hz": 36.866,
+            "rpm": 4424,
+            "offset": 52449,
+            "length": 9548
+          },
+          {
+            "hz": 41.29,
+            "rpm": 4955,
+            "offset": 61997,
+            "length": 9300
+          },
+          {
+            "hz": 46.243,
+            "rpm": 5549,
+            "offset": 71297,
+            "length": 9688
+          },
+          {
+            "hz": 51.78,
+            "rpm": 6214,
+            "offset": 80985,
+            "length": 9888
+          },
+          {
+            "hz": 57.971,
+            "rpm": 6957,
+            "offset": 90873,
+            "length": 9384
+          },
+          {
+            "hz": 64.909,
+            "rpm": 7789,
+            "offset": 100257,
+            "length": 9367
+          },
+          {
+            "hz": 72.727,
+            "rpm": 8727,
+            "offset": 109624,
+            "length": 9680
+          },
+          {
+            "hz": 81.425,
+            "rpm": 9771,
+            "offset": 119304,
+            "length": 9432
+          },
+          {
+            "hz": 91.168,
+            "rpm": 10940,
+            "offset": 128736,
+            "length": 9477
+          },
+          {
+            "hz": 102.236,
+            "rpm": 12268,
+            "offset": 138213,
+            "length": 9703
+          }
+        ],
+        "decel": [
+          {
+            "hz": 22.099,
+            "rpm": 2652,
+            "offset": 147916,
+            "length": 11584
+          },
+          {
+            "hz": 24.749,
+            "rpm": 2970,
+            "offset": 159500,
+            "length": 10344
+          },
+          {
+            "hz": 27.73,
+            "rpm": 3328,
+            "offset": 169844,
+            "length": 9232
+          },
+          {
+            "hz": 31.038,
+            "rpm": 3725,
+            "offset": 179076,
+            "length": 9279
+          },
+          {
+            "hz": 34.783,
+            "rpm": 4174,
+            "offset": 188355,
+            "length": 9200
+          },
+          {
+            "hz": 38.929,
+            "rpm": 4672,
+            "offset": 197555,
+            "length": 9864
+          },
+          {
+            "hz": 43.597,
+            "rpm": 5232,
+            "offset": 207419,
+            "length": 9542
+          },
+          {
+            "hz": 48.855,
+            "rpm": 5863,
+            "offset": 216961,
+            "length": 9825
+          },
+          {
+            "hz": 54.701,
+            "rpm": 6564,
+            "offset": 226786,
+            "length": 9360
+          },
+          {
+            "hz": 61.303,
+            "rpm": 7356,
+            "offset": 236146,
+            "length": 9396
+          },
+          {
+            "hz": 68.67,
+            "rpm": 8240,
+            "offset": 245542,
+            "length": 9786
+          },
+          {
+            "hz": 76.923,
+            "rpm": 9231,
+            "offset": 255328,
+            "length": 9568
+          },
+          {
+            "hz": 86.022,
+            "rpm": 10323,
+            "offset": 264896,
+            "length": 9672
+          },
+          {
+            "hz": 96.386,
+            "rpm": 11566,
+            "offset": 274568,
+            "length": 9628
+          },
+          {
+            "hz": 104.235,
+            "rpm": 12508,
+            "offset": 284196,
+            "length": 9517
+          }
+        ],
+        "idle": [
+          {
+            "hz": 18.561,
+            "rpm": 2227,
+            "offset": 293713,
+            "length": 22412
+          }
+        ]
+      }
+    },
+    {
+      "id": "v12-f130b",
+      "file": "sounds/engines/v12-f130b.wav",
+      "bytes": 1423596,
+      "sha256": "b41bcdf485d3ee88129cae309f94bd895abcf751fe487785ddcfc7e4a6e562cc",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "Ferrari F50 GT F130B V12 (derivado del Tipo 036 de F1)",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/ferrari-f50gt-f130b-4-7l-v12-sound-mod",
+      "source": "https://github.com/SpiritsCreations/FiveM-Engine-Sound-Pack/blob/325f5dd395d91f9c288dd44e5a349c6791e7890b/Audio_Pack/sfx/dlc_f50gteng/f50gteng.awc",
+      "license": null,
+      "riskRipped": true,
+      "layers": {
+        "accel": [
+          {
+            "hz": 15.385,
+            "rpm": 1846,
+            "offset": 0,
+            "length": 16640
+          },
+          {
+            "hz": 17.232,
+            "rpm": 2068,
+            "offset": 16640,
+            "length": 14856
+          },
+          {
+            "hz": 19.3,
+            "rpm": 2316,
+            "offset": 31496,
+            "length": 13264
+          },
+          {
+            "hz": 21.607,
+            "rpm": 2593,
+            "offset": 44760,
+            "length": 11848
+          },
+          {
+            "hz": 24.206,
+            "rpm": 2905,
+            "offset": 56608,
+            "length": 10576
+          },
+          {
+            "hz": 27.119,
+            "rpm": 3254,
+            "offset": 67184,
+            "length": 9440
+          },
+          {
+            "hz": 30.361,
+            "rpm": 3643,
+            "offset": 76624,
+            "length": 9486
+          },
+          {
+            "hz": 34.006,
+            "rpm": 4081,
+            "offset": 86110,
+            "length": 9410
+          },
+          {
+            "hz": 38.095,
+            "rpm": 4571,
+            "offset": 95520,
+            "length": 9240
+          },
+          {
+            "hz": 42.667,
+            "rpm": 5120,
+            "offset": 104760,
+            "length": 9750
+          },
+          {
+            "hz": 47.761,
+            "rpm": 5731,
+            "offset": 114510,
+            "length": 9380
+          },
+          {
+            "hz": 53.512,
+            "rpm": 6421,
+            "offset": 123890,
+            "length": 9568
+          },
+          {
+            "hz": 59.925,
+            "rpm": 7191,
+            "offset": 133458,
+            "length": 9612
+          },
+          {
+            "hz": 67.086,
+            "rpm": 8050,
+            "offset": 143070,
+            "length": 9540
+          },
+          {
+            "hz": 75.117,
+            "rpm": 9014,
+            "offset": 152610,
+            "length": 9798
+          },
+          {
+            "hz": 84.211,
+            "rpm": 10105,
+            "offset": 162408,
+            "length": 9500
+          }
+        ],
+        "decel": [
+          {
+            "hz": 17.039,
+            "rpm": 2045,
+            "offset": 171908,
+            "length": 15024
+          },
+          {
+            "hz": 19.082,
+            "rpm": 2290,
+            "offset": 186932,
+            "length": 13416
+          },
+          {
+            "hz": 21.376,
+            "rpm": 2565,
+            "offset": 200348,
+            "length": 11976
+          },
+          {
+            "hz": 23.934,
+            "rpm": 2872,
+            "offset": 212324,
+            "length": 10696
+          },
+          {
+            "hz": 26.801,
+            "rpm": 3216,
+            "offset": 223020,
+            "length": 9552
+          },
+          {
+            "hz": 30.019,
+            "rpm": 3602,
+            "offset": 232572,
+            "length": 9594
+          },
+          {
+            "hz": 33.649,
+            "rpm": 4038,
+            "offset": 242166,
+            "length": 9510
+          },
+          {
+            "hz": 37.647,
+            "rpm": 4518,
+            "offset": 251676,
+            "length": 9350
+          },
+          {
+            "hz": 42.216,
+            "rpm": 5066,
+            "offset": 261026,
+            "length": 9854
+          },
+          {
+            "hz": 47.267,
+            "rpm": 5672,
+            "offset": 270880,
+            "length": 9478
+          },
+          {
+            "hz": 52.893,
+            "rpm": 6347,
+            "offset": 280358,
+            "length": 9680
+          },
+          {
+            "hz": 59.259,
+            "rpm": 7111,
+            "offset": 290038,
+            "length": 9720
+          },
+          {
+            "hz": 66.39,
+            "rpm": 7967,
+            "offset": 299758,
+            "length": 9640
+          },
+          {
+            "hz": 74.419,
+            "rpm": 8930,
+            "offset": 309398,
+            "length": 9460
+          },
+          {
+            "hz": 83.333,
+            "rpm": 10000,
+            "offset": 318858,
+            "length": 9600
+          }
+        ],
+        "idle": [
+          {
+            "hz": 30.332,
+            "rpm": 3640,
+            "offset": 328458,
+            "length": 27430
+          }
+        ]
+      }
+    },
+    {
+      "id": "flat12-f113",
+      "file": "sounds/engines/flat12-f113.wav",
+      "bytes": 1689992,
+      "sha256": "892c8caed659a1b4c92145f501ded5631e8101621a4266fe276beea857fed502",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "Ferrari Testarossa F113 plano 12",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/ferrari-testarossa-f113-v12-sound-mod-sp-fivem-add-on-legacy_dmc",
+      "source": "https://github.com/SpiritsCreations/FiveM-Engine-Sound-Pack/blob/325f5dd395d91f9c288dd44e5a349c6791e7890b/Audio_Pack/sfx/dlc_f113/f113.awc",
+      "license": null,
+      "riskRipped": true,
+      "layers": {
+        "accel": [
+          {
+            "hz": 10.836,
+            "rpm": 1300,
+            "offset": 0,
+            "length": 23624
+          },
+          {
+            "hz": 12.135,
+            "rpm": 1456,
+            "offset": 23624,
+            "length": 21096
+          },
+          {
+            "hz": 13.594,
+            "rpm": 1631,
+            "offset": 44720,
+            "length": 18832
+          },
+          {
+            "hz": 15.224,
+            "rpm": 1827,
+            "offset": 63552,
+            "length": 16816
+          },
+          {
+            "hz": 17.048,
+            "rpm": 2046,
+            "offset": 80368,
+            "length": 15016
+          },
+          {
+            "hz": 19.093,
+            "rpm": 2291,
+            "offset": 95384,
+            "length": 13408
+          },
+          {
+            "hz": 21.39,
+            "rpm": 2567,
+            "offset": 108792,
+            "length": 11968
+          },
+          {
+            "hz": 23.952,
+            "rpm": 2874,
+            "offset": 120760,
+            "length": 10688
+          },
+          {
+            "hz": 26.823,
+            "rpm": 3219,
+            "offset": 131448,
+            "length": 9544
+          },
+          {
+            "hz": 30.047,
+            "rpm": 3606,
+            "offset": 140992,
+            "length": 9585
+          },
+          {
+            "hz": 33.649,
+            "rpm": 4038,
+            "offset": 150577,
+            "length": 9510
+          },
+          {
+            "hz": 37.691,
+            "rpm": 4523,
+            "offset": 160087,
+            "length": 9339
+          },
+          {
+            "hz": 42.216,
+            "rpm": 5066,
+            "offset": 169426,
+            "length": 9854
+          },
+          {
+            "hz": 47.267,
+            "rpm": 5672,
+            "offset": 179280,
+            "length": 9478
+          },
+          {
+            "hz": 52.98,
+            "rpm": 6358,
+            "offset": 188758,
+            "length": 9664
+          },
+          {
+            "hz": 57.762,
+            "rpm": 6931,
+            "offset": 198422,
+            "length": 9418
+          }
+        ],
+        "decel": [
+          {
+            "hz": 11.603,
+            "rpm": 1392,
+            "offset": 207840,
+            "length": 22064
+          },
+          {
+            "hz": 12.998,
+            "rpm": 1560,
+            "offset": 229904,
+            "length": 19696
+          },
+          {
+            "hz": 14.552,
+            "rpm": 1746,
+            "offset": 249600,
+            "length": 17592
+          },
+          {
+            "hz": 16.302,
+            "rpm": 1956,
+            "offset": 267192,
+            "length": 15704
+          },
+          {
+            "hz": 18.254,
+            "rpm": 2191,
+            "offset": 282896,
+            "length": 14024
+          },
+          {
+            "hz": 20.447,
+            "rpm": 2454,
+            "offset": 296920,
+            "length": 12520
+          },
+          {
+            "hz": 22.906,
+            "rpm": 2749,
+            "offset": 309440,
+            "length": 11176
+          },
+          {
+            "hz": 25.641,
+            "rpm": 3077,
+            "offset": 320616,
+            "length": 9984
+          },
+          {
+            "hz": 28.725,
+            "rpm": 3447,
+            "offset": 330600,
+            "length": 10026
+          },
+          {
+            "hz": 32.161,
+            "rpm": 3859,
+            "offset": 340626,
+            "length": 9950
+          },
+          {
+            "hz": 36.036,
+            "rpm": 4324,
+            "offset": 350576,
+            "length": 9768
+          },
+          {
+            "hz": 40.353,
+            "rpm": 4842,
+            "offset": 360344,
+            "length": 9516
+          },
+          {
+            "hz": 45.198,
+            "rpm": 5424,
+            "offset": 369860,
+            "length": 9912
+          },
+          {
+            "hz": 50.633,
+            "rpm": 6076,
+            "offset": 379772,
+            "length": 9480
+          },
+          {
+            "hz": 56.738,
+            "rpm": 6809,
+            "offset": 389252,
+            "length": 9588
+          }
+        ],
+        "idle": [
+          {
+            "hz": 23.005,
+            "rpm": 2761,
+            "offset": 398840,
+            "length": 23647
+          }
+        ]
+      }
+    },
+    {
+      "id": "sc-flat6-911",
+      "file": "sounds/engines/sc-flat6-911.wav",
+      "bytes": 1418068,
+      "sha256": "0dd7ea58403179aaf6c2c758d7779bd04ee0c558449e26b6eba7f6c3240f6ea6",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "Porsche 911 GT3 RS 4.0 F6",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/pfister-911-gt3rs-4-0l-f6-sound-mod",
+      "source": "https://github.com/SpiritsCreations/FiveM-Engine-Sound-Pack/blob/325f5dd395d91f9c288dd44e5a349c6791e7890b/Audio_Pack/sfx/dlc_lg157por911/lg157por911.awc",
+      "license": null,
+      "riskRipped": true,
+      "layers": {
+        "accel": [
+          {
+            "hz": 15.407,
+            "rpm": 1849,
+            "offset": 0,
+            "length": 16616
+          },
+          {
+            "hz": 17.26,
+            "rpm": 2071,
+            "offset": 16616,
+            "length": 14832
+          },
+          {
+            "hz": 19.324,
+            "rpm": 2319,
+            "offset": 31448,
+            "length": 13248
+          },
+          {
+            "hz": 21.651,
+            "rpm": 2598,
+            "offset": 44696,
+            "length": 11824
+          },
+          {
+            "hz": 24.242,
+            "rpm": 2909,
+            "offset": 56520,
+            "length": 10560
+          },
+          {
+            "hz": 27.142,
+            "rpm": 3257,
+            "offset": 67080,
+            "length": 9432
+          },
+          {
+            "hz": 30.418,
+            "rpm": 3650,
+            "offset": 76512,
+            "length": 9468
+          },
+          {
+            "hz": 34.043,
+            "rpm": 4085,
+            "offset": 85980,
+            "length": 9400
+          },
+          {
+            "hz": 38.141,
+            "rpm": 4577,
+            "offset": 95380,
+            "length": 9229
+          },
+          {
+            "hz": 42.724,
+            "rpm": 5127,
+            "offset": 104609,
+            "length": 9737
+          },
+          {
+            "hz": 47.833,
+            "rpm": 5740,
+            "offset": 114346,
+            "length": 9366
+          },
+          {
+            "hz": 53.601,
+            "rpm": 6432,
+            "offset": 123712,
+            "length": 9552
+          },
+          {
+            "hz": 60.038,
+            "rpm": 7205,
+            "offset": 133264,
+            "length": 9594
+          },
+          {
+            "hz": 67.227,
+            "rpm": 8067,
+            "offset": 142858,
+            "length": 9520
+          },
+          {
+            "hz": 72.893,
+            "rpm": 8747,
+            "offset": 152378,
+            "length": 9658
+          }
+        ],
+        "decel": [
+          {
+            "hz": 14.632,
+            "rpm": 1756,
+            "offset": 162036,
+            "length": 17496
+          },
+          {
+            "hz": 16.385,
+            "rpm": 1966,
+            "offset": 179532,
+            "length": 15624
+          },
+          {
+            "hz": 18.359,
+            "rpm": 2203,
+            "offset": 195156,
+            "length": 13944
+          },
+          {
+            "hz": 20.552,
+            "rpm": 2466,
+            "offset": 209100,
+            "length": 12456
+          },
+          {
+            "hz": 23.022,
+            "rpm": 2763,
+            "offset": 221556,
+            "length": 11120
+          },
+          {
+            "hz": 25.786,
+            "rpm": 3094,
+            "offset": 232676,
+            "length": 9928
+          },
+          {
+            "hz": 28.881,
+            "rpm": 3466,
+            "offset": 242604,
+            "length": 9972
+          },
+          {
+            "hz": 32.356,
+            "rpm": 3883,
+            "offset": 252576,
+            "length": 9890
+          },
+          {
+            "hz": 36.24,
+            "rpm": 4349,
+            "offset": 262466,
+            "length": 9713
+          },
+          {
+            "hz": 40.558,
+            "rpm": 4867,
+            "offset": 272179,
+            "length": 9468
+          },
+          {
+            "hz": 45.455,
+            "rpm": 5455,
+            "offset": 281647,
+            "length": 9856
+          },
+          {
+            "hz": 50.874,
+            "rpm": 6105,
+            "offset": 291503,
+            "length": 9435
+          },
+          {
+            "hz": 57.041,
+            "rpm": 6845,
+            "offset": 300938,
+            "length": 9537
+          },
+          {
+            "hz": 63.872,
+            "rpm": 7665,
+            "offset": 310475,
+            "length": 9519
+          },
+          {
+            "hz": 69.264,
+            "rpm": 8312,
+            "offset": 319994,
+            "length": 9702
+          }
+        ],
+        "idle": [
+          {
+            "hz": 19.347,
+            "rpm": 2322,
+            "offset": 329696,
+            "length": 24810
+          }
+        ]
+      }
+    },
+    {
+      "id": "sc-v8-m156",
+      "file": "sounds/engines/sc-v8-m156.wav",
+      "bytes": 847432,
+      "sha256": "b7808ff51e7bd5ebc410e1da1373711c778ba687ad14755f8217ec5a5db5c724",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "Mercedes-AMG C63 M156 6.2 V8",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/mercedes-amg-c63-m156-6-3l-v8-sound-mod",
+      "source": "https://github.com/SpiritsCreations/FiveM-Engine-Sound-Pack/blob/325f5dd395d91f9c288dd44e5a349c6791e7890b/Audio_Pack/sfx/dlc_mbnzc63eng/mbnzc63eng.awc",
+      "license": null,
+      "riskRipped": true,
+      "layers": {
+        "accel": [
+          {
+            "hz": 21.094,
+            "rpm": 2531,
+            "offset": 0,
+            "length": 12136
+          },
+          {
+            "hz": 23.616,
+            "rpm": 2834,
+            "offset": 12136,
+            "length": 10840
+          },
+          {
+            "hz": 26.446,
+            "rpm": 3174,
+            "offset": 22976,
+            "length": 9680
+          },
+          {
+            "hz": 29.63,
+            "rpm": 3556,
+            "offset": 32656,
+            "length": 9720
+          },
+          {
+            "hz": 33.195,
+            "rpm": 3983,
+            "offset": 42376,
+            "length": 9640
+          },
+          {
+            "hz": 37.166,
+            "rpm": 4460,
+            "offset": 52016,
+            "length": 9471
+          },
+          {
+            "hz": 41.612,
+            "rpm": 4993,
+            "offset": 61487,
+            "length": 9228
+          },
+          {
+            "hz": 46.647,
+            "rpm": 5598,
+            "offset": 70715,
+            "length": 9604
+          },
+          {
+            "hz": 52.202,
+            "rpm": 6264,
+            "offset": 80319,
+            "length": 9808
+          },
+          {
+            "hz": 57.451,
+            "rpm": 6894,
+            "offset": 90127,
+            "length": 9469
+          }
+        ],
+        "decel": [
+          {
+            "hz": 21.903,
+            "rpm": 2628,
+            "offset": 99596,
+            "length": 11688
+          },
+          {
+            "hz": 24.54,
+            "rpm": 2945,
+            "offset": 111284,
+            "length": 10432
+          },
+          {
+            "hz": 27.491,
+            "rpm": 3299,
+            "offset": 121716,
+            "length": 9312
+          },
+          {
+            "hz": 30.769,
+            "rpm": 3692,
+            "offset": 131028,
+            "length": 9360
+          },
+          {
+            "hz": 34.483,
+            "rpm": 4138,
+            "offset": 140388,
+            "length": 9280
+          },
+          {
+            "hz": 38.601,
+            "rpm": 4632,
+            "offset": 149668,
+            "length": 9948
+          },
+          {
+            "hz": 43.243,
+            "rpm": 5189,
+            "offset": 159616,
+            "length": 9620
+          },
+          {
+            "hz": 48.411,
+            "rpm": 5809,
+            "offset": 169236,
+            "length": 9915
+          },
+          {
+            "hz": 54.237,
+            "rpm": 6508,
+            "offset": 179151,
+            "length": 9440
+          }
+        ],
+        "idle": [
+          {
+            "hz": 24.768,
+            "rpm": 2972,
+            "offset": 188591,
+            "length": 23256
+          }
+        ]
+      }
+    },
+    {
+      "id": "sc-v8-sls",
+      "file": "sounds/engines/sc-v8-sls.wav",
+      "bytes": 1012924,
+      "sha256": "196061f1c247b1037ff91cfc6857b75f194ab57712a7f414d42f10b5f3d4b74a",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "Mercedes SLS AMG 6.2 V8",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/mercedes-sls-amg-6-3l-v8-sound-mod-sp-add-on-fivem",
+      "source": "https://github.com/SpiritsCreations/FiveM-Engine-Sound-Pack/blob/325f5dd395d91f9c288dd44e5a349c6791e7890b/Audio_Pack/sfx/dlc_lg116slsamg/lg116slsamg.awc",
+      "license": null,
+      "riskRipped": true,
+      "layers": {
+        "accel": [
+          {
+            "hz": 17.439,
+            "rpm": 2093,
+            "offset": 0,
+            "length": 14680
+          },
+          {
+            "hz": 19.536,
+            "rpm": 2344,
+            "offset": 14680,
+            "length": 13104
+          },
+          {
+            "hz": 21.873,
+            "rpm": 2625,
+            "offset": 27784,
+            "length": 11704
+          },
+          {
+            "hz": 24.502,
+            "rpm": 2940,
+            "offset": 39488,
+            "length": 10448
+          },
+          {
+            "hz": 27.444,
+            "rpm": 3293,
+            "offset": 49936,
+            "length": 9328
+          },
+          {
+            "hz": 30.74,
+            "rpm": 3689,
+            "offset": 59264,
+            "length": 9369
+          },
+          {
+            "hz": 34.409,
+            "rpm": 4129,
+            "offset": 68633,
+            "length": 9300
+          },
+          {
+            "hz": 38.554,
+            "rpm": 4627,
+            "offset": 77933,
+            "length": 9960
+          },
+          {
+            "hz": 43.185,
+            "rpm": 5182,
+            "offset": 87893,
+            "length": 9633
+          },
+          {
+            "hz": 46.784,
+            "rpm": 5614,
+            "offset": 97526,
+            "length": 9576
+          }
+        ],
+        "decel": [
+          {
+            "hz": 15.889,
+            "rpm": 1907,
+            "offset": 107102,
+            "length": 16112
+          },
+          {
+            "hz": 17.798,
+            "rpm": 2136,
+            "offset": 123214,
+            "length": 14384
+          },
+          {
+            "hz": 19.925,
+            "rpm": 2391,
+            "offset": 137598,
+            "length": 12848
+          },
+          {
+            "hz": 22.315,
+            "rpm": 2678,
+            "offset": 150446,
+            "length": 11472
+          },
+          {
+            "hz": 25.0,
+            "rpm": 3000,
+            "offset": 161918,
+            "length": 10240
+          },
+          {
+            "hz": 27.997,
+            "rpm": 3360,
+            "offset": 172158,
+            "length": 9144
+          },
+          {
+            "hz": 31.373,
+            "rpm": 3765,
+            "offset": 181302,
+            "length": 9180
+          },
+          {
+            "hz": 35.126,
+            "rpm": 4215,
+            "offset": 190482,
+            "length": 10021
+          },
+          {
+            "hz": 39.36,
+            "rpm": 4723,
+            "offset": 200503,
+            "length": 9756
+          },
+          {
+            "hz": 41.667,
+            "rpm": 5000,
+            "offset": 210259,
+            "length": 9216
+          }
+        ],
+        "idle": [
+          {
+            "hz": 16.121,
+            "rpm": 1935,
+            "offset": 219475,
+            "length": 33745
+          }
+        ]
+      }
+    },
+    {
+      "id": "sc-v8tt-amggt",
+      "file": "sounds/engines/sc-v8tt-amggt.wav",
+      "bytes": 1464884,
+      "sha256": "61322eac17c2dcd592290d9140148a044e56ac8c7c5848771591822d207fee14",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "Mercedes-AMG GT R 4.0 V8 biturbo",
+      "author": "Legacy_DMC",
+      "link": "https://www.gta5-mods.com/vehicles/mercedes-amg-gtr-4-0l-v8-sound-mod-sp-add-on-fivem",
+      "source": "https://github.com/SpiritsCreations/FiveM-Engine-Sound-Pack/blob/325f5dd395d91f9c288dd44e5a349c6791e7890b/Audio_Pack/sfx/dlc_lg30meramgtr/lg30meramgtr.awc",
+      "license": null,
+      "riskRipped": true,
+      "layers": {
+        "accel": [
+          {
+            "hz": 13.859,
+            "rpm": 1663,
+            "offset": 0,
+            "length": 18472
+          },
+          {
+            "hz": 15.519,
+            "rpm": 1862,
+            "offset": 18472,
+            "length": 16496
+          },
+          {
+            "hz": 17.382,
+            "rpm": 2086,
+            "offset": 34968,
+            "length": 14728
+          },
+          {
+            "hz": 19.465,
+            "rpm": 2336,
+            "offset": 49696,
+            "length": 13152
+          },
+          {
+            "hz": 21.798,
+            "rpm": 2616,
+            "offset": 62848,
+            "length": 11744
+          },
+          {
+            "hz": 24.427,
+            "rpm": 2931,
+            "offset": 74592,
+            "length": 10480
+          },
+          {
+            "hz": 27.35,
+            "rpm": 3282,
+            "offset": 85072,
+            "length": 9360
+          },
+          {
+            "hz": 30.622,
+            "rpm": 3675,
+            "offset": 94432,
+            "length": 9405
+          },
+          {
+            "hz": 34.298,
+            "rpm": 4116,
+            "offset": 103837,
+            "length": 9330
+          },
+          {
+            "hz": 38.415,
+            "rpm": 4610,
+            "offset": 113167,
+            "length": 9996
+          },
+          {
+            "hz": 43.011,
+            "rpm": 5161,
+            "offset": 123163,
+            "length": 9672
+          },
+          {
+            "hz": 48.193,
+            "rpm": 5783,
+            "offset": 132835,
+            "length": 9296
+          },
+          {
+            "hz": 50.955,
+            "rpm": 6115,
+            "offset": 142131,
+            "length": 9420
+          }
+        ],
+        "decel": [
+          {
+            "hz": 11.739,
+            "rpm": 1409,
+            "offset": 151551,
+            "length": 21808
+          },
+          {
+            "hz": 13.147,
+            "rpm": 1578,
+            "offset": 173359,
+            "length": 19472
+          },
+          {
+            "hz": 14.726,
+            "rpm": 1767,
+            "offset": 192831,
+            "length": 17384
+          },
+          {
+            "hz": 16.495,
+            "rpm": 1979,
+            "offset": 210215,
+            "length": 15520
+          },
+          {
+            "hz": 18.465,
+            "rpm": 2216,
+            "offset": 225735,
+            "length": 13864
+          },
+          {
+            "hz": 20.685,
+            "rpm": 2482,
+            "offset": 239599,
+            "length": 12376
+          },
+          {
+            "hz": 23.172,
+            "rpm": 2781,
+            "offset": 251975,
+            "length": 11048
+          },
+          {
+            "hz": 25.953,
+            "rpm": 3114,
+            "offset": 263023,
+            "length": 9864
+          },
+          {
+            "hz": 29.064,
+            "rpm": 3488,
+            "offset": 272887,
+            "length": 9909
+          },
+          {
+            "hz": 32.553,
+            "rpm": 3906,
+            "offset": 282796,
+            "length": 9830
+          },
+          {
+            "hz": 36.446,
+            "rpm": 4374,
+            "offset": 292626,
+            "length": 9658
+          },
+          {
+            "hz": 40.816,
+            "rpm": 4898,
+            "offset": 302284,
+            "length": 9408
+          },
+          {
+            "hz": 45.714,
+            "rpm": 5486,
+            "offset": 311692,
+            "length": 9800
+          },
+          {
+            "hz": 50.473,
+            "rpm": 6057,
+            "offset": 321492,
+            "length": 9510
+          }
+        ],
+        "idle": [
+          {
+            "hz": 16.36,
+            "rpm": 1963,
+            "offset": 331002,
+            "length": 35208
+          }
+        ]
+      }
+    },
+    {
+      "id": "f20-flat12-312t2",
+      "file": "sounds/engines/f20-flat12-312t2.wav",
+      "bytes": 655916,
+      "sha256": "de9d579da2cca58dcd4613c8d4d640fba3531dffe082ece7aa118e1c1bbba046",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "Ferrari plano 12 (312T2, F1 2020)",
+      "author": "Codemasters (F1 2020); mod de autor no identificado",
+      "link": null,
+      "source": "F1 2020 (Codemasters) vía mod de F1 2019: FLAT 12/ferrari_2019.bdl",
+      "license": null,
+      "riskRipped": true,
+      "cylinders": 12,
+      "layers": {
+        "accel": [
+          {
+            "hz": 35.617,
+            "rpm": 4274,
+            "offset": 0,
+            "length": 9883
+          },
+          {
+            "hz": 39.892,
+            "rpm": 4787,
+            "offset": 9883,
+            "length": 9626
+          },
+          {
+            "hz": 44.678,
+            "rpm": 5361,
+            "offset": 19509,
+            "length": 9311
+          },
+          {
+            "hz": 46.877,
+            "rpm": 5625,
+            "offset": 28820,
+            "length": 9557
+          },
+          {
+            "hz": 52.502,
+            "rpm": 6300,
+            "offset": 38377,
+            "length": 9752
+          },
+          {
+            "hz": 58.8,
+            "rpm": 7056,
+            "offset": 48129,
+            "length": 9796
+          },
+          {
+            "hz": 65.871,
+            "rpm": 7904,
+            "offset": 57925,
+            "length": 9716
+          },
+          {
+            "hz": 73.779,
+            "rpm": 8853,
+            "offset": 67641,
+            "length": 9542
+          },
+          {
+            "hz": 82.534,
+            "rpm": 9904,
+            "offset": 77183,
+            "length": 9693
+          }
+        ],
+        "decel": [
+          {
+            "hz": 35.617,
+            "rpm": 4274,
+            "offset": 86876,
+            "length": 9883
+          },
+          {
+            "hz": 39.892,
+            "rpm": 4787,
+            "offset": 96759,
+            "length": 9626
+          },
+          {
+            "hz": 44.678,
+            "rpm": 5361,
+            "offset": 106385,
+            "length": 9311
+          },
+          {
+            "hz": 50.036,
+            "rpm": 6004,
+            "offset": 115696,
+            "length": 9593
+          },
+          {
+            "hz": 56.048,
+            "rpm": 6726,
+            "offset": 125289,
+            "length": 9706
+          },
+          {
+            "hz": 63.778,
+            "rpm": 7653,
+            "offset": 134995,
+            "length": 9533
+          },
+          {
+            "hz": 70.315,
+            "rpm": 8438,
+            "offset": 144528,
+            "length": 9557
+          }
+        ],
+        "idle": [
+          {
+            "hz": 35.617,
+            "rpm": 4274,
+            "offset": 154085,
+            "length": 9883
+          }
+        ]
+      }
+    },
+    {
+      "id": "f20-dfv-v8",
+      "file": "sounds/engines/f20-dfv-v8.wav",
+      "bytes": 651388,
+      "sha256": "a379d9931e3784385ff7d657f2255252c2512713d83d06dcb9a226164a46f969",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "Ford-Cosworth DFV V8 (F1 2020)",
+      "author": "Codemasters (F1 2020); mod de autor no identificado",
+      "link": null,
+      "source": "F1 2020 (Codemasters) vía mod de F1 2019: COSWORTH V8/ferrari_2019.bdl",
+      "license": null,
+      "riskRipped": true,
+      "cylinders": 8,
+      "layers": {
+        "accel": [
+          {
+            "hz": 36.397,
+            "rpm": 4368,
+            "offset": 0,
+            "length": 9671
+          },
+          {
+            "hz": 40.769,
+            "rpm": 4892,
+            "offset": 9671,
+            "length": 9419
+          },
+          {
+            "hz": 45.663,
+            "rpm": 5480,
+            "offset": 19090,
+            "length": 9811
+          },
+          {
+            "hz": 51.167,
+            "rpm": 6140,
+            "offset": 28901,
+            "length": 9381
+          },
+          {
+            "hz": 57.275,
+            "rpm": 6873,
+            "offset": 38282,
+            "length": 9498
+          },
+          {
+            "hz": 64.155,
+            "rpm": 7699,
+            "offset": 47780,
+            "length": 9477
+          },
+          {
+            "hz": 71.859,
+            "rpm": 8623,
+            "offset": 57257,
+            "length": 9797
+          },
+          {
+            "hz": 76.523,
+            "rpm": 9183,
+            "offset": 67054,
+            "length": 9618
+          }
+        ],
+        "decel": [
+          {
+            "hz": 36.839,
+            "rpm": 4421,
+            "offset": 76672,
+            "length": 9555
+          },
+          {
+            "hz": 41.193,
+            "rpm": 4943,
+            "offset": 86227,
+            "length": 9322
+          },
+          {
+            "hz": 46.143,
+            "rpm": 5537,
+            "offset": 95549,
+            "length": 9709
+          },
+          {
+            "hz": 51.675,
+            "rpm": 6201,
+            "offset": 105258,
+            "length": 9908
+          },
+          {
+            "hz": 57.872,
+            "rpm": 6945,
+            "offset": 115166,
+            "length": 9400
+          },
+          {
+            "hz": 64.833,
+            "rpm": 7780,
+            "offset": 124566,
+            "length": 9378
+          },
+          {
+            "hz": 72.6,
+            "rpm": 8712,
+            "offset": 133944,
+            "length": 9697
+          },
+          {
+            "hz": 77.278,
+            "rpm": 9273,
+            "offset": 143641,
+            "length": 9524
+          }
+        ],
+        "idle": [
+          {
+            "hz": 36.397,
+            "rpm": 4368,
+            "offset": 153165,
+            "length": 9671
+          }
+        ]
+      }
+    },
+    {
+      "id": "f20-ford-v8",
+      "file": "sounds/engines/f20-ford-v8.wav",
+      "bytes": 915456,
+      "sha256": "c8889f7ac987d2566b0a269ade9679dd32d281584d33e18c859791e15b154fc5",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "Ford V8 (F1 2020)",
+      "author": "Codemasters (F1 2020); mod de autor no identificado",
+      "link": null,
+      "source": "F1 2020 (Codemasters) vía mod de F1 2019: FORD V8/ferrari_2019.bdl",
+      "license": null,
+      "riskRipped": true,
+      "cylinders": 8,
+      "layers": {
+        "accel": [
+          {
+            "hz": 27.966,
+            "rpm": 3356,
+            "offset": 0,
+            "length": 9154
+          },
+          {
+            "hz": 31.455,
+            "rpm": 3775,
+            "offset": 9154,
+            "length": 9156
+          },
+          {
+            "hz": 35.508,
+            "rpm": 4261,
+            "offset": 18310,
+            "length": 9012
+          },
+          {
+            "hz": 38.69,
+            "rpm": 4643,
+            "offset": 27322,
+            "length": 9925
+          },
+          {
+            "hz": 43.324,
+            "rpm": 5199,
+            "offset": 37247,
+            "length": 9602
+          },
+          {
+            "hz": 48.519,
+            "rpm": 5822,
+            "offset": 46849,
+            "length": 9893
+          },
+          {
+            "hz": 54.352,
+            "rpm": 6522,
+            "offset": 56742,
+            "length": 9420
+          },
+          {
+            "hz": 60.849,
+            "rpm": 7302,
+            "offset": 66162,
+            "length": 9466
+          },
+          {
+            "hz": 68.15,
+            "rpm": 8178,
+            "offset": 75628,
+            "length": 9391
+          },
+          {
+            "hz": 76.333,
+            "rpm": 9160,
+            "offset": 85019,
+            "length": 9642
+          },
+          {
+            "hz": 85.526,
+            "rpm": 10263,
+            "offset": 94661,
+            "length": 9728
+          },
+          {
+            "hz": 91.85,
+            "rpm": 11022,
+            "offset": 104389,
+            "length": 9755
+          }
+        ],
+        "decel": [
+          {
+            "hz": 27.966,
+            "rpm": 3356,
+            "offset": 114144,
+            "length": 9154
+          },
+          {
+            "hz": 31.376,
+            "rpm": 3765,
+            "offset": 123298,
+            "length": 9179
+          },
+          {
+            "hz": 35.081,
+            "rpm": 4210,
+            "offset": 132477,
+            "length": 10034
+          },
+          {
+            "hz": 39.308,
+            "rpm": 4717,
+            "offset": 142511,
+            "length": 9769
+          },
+          {
+            "hz": 44.007,
+            "rpm": 5281,
+            "offset": 152280,
+            "length": 9453
+          },
+          {
+            "hz": 49.286,
+            "rpm": 5914,
+            "offset": 161733,
+            "length": 9739
+          },
+          {
+            "hz": 55.206,
+            "rpm": 6625,
+            "offset": 171472,
+            "length": 9854
+          },
+          {
+            "hz": 63.32,
+            "rpm": 7598,
+            "offset": 181326,
+            "length": 9602
+          },
+          {
+            "hz": 69.243,
+            "rpm": 8309,
+            "offset": 190928,
+            "length": 9705
+          },
+          {
+            "hz": 77.572,
+            "rpm": 9309,
+            "offset": 200633,
+            "length": 9488
+          },
+          {
+            "hz": 86.866,
+            "rpm": 10424,
+            "offset": 210121,
+            "length": 9578
+          }
+        ],
+        "idle": [
+          {
+            "hz": 27.966,
+            "rpm": 3356,
+            "offset": 219699,
+            "length": 9154
+          }
+        ]
+      }
+    },
+    {
+      "id": "f20-v6-turbo-mp44",
+      "file": "sounds/engines/f20-v6-turbo-mp44.wav",
+      "bytes": 612836,
+      "sha256": "939dff588d0488ec55c04dd7c615292e023f5d146c620f4d21bf51edfd4dc092",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "Honda RA168E V6 turbo (McLaren MP4/4, F1 2020)",
+      "author": "Codemasters (F1 2020); mod de autor no identificado",
+      "link": null,
+      "source": "F1 2020 (Codemasters) vía mod de F1 2019: MCLAREN MP4-4/ferrari_2019.bdl",
+      "license": null,
+      "riskRipped": true,
+      "cylinders": 6,
+      "layers": {
+        "accel": [
+          {
+            "hz": 46.133,
+            "rpm": 5536,
+            "offset": 0,
+            "length": 9711
+          },
+          {
+            "hz": 50.457,
+            "rpm": 6055,
+            "offset": 9711,
+            "length": 9513
+          },
+          {
+            "hz": 56.561,
+            "rpm": 6787,
+            "offset": 19224,
+            "length": 9618
+          },
+          {
+            "hz": 64.352,
+            "rpm": 7722,
+            "offset": 28842,
+            "length": 9448
+          },
+          {
+            "hz": 70.894,
+            "rpm": 8507,
+            "offset": 38290,
+            "length": 9479
+          },
+          {
+            "hz": 79.47,
+            "rpm": 9536,
+            "offset": 47769,
+            "length": 9664
+          },
+          {
+            "hz": 88.953,
+            "rpm": 10674,
+            "offset": 57433,
+            "length": 9713
+          },
+          {
+            "hz": 99.668,
+            "rpm": 11960,
+            "offset": 67146,
+            "length": 9632
+          },
+          {
+            "hz": 111.628,
+            "rpm": 13395,
+            "offset": 76778,
+            "length": 9460
+          }
+        ],
+        "decel": [
+          {
+            "hz": 46.133,
+            "rpm": 5536,
+            "offset": 86238,
+            "length": 9711
+          },
+          {
+            "hz": 50.457,
+            "rpm": 6055,
+            "offset": 95949,
+            "length": 9513
+          },
+          {
+            "hz": 56.561,
+            "rpm": 6787,
+            "offset": 105462,
+            "length": 9618
+          },
+          {
+            "hz": 64.38,
+            "rpm": 7726,
+            "offset": 115080,
+            "length": 9444
+          },
+          {
+            "hz": 71.949,
+            "rpm": 8634,
+            "offset": 124524,
+            "length": 9340
+          },
+          {
+            "hz": 79.809,
+            "rpm": 9577,
+            "offset": 133864,
+            "length": 9623
+          }
+        ],
+        "idle": [
+          {
+            "hz": 46.133,
+            "rpm": 5536,
+            "offset": 143487,
+            "length": 9711
+          }
+        ]
+      }
+    },
+    {
+      "id": "f20-v12-1990",
+      "file": "sounds/engines/f20-v12-1990.wav",
+      "bytes": 1075532,
+      "sha256": "66f50ac8c7d316aef5546faae99c0c545c57bd95e2b0db62313b31f498a67626",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "V12 de 1990 (F1 2020)",
+      "author": "Codemasters (F1 2020); mod de autor no identificado",
+      "link": null,
+      "source": "F1 2020 (Codemasters) vía mod de F1 2019: V12 1990/ferrari_2019.bdl",
+      "license": null,
+      "riskRipped": true,
+      "cylinders": 12,
+      "layers": {
+        "accel": [
+          {
+            "hz": 26.16,
+            "rpm": 3139,
+            "offset": 0,
+            "length": 9786
+          },
+          {
+            "hz": 28.814,
+            "rpm": 3458,
+            "offset": 9786,
+            "length": 9995
+          },
+          {
+            "hz": 30.316,
+            "rpm": 3638,
+            "offset": 19781,
+            "length": 9500
+          },
+          {
+            "hz": 37.154,
+            "rpm": 4459,
+            "offset": 29281,
+            "length": 9474
+          },
+          {
+            "hz": 38.029,
+            "rpm": 4564,
+            "offset": 38755,
+            "length": 9256
+          },
+          {
+            "hz": 45.11,
+            "rpm": 5413,
+            "offset": 48011,
+            "length": 9222
+          },
+          {
+            "hz": 49.974,
+            "rpm": 5997,
+            "offset": 57233,
+            "length": 9605
+          },
+          {
+            "hz": 55.846,
+            "rpm": 6702,
+            "offset": 66838,
+            "length": 9741
+          },
+          {
+            "hz": 60.875,
+            "rpm": 7305,
+            "offset": 76579,
+            "length": 9462
+          },
+          {
+            "hz": 70.08,
+            "rpm": 8410,
+            "offset": 86041,
+            "length": 9589
+          },
+          {
+            "hz": 79.577,
+            "rpm": 9549,
+            "offset": 95630,
+            "length": 9651
+          },
+          {
+            "hz": 88.974,
+            "rpm": 10677,
+            "offset": 105281,
+            "length": 9351
+          },
+          {
+            "hz": 98.391,
+            "rpm": 11807,
+            "offset": 114632,
+            "length": 9757
+          },
+          {
+            "hz": 110.889,
+            "rpm": 13307,
+            "offset": 124389,
+            "length": 9523
+          }
+        ],
+        "decel": [
+          {
+            "hz": 26.16,
+            "rpm": 3139,
+            "offset": 133912,
+            "length": 9786
+          },
+          {
+            "hz": 28.814,
+            "rpm": 3458,
+            "offset": 143698,
+            "length": 9995
+          },
+          {
+            "hz": 32.268,
+            "rpm": 3872,
+            "offset": 153693,
+            "length": 9917
+          },
+          {
+            "hz": 36.14,
+            "rpm": 4337,
+            "offset": 163610,
+            "length": 9740
+          },
+          {
+            "hz": 40.472,
+            "rpm": 4857,
+            "offset": 173350,
+            "length": 9488
+          },
+          {
+            "hz": 45.33,
+            "rpm": 5440,
+            "offset": 182838,
+            "length": 9883
+          },
+          {
+            "hz": 50.772,
+            "rpm": 6093,
+            "offset": 192721,
+            "length": 9454
+          },
+          {
+            "hz": 56.874,
+            "rpm": 6825,
+            "offset": 202175,
+            "length": 9565
+          },
+          {
+            "hz": 64.544,
+            "rpm": 7745,
+            "offset": 211740,
+            "length": 9420
+          },
+          {
+            "hz": 71.33,
+            "rpm": 8560,
+            "offset": 221160,
+            "length": 9421
+          },
+          {
+            "hz": 81.013,
+            "rpm": 9722,
+            "offset": 230581,
+            "length": 9480
+          },
+          {
+            "hz": 89.804,
+            "rpm": 10776,
+            "offset": 240061,
+            "length": 9621
+          },
+          {
+            "hz": 98.681,
+            "rpm": 11842,
+            "offset": 249682,
+            "length": 9404
+          }
+        ],
+        "idle": [
+          {
+            "hz": 26.16,
+            "rpm": 3139,
+            "offset": 259086,
+            "length": 9786
+          }
+        ]
+      }
+    },
+    {
+      "id": "f20-v10-1990",
+      "file": "sounds/engines/f20-v10-1990.wav",
+      "bytes": 600856,
+      "sha256": "92eeb8035d69de4c2cd6639f8a6e06ced06be43bde79a386ecc290b43a83e52b",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "V10 de los 90 (F1 2020)",
+      "author": "Codemasters (F1 2020); mod de autor no identificado",
+      "link": null,
+      "source": "F1 2020 (Codemasters) vía mod de F1 2019: V10 NORMAL 1990/ferrari_2019.bdl",
+      "license": null,
+      "riskRipped": true,
+      "cylinders": 10,
+      "layers": {
+        "accel": [
+          {
+            "hz": 49.734,
+            "rpm": 5968,
+            "offset": 0,
+            "length": 9008
+          },
+          {
+            "hz": 53.05,
+            "rpm": 6366,
+            "offset": 9008,
+            "length": 9048
+          },
+          {
+            "hz": 61.558,
+            "rpm": 7387,
+            "offset": 18056,
+            "length": 9357
+          },
+          {
+            "hz": 68.495,
+            "rpm": 8219,
+            "offset": 27413,
+            "length": 9811
+          },
+          {
+            "hz": 75.182,
+            "rpm": 9022,
+            "offset": 37224,
+            "length": 9364
+          },
+          {
+            "hz": 85.782,
+            "rpm": 10294,
+            "offset": 46588,
+            "length": 9699
+          },
+          {
+            "hz": 96.106,
+            "rpm": 11533,
+            "offset": 56287,
+            "length": 9656
+          },
+          {
+            "hz": 107.574,
+            "rpm": 12909,
+            "offset": 65943,
+            "length": 9519
+          },
+          {
+            "hz": 119.913,
+            "rpm": 14390,
+            "offset": 75462,
+            "length": 9607
+          }
+        ],
+        "decel": [
+          {
+            "hz": 49.734,
+            "rpm": 5968,
+            "offset": 85069,
+            "length": 9008
+          },
+          {
+            "hz": 55.598,
+            "rpm": 6672,
+            "offset": 94077,
+            "length": 9209
+          },
+          {
+            "hz": 60.901,
+            "rpm": 7308,
+            "offset": 103286,
+            "length": 9458
+          },
+          {
+            "hz": 67.625,
+            "rpm": 8115,
+            "offset": 112744,
+            "length": 9464
+          },
+          {
+            "hz": 76.002,
+            "rpm": 9120,
+            "offset": 122208,
+            "length": 9684
+          },
+          {
+            "hz": 85.994,
+            "rpm": 10319,
+            "offset": 131892,
+            "length": 9303
+          }
+        ],
+        "idle": [
+          {
+            "hz": 49.734,
+            "rpm": 5968,
+            "offset": 141195,
+            "length": 9008
+          }
+        ]
+      }
+    },
+    {
+      "id": "f20-v10-mp413",
+      "file": "sounds/engines/f20-v10-mp413.wav",
+      "bytes": 797148,
+      "sha256": "663efe6ff07a09d35bcc8a22ab40347d4d02847a861c2358a26115abd55228c6",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "Mercedes FO110G V10 (McLaren MP4/13, F1 2020)",
+      "author": "Codemasters (F1 2020); mod de autor no identificado",
+      "link": null,
+      "source": "F1 2020 (Codemasters) vía mod de F1 2019: MCLAREN MP4-13/ferrari_2019.bdl",
+      "license": null,
+      "riskRipped": true,
+      "cylinders": 10,
+      "layers": {
+        "accel": [
+          {
+            "hz": 54.613,
+            "rpm": 6554,
+            "offset": 0,
+            "length": 9375
+          },
+          {
+            "hz": 60.959,
+            "rpm": 7315,
+            "offset": 9375,
+            "length": 9449
+          },
+          {
+            "hz": 65.013,
+            "rpm": 7802,
+            "offset": 18824,
+            "length": 9352
+          },
+          {
+            "hz": 71.474,
+            "rpm": 8577,
+            "offset": 28176,
+            "length": 9402
+          },
+          {
+            "hz": 79.933,
+            "rpm": 9592,
+            "offset": 37578,
+            "length": 9608
+          },
+          {
+            "hz": 90.141,
+            "rpm": 10817,
+            "offset": 47186,
+            "length": 9585
+          },
+          {
+            "hz": 100.355,
+            "rpm": 12043,
+            "offset": 56771,
+            "length": 9566
+          },
+          {
+            "hz": 112.397,
+            "rpm": 13488,
+            "offset": 66337,
+            "length": 9680
+          },
+          {
+            "hz": 125.763,
+            "rpm": 15092,
+            "offset": 76017,
+            "length": 9669
+          },
+          {
+            "hz": 140.851,
+            "rpm": 16902,
+            "offset": 85686,
+            "length": 9542
+          }
+        ],
+        "decel": [
+          {
+            "hz": 54.613,
+            "rpm": 6554,
+            "offset": 95228,
+            "length": 9375
+          },
+          {
+            "hz": 60.959,
+            "rpm": 7315,
+            "offset": 104603,
+            "length": 9449
+          },
+          {
+            "hz": 65.013,
+            "rpm": 7802,
+            "offset": 114052,
+            "length": 9352
+          },
+          {
+            "hz": 74.64,
+            "rpm": 8957,
+            "offset": 123404,
+            "length": 9432
+          },
+          {
+            "hz": 83.281,
+            "rpm": 9994,
+            "offset": 132836,
+            "length": 9606
+          },
+          {
+            "hz": 93.256,
+            "rpm": 11191,
+            "offset": 142442,
+            "length": 9608
+          },
+          {
+            "hz": 104.918,
+            "rpm": 12590,
+            "offset": 152050,
+            "length": 9455
+          },
+          {
+            "hz": 117.672,
+            "rpm": 14121,
+            "offset": 161505,
+            "length": 9518
+          },
+          {
+            "hz": 129.568,
+            "rpm": 15548,
+            "offset": 171023,
+            "length": 9385
+          },
+          {
+            "hz": 141.578,
+            "rpm": 16989,
+            "offset": 180408,
+            "length": 9493
+          }
+        ],
+        "idle": [
+          {
+            "hz": 54.613,
+            "rpm": 6554,
+            "offset": 189901,
+            "length": 9375
+          }
+        ]
+      }
+    },
+    {
+      "id": "f20-v10-williams",
+      "file": "sounds/engines/f20-v10-williams.wav",
+      "bytes": 1067444,
+      "sha256": "5f254666baf3ac65b3edb312bac5fb8f52c293aeba65e45278f5a6e6f2e8f8f9",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "V10 de Williams (F1 2020)",
+      "author": "Codemasters (F1 2020); mod de autor no identificado",
+      "link": null,
+      "source": "F1 2020 (Codemasters) vía mod de F1 2019: WILLIAMS V10/ferrari_2019.bdl",
+      "license": null,
+      "riskRipped": true,
+      "cylinders": 10,
+      "layers": {
+        "accel": [
+          {
+            "hz": 25.656,
+            "rpm": 3079,
+            "offset": 0,
+            "length": 9978
+          },
+          {
+            "hz": 29.804,
+            "rpm": 3577,
+            "offset": 9978,
+            "length": 9663
+          },
+          {
+            "hz": 30.746,
+            "rpm": 3690,
+            "offset": 19641,
+            "length": 9367
+          },
+          {
+            "hz": 37.507,
+            "rpm": 4501,
+            "offset": 29008,
+            "length": 9385
+          },
+          {
+            "hz": 38.686,
+            "rpm": 4642,
+            "offset": 38393,
+            "length": 9099
+          },
+          {
+            "hz": 45.216,
+            "rpm": 5426,
+            "offset": 47492,
+            "length": 9908
+          },
+          {
+            "hz": 51.315,
+            "rpm": 6158,
+            "offset": 57400,
+            "length": 9354
+          },
+          {
+            "hz": 55.19,
+            "rpm": 6623,
+            "offset": 66754,
+            "length": 9277
+          },
+          {
+            "hz": 59.156,
+            "rpm": 7099,
+            "offset": 76031,
+            "length": 9737
+          },
+          {
+            "hz": 66.869,
+            "rpm": 8024,
+            "offset": 85768,
+            "length": 9571
+          },
+          {
+            "hz": 74.269,
+            "rpm": 8912,
+            "offset": 95339,
+            "length": 9479
+          },
+          {
+            "hz": 83.1,
+            "rpm": 9972,
+            "offset": 104818,
+            "length": 9627
+          },
+          {
+            "hz": 93.227,
+            "rpm": 11187,
+            "offset": 114445,
+            "length": 9611
+          },
+          {
+            "hz": 104.278,
+            "rpm": 12513,
+            "offset": 124056,
+            "length": 9513
+          },
+          {
+            "hz": 116.752,
+            "rpm": 14010,
+            "offset": 133569,
+            "length": 9593
+          }
+        ],
+        "decel": [
+          {
+            "hz": 25.656,
+            "rpm": 3079,
+            "offset": 143162,
+            "length": 9978
+          },
+          {
+            "hz": 29.804,
+            "rpm": 3577,
+            "offset": 153140,
+            "length": 9663
+          },
+          {
+            "hz": 30.746,
+            "rpm": 3690,
+            "offset": 162803,
+            "length": 9367
+          },
+          {
+            "hz": 37.507,
+            "rpm": 4501,
+            "offset": 172170,
+            "length": 9385
+          },
+          {
+            "hz": 38.686,
+            "rpm": 4642,
+            "offset": 181555,
+            "length": 9099
+          },
+          {
+            "hz": 45.216,
+            "rpm": 5426,
+            "offset": 190654,
+            "length": 9908
+          },
+          {
+            "hz": 51.315,
+            "rpm": 6158,
+            "offset": 200562,
+            "length": 9354
+          },
+          {
+            "hz": 55.19,
+            "rpm": 6623,
+            "offset": 209916,
+            "length": 9277
+          },
+          {
+            "hz": 62.002,
+            "rpm": 7440,
+            "offset": 219193,
+            "length": 9290
+          },
+          {
+            "hz": 71.987,
+            "rpm": 8638,
+            "offset": 228483,
+            "length": 9335
+          },
+          {
+            "hz": 80.318,
+            "rpm": 9638,
+            "offset": 237818,
+            "length": 9562
+          },
+          {
+            "hz": 84.282,
+            "rpm": 10114,
+            "offset": 247380,
+            "length": 9492
+          }
+        ],
+        "idle": [
+          {
+            "hz": 25.656,
+            "rpm": 3079,
+            "offset": 256872,
+            "length": 9978
+          }
+        ]
+      }
+    },
+    {
+      "id": "f20-v10",
+      "file": "sounds/engines/f20-v10.wav",
+      "bytes": 914396,
+      "sha256": "960cc62814d9841b263beaa40befd693478e29a922d43298929806c68c94462b",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "V10 de los 2000 (F1 2020)",
+      "author": "Codemasters (F1 2020); mod de autor no identificado",
+      "link": null,
+      "source": "F1 2020 (Codemasters) vía mod de F1 2019: V10 NORMAL/ferrari_2019.bdl",
+      "license": null,
+      "riskRipped": true,
+      "cylinders": 10,
+      "layers": {
+        "accel": [
+          {
+            "hz": 42.977,
+            "rpm": 5157,
+            "offset": 0,
+            "length": 8935
+          },
+          {
+            "hz": 47.894,
+            "rpm": 5747,
+            "offset": 8935,
+            "length": 9354
+          },
+          {
+            "hz": 53.467,
+            "rpm": 6416,
+            "offset": 18289,
+            "length": 9576
+          },
+          {
+            "hz": 58.382,
+            "rpm": 7006,
+            "offset": 27865,
+            "length": 9866
+          },
+          {
+            "hz": 65.46,
+            "rpm": 7855,
+            "offset": 37731,
+            "length": 9777
+          },
+          {
+            "hz": 74.379,
+            "rpm": 8926,
+            "offset": 47508,
+            "length": 9465
+          },
+          {
+            "hz": 82.457,
+            "rpm": 9895,
+            "offset": 56973,
+            "length": 9702
+          },
+          {
+            "hz": 92.286,
+            "rpm": 11074,
+            "offset": 66675,
+            "length": 9709
+          },
+          {
+            "hz": 102.947,
+            "rpm": 12354,
+            "offset": 76384,
+            "length": 9636
+          },
+          {
+            "hz": 115.298,
+            "rpm": 13836,
+            "offset": 86020,
+            "length": 9714
+          },
+          {
+            "hz": 129.757,
+            "rpm": 15571,
+            "offset": 95734,
+            "length": 9618
+          },
+          {
+            "hz": 144.553,
+            "rpm": 17346,
+            "offset": 105352,
+            "length": 9519
+          }
+        ],
+        "decel": [
+          {
+            "hz": 42.977,
+            "rpm": 5157,
+            "offset": 114871,
+            "length": 8935
+          },
+          {
+            "hz": 47.894,
+            "rpm": 5747,
+            "offset": 123806,
+            "length": 9354
+          },
+          {
+            "hz": 53.467,
+            "rpm": 6416,
+            "offset": 133160,
+            "length": 9576
+          },
+          {
+            "hz": 58.382,
+            "rpm": 7006,
+            "offset": 142736,
+            "length": 9866
+          },
+          {
+            "hz": 65.46,
+            "rpm": 7855,
+            "offset": 152602,
+            "length": 9777
+          },
+          {
+            "hz": 74.379,
+            "rpm": 8926,
+            "offset": 162379,
+            "length": 9465
+          },
+          {
+            "hz": 82.457,
+            "rpm": 9895,
+            "offset": 171844,
+            "length": 9702
+          },
+          {
+            "hz": 92.286,
+            "rpm": 11074,
+            "offset": 181546,
+            "length": 9709
+          },
+          {
+            "hz": 100.104,
+            "rpm": 12013,
+            "offset": 191255,
+            "length": 9590
+          },
+          {
+            "hz": 112.496,
+            "rpm": 13500,
+            "offset": 200845,
+            "length": 9387
+          },
+          {
+            "hz": 129.073,
+            "rpm": 15489,
+            "offset": 210232,
+            "length": 9421
+          }
+        ],
+        "idle": [
+          {
+            "hz": 42.977,
+            "rpm": 5157,
+            "offset": 219653,
+            "length": 8935
+          }
+        ]
+      }
+    },
+    {
+      "id": "f20-v8-f10",
+      "file": "sounds/engines/f20-v8-f10.wav",
+      "bytes": 753604,
+      "sha256": "cebdb9c0df40b587fc3624f724186381ce94724a88624926539149d634001ce2",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "Ferrari 056 V8 (F10, F1 2020)",
+      "author": "Codemasters (F1 2020); mod de autor no identificado",
+      "link": null,
+      "source": "F1 2020 (Codemasters) vía mod de F1 2019: FERRARI F10/ferrari_2019.bdl",
+      "license": null,
+      "riskRipped": true,
+      "cylinders": 8,
+      "layers": {
+        "accel": [
+          {
+            "hz": 51.53,
+            "rpm": 6184,
+            "offset": 0,
+            "length": 9315
+          },
+          {
+            "hz": 56.27,
+            "rpm": 6752,
+            "offset": 9315,
+            "length": 9099
+          },
+          {
+            "hz": 65.159,
+            "rpm": 7819,
+            "offset": 18414,
+            "length": 9331
+          },
+          {
+            "hz": 74.207,
+            "rpm": 8905,
+            "offset": 27745,
+            "length": 9487
+          },
+          {
+            "hz": 82.007,
+            "rpm": 9841,
+            "offset": 37232,
+            "length": 9365
+          },
+          {
+            "hz": 91.034,
+            "rpm": 10924,
+            "offset": 46597,
+            "length": 9491
+          },
+          {
+            "hz": 102.026,
+            "rpm": 12243,
+            "offset": 56088,
+            "length": 9723
+          },
+          {
+            "hz": 115.047,
+            "rpm": 13806,
+            "offset": 65811,
+            "length": 9457
+          },
+          {
+            "hz": 127.919,
+            "rpm": 15350,
+            "offset": 75268,
+            "length": 9506
+          },
+          {
+            "hz": 143.289,
+            "rpm": 17195,
+            "offset": 84774,
+            "length": 9603
+          }
+        ],
+        "decel": [
+          {
+            "hz": 51.53,
+            "rpm": 6184,
+            "offset": 94377,
+            "length": 9315
+          },
+          {
+            "hz": 61.179,
+            "rpm": 7341,
+            "offset": 103692,
+            "length": 9415
+          },
+          {
+            "hz": 67.023,
+            "rpm": 8043,
+            "offset": 113107,
+            "length": 9549
+          },
+          {
+            "hz": 76.273,
+            "rpm": 9153,
+            "offset": 122656,
+            "length": 9230
+          },
+          {
+            "hz": 84.353,
+            "rpm": 10122,
+            "offset": 131886,
+            "length": 9484
+          },
+          {
+            "hz": 95.228,
+            "rpm": 11427,
+            "offset": 141370,
+            "length": 9409
+          },
+          {
+            "hz": 106.518,
+            "rpm": 12782,
+            "offset": 150779,
+            "length": 9313
+          },
+          {
+            "hz": 117.969,
+            "rpm": 14156,
+            "offset": 160092,
+            "length": 9494
+          },
+          {
+            "hz": 131.521,
+            "rpm": 15782,
+            "offset": 169586,
+            "length": 9489
+          }
+        ],
+        "idle": [
+          {
+            "hz": 51.53,
+            "rpm": 6184,
+            "offset": 179075,
+            "length": 9315
+          }
+        ]
+      }
+    },
+    {
+      "id": "f20-v8-mp425",
+      "file": "sounds/engines/f20-v8-mp425.wav",
+      "bytes": 875588,
+      "sha256": "78b5d39a9bae6f0f329dd0393bf911042e94d1bd4d619e53efcbae3b500f23b8",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "Mercedes FO108X V8 (McLaren MP4-25, F1 2020)",
+      "author": "Codemasters (F1 2020); mod de autor no identificado",
+      "link": null,
+      "source": "F1 2020 (Codemasters) vía mod de F1 2019: MCLAREN MP4-25/ferrari_2019.bdl",
+      "license": null,
+      "riskRipped": true,
+      "cylinders": 8,
+      "layers": {
+        "accel": [
+          {
+            "hz": 51.113,
+            "rpm": 6134,
+            "offset": 0,
+            "length": 9391
+          },
+          {
+            "hz": 56.963,
+            "rpm": 6836,
+            "offset": 9391,
+            "length": 9550
+          },
+          {
+            "hz": 60.264,
+            "rpm": 7232,
+            "offset": 18941,
+            "length": 9558
+          },
+          {
+            "hz": 67.065,
+            "rpm": 8048,
+            "offset": 28499,
+            "length": 9543
+          },
+          {
+            "hz": 74.505,
+            "rpm": 8941,
+            "offset": 38042,
+            "length": 9449
+          },
+          {
+            "hz": 83.385,
+            "rpm": 10006,
+            "offset": 47491,
+            "length": 9594
+          },
+          {
+            "hz": 93.411,
+            "rpm": 11209,
+            "offset": 57085,
+            "length": 9592
+          },
+          {
+            "hz": 104.652,
+            "rpm": 12558,
+            "offset": 66677,
+            "length": 9479
+          },
+          {
+            "hz": 118.732,
+            "rpm": 14248,
+            "offset": 76156,
+            "length": 9433
+          },
+          {
+            "hz": 131.938,
+            "rpm": 15833,
+            "offset": 85589,
+            "length": 9459
+          },
+          {
+            "hz": 146.667,
+            "rpm": 17600,
+            "offset": 95048,
+            "length": 9600
+          }
+        ],
+        "decel": [
+          {
+            "hz": 51.113,
+            "rpm": 6134,
+            "offset": 104648,
+            "length": 9391
+          },
+          {
+            "hz": 56.963,
+            "rpm": 6836,
+            "offset": 114039,
+            "length": 9550
+          },
+          {
+            "hz": 62.289,
+            "rpm": 7475,
+            "offset": 123589,
+            "length": 9761
+          },
+          {
+            "hz": 69.486,
+            "rpm": 8338,
+            "offset": 133350,
+            "length": 9671
+          },
+          {
+            "hz": 79.327,
+            "rpm": 9519,
+            "offset": 143021,
+            "length": 9278
+          },
+          {
+            "hz": 88.652,
+            "rpm": 10638,
+            "offset": 152299,
+            "length": 9385
+          },
+          {
+            "hz": 97.664,
+            "rpm": 11720,
+            "offset": 161684,
+            "length": 9502
+          },
+          {
+            "hz": 110.287,
+            "rpm": 13234,
+            "offset": 171186,
+            "length": 9575
+          },
+          {
+            "hz": 122.517,
+            "rpm": 14702,
+            "offset": 180761,
+            "length": 9664
+          },
+          {
+            "hz": 137.138,
+            "rpm": 16457,
+            "offset": 190425,
+            "length": 9567
+          },
+          {
+            "hz": 141.429,
+            "rpm": 16971,
+            "offset": 199992,
+            "length": 9503
+          }
+        ],
+        "idle": [
+          {
+            "hz": 51.113,
+            "rpm": 6134,
+            "offset": 209495,
+            "length": 9391
+          }
+        ]
+      }
+    },
+    {
+      "id": "f20-v8-renault",
+      "file": "sounds/engines/f20-v8-renault.wav",
+      "bytes": 685896,
+      "sha256": "6f3e55c4df3024a22758cca248a271dc13fb133ca397203759404d61e9eceac1",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "Renault RS27 V8 (F1 2020)",
+      "author": "Codemasters (F1 2020); mod de autor no identificado",
+      "link": null,
+      "source": "F1 2020 (Codemasters) vía mod de F1 2019: RENAULT V8/ferrari_2019.bdl",
+      "license": null,
+      "riskRipped": true,
+      "cylinders": 8,
+      "layers": {
+        "accel": [
+          {
+            "hz": 67.632,
+            "rpm": 8116,
+            "offset": 0,
+            "length": 9463
+          },
+          {
+            "hz": 75.994,
+            "rpm": 9119,
+            "offset": 9463,
+            "length": 9685
+          },
+          {
+            "hz": 85.224,
+            "rpm": 10227,
+            "offset": 19148,
+            "length": 9387
+          },
+          {
+            "hz": 95.066,
+            "rpm": 11408,
+            "offset": 28535,
+            "length": 9425
+          },
+          {
+            "hz": 101.641,
+            "rpm": 12197,
+            "offset": 37960,
+            "length": 9445
+          },
+          {
+            "hz": 113.808,
+            "rpm": 13657,
+            "offset": 47405,
+            "length": 9560
+          },
+          {
+            "hz": 128.202,
+            "rpm": 15384,
+            "offset": 56965,
+            "length": 9485
+          },
+          {
+            "hz": 142.798,
+            "rpm": 17136,
+            "offset": 66450,
+            "length": 9636
+          },
+          {
+            "hz": 147.388,
+            "rpm": 17687,
+            "offset": 76086,
+            "length": 9553
+          }
+        ],
+        "decel": [
+          {
+            "hz": 67.632,
+            "rpm": 8116,
+            "offset": 85639,
+            "length": 9463
+          },
+          {
+            "hz": 75.994,
+            "rpm": 9119,
+            "offset": 95102,
+            "length": 9685
+          },
+          {
+            "hz": 85.224,
+            "rpm": 10227,
+            "offset": 104787,
+            "length": 9387
+          },
+          {
+            "hz": 95.066,
+            "rpm": 11408,
+            "offset": 114174,
+            "length": 9425
+          },
+          {
+            "hz": 106.048,
+            "rpm": 12726,
+            "offset": 123599,
+            "length": 9656
+          },
+          {
+            "hz": 118.506,
+            "rpm": 14221,
+            "offset": 133255,
+            "length": 9721
+          },
+          {
+            "hz": 134.059,
+            "rpm": 16087,
+            "offset": 142976,
+            "length": 9548
+          },
+          {
+            "hz": 138.455,
+            "rpm": 16615,
+            "offset": 152524,
+            "length": 9476
+          }
+        ],
+        "idle": [
+          {
+            "hz": 67.632,
+            "rpm": 8116,
+            "offset": 162000,
+            "length": 9463
+          }
+        ]
+      }
+    },
+    {
+      "id": "f20-v8",
+      "file": "sounds/engines/f20-v8.wav",
+      "bytes": 533628,
+      "sha256": "f277273dba7a1a07bdae6b8c602db9134c40d0fc3b2a0c71dfd092c9ee8fbbbf",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "V8 de 2006-2013 (F1 2020)",
+      "author": "Codemasters (F1 2020); mod de autor no identificado",
+      "link": null,
+      "source": "F1 2020 (Codemasters) vía mod de F1 2019: V8 NORMAL/ferrari_2019.bdl",
+      "license": null,
+      "riskRipped": true,
+      "cylinders": 8,
+      "layers": {
+        "accel": [
+          {
+            "hz": 82.209,
+            "rpm": 9865,
+            "offset": 0,
+            "length": 9342
+          },
+          {
+            "hz": 89.655,
+            "rpm": 10759,
+            "offset": 9342,
+            "length": 9280
+          },
+          {
+            "hz": 102.079,
+            "rpm": 12249,
+            "offset": 18622,
+            "length": 9718
+          },
+          {
+            "hz": 114.274,
+            "rpm": 13713,
+            "offset": 28340,
+            "length": 9521
+          },
+          {
+            "hz": 128.65,
+            "rpm": 15438,
+            "offset": 37861,
+            "length": 9452
+          },
+          {
+            "hz": 143.753,
+            "rpm": 17250,
+            "offset": 47313,
+            "length": 9572
+          },
+          {
+            "hz": 148.57,
+            "rpm": 17828,
+            "offset": 56885,
+            "length": 9477
+          }
+        ],
+        "decel": [
+          {
+            "hz": 82.228,
+            "rpm": 9867,
+            "offset": 66362,
+            "length": 9729
+          },
+          {
+            "hz": 93.45,
+            "rpm": 11214,
+            "offset": 76091,
+            "length": 9588
+          },
+          {
+            "hz": 103.183,
+            "rpm": 12382,
+            "offset": 85679,
+            "length": 9614
+          },
+          {
+            "hz": 115.535,
+            "rpm": 13864,
+            "offset": 95293,
+            "length": 9694
+          },
+          {
+            "hz": 129.393,
+            "rpm": 15527,
+            "offset": 104987,
+            "length": 9645
+          },
+          {
+            "hz": 135.852,
+            "rpm": 16302,
+            "offset": 114632,
+            "length": 9422
+          }
+        ],
+        "idle": [
+          {
+            "hz": 82.209,
+            "rpm": 9865,
+            "offset": 124054,
+            "length": 9342
+          }
+        ]
+      }
+    },
+    {
+      "id": "f20-v6-hybrid",
+      "file": "sounds/engines/f20-v6-hybrid.wav",
+      "bytes": 495016,
+      "sha256": "f4efa38314820ac4723b2617acb180a567a58244766ded0275f38e9b9553acc9",
+      "sampleRate": 32000,
+      "channels": [
+        "engine",
+        "exhaust"
+      ],
+      "label": "V6 turbo híbrido (F1 2020)",
+      "author": "Codemasters (F1 2020); mod de autor no identificado",
+      "link": null,
+      "source": "F1 2020 (Codemasters) vía mod de F1 2019: V6 F1 2020/ferrari_2019.bdl",
+      "license": null,
+      "riskRipped": true,
+      "cylinders": 6,
+      "layers": {
+        "accel": [
+          {
+            "hz": 61.062,
+            "rpm": 7327,
+            "offset": 0,
+            "length": 9433
+          },
+          {
+            "hz": 69.964,
+            "rpm": 8396,
+            "offset": 9433,
+            "length": 9605
+          },
+          {
+            "hz": 78.082,
+            "rpm": 9370,
+            "offset": 19038,
+            "length": 9426
+          },
+          {
+            "hz": 87.423,
+            "rpm": 10491,
+            "offset": 28464,
+            "length": 9517
+          },
+          {
+            "hz": 96.066,
+            "rpm": 11528,
+            "offset": 37981,
+            "length": 9660
+          },
+          {
+            "hz": 100.904,
+            "rpm": 12108,
+            "offset": 47641,
+            "length": 9514
+          }
+        ],
+        "decel": [
+          {
+            "hz": 61.062,
+            "rpm": 7327,
+            "offset": 57155,
+            "length": 9433
+          },
+          {
+            "hz": 69.964,
+            "rpm": 8396,
+            "offset": 66588,
+            "length": 9605
+          },
+          {
+            "hz": 78.082,
+            "rpm": 9370,
+            "offset": 76193,
+            "length": 9426
+          },
+          {
+            "hz": 87.423,
+            "rpm": 10491,
+            "offset": 85619,
+            "length": 9517
+          },
+          {
+            "hz": 96.066,
+            "rpm": 11528,
+            "offset": 95136,
+            "length": 9660
+          },
+          {
+            "hz": 100.904,
+            "rpm": 12108,
+            "offset": 104796,
+            "length": 9514
+          }
+        ],
+        "idle": [
+          {
+            "hz": 61.062,
+            "rpm": 7327,
+            "offset": 114310,
+            "length": 9433
+          }
+        ]
+      }
+    }
+  ]
+}

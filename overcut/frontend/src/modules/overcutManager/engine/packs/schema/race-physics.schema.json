@@ -120,7 +120,9 @@
             "iterations": {"type": "integer", "minimum": 0, "maximum": 5000}
           }
         },
-        "minSpeed": {"$ref": "#/definitions/positive"}
+        "minSpeed": {"$ref": "#/definitions/positive"},
+        "fullThrottleTopShare": {"type": "number", "minimum": 0.9, "maximum": 1},
+        "fullThrottleNote": {"type": "string"}
       }
     },
     "eras": {

@@ -60,9 +60,11 @@ describe("WP3 · the budget spent by band (SIM-FISICA §3.0)", () => {
     let sum = 0;
     for (let j = 0; j < t.M; j += 1) sum += sensAt(t, (j + 0.5) / t.M);
     expect(sum / t.M).toBeCloseTo(1, 9);
-    // Corners weigh more than straights: the extra time goes where tyres and fuel cost it.
+    // Corners weigh more than straights: the extra time goes where tyres and fuel cost it, by the
+    // weights measured on OpenF1 race laps (PT-3 below: straights 0.72-0.81 of the lap's average).
     const straight = t.sens.reduce((low, value) => Math.min(low, value), Infinity);
-    expect(straight).toBeLessThan(0.7);
+    expect(straight).toBeLessThan(0.9);
+    expect(straight).toBeGreaterThan(0.6);
     expect(Math.max(...t.sens)).toBeGreaterThan(1.2);
   });
 
@@ -163,35 +165,38 @@ const realSessions = [...telemetry.sessions, ...((telemetry.corners && telemetry
  *     race top speed to the edge of its ±5 % and brings a safety car into Monza's lap 4: the old weights
  *     partly make up for the trace. Left as they are, the measurement written in race-physics.json
  *     `budget.$comment` as pending until 2a and 2b are fixed (then re-run this bench).
+ *
+ * 26/11/2026: 2a and 4 applied. venue.js builds each circuit with its physics era's car (eraFor) and
+ * race-physics.json budget.sensitivity holds the weights measured here. Eight corners came inside the
+ * tolerance (Monza T4-T6, Bahrain T8 and T10, Hungaroring T1, T12 and T13) and most of the rest got
+ * closer (Bahrain T1 49 -> 57 of 63, T14 80 -> 95 of 117). Three went out the other way: Monza's
+ * first chicane (T1/T2, 84/79 against 68) and Hungaroring T2 (121 against 109) are now too fast,
+ * with the 2022-2025 block's mu.slow 1.9 on a minimum-curvature line that straightens the chicane
+ * (2b, the line, is still open). Race top speeds stay inside their ±5 %.
  */
 const KNOWN_OFF = {
-  "monza:4": [91, 104, 2, 3],
-  "monza:5": [98, 116, 2, 3],
-  "monza:6": [153, 174, 5, 4],
-  "monza:7": [124, 164, 3, 4],
-  "monza:8": [131, 179, 4, 4],
-  "monza:10": [200, 240, 5, 6],
-  "monza:11": [115, 206, 3, 5],
-  "bahrain:1": [49, 63, 1, 3],
-  "bahrain:2": [112, 155, 3, 4],
-  "bahrain:4": [86, 117, 2, 4],
-  "bahrain:6": [148, 176, 4, 5],
-  "bahrain:8": [60, 74, 1, 3],
-  "bahrain:10": [59, 70, 1, 3],
-  "bahrain:11": [109, 149, 3, 4],
-  "bahrain:13": [102, 131, 3, 4],
-  "bahrain:14": [80, 117, 2, 4],
-  "hungaroring:1": [67, 85, 1, 3],
-  "hungaroring:3": [177, 228, 5, 5],
-  "hungaroring:4": [167, 210, 5, 5],
-  "hungaroring:6": [117, 102, 3, 3],
-  "hungaroring:7": [166, 121, 4, 3],
-  "hungaroring:8": [110, 150, 3, 4],
-  "hungaroring:10": [247, 218, 6, 5],
-  "hungaroring:11": [176, 206, 5, 6],
-  "hungaroring:12": [93, 108, 2, 3],
-  "hungaroring:13": [80, 94, 2, 3],
-  "hungaroring:14": [91, 130, 2, 4],
+  "monza:1": [84, 68, 2, 2],
+  "monza:2": [79, 68, 2, 2],
+  "monza:7": [138, 164, 4, 4],
+  "monza:8": [144, 179, 4, 4],
+  "monza:10": [205, 240, 5, 6],
+  "monza:11": [130, 198, 4, 5],
+  "bahrain:1": [57, 63, 1, 3],
+  "bahrain:2": [123, 166, 3, 4],
+  "bahrain:4": [100, 117, 3, 4],
+  "bahrain:6": [151, 176, 4, 5],
+  "bahrain:11": [119, 149, 3, 4],
+  "bahrain:13": [117, 131, 4, 4],
+  "bahrain:14": [95, 117, 3, 4],
+  "hungaroring:2": [121, 109, 4, 3],
+  "hungaroring:3": [179, 228, 5, 5],
+  "hungaroring:4": [171, 210, 5, 5],
+  "hungaroring:6": [127, 102, 3, 3],
+  "hungaroring:7": [158, 121, 3, 3],
+  "hungaroring:8": [121, 150, 3, 4],
+  "hungaroring:10": [240, 211, 6, 5],
+  "hungaroring:11": [176, 206, 6, 6],
+  "hungaroring:14": [106, 130, 3, 4],
 };
 
 /** The real lap as samples with distance share (distance integrated from speed). */
