@@ -17,6 +17,12 @@
     "exitRoadMinMetres": 80,
     "noLimitMarginKmh": 90,
     "queueOffsetMetres": 7,
+    "queue": {
+      "$comment": "PIT-C2 (GS-09; docs/manager/F1M24-CHINA.md §2.2, §3.3; RF-SIM-12). Cola del doble apilamiento solo con el box ocupado: el segundo coche espera max(0, libre − llegada) + la espera de reinicio del equipo, y 0 si el compañero ya salió (McLaren en China 2024 bajo SC con HAM fuera 10,5 s antes: sin cola). Ningún número propio: la espera es race-eras.json pit.doubleStackWait (fuente única, la misma que suman race.js y stepRace.js) y bajo SC el hueco entre compañeros se cierra a race-sim.json safetyCar.trainGapMetres por coche intermedio a la velocidad del tren (vuelta base × lapFactor). Bajo VSC el hueco en tiempo no se cierra: cola de verde. Funciones: pitLane.js boxQueue, scTrainSpacingSec y previewPit queueGreen/queueSc.",
+      "waitFrom": "race-eras.json pit.doubleStackWait",
+      "scSpacingFrom": "race-sim.json safetyCar.trainGapMetres",
+      "status": "S"
+    },
     "boxSlotMarginMetres": 8,
     "speeding": {
       "$comment": "RF-SIM-10 con causa física: con chancePerPass por paso por el pit lane el piloto conecta tarde el limitador y cruza la línea de límite a vLimit + overKmh durante los primeros metres. Mismo número que la tirada a ciegas del modo rápido (race-eras.json penalties.offences.pitSpeeding.chancePerStop) para que los dos modos sancionen igual. Solo en eras con límite y con la infracción (pitSpeeding.from).",
@@ -73,6 +79,10 @@
   "pitStop": {
     "$comment": "engine/sim/pitStop.js. Parada por etapas ordenadas con rol (idea de Staff_Enum_PitStopStage/EPitStopRole de F1M24, sin ningún valor suyo): marcas (piloto) → gatos arriba → ruedas ×4 en paralelo (pistola + quitar + poner + pistola; manda la más lenta) en paralelo con alerón y repostaje → gatos abajo → suelta. Tiempo de cada etapa = media + sd × z (z ≈ normal con 4 uniformes, solo + y ×, RNF-05), por el factor del equipo crew.base − crew/crew.divisor (RF-STF-07). Cada etapa tira un error con su probabilidad × (crew.errorBase − crew/crew.errorDivisor) y su retraso [min, max]. Todo en el flujo propio `crew` de la semilla. `target` es la mediana real de la parada por era (test ±0,2 s) con su procedencia.",
     "crew": { "base": 1.3, "divisor": 200, "errorBase": 1.4, "errorDivisor": 100 },
+    "events": {
+      "$comment": "PIT-C2 (prerrequisito de AUD-C7; RF-SIM-12, RF-3D-04). One-shots de la parada en pitStop.js stopEvents, sobre los tiempos sorteados de cada etapa (sin números propios): jackUp al subir, por rueda gunOff al empezar su tiempo (afloja) y gunOn al acabarlo (aprieta), jackDown al bajar y release al terminar la parada. La pose publica pitStage {name, t, start, duration, role} (pitStop.js stageInfoAt). Las ruedas se sortean en el orden de wheelOrder.",
+      "wheelOrder": ["fl", "fr", "rl", "rr"]
+    },
     "litresPerFuelLap": 3.6,
     "litresPerFuelLapSource": "NV: ~2,7 kg/vuelta de un V10/V8 (densidad 0,75 kg/l); solo sin circuito: la carrera usa los kg por vuelta medidos de engine/energy.js",
     "eras": [

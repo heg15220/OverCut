@@ -38,6 +38,9 @@ const STOP = pitBalance.pitStop;
  */
 const litresPerLapOf = (kgPerLap) => (kgPerLap > 0 ? kgPerLap / energyData.fuel.densityKgL : STOP.litresPerFuelLap);
 
+/** The four corners, in the order the wheel times are drawn (race-pit.json pitStop.events.wheelOrder). */
+export const WHEELS = STOP.events.wheelOrder;
+
 export const STAGES = ["marks", "jackUp", "wheels", "wing", "refuel", "jackDown", "release"];
 
 export const ROLES = {
@@ -83,7 +86,14 @@ export const planStop = ({ rules, crew = 60, tyres = true, refuelLaps = 0, wing 
   const marks = timeOf(stream, era.marks, factor);
   const jackUp = timeOf(stream, era.jackUp, factor);
   let wheels = 0;
-  for (let w = 0; w < 4; w += 1) wheels = Math.max(wheels, timeOf(stream, era.wheel, factor));
+  // PIT-C2 (AUD-C7): each wheel's own time is kept (same draws, same order: RNF-05) so the view and
+  // the sound can place the two gun bursts of every wheel; the slowest still decides the stage.
+  const wheelTimes = [];
+  for (let w = 0; w < 4; w += 1) {
+    const time = timeOf(stream, era.wheel, factor);
+    wheelTimes.push(time);
+    wheels = Math.max(wheels, time);
+  }
   const wingTime = era.wing ? (wing === "change" ? era.wing.change : wing === "adjust" ? era.wing.adjust : 0) : 0;
   const wingZ = z4(stream);
   const wingStage = wingTime > 0 ? Math.max(0, wingTime * (1 + 0.08 * wingZ) * factor) : 0;
@@ -114,9 +124,9 @@ export const planStop = ({ rules, crew = 60, tyres = true, refuelLaps = 0, wing 
 
   const stages = [];
   let clock = 0;
-  const push = (stage, duration, parallelFrom = null) => {
+  const push = (stage, duration, parallelFrom = null, extra = null) => {
     const start = parallelFrom === null ? clock : parallelFrom;
-    stages.push({ stage, role: ROLES[stage], start, duration });
+    stages.push(extra ? { stage, role: ROLES[stage], start, duration, ...extra } : { stage, role: ROLES[stage], start, duration });
     if (parallelFrom === null) clock += duration;
     return start + duration;
   };
@@ -125,7 +135,10 @@ export const planStop = ({ rules, crew = 60, tyres = true, refuelLaps = 0, wing 
     push("jackUp", jackUp + (mistake?.stage === "jackUp" ? delay : 0));
     const from = clock;
     let end = from;
-    end = Math.max(end, push("wheels", wheels + (mistake?.stage === "wheels" ? delay : 0), from));
+    // The wheel that errs is the slowest one (its delay is what holds the stage up).
+    const slowest = wheelTimes.indexOf(wheels);
+    const corners = wheelTimes.map((time, w) => ({ wheel: WHEELS[w], start: from, duration: time + (mistake?.stage === "wheels" && w === slowest ? delay : 0) }));
+    end = Math.max(end, push("wheels", wheels + (mistake?.stage === "wheels" ? delay : 0), from, { wheels: corners }));
     if (wingStage > 0) end = Math.max(end, push("wing", wingStage, from));
     if (refuel > 0) end = Math.max(end, push("refuel", refuel + (mistake?.stage === "refuel" ? delay : 0), from));
     clock = end;
@@ -177,6 +190,55 @@ export const stageAt = (plan, t) => {
     if (t >= s.start && t < s.start + s.duration) current = current && current.stage === "wheels" ? current : s;
   }
   return current ? current.stage : t >= plan.stationary ? null : "release";
+};
+
+/**
+ * RF-SIM-12, RF-3D-04 (PIT-C2; docs/manager/F1M24-CHINA.md §3.3, prerequisite of AUD-C7): the
+ * stage a stop is in `t` seconds after the car stopped, as the pose's `pitStage` contract
+ * `{ name, t, start, duration, role }` - `name` is stageAt's (the wheels win while the wing or
+ * the fuel run beside them), `t` the seconds since that stage began. null outside the stop.
+ * Pure: reads the plan only.
+ */
+export const stageInfoAt = (plan, t) => {
+  const name = stageAt(plan, t);
+  if (!name) return null;
+  // The stage entry that holds `t` (the release when t runs past the last stage, as stageAt).
+  let entry = null;
+  for (let k = 0; k < plan.stages.length; k += 1) {
+    const s = plan.stages[k];
+    if (s.stage === name && t >= s.start && t < s.start + s.duration) entry = s;
+  }
+  if (!entry) entry = plan.stages.filter((s) => s.stage === name).pop() || { start: t, duration: 0, role: ROLES[name] };
+  return { name, t: Math.max(0, t - entry.start), start: entry.start, duration: entry.duration, role: entry.role || ROLES[name] };
+};
+
+/**
+ * RF-SIM-12, RF-3D-04 (PIT-C2, for AUD-C7 `ambience.pit.events`): the one-shots of a stop, in time
+ * order, seconds after the car stopped - `jackUp`, per wheel `gunOff` (the gun starts undoing the
+ * nut: the stage's start) and `gunOn` (the nut is tight: the end of that wheel's time), `jackDown`,
+ * and `release` (the car goes: the end of the stop). Two gun events per wheel, each placed on the
+ * plan's own drawn times (planStop), so the sound sits on the engine's clock and needs no number of
+ * its own (RNF-07). A fuel-only stop has no jacks and no guns. Ties keep stage order. Pure.
+ */
+export const stopEvents = (plan) => {
+  if (!plan || !Array.isArray(plan.stages)) return [];
+  const out = [];
+  plan.stages.forEach((s) => {
+    if (s.stage === "jackUp") out.push({ kind: "jackUp", t: s.start });
+    else if (s.stage === "wheels") {
+      const corners = s.wheels || WHEELS.map((wheel) => ({ wheel, start: s.start, duration: s.duration }));
+      corners.forEach((c) => {
+        out.push({ kind: "gunOff", t: c.start, wheel: c.wheel });
+        out.push({ kind: "gunOn", t: c.start + c.duration, wheel: c.wheel });
+      });
+    } else if (s.stage === "jackDown") out.push({ kind: "jackDown", t: s.start });
+  });
+  out.push({ kind: "release", t: plan.stationary });
+  const order = { jackUp: 0, gunOff: 1, gunOn: 2, jackDown: 3, release: 4 };
+  return out
+    .map((event, k) => ({ event, k }))
+    .sort((a, b) => a.event.t - b.event.t || order[a.event.kind] - order[b.event.kind] || a.k - b.k)
+    .map(({ event }) => event);
 };
 
 export { STOP as PIT_STOP_BALANCE };

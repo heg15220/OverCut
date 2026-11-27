@@ -20,7 +20,7 @@ import { createRace, runToFinish } from "../race";
 import { rulesFor } from "../rules";
 import { eraWithRegulations } from "../packs/packWorld";
 import { loadSeasonPack, seasonPackYears } from "../packs/seasonPacks";
-import { expectedStationary, planStop, stopEraFor } from "./pitStop";
+import { WHEELS, expectedStationary, planStop, stageAt, stageInfoAt, stopEraFor, stopEvents } from "./pitStop";
 
 const FIELDED = [1976, 1988, 1998, 2005, 2008, 2012, 2016, 2024];
 const SAMPLES = {
@@ -159,5 +159,86 @@ describe("RF-SIM-12 / RF-STF-07 · stages, roles and the crew", () => {
       expect(["V", "S", "NV"]).toContain(era.target.ver);
       expect(era.target.note.length).toBeGreaterThan(10);
     });
+  });
+});
+
+/**
+ * PIT-C2 (docs/manager/F1M24-CHINA.md §3.3, prerequisite of AUD-C7): RF-SIM-12, RF-3D-04, RF-SIM-15,
+ * RNF-05. The pose's `pitStage {name, t}` (stageInfoAt) and the stop's one-shots (stopEvents) read
+ * the plan's own drawn times; the per-wheel times change no draw (same stream, same stationary).
+ */
+describe("PIT-C2 · stages for the pose and the sound, deterministic (RF-SIM-12, RNF-05)", () => {
+  const modern = rulesFor(2024);
+  const refuel = rulesFor(2008);
+  const ERAS = [rulesFor(1976), rulesFor(1990), refuel, rulesFor(2010), rulesFor(2012), rulesFor(2016), modern];
+
+  it("each wheel keeps its time: the slowest is the wheels stage, and the draw budget is unchanged", () => {
+    ERAS.forEach((rules) => {
+      for (let k = 0; k < 200; k += 1) {
+        const stream = createStream(`wheels-${rules.year}-${k}`);
+        const plan = planStop({ rules, crew: 20 + (k % 80), tyres: true, refuelLaps: rules.refuelling ? 12 : 0, stream });
+        const wheels = plan.stages.find((stage) => stage.stage === "wheels");
+        expect(wheels.wheels.map((c) => c.wheel)).toEqual(WHEELS);
+        wheels.wheels.forEach((c) => expect(c.start).toBe(wheels.start));
+        expect(Math.max(...wheels.wheels.map((c) => c.duration))).toBeCloseTo(wheels.duration, 12);
+      }
+    });
+    const s1 = createStream("budget");
+    const s2 = createStream("budget");
+    planStop({ rules: modern, crew: 10, tyres: true, stream: s1 });
+    planStop({ rules: modern, crew: 99, tyres: false, wing: "change", stream: s2 });
+    expect(s1.next()).toBe(s2.next());
+  });
+
+  it("stageInfoAt: the pose's pitStage {name, t} agrees with stageAt and counts from the stage's start", () => {
+    const plan = planStop({ rules: refuel, crew: 60, tyres: true, refuelLaps: 15, wing: "adjust", stream: createStream("info") });
+    for (let t = 0; t < plan.stationary; t += 0.01) {
+      const info = stageInfoAt(plan, t);
+      expect(info.name).toBe(stageAt(plan, t));
+      expect(info.t).toBeGreaterThanOrEqual(0);
+      expect(info.t).toBeLessThanOrEqual(info.duration + 1e-9);
+      expect(info.start + info.t).toBeCloseTo(t, 9);
+      expect(typeof info.role).toBe("string");
+    }
+    expect(stageInfoAt(plan, -0.1)).toBeNull();
+    expect(stageInfoAt(plan, plan.stationary + 0.01)).toBeNull();
+    expect(stageInfoAt(null, 1)).toBeNull();
+  });
+
+  it("stopEvents: jacks, two gun events per wheel, release at the end; in time order; fuel only has no guns", () => {
+    ERAS.forEach((rules) => {
+      const plan = planStop({ rules, crew: 60, tyres: true, refuelLaps: rules.refuelling ? 15 : 0, stream: createStream(`events-${rules.year}`) });
+      const events = stopEvents(plan);
+      for (let k = 1; k < events.length; k += 1) expect(events[k].t).toBeGreaterThanOrEqual(events[k - 1].t);
+      const kinds = events.map((e) => e.kind);
+      expect(kinds.filter((kind) => kind === "jackUp")).toHaveLength(1);
+      expect(kinds.filter((kind) => kind === "jackDown")).toHaveLength(1);
+      expect(kinds[kinds.length - 1]).toBe("release");
+      expect(events[events.length - 1].t).toBe(plan.stationary);
+      WHEELS.forEach((wheel) => {
+        const mine = events.filter((e) => e.wheel === wheel);
+        expect(mine.map((e) => e.kind)).toEqual(["gunOff", "gunOn"]);
+        expect(mine[1].t).toBeGreaterThan(mine[0].t);
+      });
+      const jackUp = events.find((e) => e.kind === "jackUp");
+      const jackDown = events.find((e) => e.kind === "jackDown");
+      events.filter((e) => e.wheel).forEach((e) => {
+        expect(e.t).toBeGreaterThanOrEqual(jackUp.t);
+        expect(e.t).toBeLessThanOrEqual(jackDown.t + 1e-9);
+      });
+    });
+    const fuelOnly = planStop({ rules: refuel, crew: 60, tyres: false, refuelLaps: 20, stream: createStream("fuel-only") });
+    expect(stopEvents(fuelOnly).map((e) => e.kind)).toEqual(["release"]);
+    expect(stopEvents(null)).toEqual([]);
+  });
+
+  it("RNF-05: same seed, same stages, same events, byte for byte", () => {
+    const make = () => planStop({ rules: modern, crew: 47, tyres: true, wing: "change", stream: createStream("pitc2-same") });
+    const a = make();
+    const b = make();
+    expect(JSON.stringify(a)).toBe(JSON.stringify(b));
+    expect(JSON.stringify(stopEvents(a))).toBe(JSON.stringify(stopEvents(b)));
+    const sample = (plan) => Array.from({ length: 50 }, (_, k) => stageInfoAt(plan, (k * plan.stationary) / 50));
+    expect(JSON.stringify(sample(a))).toBe(JSON.stringify(sample(b)));
   });
 });
