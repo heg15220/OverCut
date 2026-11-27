@@ -79,6 +79,17 @@
  * change is written into the lap like a lift (a warp at the step's start), so the view and the timing read it.
  * Rival pit walls hold their car in the garage while another car passes the pit exit within ai.spacingSec of the
  * moment it would join. carStatus(...).traffic {aheadId, gapSec, effect} and exitTrafficOf() only read.
+ *
+ * Radio and events with the race's shape (SES-C1, F1M24-CHINA §1.5 «Radio en sesiones», §2.7 AUD-C3; RF-CMD-03,
+ * RF-WKD-02, RNF-05, RNF-07): besides the session's own log, two events carry the car's `lap` like the race's
+ * ({t, lap, type, carId, segment, ...}) -
+ *   garageExit   {queueSec, laneSec, heldSec?}  the car crosses the end of the pit-exit line and joins the track
+ *                (the end of GARAGE_EXIT), at that instant inside the step (the `out` event is its release);
+ *   lapComplete  {kind, time, sectors, compound, improved, deleted, position, gapSec, cutoff?, dropZone?}  a timed
+ *                lap finished at the line, kept or deleted (not an aborted one), with the order after it;
+ * and the `flag` stays the session's chequered flag. state.radio[] (sessionRadio.js, sessions.json radio) has the
+ * race's {lap, carId, kind, t} for the player's drivers at those instants and at a yellow met, an impeding, a push
+ * lap starting, the flag and the end of a segment. None of it draws from a stream or moves a lap.
  */
 
 import { clamp, createStream } from "../../../overcutTrayectoria/engine/rng";
@@ -91,6 +102,7 @@ import { circuitFor } from "../venue";
 import { climateFor, hourlyConditions } from "../weather";
 import { SESSION_BALANCE as B, sessionFormat, tyreAllocation } from "./formats";
 import { impedingPenaltyOf, trafficContextOf, trafficStep } from "./stepSession";
+import { pushSessionRadio } from "./sessionRadio";
 
 const EPS = 1e-9;
 const round3 = (value) => Math.round(value * 1000) / 1000;
@@ -330,6 +342,8 @@ export const createSession = ({
     clock: 0,
     cars,
     events: [],
+    // SES-C1: the engineer to the player's drivers, the race's shape (sessionRadio.js).
+    radio: [],
     log: [],
     carry: 0,
     done: false,
@@ -396,6 +410,8 @@ const startSegment = (state, index) => {
     // SES-8: the meetings with slow cars on its timed laps, a stream of its own (the laps never depend on it).
     car.trafficStream = createStream(`${state.seed}::session::${state.kind}::${segment.name}::traffic::${car.id}`);
     car.traffic = null;
+    // SES-C1: the start of the out-lap whose join to the track has been announced (garageExit).
+    car.joinedFrom = null;
     car.aiPlans = car.eliminated ? [] : rivalPlans(state, car, segment);
     if (segment.singleLap && !car.eliminated) car.pending = { at: segment.slots[car.id] ?? 0, plan: null, slot: true };
   });
@@ -761,8 +777,11 @@ const meetYellow = (state, car) => {
   // The lap is spoilt either way: drivers give it up as often as the measured ones did (forced under "abandon").
   const outcome = rule === "abandon" || giveUp < L.abandonShare[flag] ? "abandon" : rule;
   const base = { carId: car.id, segment: state.segment, double: event.double, yellowAt: event.t };
+  // SES-C1: the engineer tells the player's driver what the flag costs.
+  const radio = { outcome, double: event.double, sector: event.sector ?? null };
   if (outcome === "abandon") {
     state.events.push({ t: round3(at), type: "yellowLap", ...base, outcome, lossSec: null });
+    pushSessionRadio(state, car, "session-yellow", at, record.lap, radio);
     abortLapAt(state, car, at, { reason: "yellow" });
     return;
   }
@@ -771,6 +790,7 @@ const meetYellow = (state, car) => {
   liftAt(state, record, at, loss);
   if (outcome === "delete") record.deleteFor = event.double ? "doubleYellow" : "yellow";
   state.events.push({ t: round3(at), type: "yellowLap", ...base, outcome, lossSec: round3(loss) });
+  pushSessionRadio(state, car, "session-yellow", at, record.lap, radio);
   planYellowHit(state, car, at);
 };
 
@@ -819,6 +839,8 @@ const beginLap = (state, car, kind, at, garageExit = null) => {
   car.state = kind === "push" || kind === "timed" ? "flying" : kind;
   // SES-4: a yellow already waved ahead of the lap.
   planYellowHit(state, car, at);
+  // SES-C1: a qualifying attempt starts at the line.
+  if (kind === "push") pushSessionRadio(state, car, "session-push", at, record.lap, { attempt: car.run.pushes + 1, of: car.run.plan.push ?? null, compound: record.compound });
   return record;
 };
 
@@ -838,6 +860,97 @@ const nextLapKind = (state, car, finished) => {
   return limitLeft <= 2 ? "in" : "cool";
 };
 
+// ------------------------------------------------------------------ the race's shape (SES-C1)
+
+/**
+ * The car's place in the segment now: position (1-based, null without a time), the gap of its best to the
+ * top and, in a knockout segment, the last place that goes through (`cutoff`) and whether it is below it.
+ */
+const standingOf = (state, car) => {
+  const ranked = rankOf(state);
+  const top = ranked[0]?.best ?? null;
+  const position = car.best === null ? null : ranked.indexOf(car) + 1 || null;
+  const out = { position, gapSec: car.best === null || top === null ? null : round3(car.best - top) };
+  const drop = currentSegment(state)?.drop;
+  if (drop) {
+    out.cutoff = Math.max(0, ranked.length - drop);
+    out.dropZone = position === null || position > out.cutoff;
+  }
+  return out;
+};
+
+/** SES-C1: a timed lap finished at the line (kept or deleted): the `lapComplete` event and the engineer's call. */
+const lapComplete = (state, car, record, at, improved) => {
+  const deleted = record.deleted ? record.deleted.reason : null;
+  const time = deleted ? record.deleted.time : record.flying;
+  const sectors = deleted ? record.deleted.sectors : record.sectors;
+  const standing = standingOf(state, car);
+  state.events.push({
+    t: round3(at),
+    lap: record.lap,
+    type: "lapComplete",
+    carId: car.id,
+    segment: state.segment,
+    kind: record.kind,
+    time: round3(time),
+    sectors: Array.isArray(sectors) ? sectors.map(round3) : null,
+    compound: record.compound,
+    improved: Boolean(improved),
+    deleted,
+    ...standing,
+  });
+  if (deleted) pushSessionRadio(state, car, "session-lap-deleted", at, record.lap, { time: round3(time), reason: deleted, ...standing });
+  else pushSessionRadio(state, car, "session-lap", at, record.lap, { time: round3(time), improved: Boolean(improved), ...standing });
+};
+
+/** SES-C1: when the car on its way out of the garage joins the track (Infinity once announced, or without one). */
+const joinDue = (car) => {
+  const record = car.record;
+  const exit = record?.garageExit;
+  return exit && car.joinedFrom !== record.start ? exit.trackAt : Infinity;
+};
+
+/** SES-C1: the car crosses the end of the pit-exit line and joins the track: `garageExit` and the radio. */
+const joinTrack = (state, car) => {
+  const record = car.record;
+  const exit = record.garageExit;
+  car.joinedFrom = record.start;
+  const event = { t: round3(exit.trackAt), lap: record.lap, type: "garageExit", carId: car.id, segment: state.segment, queueSec: round3(exit.queueSec), laneSec: round3(exit.laneSec) };
+  // The wait a rival pit wall took for a gap (SES-8), noted on the release.
+  for (let index = state.events.length - 1; index >= 0; index -= 1) {
+    const other = state.events[index];
+    if (other.type !== "out" || other.carId !== car.id) continue;
+    if (other.heldSec) event.heldSec = other.heldSec;
+    break;
+  }
+  state.events.push(event);
+  pushSessionRadio(state, car, "session-garage-exit", exit.trackAt, record.lap, { queueSec: event.queueSec, compound: record.compound, inLap: Boolean(record.in) });
+};
+
+/** The chequered flag of the segment: the event, and the call to each of the player's drivers out on the track. */
+const raiseFlag = (state, segment) => {
+  state.flag = true;
+  state.events.push({ t: round3(segment.duration), type: "flag", segment: state.segment });
+  state.cars.forEach((car) => {
+    const record = car.record;
+    if (!record || car.eliminated) return;
+    // A timed lap under way still counts; any other lap is the last one before the garage.
+    pushSessionRadio(state, car, "session-flag", segment.duration, record.lap, { onLap: record.kind, counts: isTimedLap(record) });
+  });
+};
+
+/** The segment is classified: through or knocked out in a knockout, else the final place, to the player's drivers. */
+const segmentRadio = (state, segment, ranked) => {
+  state.cars.forEach((car) => {
+    if (car.eliminated) return;
+    const index = ranked.indexOf(car);
+    const position = index >= 0 ? index + 1 : null;
+    const base = { position, time: car.best === null ? null : round3(car.best) };
+    if (segment.drop) pushSessionRadio(state, car, car.out === state.segment ? "session-knocked-out" : "session-through", state.clock, car.laps, base);
+    else pushSessionRadio(state, car, "session-result", state.clock, car.laps, base);
+  });
+};
+
 /** A lap ends: count it, time it, and start the next one (or put the car back in the garage). */
 const endLap = (state, car) => {
   const record = car.record;
@@ -847,6 +960,7 @@ const endLap = (state, car) => {
   car.fuel = Math.max(0, car.fuel - 1);
   state.fieldLaps += 1;
   if (record.kind === "burn") car.run.burned += 1;
+  const bestBefore = car.best;
   if (record.flying && !record.aborted && record.deleteFor) {
     // SES-4: a time set through a yellow the era deletes - the attempt counts, the time does not.
     record.deleted = { time: record.flying, sectors: record.sectors || null, reason: record.deleteFor };
@@ -872,6 +986,7 @@ const endLap = (state, car) => {
     if (record.kind === "push") car.run.pushes += 1;
     else car.run.timed += 1;
   }
+  if (!record.aborted && (Number.isFinite(record.flying) || record.deleted)) lapComplete(state, car, record, at, car.best !== bestBefore);
   const kind = nextLapKind(state, car, record);
   if (!kind) {
     car.state = "garage";
@@ -1127,6 +1242,8 @@ const applyTraffic = (state, to) => {
       // The stewards' decision: the era's penalty once its FIA text is copied; until then only noted.
       penalty: meeting.noted && penalty?.status === "source" ? penalty.value : null,
     });
+    // SES-C1: the engineer to the player's driver held up on a timed lap.
+    pushSessionRadio(state, car, "session-impeded", now, record.lap, { otherId: action.slowId, outcome: meeting.outcome, lossSec: meeting.outcome === "abandon" ? null : round3(meeting.lossSec) });
     if (meeting.outcome === "abandon") {
       abortLapAt(state, car, now, { reason: "impeding" });
       return;
@@ -1150,25 +1267,32 @@ export const stepOnce = (state) => {
     let when = Infinity;
     let wave = false;
     let meet = false;
+    let join = false;
     state.cars.forEach((car) => {
       const lap = nextDue(state, car);
       // SES-3: a yellow planned on the lap under way is waved at its instant, before the lap ends.
       const flagAt = yellowDue(car);
       // SES-4: and somebody else's yellow is met where it is waved, before the lap ends too.
       const hitAt = yellowHitDue(car);
-      const due = Math.min(lap, flagAt, hitAt);
+      // SES-C1: a car leaving the garage joins the track (no lap of its own changes there).
+      const joinAt = joinDue(car);
+      const due = Math.min(lap, flagAt, hitAt, joinAt);
       if (due <= to + EPS && (due < when - EPS || (Math.abs(due - when) <= EPS && pick && car.index < pick.index))) {
         pick = car;
         when = due;
-        wave = flagAt <= lap && flagAt <= hitAt;
-        meet = !wave && hitAt <= lap;
+        join = joinAt <= lap && joinAt <= flagAt && joinAt <= hitAt;
+        wave = !join && flagAt <= lap && flagAt <= hitAt;
+        meet = !join && !wave && hitAt <= lap;
       }
     });
     if (!pick) break;
     // The chequered flag falls between: from then on nobody starts a new timed lap.
     if (!state.flag && when >= segment.duration) {
-      state.flag = true;
-      state.events.push({ t: round3(segment.duration), type: "flag", segment: state.segment });
+      raiseFlag(state, segment);
+      continue;
+    }
+    if (join) {
+      joinTrack(state, pick);
       continue;
     }
     if (wave) {
@@ -1183,10 +1307,7 @@ export const stepOnce = (state) => {
   }
   state.clock = to;
   state.localClock = localClockOf(state);
-  if (!state.flag && state.clock >= segment.duration) {
-    state.flag = true;
-    state.events.push({ t: round3(segment.duration), type: "flag", segment: state.segment });
-  }
+  if (!state.flag && state.clock >= segment.duration) raiseFlag(state, segment);
   if (state.flag && state.cars.every((car) => !car.record)) closeSegment(state);
   return state;
 };
@@ -1214,6 +1335,7 @@ const closeSegment = (state) => {
       state.events.push({ t: round3(state.clock), type: "eliminated", carId: car.id, segment: state.segment });
     });
   }
+  segmentRadio(state, segment, ranked);
   state.events.push({ t: round3(state.clock), type: "segment-over", segment: state.segment });
   if (state.segment >= state.segments.length - 1) state.done = true;
 };

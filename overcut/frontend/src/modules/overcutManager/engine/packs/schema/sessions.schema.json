@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$comment": "RNF-07: esquema de data/balance/sessions.json (sesiones jugables: RF-WKD-01/02/03/05, RF-SIM-11, RF-SIM-15). Lo comprueba engine/sessionSim/session.test.js. Las tablas por año llevan status: source (con cita del reglamento), measured (calibrado contra datos) o pending (de memoria o NV).",
   "type": "object",
-  "required": ["$comment", "version", "step", "laps", "garage", "evolution", "pace", "programmes", "limits", "durations", "allocation", "ai", "sprint", "clock", "yellow", "traffic"],
+  "required": ["$comment", "version", "step", "laps", "garage", "evolution", "pace", "programmes", "limits", "durations", "allocation", "ai", "sprint", "clock", "yellow", "traffic", "radio"],
   "definitions": {
     "impedingEpisodes": {
       "type": "object",
@@ -101,6 +101,31 @@
   "properties": {
     "$comment": { "type": "string" },
     "version": { "const": 1 },
+    "radio": {
+      "$comment": "SES-C1 (F1M24-CHINA §1.5 «Radio en sesiones»; RF-CMD-03, RF-WKD-02, RNF-07): la radio del ingeniero en las sesiones jugables, por tipo de mensaje (engine/sessionSim/sessionRadio.js). Los tipos son cerrados: el motor solo emite los que están aquí.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "note", "enabled", "kinds"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "note": { "type": "string", "minLength": 1 },
+        "enabled": { "type": "boolean" },
+        "kinds": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["session-garage-exit", "session-push", "session-lap", "session-lap-deleted", "session-yellow", "session-impeded", "session-flag", "session-through", "session-knocked-out", "session-result"],
+          "patternProperties": {
+            "^session-[a-z-]+$": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["quietSec", "alert"],
+              "properties": { "quietSec": { "$ref": "#/definitions/nonNegative" }, "alert": { "type": "boolean" } }
+            }
+          }
+        }
+      }
+    },
     "step": { "type": "object", "required": ["dt"], "properties": { "dt": { "$ref": "#/definitions/positive" } } },
     "laps": {
       "type": "object",
