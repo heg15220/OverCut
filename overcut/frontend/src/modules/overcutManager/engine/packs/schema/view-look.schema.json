@@ -1,0 +1,410 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "RNF-07: esquema de data/balance/view-look.json (cielo, sol, niebla, grading, exposición, desenfoque, mojado, lluvia y efectos de la vista 3D; RF-3D-04, RF-SIM-11, RNF-02). Contrato completo de la ola 1 (F1M24-CHINA §3.2): LOOK-C2 y LOOK-C3 rellenan wet, rain y fx sin cambiar su forma. Lo comprueba three/sky.test.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$comment", "version", "sky", "fog", "grade", "exposure", "blur", "quality", "wet", "rain", "fx"],
+  "definitions": {
+    "status": { "enum": ["sourced", "current", "design", "pending", "measured"] },
+    "share": { "type": "number", "minimum": 0, "maximum": 1 },
+    "positive": { "type": "number", "exclusiveMinimum": 0 },
+    "nonNegative": { "type": "number", "minimum": 0 },
+    "colour": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+    "maybeNumber": { "type": ["number", "null"] },
+    "maybePositive": { "oneOf": [{ "type": "null" }, { "type": "number", "exclusiveMinimum": 0 }] },
+    "valued": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "status"],
+      "properties": { "value": {}, "status": { "$ref": "#/definitions/status" } }
+    },
+    "domeParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["turbidity", "rayleigh", "mieCoefficient", "mieDirectionalG"],
+      "properties": {
+        "turbidity": { "$ref": "#/definitions/positive" },
+        "rayleigh": { "$ref": "#/definitions/nonNegative" },
+        "mieCoefficient": { "$ref": "#/definitions/nonNegative" },
+        "mieDirectionalG": { "type": "number", "minimum": 0, "maximum": 0.999 }
+      }
+    },
+    "qualityLevel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["post", "motionBlur", "blurTaps", "grade", "autoExposure"],
+      "properties": {
+        "post": { "type": "boolean" },
+        "motionBlur": { "type": "boolean" },
+        "blurTaps": { "type": "integer", "minimum": 0, "maximum": 16 },
+        "grade": { "type": "boolean" },
+        "autoExposure": { "type": "boolean" }
+      }
+    },
+    "eraFlag": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "value", "source", "status"],
+      "properties": {
+        "from": { "type": "integer", "minimum": 1950, "maximum": 2100 },
+        "to": { "type": "integer", "minimum": 1950, "maximum": 2100 },
+        "value": { "type": "boolean" },
+        "source": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" }
+      }
+    }
+  },
+  "properties": {
+    "$comment": { "type": "string" },
+    "version": { "const": 1 },
+    "sky": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "timezone", "refraction", "northDegByLayout", "cloudByState", "sun", "hemi", "shadow", "dome"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "timezone": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["fallback", "status"],
+          "properties": { "fallback": { "enum": ["solarMean", "utc"] }, "status": { "$ref": "#/definitions/status" } }
+        },
+        "refraction": { "type": "boolean" },
+        "northDegByLayout": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "default", "layouts"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "default": { "type": "number", "minimum": -360, "maximum": 360 },
+            "layouts": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["deg", "source", "status"],
+                "properties": { "deg": { "type": "number", "minimum": -360, "maximum": 360 }, "source": { "type": "string" }, "status": { "$ref": "#/definitions/status" } }
+              }
+            }
+          }
+        },
+        "cloudByState": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "values"],
+          "properties": {
+            "status": { "$ref": "#/definitions/status" },
+            "values": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["sunny", "cloudy", "overcast", "drizzle", "light", "moderate", "heavy"],
+              "properties": {
+                "sunny": { "$ref": "#/definitions/share" },
+                "cloudy": { "$ref": "#/definitions/share" },
+                "overcast": { "$ref": "#/definitions/share" },
+                "drizzle": { "$ref": "#/definitions/share" },
+                "light": { "$ref": "#/definitions/share" },
+                "moderate": { "$ref": "#/definitions/share" },
+                "heavy": { "$ref": "#/definitions/share" }
+              }
+            }
+          }
+        },
+        "sun": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "intensityMax", "colour", "meinel", "airMass", "cloudGlobal", "lowSun", "minElevationDeg"],
+          "properties": {
+            "status": { "$ref": "#/definitions/status" },
+            "intensityMax": { "$ref": "#/definitions/positive" },
+            "colour": { "$ref": "#/definitions/colour" },
+            "meinel": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["solarConstantKw", "base", "exponent", "status"],
+              "properties": {
+                "solarConstantKw": { "$ref": "#/definitions/positive" },
+                "base": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 },
+                "exponent": { "$ref": "#/definitions/positive" },
+                "status": { "$ref": "#/definitions/status" }
+              }
+            },
+            "airMass": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["model", "status"],
+              "properties": { "model": { "enum": ["kastenYoung1989"] }, "status": { "$ref": "#/definitions/status" } }
+            },
+            "cloudGlobal": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["a", "b", "status"],
+              "properties": { "a": { "$ref": "#/definitions/share" }, "b": { "$ref": "#/definitions/positive" }, "status": { "$ref": "#/definitions/status" } }
+            },
+            "lowSun": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["$comment", "status", "stops"],
+              "properties": {
+                "$comment": { "type": "string" },
+                "status": { "$ref": "#/definitions/status" },
+                "stops": {
+                  "type": "array",
+                  "minItems": 2,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["elevationDeg", "colour"],
+                    "properties": { "elevationDeg": { "type": "number", "minimum": -10, "maximum": 90 }, "colour": { "$ref": "#/definitions/colour" } }
+                  }
+                }
+              }
+            },
+            "minElevationDeg": { "type": "number", "minimum": -18, "maximum": 5 }
+          }
+        },
+        "hemi": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "sky", "ground", "intensity", "cloudGain", "overcastSky"],
+          "properties": {
+            "status": { "$ref": "#/definitions/status" },
+            "sky": { "$ref": "#/definitions/colour" },
+            "ground": { "$ref": "#/definitions/colour" },
+            "intensity": { "$ref": "#/definitions/positive" },
+            "cloudGain": { "allOf": [{ "$ref": "#/definitions/valued" }, { "properties": { "value": { "type": "number", "minimum": 0, "maximum": 3 } } }] },
+            "overcastSky": { "allOf": [{ "$ref": "#/definitions/valued" }, { "properties": { "value": { "$ref": "#/definitions/colour" } } }] }
+          }
+        },
+        "shadow": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "opacityPerCloud", "minOpacity", "radiusMin", "radiusMax"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "opacityPerCloud": { "$ref": "#/definitions/share" },
+            "minOpacity": { "$ref": "#/definitions/share" },
+            "radiusMin": { "$ref": "#/definitions/positive" },
+            "radiusMax": { "$ref": "#/definitions/positive" }
+          }
+        },
+        "dome": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "scale", "clear", "overcast"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "scale": { "$ref": "#/definitions/positive" },
+            "clear": { "$ref": "#/definitions/domeParams" },
+            "overcast": { "$ref": "#/definitions/domeParams" }
+          }
+        }
+      }
+    },
+    "fog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "koschmieder", "visibilityKmByHumidity", "minDensity", "maxDensity", "colourFromSky"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "koschmieder": { "$ref": "#/definitions/positive" },
+        "visibilityKmByHumidity": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["humidity", "km"],
+            "properties": { "humidity": { "type": "number", "minimum": 0, "maximum": 100 }, "km": { "$ref": "#/definitions/positive" } }
+          }
+        },
+        "minDensity": { "$ref": "#/definitions/nonNegative" },
+        "maxDensity": { "$ref": "#/definitions/positive" },
+        "colourFromSky": { "$ref": "#/definitions/share" }
+      }
+    },
+    "grade": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "lift", "gamma", "gain", "saturation", "cloudSaturation", "lumaWeights"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "lift": { "type": "number", "minimum": 0, "maximum": 0.3 },
+        "gamma": { "type": "number", "minimum": 0.5, "maximum": 2 },
+        "gain": { "type": "number", "minimum": 0.5, "maximum": 1.5 },
+        "saturation": { "type": "number", "minimum": 0, "maximum": 2 },
+        "cloudSaturation": { "type": "number", "minimum": -1, "maximum": 1 },
+        "lumaWeights": { "type": "array", "minItems": 3, "maxItems": 3, "items": { "$ref": "#/definitions/share" } }
+      }
+    },
+    "exposure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "baseAces", "baseNeutral", "key", "completeness", "fastShare", "tauSec", "minEv", "maxEv", "meter"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "baseAces": { "$ref": "#/definitions/positive" },
+        "baseNeutral": { "$ref": "#/definitions/positive" },
+        "key": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "completeness": { "$ref": "#/definitions/share" },
+        "fastShare": { "$ref": "#/definitions/share" },
+        "tauSec": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["brightenFast", "brightenSlow", "darkenFast", "darkenSlow"],
+          "properties": {
+            "brightenFast": { "$ref": "#/definitions/positive" },
+            "brightenSlow": { "$ref": "#/definitions/positive" },
+            "darkenFast": { "$ref": "#/definitions/positive" },
+            "darkenSlow": { "$ref": "#/definitions/positive" }
+          }
+        },
+        "minEv": { "type": "number", "maximum": 0 },
+        "maxEv": { "type": "number", "minimum": 0 },
+        "meter": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sizePx", "lowClip"],
+          "properties": { "sizePx": { "type": "integer", "minimum": 4, "maximum": 256 }, "lowClip": { "$ref": "#/definitions/positive" } }
+        }
+      }
+    },
+    "blur": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "maskLayer", "centreRadius", "edgeRadius", "radialPerMps", "yawPerRadPerSec", "maxOffset", "minSpeedMps"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "maskLayer": { "type": "integer", "minimum": 1, "maximum": 31 },
+        "centreRadius": { "$ref": "#/definitions/share" },
+        "edgeRadius": { "type": "number", "exclusiveMinimum": 0, "maximum": 1.5 },
+        "radialPerMps": { "$ref": "#/definitions/nonNegative" },
+        "yawPerRadPerSec": { "$ref": "#/definitions/nonNegative" },
+        "maxOffset": { "type": "number", "exclusiveMinimum": 0, "maximum": 0.25 },
+        "minSpeedMps": { "$ref": "#/definitions/nonNegative" }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "levels"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "levels": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["low", "medium", "high"],
+          "properties": {
+            "low": { "$ref": "#/definitions/qualityLevel" },
+            "medium": { "$ref": "#/definitions/qualityLevel" },
+            "high": { "$ref": "#/definitions/qualityLevel" }
+          }
+        }
+      }
+    },
+    "wet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "darkenAtSaturation", "saturationMm", "roughnessDry", "roughnessWet", "lineDryWidthM", "puddleFromMm"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "darkenAtSaturation": { "oneOf": [{ "type": "null" }, { "$ref": "#/definitions/share" }] },
+        "saturationMm": { "$ref": "#/definitions/maybePositive" },
+        "roughnessDry": { "oneOf": [{ "type": "null" }, { "$ref": "#/definitions/share" }] },
+        "roughnessWet": { "oneOf": [{ "type": "null" }, { "$ref": "#/definitions/share" }] },
+        "lineDryWidthM": { "$ref": "#/definitions/maybePositive" },
+        "puddleFromMm": { "$ref": "#/definitions/maybePositive" }
+      }
+    },
+    "rain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "spray", "lens", "fog", "streaks"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "spray": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["trailM", "maxParticles"],
+          "properties": {
+            "trailM": { "oneOf": [{ "type": "null" }, { "type": "array", "minItems": 2, "maxItems": 2, "items": { "$ref": "#/definitions/positive" } }] },
+            "maxParticles": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["low", "medium", "high"],
+              "properties": {
+                "low": { "oneOf": [{ "type": "null" }, { "type": "integer", "minimum": 0 }] },
+                "medium": { "oneOf": [{ "type": "null" }, { "type": "integer", "minimum": 0 }] },
+                "high": { "oneOf": [{ "type": "null" }, { "type": "integer", "minimum": 0 }] }
+              }
+            }
+          }
+        },
+        "lens": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["onboardOnly", "dropsPerSecAtMmH"],
+          "properties": { "onboardOnly": { "type": "boolean" }, "dropsPerSecAtMmH": { "$ref": "#/definitions/maybePositive" } }
+        },
+        "fog": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["visibilityKmByRainMmH"],
+          "properties": {
+            "visibilityKmByRainMmH": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["mmH", "km"],
+                "properties": { "mmH": { "$ref": "#/definitions/nonNegative" }, "km": { "$ref": "#/definitions/positive" } }
+              }
+            }
+          }
+        },
+        "streaks": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["fallMps"],
+          "properties": { "fallMps": { "$ref": "#/definitions/maybePositive" } }
+        }
+      }
+    },
+    "fx": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "sparks", "lockupSmoke"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "sparks": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["eras", "minDecelG", "flashFrames"],
+          "properties": {
+            "eras": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/eraFlag" } },
+            "minDecelG": { "$ref": "#/definitions/maybePositive" },
+            "flashFrames": { "oneOf": [{ "type": "null" }, { "type": "integer", "minimum": 1 }] }
+          }
+        },
+        "lockupSmoke": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "status", "lifeSec"],
+          "properties": { "enabled": { "type": "boolean" }, "status": { "$ref": "#/definitions/status" }, "lifeSec": { "$ref": "#/definitions/maybePositive" } }
+        }
+      }
+    }
+  }
+}
