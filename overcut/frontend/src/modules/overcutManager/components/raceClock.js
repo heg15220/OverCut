@@ -377,10 +377,17 @@ export const liveCarAt = (mirror, car, tau, circuit, lapRef = 90) => {
     const d = Math.min(0.55, (tau - last.end) / (lapRef * 1.8));
     return { ...poseAt(circuit, d), progress: done + d, laps: done, finished: true };
   }
-  let progress = easedProgress(a, b, f, index);
+  // GS-01: the first step after the start leaves from the grid slot the view drew until then. The worker's
+  // `created` shot (clock 0) carries no positions yet (p = 0, on the line for everyone): interpolated from
+  // it, the whole field slid back from the line to its slots in a quarter of a second (141 m for P18 in
+  // China 2013, the jump the capture showed).
+  const fromGrid = a.clock <= 0 && a !== b && !history.length && a.p[index] === 0 && b.p[index] < 0;
+  const gridShare = (POLE_BACK + ((car.grid ?? 1) - 1) * GRID_GAP) / circuit.length;
+  let progress = fromGrid ? -gridShare + (b.p[index] + gridShare) * f : easedProgress(a, b, f, index);
   // Never ahead of a line crossing the view has not reached yet.
   if (progress > done + 1) progress = done + 0.9999;
-  const lat = a.l[index] + (b.l[index] - a.l[index]) * f;
+  const gridLat = ((car.grid ?? 1) % 2 ? -1 : 1) * 2.6;
+  const lat = fromGrid ? gridLat + (b.l[index] - gridLat) * f : a.l[index] + (b.l[index] - a.l[index]) * f;
   const d = frac(progress);
   const inPit = (f < 0.5 ? a.pit[index] : b.pit[index]) === 1;
   // WP9: the engine's own speed (m/s), pit-lane phase and stop stage, error being paid (older trails lack them).
@@ -441,3 +448,116 @@ export const liveYellowsAt = (mirror, tau) => (mirror.yellowZones || []).filter(
 
 /** Offset a pose sideways (positive = right of travel). */
 export const offsetPose = lateral;
+
+// ------------------------------------------------------------ continuity (GS-01)
+
+/**
+ * GS-01 (F1M24-CHINA §2.1; RF-SIM-01, RF-3D-03, RNF-02, RNF-05): what the pictures are doing with the race
+ * clock. `live` = the clock runs forward with the race; `replay` = a replay is on air, drawn from its own
+ * clock (the race clock is held); `seek` = an explicit jump (next event, one lap, to the flag) - the only
+ * time a car may teleport. The capture of China 2013 had a 205 m jump and the clock going back 10 s that
+ * could not be told apart from a replay: with the mode on every frame it can.
+ */
+export const CLOCK_MODES = ["live", "replay", "seek"];
+
+/** The clock's mode this frame. */
+export const clockModeOf = ({ replay = false, seeking = false } = {}) => (seeking ? "seek" : replay ? "replay" : "live");
+
+/**
+ * The live race clock one frame on: `dt` real seconds at `rate`, never past what the engine has computed
+ * (`limit`, the source's), and never back (RNF-05: τ is monotone in `live`; a held engine holds it).
+ */
+export const nextLiveTau = (tau, dt, rate, limit = (value) => value) => Math.max(tau, limit(tau + Math.max(0, dt) * Math.max(0, rate)));
+
+/**
+ * The most a car may move between two frames `dt` race seconds apart at `speed` m/s:
+ * `speed·dt·k + marginM` (live-view.json continuity).
+ */
+export const continuityLimit = (speed, dt, config) => Math.max(0, speed) * Math.max(0, dt) * config.k + config.marginM;
+
+const onRoad = (pose) => pose && Number.isFinite(pose.progress) && !pose.inPit && !pose.garage && !pose.parked && !pose.onGrid;
+
+/**
+ * How far a car moved from `prev` to `next`, in metres: along the lap on the road (progress in laps ×
+ * the lap's length), straight-line otherwise (pit lane, garage, grid, parking).
+ */
+export const movedMetres = (prev, next, circuit) => {
+  if (onRoad(prev) && onRoad(next)) return (next.progress - prev.progress) * circuit.length;
+  const dx = (next.x ?? 0) - (prev.x ?? 0);
+  const dy = (next.y ?? 0) - (prev.y ?? 0);
+  return Math.hypot(dx, dy);
+};
+
+/**
+ * GS-01: the view's continuity guard. In `live`, a car drawn at τ never moves more than
+ * `continuityLimit(v, Δτ)` from where it was drawn at the previous τ: a jump in the engine's trail (a lap
+ * crossing that arrives late, a parked car set 10 m aside, a pit-lane joint) is drawn as a catch-up at the
+ * limit, never as a teleport; the speed is the engine's (`pose.v`) or, without one (quick replay), the lap's
+ * mean speed × `fallbackSpeedFactor`. In `seek` the guard takes the new pose as it is and starts again; in
+ * `replay` it lets the pose through and keeps its memory (the race clock is held, so the live picture comes
+ * back where it was). Only poses at the frame's τ are guarded (`frame(tau, mode)` first): the replay buffer
+ * samples other instants and gets the engine's own pose. Counts what it had to correct (`stats`), so a test
+ * or the telemetry can tell a correction from a replay. Reads only; it never touches the engine (RNF-05).
+ */
+export const createContinuity = ({ circuit, lapRef = 90, config }) => {
+  const memory = new Map();
+  const stats = { frames: 0, corrected: 0, seeks: 0, tauBack: 0, maxExcessM: 0 };
+  let frameTau = null;
+  let frameMode = "live";
+  let lastTau = null;
+  const fallbackSpeed = (circuit.length / Math.max(1, lapRef)) * config.fallbackSpeedFactor;
+  const speedOf = (pose) => (Number.isFinite(pose?.v) ? pose.v : fallbackSpeed);
+  const guard = {
+    stats,
+    get mode() {
+      return frameMode;
+    },
+    /** Start a frame at race time `tau` in `mode` (CLOCK_MODES). */
+    frame: (tau, mode = "live") => {
+      if (!config.enabled) return;
+      frameMode = mode;
+      if (mode === "seek") {
+        memory.clear();
+        stats.seeks += 1;
+      } else if (mode === "live" && lastTau !== null && tau < lastTau) stats.tauBack += 1;
+      if (mode === "live" && tau !== frameTau) stats.frames += 1;
+      frameTau = tau;
+      if (mode !== "replay") lastTau = tau;
+    },
+    /** The pose to draw for `car` at `tau`, from the engine's `raw` pose. */
+    pose: (car, tau, raw) => {
+      if (!config.enabled || !raw || tau !== frameTau || frameMode === "replay") return raw;
+      const prev = memory.get(car.id);
+      if (frameMode === "seek" || !prev || tau < prev.tau) {
+        memory.set(car.id, { tau, pose: raw });
+        return raw;
+      }
+      if (tau === prev.tau) return prev.pose;
+      const dt = tau - prev.tau;
+      const allowed = continuityLimit(Math.max(speedOf(raw), speedOf(prev.pose)), dt, config);
+      const moved = movedMetres(prev.pose, raw, circuit);
+      let shown = raw;
+      if (Math.abs(moved) > allowed + 1e-9) {
+        stats.corrected += 1;
+        stats.maxExcessM = Math.max(stats.maxExcessM, Math.abs(moved) - allowed);
+        if (onRoad(prev.pose) && onRoad(raw)) {
+          const progress = prev.pose.progress + (Math.sign(moved) * allowed) / circuit.length;
+          const lat = Number.isFinite(raw.lateral) ? raw.lateral : 0;
+          shown = { ...raw, ...lateral(poseAt(circuit, frac(progress)), lat), progress, continuity: "catchUp" };
+        } else {
+          const share = allowed / Math.max(1e-9, Math.abs(moved));
+          shown = { ...raw, x: prev.pose.x + (raw.x - prev.pose.x) * share, y: prev.pose.y + (raw.y - prev.pose.y) * share, continuity: "catchUp" };
+        }
+      }
+      memory.set(car.id, { tau, pose: shown });
+      return shown;
+    },
+    /** Forget everything (a new race). */
+    reset: () => {
+      memory.clear();
+      frameTau = null;
+      lastTau = null;
+    },
+  };
+  return guard;
+};

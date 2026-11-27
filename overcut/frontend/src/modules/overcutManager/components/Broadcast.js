@@ -116,10 +116,15 @@ export const SectorBars = ({ sectors, best = [], own = [] }) => (
  * The tower. `rows` are { id, position, code, color, value, flags: { user, out, pit, eliminated,
  * fastest, focus, battle, danger, incident, outLap, inLap, finished } }; `modes` is
  * { options, value, onChange } or null; `flag` the flag state { kind, label } (HUD-2: the
- * header is tinted, with the words, for the kinds of hud.json tower.header).
+ * header is tinted, with the words, for the kinds of hud.json tower.header). VIEW-01 (HUD-C1): `fold`
+ * { open, onToggle, rows } - over the picture (hud.json layout) the tower folds to its first `rows` rows
+ * plus yours and the one you follow, and the viewer opens or folds it (the view keeps the state, for the
+ * zones); without it, the phone fold of always (five rows around your car).
  */
-export const TimingTower = ({ title, subtitle, modes, rows, onPick, label, flag = null }) => {
-  const [collapsed, setCollapsed] = useState(true);
+export const TimingTower = ({ title, subtitle, modes, rows, onPick, label, flag = null, fold = null }) => {
+  const [collapsedOwn, setCollapsedOwn] = useState(true);
+  const collapsed = fold ? !fold.open : collapsedOwn;
+  const setCollapsed = fold ? (next) => fold.onToggle(!(typeof next === "function" ? next(collapsed) : next)) : setCollapsedOwn;
   const header = headerFlagOf(flag);
   const moves = useMoves(rows);
   const userIndex = rows.findIndex((row) => row.flags?.user);
@@ -146,7 +151,7 @@ export const TimingTower = ({ title, subtitle, modes, rows, onPick, label, flag 
         {rows.map((row, index) => {
           const f = row.flags || {};
           const move = moves[row.id];
-          const far = Math.abs(index - anchor) > 2 && index > 2;
+          const far = fold ? index >= fold.rows && !f.user && !f.focus : Math.abs(index - anchor) > 2 && index > 2;
           const classes = [
             "lv-row",
             f.user && "is-user",
@@ -191,7 +196,7 @@ export const TimingTower = ({ title, subtitle, modes, rows, onPick, label, flag 
           );
         })}
       </ol>
-      {rows.length > 5 && (
+      {rows.length > (fold ? fold.rows : 5) && (
         <div className="lv-tower__more">
           <button type="button" className="mn-link" onClick={() => setCollapsed((value) => !value)}>
             {collapsed ? t(`Ver los ${rows.length}`, `Show all ${rows.length}`) : t("Ver solo mi zona", "Show my part only")}
