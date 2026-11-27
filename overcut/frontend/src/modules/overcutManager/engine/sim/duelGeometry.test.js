@@ -9,6 +9,12 @@
  *   - passes per lap still the quick mode's (SRS 4.2) and the net position changes against f1db
  *     (driver-attributes.json measured.passes);
  *   - the step simulator in session mode: no duels, no pit wall, the session's own line, deterministic.
+ *
+ * SIM-C2 (docs/manager/F1M24-CHINA.md §2.2 GS-04 / VIEW-09, §3.1; RF-SIM-07, RF-SIM-08, RF-SIM-15, SRS 4.2, RNF-05,
+ * RNF-07, SRS §6): the pass with DRS on the straight (STRAIGHT_PASS: pullOut → alongside → ahead) on 8 races of
+ * Shanghai 2024 - most DRS passes done before the braking zone's board, alongside for at least minAlongsideSec, the
+ * lane change in 0.8–1.8 s, no pass told before the attacker is in front at its confirmedAt, the passes per lap within
+ * ±10 % of the step mode without it; none in a year without DRS (1988); deterministic.
  */
 
 import Ajv from "ajv";
@@ -16,11 +22,13 @@ import { runToFinish } from "../race";
 import { entrantsFor, eraOf } from "../career";
 import { createStepRace, fromQuickRace, runStepToFinish } from "./index";
 import { SIM_MODE, advanceField, beginSessionLap, setOnTrack, setSessionYield, setStepMode, snapshot } from "./stepRace";
-import { DUEL_GEOMETRY, duelGeometrySetup, fightOf, heldAttempt, pairOpen, resetFight, switchbackLeft } from "./duel";
-import { fitsAbreast, lateralSpecFor } from "./lateral";
+import { DUEL_GEOMETRY, SP, SP_NAMES, duelGeometrySetup, fightOf, heldAttempt, pairOpen, resetFight, straightPassOf, switchbackLeft } from "./duel";
+import { LATERAL, fitsAbreast, lateralSpecFor } from "./lateral";
 import { weekend } from "./simTestKit";
+import { sumOf, watchPasses } from "./straightPassWatch";
 import physics from "../../data/balance/race-physics.json";
 import schema from "../packs/schema/race-physics.schema.json";
+import simSchema from "../packs/schema/race-sim.schema.json";
 import raceSim from "../../data/balance/race-sim.json";
 import drivers from "../../data/balance/driver-attributes.json";
 
@@ -266,5 +274,104 @@ describe("SIM-8 trafico-sesion: the step simulator in session mode (RF-WKD-02, R
     runStepToFinish(state);
     const plain = runStepToFinish(fromQuickRace(w.make(), { race: w.race }));
     expect(JSON.stringify(state.events)).toBe(JSON.stringify(plain.events));
+  });
+});
+
+describe("SIM-C2 race-sim.json duel.straightPass (F1M24-CHINA §1.5, RNF-07)", () => {
+  it("validates against its schema with a source for every value, and confirms a pass inside the traffic gap of every era", () => {
+    const ajv = new Ajv({ allErrors: true });
+    expect(ajv.validate(simSchema, raceSim)).toBe(true);
+    const sp = raceSim.duel.straightPass;
+    Object.keys(sp).filter((key) => !["$comment", "enabled", "status", "source"].includes(key)).forEach((key) => expect(sp.source[key]).toEqual(expect.any(String)));
+    expect(sp.status).toBe("pending");
+    expect(sp.minAlongsideSec).toBeLessThanOrEqual(sp.alongsideTargetSec);
+    expect(sp.alongsideTargetSec).toBeLessThanOrEqual(sp.maxAlongsideSec);
+    // Ahead by confirmLengths before settleDuels would call the pass made (traffic.minGapMetres), in every era's box.
+    LATERAL.eras.forEach((era) => expect(sp.confirmLengths * era.carLength).toBeLessThan(raceSim.traffic.minGapMetres));
+  });
+
+  it("names the phases for the snapshot and the fight (no roll)", () => {
+    expect(SP_NAMES[SP.PULL_OUT]).toBe("pullOut");
+    expect(SP_NAMES[SP.ALONGSIDE]).toBe("alongside");
+    expect(SP_NAMES[SP.AHEAD]).toBe("ahead");
+    const sim = { spPhase: Uint8Array.of(SP.NONE, SP.PULL_OUT, SP.ALONGSIDE, SP.AHEAD), switchTarget: Int32Array.of(-1, -1, -1, -1), duelRole: new Uint8Array(4), clock: 0 };
+    expect([0, 1, 2, 3].map((i) => straightPassOf(sim, i))).toEqual([null, "pullOut", "alongside", "ahead"]);
+    expect([0, 1, 2, 3].map((i) => fightOf(sim, i))).toEqual([null, "STRAIGHT_PASS", "STRAIGHT_PASS", null]);
+  });
+});
+
+describe("SIM-C2 GS-04 / VIEW-09: the pass with DRS on the straight, 8 races of Shanghai 2024", () => {
+  const SP_SEEDS = Array.from({ length: 8 }, (_, k) => `spc${k + 1}`);
+  let runs;
+  let total;
+  let drsPasses;
+  let quickPer;
+  let stepPer;
+  let offPer;
+  const cfg = raceSim.duel.straightPass;
+  beforeAll(() => {
+    runs = SP_SEEDS.map((seed) => watchPasses({ seed, circuit: "shanghai" }));
+    total = sumOf(runs);
+    drsPasses = runs.flatMap((run) => run.state.duels.filter((duel) => duel.outcome === "pass" && duel.drs));
+    const passes = (state) => state.events.filter((event) => event.type === "pass" && !event.switchback).length;
+    const laps = (state) => state.cars.reduce((sum, car) => sum + car.history.filter((entry) => !entry.retired).length, 0);
+    const quick = SP_SEEDS.map((seed) => runToFinish(weekend({ seed, circuit: "shanghai" }).make()));
+    quickPer = quick.reduce((sum, state) => sum + passes(state), 0) / quick.reduce((sum, state) => sum + laps(state), 0);
+    stepPer = runs.reduce((sum, run) => sum + passes(run.state), 0) / runs.reduce((sum, run) => sum + laps(run.state), 0);
+    // The same races with the attempt left at the attack point (straightPass.enabled false): only where the pass happens changes.
+    const offBalance = { ...raceSim, duel: { ...raceSim.duel, straightPass: { ...raceSim.duel.straightPass, enabled: false } } };
+    const off = SP_SEEDS.map((seed) => {
+      const w = weekend({ seed, circuit: "shanghai" });
+      return runStepToFinish(fromQuickRace(w.make(), { race: w.race, balance: offBalance }));
+    });
+    offPer = off.reduce((sum, state) => sum + passes(state), 0) / off.reduce((sum, state) => sum + laps(state), 0);
+    const made = drsPasses.filter((duel) => duel.sp && duel.sp.completed);
+    // eslint-disable-next-line no-console
+    console.log(`SIM-C2 Shanghai 2024: ${drsPasses.length} DRS passes, ${made.length} made on the straight; passes per car-lap quick ${quickPer.toFixed(4)} / step ${stepPer.toFixed(4)} / step without STRAIGHT_PASS ${offPer.toFixed(4)}; confirmed ${total.confirmed} (inverted ${total.inverted}), straight ${total.straightConfirmed} (inverted ${total.straightInverted})`);
+  }, 600000);
+
+  it("makes most DRS passes on the straight, ahead before the braking zone's board (≥ 50 %)", () => {
+    expect(drsPasses.length).toBeGreaterThan(40);
+    const early = drsPasses.filter((duel) => duel.sp && duel.sp.completed && duel.sp.aheadBeforeBrakeM >= cfg.completeBeforeBrakeM);
+    expect(early.length / drsPasses.length).toBeGreaterThanOrEqual(0.5);
+  });
+
+  it("keeps the two alongside for at least minAlongsideSec in ≥ 80 % of the DRS passes", () => {
+    const along = drsPasses.filter((duel) => duel.sp && duel.sp.alongsideSec >= cfg.minAlongsideSec);
+    expect(along.length / drsPasses.length).toBeGreaterThanOrEqual(0.8);
+  });
+
+  it("changes lane (a car's width across) in 0.8–1.8 s", () => {
+    const lane = drsPasses.filter((duel) => duel.sp && duel.sp.laneSec > raceSim.step.dt).map((duel) => duel.sp.laneSec);
+    expect(lane.length).toBeGreaterThan(20);
+    expect(lane.filter((sec) => sec >= 0.8 && sec <= 1.8).length / lane.length).toBeGreaterThanOrEqual(0.8);
+  });
+
+  it("never tells a pass before the attacker is in front: 0 inverted at confirmedAt, and in front all through `ahead`", () => {
+    expect(total.straightConfirmed).toBeGreaterThan(40);
+    expect(total.example ?? "none").toBe("none");
+    expect(total.straightInverted).toBe(0);
+    expect(total.aheadSteps).toBeGreaterThan(1000);
+    expect(total.aheadWrong).toBe(0);
+  });
+
+  it("only moves where the pass happens: the passes per lap within ±10 % of the step mode without it (SRS 4.2)", () => {
+    // Against the quick mode the range is equivalence.test.js's (Bahrain, 128 races); Shanghai's own step/quick
+    // ratio is above it with or without STRAIGHT_PASS on these 8 seeds, so the check here is against the step mode.
+    expect(stepPer / offPer).toBeGreaterThan(0.9);
+    expect(stepPer / offPer).toBeLessThan(1.1);
+  });
+
+  it("is deterministic, and watching does not change the race (RF-SIM-15, RNF-05)", () => {
+    const w = weekend({ seed: SP_SEEDS[0], circuit: "shanghai" });
+    const plain = runStepToFinish(fromQuickRace(w.make(), { race: w.race }));
+    expect(JSON.stringify(plain.duels)).toBe(JSON.stringify(runs[0].state.duels));
+    expect(JSON.stringify(plain.events)).toBe(JSON.stringify(runs[0].state.events));
+  });
+
+  it("drives none in a year without DRS (1988, SRS §6)", () => {
+    const { state } = watchPasses({ seed: "spc1988", year: 1988, teamId: "mclaren", circuit: null });
+    expect(state.duels.filter((duel) => duel.sp || duel.straight)).toHaveLength(0);
+    expect(state.events.filter((event) => event.straight)).toHaveLength(0);
   });
 });

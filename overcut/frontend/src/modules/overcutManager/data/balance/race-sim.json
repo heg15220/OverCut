@@ -94,6 +94,31 @@
     "passDefenderLoss": 0.04,
     "passMaxSeconds": 6,
     "passSettleSeconds": 12,
+    "straightPass": {
+      "$comment": "SIM-C2 (F1M24-CHINA §2.2 GS-04 / VIEW-09, §1.5 «Claves del duelo»; RF-SIM-07, RF-SIM-08, SRS 4.2). Fase STRAIGHT_PASS de engine/sim/duel.js: en una frenada alimentada por una zona DRS, el coche con el alerón abierto hace su intento decideAfterM metros después del inicio de la zona (no en el punto de ataque) si su hueco entonces, menos lo que el DRS le dará hasta el punto de ataque (drs.speedGain), entra en duel.triggerSec. La tirada es la del punto de ataque (misma probabilidad, mismas tiradas, una por frenada y vuelta): no cambia cuántos pases hay, solo dónde. Ganada, el pase se conduce en la recta en tres fases: pullOut (el atacante se abre a lateral.maxRate de race-physics.json), alongside (solapados menos de un largo, con una velocidad de cierre que los deja a la par entre minAlongsideSec y maxAlongsideSec; antes se acerca para llegar a la par alongsideTargetSec antes del final, como mucho maxClosingKmh más rápido que el defensor) y ahead (delante por confirmLengths largos antes de completeBeforeBrakeM metros de la frenada). Solo entonces se emite el evento pass (straight: true) con confirmedAt en la línea de cronometraje siguiente. Si no le da tiempo, el pase sigue en la frenada como cualquier otro. Un intento defendido, un toque o un apretón se resuelven en el punto de ataque, donde siempre estuvieron. Solo si la recta que queda supera minRunM. confirmLengths × largo del coche de cada era debe quedar por debajo de traffic.minGapMetres (el pase se da por hecho antes de que settleDuels lo cierre; lo comprueba duelGeometry.test.js).",
+      "enabled": true,
+      "decideAfterM": 50,
+      "minRunM": 250,
+      "minAlongsideSec": 1.5,
+      "alongsideTargetSec": 2.5,
+      "maxAlongsideSec": 4,
+      "maxClosingKmh": 25,
+      "completeBeforeBrakeM": 100,
+      "confirmLengths": 1,
+      "chanceScale": 0.75,
+      "status": "pending",
+      "source": {
+        "decideAfterM": "pending: diseño propio. El alerón se abre en la línea de activación (inicio de la zona DRS) y el coche tarda en salir de la estela; F1M24-CHINA §2.2 (race-a 16:57–17:05, A): sale de la estela ~1 ancho en 1–1,5 s tras abrirlo. Solo referencia del juego; sin medida real.",
+        "minRunM": "pending: diseño propio. Con menos recta no caben las tres fases (≈1,5 s para salir de la estela y ≥ minAlongsideSec a la par a ~80 m/s son ~250 m).",
+        "minAlongsideSec": "pending: el criterio de aceptación de GS-04 / VIEW-09 (F1M24-CHINA §3.1: ≥ 80 % de los pases con DRS con ≥ 1,5 s a la par). Por medir con OpenF1 location (3,7 Hz) en pases con DRS de Shanghái 2024 (sesión 9673).",
+        "alongsideTargetSec": "pending: F1M24-CHINA §2.2: ~2,5 s a la par con 0,5–1 ancho libre en la recta trasera (race-a, juego, A). Solo referencia; sin medida real.",
+        "maxAlongsideSec": "pending: diseño propio (que la fase a la par no se eternice en una recta larga).",
+        "maxClosingKmh": "pending: orden de magnitud de la diferencia de punta de un pase con DRS (alerón más rebufo, decenas de km/h en las trampas de velocidad); sin cifra verificada.",
+        "completeBeforeBrakeM": "pending: el cartel de 100 m del criterio de GS-04 (F1M24-CHINA §3.1: ≥ 50 % de los pases con DRS antes del cartel de 100 m de T14). El pelotón frena entre los carteles de 150 y 100 m (F1M24-CHINA §2.1, juego).",
+        "chanceScale": "pending: calibrado, no medido (SRS 4.2, como duel.stepScale): el intento hecho en la recta se decide antes del punto de ataque, con el hueco que tendrá allí, y así entran más intentos (+15–30 %) con más ventaja de ritmo; esta escala devuelve los pases por carrera a los de la fase sin STRAIGHT_PASS (Shanghái y Baréin 2024, 6 semillas cada uno: 0,96–0,98 del total; duelGeometry.test.js lo vigila frente al modo rápido).",
+        "confirmLengths": "pending: diseño propio; un largo delante es quedar «claramente por delante» para volver a la trazada (FIA International Sporting Code, apéndice L, cap. IV, art. 2 b-c, sin cifra)."
+      }
+    },
     "incident": {
       "base": 0.012,
       "wet": 1,

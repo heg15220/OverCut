@@ -296,6 +296,39 @@
           "required": ["holdMetres"],
           "properties": {"$comment": {"type": "string"}, "holdMetres": {"type": "number", "minimum": 0, "maximum": 2000}}
         },
+        "alongsideByBand": {
+          "$comment": "SIM-C2 (F1M24-CHINA §2.1 GS-06): a la par según la banda de la curva (engine/sim/lateral.js alongsideStep, bandEdgeCap). Opcional: sin él, sin regla por banda.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["slow", "medium", "fast", "status", "source"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "slow": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["yield", "turnInMetres", "liftFactor"],
+              "properties": {
+                "yield": {"type": "boolean"},
+                "turnInMetres": {"type": "number", "minimum": 0, "maximum": 300},
+                "liftFactor": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}
+              }
+            },
+            "medium": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["yield"],
+              "properties": {"yield": {"type": "boolean"}}
+            },
+            "fast": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["yield", "minAlongsideSec"],
+              "properties": {"yield": {"type": "boolean"}, "minAlongsideSec": {"$ref": "#/definitions/positive"}}
+            },
+            "status": {"enum": ["M", "pending"]},
+            "source": {"type": "object", "additionalProperties": {"$ref": "#/definitions/text"}}
+          }
+        },
         "source": {"type": "object", "additionalProperties": {"$ref": "#/definitions/text"}},
         "eras": {
           "type": "array",

@@ -611,6 +611,27 @@
     "pitExit": {
       "holdMetres": 250
     },
+    "alongsideByBand": {
+      "$comment": "SIM-C2 (F1M24-CHINA §2.1 GS-06, §1.5 «Claves del duelo»: lo geométrico del duelo va aquí; RF-SIM-07, RF-3D-03). Dos coches a la par (a menos de un largo a lo largo, a un ancho de lado) según la banda de la curva (bands de este fichero, por la velocidad de la traza en el vértice). slow.yield: en una curva lenta, desde turnInMetres antes de ella hasta el vértice, pasan en fila: el que pierde la curva (el defensor al que pasan, el atacante al que defendieron o, sin duelo, el de detrás: fuera de un duelo nadie gana el puesto) levanta a liftFactor de su velocidad hasta quedar un largo detrás; nunca cambia quién gana la curva (lo decidió el duelo). medium y fast no lo obligan. fast.minAlongsideSec: en una curva rápida la ventaja del atacante en el duelo se limita para que cruzar los dos largos del solape le lleve al menos ese tiempo (siguen a la par con clearanceMetres entre flancos). engine/sim/lateral.js alongsideStep y bandEdgeCap; lateral.test.js.",
+      "slow": {
+        "yield": true,
+        "turnInMetres": 30,
+        "liftFactor": 0.85
+      },
+      "medium": {
+        "yield": false
+      },
+      "fast": {
+        "yield": false,
+        "minAlongsideSec": 1.5
+      },
+      "status": "pending",
+      "source": {
+        "slow": "pending: F1M24-CHINA §2.1 (dynamics, juego, A/M): en curvas lentas siempre en fila; en frenada ~1 m entre ruedas. Sin medida real: OpenF1 location (~3,7 Hz) no resuelve el lateral. turnInMetres y liftFactor son diseño propio (el que cede levanta como el doblado que se aparta, race-sim.json blueFlags.slowFactor 0,85).",
+        "medium": "pending: diseño propio; sin regla en curvas medias (se decide en la frenada y el vértice, duel.js).",
+        "fast": "pending: F1M24-CHINA §2.1 (race-a 22:42, juego, A secuencia / M hueco): ~6 s en paralelo en una curva rápida con 0,3–0,5 m entre ruedas; 1,5 s es el mínimo a la par del criterio de GS-04/VIEW-09. Por calibrar con OpenF1 location 2023–2024 (|Δs| < 1 largo)."
+      }
+    },
     "source": {
       "clearanceMetres": "pending: referencia de comportamiento (en paralelo se ven 0,3–0,7 m de hueco lateral, F1M24-GAMEPLAY §2.7 y §2.9, confianza A/M); el reglamento no fija un hueco. Pendiente de medir con OpenF1 location (x, y a ~3,7 Hz) en duelos 2023–24: a esa frecuencia y con coches a 50–80 m/s la medida del hueco lateral no es fiable sin interpolar la trazada.",
       "edgeClearanceMetres": "SIM-FISICA §3.1: margen de la trazada = media anchura del coche + 0,3 m (el mismo con que se resuelve la trazada en tools/assets/racing_line.mjs).",

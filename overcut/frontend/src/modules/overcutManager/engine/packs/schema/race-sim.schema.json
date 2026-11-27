@@ -388,6 +388,82 @@
         "passSettleSeconds": {
           "$ref": "#/definitions/nonNegative"
         },
+        "straightPass": {
+          "$comment": "SIM-C2 (F1M24-CHINA §2.2 GS-04): el pase con DRS en la recta (engine/sim/duel.js STRAIGHT_PASS). Opcional: sin él el intento sigue en el punto de ataque.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "decideAfterM",
+            "minRunM",
+            "minAlongsideSec",
+            "alongsideTargetSec",
+            "maxAlongsideSec",
+            "maxClosingKmh",
+            "completeBeforeBrakeM",
+            "confirmLengths",
+            "chanceScale",
+            "status",
+            "source"
+          ],
+          "properties": {
+            "$comment": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "decideAfterM": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 500
+            },
+            "minRunM": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 2000
+            },
+            "minAlongsideSec": {
+              "$ref": "#/definitions/positive"
+            },
+            "alongsideTargetSec": {
+              "$ref": "#/definitions/positive"
+            },
+            "maxAlongsideSec": {
+              "$ref": "#/definitions/positive"
+            },
+            "maxClosingKmh": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 80
+            },
+            "completeBeforeBrakeM": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 400
+            },
+            "confirmLengths": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 3
+            },
+            "chanceScale": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 2
+            },
+            "status": {
+              "enum": ["M", "pending"]
+            },
+            "source": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 10
+              }
+            }
+          }
+        },
         "incident": {
           "type": "object",
           "additionalProperties": false,
