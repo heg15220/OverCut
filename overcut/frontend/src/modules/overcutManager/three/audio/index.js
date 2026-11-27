@@ -39,6 +39,17 @@
  * the voice pool (audio.json safetyCar.cars[]); deploying and withdrawing the SC or the VSC
  * (`vsc`, snapshot.vsc) sound the alert and the «radio». None before 1993 (SC) or 2015 (VSC),
  * nothing without `sc`/`vsc`; the F1 cars slow down by their own poses.
+ *
+ * Fast forward and cuts (AUD-C1, AUD-C2, F1M24-CHINA §1.5, §2.7): the frame's optional
+ * `speed` (the simulation speed, x1 when absent) from `mixer.views.fastForward.minSpeed` puts
+ * the mix in the `fastForward` view at any camera: voices silent in ~50 ms, a fixed-pitch
+ * stereo bed (fastForwardBed.js) instead, and a slow way back (hold, then ramp). A camera cut,
+ * or another focus car in the same camera, dips the engine and ambience buses (views.cut)
+ * instead of crossfading. The ui bus (radio, alerts, clicks) never follows either.
+ *
+ * Recorded engines (AUD-C10): off by default (mixer.defaults.recorded false); every bank is
+ * riskRipped or without a licence, so it only sounds when the viewer turns it on in a local
+ * build, never in a public one (engineSamples.bankAllowed).
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -46,17 +57,18 @@ import { createStream } from "../../../overcutTrayectoria/engine/rng";
 import { loadSeasonPack } from "../../engine/packs/seasonPacks";
 import audioData from "../../data/balance/audio.json";
 import { createEngineVoice, driveStep, engineSpecFor, safetyCarSpecFor } from "./engineSynth";
-import { assignVoices, blendMix, busGains, cameraListener, cameraUsable, createMixer, distanceGain, dopplerFactor, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, viewMix } from "./mixer";
+import { assignVoices, blendMix, busGains, cameraListener, cameraUsable, createMixer, distanceGain, dopplerFactor, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, transitionAt, viewMix, viewTransition } from "./mixer";
 import { airGunsOn, createAmbience, crowdLevel, fieldBedOf, gridRevsOf, kerbRumble, makeNoiseBuffer, rainOf, squeals, startLightsStep, swellFor, windOf } from "./ambience";
 import { firingFrequency } from "./engineSynth";
 import { kerbZonesFor, onKerb } from "./kerbs";
 import { clickCueFor, createUiCueState, gateCue, isUiCue, playCue, uiCuesStep } from "./uiSounds";
 import { SAFETY_CAR_ID, createScCueState, scCarOf, scCuesStep } from "./safetyCarSound";
 import { createSampledVoice, loadEngineBank, recordedAvailable, sampleBankFor } from "./engineSamples";
+import { createFastForwardBed } from "./fastForwardBed";
 
 export { engineSpecFor, eraFor, firingFrequency, nextGear, parseFormula } from "./engineSynth";
 export { gridRevsOf, startLightsStep } from "./ambience";
-export { blendMix, cameraMix, distanceGain, dopplerFactor, loadSettings, resolveView, saveSettings, sliderToGain, viewMix } from "./mixer";
+export { blendMix, cameraMix, cutEnvelope, distanceGain, dopplerFactor, fastForwardOn, loadSettings, resolveView, saveSettings, sliderToGain, transitionAt, viewMix, viewTransition } from "./mixer";
 export { mixLevels } from "./levels";
 export { clickCueFor, cueShots, uiCuesStep } from "./uiSounds";
 export { SAFETY_CAR_ID, scCarOf, scCuesStep, scPoseOf } from "./safetyCarSound";
@@ -100,6 +112,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
   let ctx = null;
   let mixer = null;
   let ambience = null;
+  let ffBed = null;
   let noiseBuffer = null;
   const uiState = createUiCueState();
   const scState = createScCueState();
@@ -209,6 +222,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       const noise = makeNoiseBuffer(ctx, random);
       noiseBuffer = noise;
       ambience = createAmbience(ctx, mixer.ambience, noise, mixer.engine);
+      ffBed = createFastForwardBed(ctx, mixer.fastForward, noise);
       const size = audioData.mixer.maxVoices;
       voices = Array.from({ length: size }, () => createEngineVoice(ctx, noise, random));
       sampled = Array.from({ length: size }, () => createSampledVoice(ctx, sampleRandom));
@@ -250,9 +264,10 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
     /**
      * One view frame: { tau, playing, mode, focusId, cars: [{ id, teamId, pose }],
      * wetness, events, started } and, optional, start (the engine's snapshot.start), sc and
-     * vsc (snapshot.sc / snapshot.vsc) with scPose (where the view draws the safety car).
+     * vsc (snapshot.sc / snapshot.vsc) with scPose (where the view draws the safety car), and
+     * speed (the simulation speed, AUD-C1; x1 when absent).
      */
-    frame({ tau = 0, playing = true, mode = "tv", focusId = null, cars = [], wetness = 0, events = [], started: startedFlag = false, view = null, camera, circuit: frameCircuit, start: frameStart = null, radio, sc = null, vsc = null, scPose = null }) {
+    frame({ tau = 0, playing = true, mode = "tv", focusId = null, cars = [], wetness = 0, events = [], started: startedFlag = false, view = null, camera, circuit: frameCircuit, start: frameStart = null, radio, sc = null, vsc = null, scPose = null, speed = 1 }) {
       if (!ctx || ctx.state === "closed") return;
       const now = ctx.currentTime;
       const dt = lastTime === null ? 0 : Math.max(0, now - lastTime);
@@ -279,7 +294,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         kerbZones = kerbZonesFor(frameCircuit);
       }
       // The view's snapshot on the camera's mix, crossfaded on a cut or a change of view.
-      const viewName = resolveView({ view, playing, mode });
+      const viewName = resolveView({ view, playing, mode, speed });
       // Interface cues (AUD-4): new alert events and radio messages, the replay, a skip.
       // AUD-5: deploying and withdrawing the SC/VSC; the log's own sc/vsc alert shares the cooldown.
       const scCues = scCuesStep(scState, { sc, vsc, year }).filter((cue) => gateCue(uiState, cue.kind, now));
@@ -289,14 +304,18 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       const target = viewMix(mode, viewName);
       const onAir = camera !== undefined ? camera : cameraBus ? cameraBus.current : null;
       const useCamera = cameraUsable(onAir, mode, target);
-      const fadeKey = `${target.group}|${viewName || ""}|${useCamera ? onAir.id ?? "" : ""}`;
+      // A cut is another camera group, another camera on air, or (views.cut.onFocusChange) another car.
+      const focusKey = VIEWS.cut && VIEWS.cut.onFocusChange ? focusId ?? "" : "";
+      const fadeKey = `${target.group}|${viewName || ""}|${useCamera ? onAir.id ?? "" : ""}|${focusKey}`;
       if (!fade || fade.key !== fadeKey) {
-        const viewChanged = fade && fade.view !== viewName;
-        fade = { key: fadeKey, view: viewName, from: shownMix, at: now, ms: viewChanged ? VIEWS.snapshotFadeMs : VIEWS.crossfadeMs };
+        // The first frame has nothing to fade from: no dip, no ramp.
+        const transition = fade ? viewTransition(fade.view, viewName, { cut: true }) : null;
+        fade = { key: fadeKey, view: viewName, from: shownMix, at: now, transition };
       }
-      const mix = blendMix(fade.from, target, fade.ms > 0 ? ((now - fade.at) * 1000) / fade.ms : 1);
+      const step = transitionAt(fade.transition, (now - fade.at) * 1000);
+      const mix = blendMix(fade.from, target, step.k);
       shownMix = mix;
-      mixer.applyView(mix, now);
+      mixer.applyView(mix, now, { extraDb: step.db, tauSec: fade.transition ? fade.transition.tauSec : undefined });
 
       // Every car's drivetrain, cheap pure maths (22 cars).
       const placed = [];
@@ -441,6 +460,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       voices.forEach((voice) => voice.stop());
       sampled.forEach((voice) => voice.stop());
       if (ambience) ambience.stop();
+      if (ffBed) ffBed.stop();
       if (mixer) mixer.disconnect();
       ctx.close().catch(() => {});
       ctx = null;
