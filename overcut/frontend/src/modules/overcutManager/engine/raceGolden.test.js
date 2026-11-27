@@ -28,6 +28,8 @@
  * year buckets: 2009-2013 on the 2014-2016 car) and race-physics.json budget.sensitivity holds the weights
  * measured on OpenF1 race laps; the quick mode reads the trace's lap (pit lane scale, energy tables), so every
  * race moves.
+ * 2026-11-27, WX-C2 (GS-11, RF-SIM-11): race-weather.json spray.lossSec measured on OpenF1 2023-2025 wet races
+ * (1.83 s, was 0.6 from memory); only races with water on track move (11 of 48), the spray loss stays 0 in the dry.
  */
 
 import crypto from "crypto";

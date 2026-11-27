@@ -133,7 +133,29 @@
       "properties": { "atSlickInter": { "$ref": "#/definitions/share" }, "atInterWet": { "$ref": "#/definitions/share" } }
     },
     "mistakes": { "allOf": [{ "$ref": "#/definitions/block" }], "required": ["wetFactor", "aquaplane", "wetOnDry", "rubberSlip"] },
-    "spray": { "allOf": [{ "$ref": "#/definitions/block" }], "required": ["windowSec", "lossSec", "incident"] },
+    "spray": {
+      "allOf": [{ "$ref": "#/definitions/block" }],
+      "required": ["windowSec", "lossSec", "incident"],
+      "properties": {
+        "nvKeys": { "type": "array", "items": { "enum": ["windowSec", "lossSec", "incident"] } },
+        "windowSec": { "$ref": "#/definitions/positive" },
+        "lossSec": { "$ref": "#/definitions/nonNegative" },
+        "incident": { "$ref": "#/definitions/nonNegative" },
+        "calibration": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["fixture", "script", "extraSec", "shape", "ci95", "tolerance"],
+          "properties": {
+            "fixture": { "type": "string" },
+            "script": { "type": "string" },
+            "extraSec": { "type": "number" },
+            "shape": { "$ref": "#/definitions/positive" },
+            "ci95": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "number" } },
+            "tolerance": { "$ref": "#/definitions/share" }
+          }
+        }
+      }
+    },
     "offLine": { "allOf": [{ "$ref": "#/definitions/block" }], "required": ["lineHalfWidthM", "fullAtM"] },
     "rubber": { "allOf": [{ "$ref": "#/definitions/block" }], "required": ["washPerMm", "washedStart", "practiceWashedStart"] },
     "forecast": {

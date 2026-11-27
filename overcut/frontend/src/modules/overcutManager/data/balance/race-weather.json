@@ -105,11 +105,20 @@
     "rubberSlip": 0.3
   },
   "spray": {
-    "$comment": "Spray: con agua, el que sigue a otro a menos de windowSec ve menos. Pierde lossSec por vuelta a hueco 0 (lineal hasta windowSec) × nivel, nivel = min(1, h / 0,95 mm), en curva y en recta (levanta), y su riesgo de accidente sube × (1 + incident × nivel × cercanía). Sin dato publicado por era: NV.",
-    "status": "NV",
+    "$comment": "Spray: con agua, el que sigue a otro a menos de windowSec ve menos. Pierde lossSec por vuelta a hueco 0 (lineal hasta windowSec) × nivel, nivel = min(1, h / interMm), en curva y en recta (levanta), y su riesgo de accidente sube × (1 + incident × nivel × cercanía). GS-11 / WX-C2 (F1M24-CHINA §2.9): lossSec MEDIDO en OpenF1 (8 carreras con intermedios o de lluvia de 2023-2025, measured.usage) con overcut/src/main/resources/scripts/spray_from_openf1.py, que escribe engine/weather/__fixtures__/openf1-wet-spray.json: vueltas en verde a menos de 1,5 s del de delante frente a las del mismo piloto, con el mismo tipo de neumático y a menos de 8 vueltas, a más de 3 s (aire limpio); con lluvia cuestan 0,436 s más y en seco 0,141 s (el aire sucio, que el motor ya cobra aparte), así el spray añade 0,295 s sobre esas vueltas, con nivel × cercanía medio 0,161: lossSec = 0,295 / 0,161 = 1,83 s (IC 95 % 0,58-3,07 por bootstrap; 200 vueltas mojadas y 147 secas). La medida es de 2023-2025 (rueda de 18\", calibrationYear): las demás eras usan la misma cifra con su nivel por capacidad de evacuación (grip.evacuation); sin dato por era. windowSec: la ventana de la medida (spec GS-11, < 1,5 s). incident sigue NV (nvKeys): no hay en OpenF1 accidentes bastantes detrás de otro con lluvia para medirlo. sprayAt: lo que la vista y el sonido leen del spray que levanta cada coche (sprayAt), proporcional al caudal de agua que evacua la rueda, h × velocidad (física de la evacuación, grip.evacuation: litros/s = mm × velocidad × anchura), normalizado a 1 con h = interMm a refKmh = grip.evacuation.fit.atKmh; como mucho 1; sin velocidad, el nivel; NV como representación (no hay medida de la nube de spray).",
+    "status": "measured",
+    "nvKeys": ["incident"],
     "windowSec": 1.5,
-    "lossSec": 0.6,
-    "incident": 1
+    "lossSec": 1.83,
+    "incident": 1,
+    "calibration": {
+      "fixture": "engine/weather/__fixtures__/openf1-wet-spray.json",
+      "script": "overcut/src/main/resources/scripts/spray_from_openf1.py",
+      "extraSec": 0.295,
+      "shape": 0.161,
+      "ci95": [0.58, 3.07],
+      "tolerance": 0.3
+    }
   },
   "offLine": {
     "$comment": "Modo por pasos: fuera de la trazada (lateral del motor) la pista está más mojada (waterOffLine, sin coches que la sequen). El coche que va a la anchura lineWidthM o más paga la diferencia de razón de tiempo de su compuesto entre fuera y dentro de la trazada en esa parte del recorrido. NV.",

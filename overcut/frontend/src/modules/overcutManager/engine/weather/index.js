@@ -466,6 +466,22 @@ export const hourlyConditions = ({ race = {}, hour, state = 0, diurnal = null })
 /** The spray a follower meets (0..1) with this much water on the line. */
 export const sprayLevelOf = (h, year) => clamp(h / capOf(year).interMm, 0, 1);
 
+/**
+ * WX-C2 / GS-11 (F1M24-CHINA §1.5 «Spray»; RF-SIM-11, RNF-05): the spray car throws, 0..1, with
+ * `h` mm of water under it, at `kmh` (optional) in `year` (optional, the tyre generation's
+ * capacity). The water a tyre throws is the water it clears: h × speed × tread width
+ * (grip.evacuation), so the spray is that flux over the inter's capacity at the speed the fit was
+ * made at (grip.evacuation.fit.atKmh), at most 1. Without a speed, the water level alone
+ * (sprayLevelOf, what the engine read before). Pure: same inputs, same output; no stream, no
+ * clock. The step sim publishes it as `snapshot.spray[i]`; the view and the sound only read it.
+ */
+export const sprayAt = (h, { kmh, year } = {}) => {
+  if (!(h > 0)) return 0;
+  const level = sprayLevelOf(h, year);
+  if (!Number.isFinite(kmh)) return level;
+  return clamp((level * Math.max(0, kmh)) / EV.fit.atKmh, 0, 1);
+};
+
 /** Seconds a follower `gapSec` behind loses in the spray over a lap (race-weather.json spray). */
 export const sprayLossOf = (h, gapSec, year) => {
   const s = W.spray;
@@ -500,7 +516,7 @@ export const weatherSnapshot = (state, lap = state.lap) => {
     offLineMm: round(weather.offLine[k]),
     sectorsMm: weather.sectors[k].map(round),
     wetness: round(weather.wetness[k]),
-    spray: round(sprayLevelOf(weather.water[k])),
+    spray: round(sprayAt(weather.water[k])),
     trackTemp: state.trackTemp ?? null,
     rubber: round(state.evolution || 0),
   };
