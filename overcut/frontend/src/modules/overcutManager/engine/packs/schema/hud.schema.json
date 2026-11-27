@@ -3,7 +3,7 @@
   "$comment": "RNF-07: esquema de data/balance/hud.json (presentación del HUD de sesión y de carrera; RF-3D-04, RF-CMD-04, RF-WKD-07, RNF-09). Esquema completo desde HUD-1, también para las claves de HUD-2..HUD-7 y WKD-1 (F1M24-GAMEPLAY §3.2). Lo comprueba components/playback.test.js.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["$comment", "version", "speedCallout", "carStep", "tower", "banners", "driverPanel", "pitDialog", "pitTimer", "start", "finish", "sc", "transitionSec"],
+  "required": ["$comment", "version", "speedCallout", "carStep", "tower", "banners", "driverPanel", "pitDialog", "pitTimer", "start", "finish", "sc", "layout", "tags", "lapCountdown", "transitionSec"],
   "definitions": {
     "status": {
       "enum": ["behaviour", "pending", "measured", "NV"]
@@ -25,6 +25,8 @@
     "panelTab": {
       "enum": ["status", "tactics", "telemetry", "pit"]
     },
+    "pct": { "type": "number", "exclusiveMinimum": 0, "maximum": 100 },
+    "px": { "type": "number", "minimum": 0, "maximum": 2000 },
     "pendingSwitch": {
       "type": "object",
       "additionalProperties": false,
@@ -405,7 +407,7 @@
     "start": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["$comment", "status", "hudDelaySec", "lightsOutBannerSec"],
+      "required": ["$comment", "status", "hudDelaySec", "lightsOutBannerSec", "fadeSec"],
       "properties": {
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
@@ -414,7 +416,9 @@
           "minimum": 0,
           "maximum": 30
         },
-        "lightsOutBannerSec": { "type": "number", "minimum": 0, "maximum": 30 }
+        "lightsOutBannerSec": { "type": "number", "minimum": 0, "maximum": 30 },
+        "$fadeSec": { "type": "string" },
+        "fadeSec": { "type": ["number", "null"], "minimum": 0, "maximum": 5 }
       }
     },
     "finish": {
@@ -476,6 +480,134 @@
             "staleSec": { "type": "number", "minimum": 0, "maximum": 60 }
           }
         }
+      }
+    },
+    "layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "minViewportPx", "gapPx", "immersive", "blocks", "cards", "target"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "minViewportPx": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["w", "h"],
+          "properties": { "w": { "type": "integer", "minimum": 320, "maximum": 4000 }, "h": { "type": "integer", "minimum": 240, "maximum": 3000 } }
+        },
+        "gapPx": { "type": "number", "minimum": 0, "maximum": 48 },
+        "immersive": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "default", "exitKey"],
+          "properties": { "enabled": { "type": "boolean" }, "default": { "type": "boolean" }, "exitKey": { "type": "string", "minLength": 1 } }
+        },
+        "blocks": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "play", "tower", "side", "cards"],
+          "properties": {
+            "status": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["anchor", "maxWidthPct", "heightPx"],
+              "properties": { "anchor": { "const": "top-right" }, "maxWidthPct": { "$ref": "#/definitions/pct" }, "heightPx": { "$ref": "#/definitions/px" } }
+            },
+            "play": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["anchor", "maxWidthPct", "heightPx", "rows"],
+              "properties": { "anchor": { "const": "top-center" }, "maxWidthPct": { "$ref": "#/definitions/pct" }, "heightPx": { "$ref": "#/definitions/px" }, "rows": { "const": 1 } }
+            },
+            "tower": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["anchor", "widthPx", "maxHeightPct", "headPx", "flagPx", "modesPx", "rowPx", "morePx", "foldedRows"],
+              "properties": {
+                "anchor": { "const": "top-left" },
+                "widthPx": { "$ref": "#/definitions/px" },
+                "maxHeightPct": { "$ref": "#/definitions/pct" },
+                "headPx": { "$ref": "#/definitions/px" },
+                "flagPx": { "$ref": "#/definitions/px" },
+                "modesPx": { "$ref": "#/definitions/px" },
+                "rowPx": { "$ref": "#/definitions/px" },
+                "morePx": { "$ref": "#/definitions/px" },
+                "foldedRows": { "type": "integer", "minimum": 1, "maximum": 30 }
+              }
+            },
+            "side": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["anchor", "widthPx", "mapHeightPx", "feedHeightPct", "feedOpen"],
+              "properties": {
+                "anchor": { "const": "bottom-right" },
+                "widthPx": { "$ref": "#/definitions/px" },
+                "mapHeightPx": { "$ref": "#/definitions/px" },
+                "feedHeightPct": { "$ref": "#/definitions/pct" },
+                "feedOpen": { "type": "boolean" }
+              }
+            },
+            "cards": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["anchor", "widthPct", "maxWidthPx", "foldedHeightPx", "openMaxHeightPct", "midWidthPx", "midHeightPx"],
+              "properties": {
+                "anchor": { "const": "bottom" },
+                "widthPct": { "$ref": "#/definitions/pct" },
+                "maxWidthPx": { "$ref": "#/definitions/px" },
+                "foldedHeightPx": { "$ref": "#/definitions/px" },
+                "openMaxHeightPct": { "$ref": "#/definitions/pct" },
+                "midWidthPx": { "$ref": "#/definitions/px" },
+                "midHeightPx": { "$ref": "#/definitions/px" }
+              }
+            }
+          }
+        },
+        "cards": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["foldable", "defaultOpen", "openInGarage"],
+          "properties": { "foldable": { "type": "boolean" }, "defaultOpen": { "enum": ["focus", "none", "all"] }, "openInGarage": { "type": "boolean" } }
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["freeFolded", "freeOneCard", "grid", "viewports"],
+          "properties": {
+            "freeFolded": { "type": "number", "minimum": 0, "maximum": 1 },
+            "freeOneCard": { "type": "number", "minimum": 0, "maximum": 1 },
+            "grid": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "integer", "minimum": 2, "maximum": 200 } },
+            "viewports": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "integer", "minimum": 320, "maximum": 8000 } }
+            }
+          }
+        }
+      }
+    },
+    "tags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "policy", "policies", "maxVisible", "hideBelowWidthShare"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "policy": { "enum": ["focus", "focus+rival", "all", "none"] },
+        "policies": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["focus", "focus+rival", "all", "none"] } },
+        "maxVisible": { "type": "integer", "minimum": 0, "maximum": 30 },
+        "hideBelowWidthShare": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "lapCountdown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "enabled", "laps"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "enabled": { "type": "boolean" },
+        "laps": { "type": "array", "uniqueItems": true, "items": { "anyOf": [{ "type": "integer", "minimum": 1, "maximum": 100 }, { "const": "last" }] } }
       }
     },
     "transitionSec": {

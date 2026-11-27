@@ -26,6 +26,11 @@
  * session engine waves one - SES-3 - says its sector). Each run card names the car's phase in
  * the §1.7 terms (garage, leaving the garage, out lap, preparing, flying, in lap) and, when the
  * engine gives it (SES-2 boxRequest.distanceM), how far the pit entry is.
+ *
+ * Continuity, zones and sound (HUD-C1 of F1M24-CHINA: GS-01, VIEW-01, AUD-C1): the cars are drawn through
+ * the same continuity guard as the race (raceClock.createContinuity; a skip, the next event or a new segment
+ * is a seek), the HUD sits in zones over the picture with the immersive live mode (HudZones.js, hudLayout.js,
+ * hud.json layout), and the sound gets the playback speed in every frame.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -33,10 +38,12 @@ import { SESSION_BALANCE, advanceTo, carStatus, command, createSession, defaultC
 import { Segmented, Tyre, readableOn } from "./atoms";
 import { Feed, PlaybackBar, SectorBars, SpeedCallout, StatusStrip, TimingTower } from "./Broadcast";
 import { boxDistanceOf, distanceText, isInPhase, isOutPhase, lapSectorsOf, runPhaseOf, runPhaseText, sessionYellowsAt, towerModeName, towerModesFor, yellowFlag } from "./tower";
-import { HUD, cameraModeOf, cameraName, camerasOf, cycle, defaultCameraOf, defaultSpeedOf, defaultViewOf, reasonText, runToNextSessionEvent, sessionTriggers, speedsOf, stepCar, viewName, viewsOf } from "./playback";
+import { HUD, LIVE_VIEW, cameraModeOf, cameraName, camerasOf, cycle, defaultCameraOf, defaultSpeedOf, defaultViewOf, reasonText, runToNextSessionEvent, sessionTriggers, speedsOf, stepCar, viewName, viewsOf } from "./playback";
 import useAutoSpeed from "./useAutoSpeed";
 import { IconExit, IconFlag, IconLock, IconNextEvent, IconPlay } from "./icons";
-import { carAt } from "./raceClock";
+import { carAt, clockModeOf, createContinuity } from "./raceClock";
+import { FoldToggle, ImmersiveHost, ImmersiveToggle, useHudShell } from "./HudZones";
+import { cardOpenOf, hudZonesOf, towerRowsShown, zoneStyleOf } from "./hudLayout";
 import { sessionConditionsOf } from "./hudConditions";
 import RaceStage, { MiniMap } from "./RaceStage";
 import { COMPOUND, PROGRAM, QUALI_STYLE, lapTime, t } from "./texts";
@@ -189,6 +196,14 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
   const in3DRef = useRef(false);
   const users = entrants.filter((entry) => entry.isUser);
   const [focusId, setFocusId] = useState(users[0]?.id ?? entrants[0]?.id);
+  // VIEW-01: the shell (zones, immersive) and what the viewer has folded.
+  const rootRef = useRef(null);
+  const shell = useHudShell(rootRef, { defaultOn: !compact });
+  const [cardFolds, setCardFolds] = useState({});
+  const [towerOpen, setTowerOpen] = useState(false);
+  const [feedOpen, setFeedOpen] = useState(HUD.layout.blocks.side.feedOpen);
+  // GS-01: the continuity guard over the poses drawn (live-view.json continuity).
+  const continuity = useMemo(() => createContinuity({ circuit, lapRef: baseLap, config: LIVE_VIEW.continuity }), [circuit, baseLap]);
   // tower-modes (HUD-2): the session's modes from hud.json tower.session.
   const towerModes = useMemo(() => towerModesFor({ session: kind, year }), [kind, year]);
   const [towerMode, setTowerMode] = useState(towerModes[0]);
@@ -285,6 +300,7 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
         if (engine.over) tau.current = engine.clock;
         digest();
       }
+      continuity.frame(tau.current, clockModeOf({}));
       if (!in3DRef.current || time - lastPaint >= 90) {
         lastPaint = time;
         repaint();
@@ -293,7 +309,7 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
     };
     handle = raf(tick);
     return () => cancel(handle);
-  }, [engine, digest]);
+  }, [engine, digest, continuity]);
 
   const now = tau.current;
   // HUD-4 status-strip-data: the session's local clock, air and track by the hour, and its rubber (engine/sessionSim).
@@ -367,13 +383,13 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
       return {
         car: { ...car, compound },
         code: code(car.name),
-        pose: carAt(car, now, circuit, baseLap),
+        pose: continuity.pose(car, now, carAt(car, now, circuit, baseLap)),
         row: { position: positionOf[car.id] },
         tag: runPhaseOf(st) === "PUSH" ? lapTime(st.elapsed) : st.best !== null ? lapTime(st.best) : phaseWord(st),
       };
     });
 
-  const sample = useCallback((car, at) => carAt(car, at, circuit, baseLap), [circuit, baseLap]);
+  const sample = useCallback((car, at) => continuity.pose(car, at, carAt(car, at, circuit, baseLap)), [circuit, baseLap, continuity]);
 
   // RF-3D-04: the same engines and ambience as the race, one frame per repaint.
   const audio = useRaceAudio({ seed: `${options?.seed ?? year}::${kind}`, year });
@@ -381,6 +397,8 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
     if (!audio.enabled) return;
     audio.frame({
       tau: tau.current,
+      // AUD-C1 (HUD-C1): the playback speed; the mix decides what to do with it (audio.json).
+      speed: playRef.current.auto.machine.speed,
       playing: playing && !engine.over,
       mode: cameraMode,
       focusId,
@@ -396,6 +414,7 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
     if (!lastSegment) {
       nextSegment(engine);
       tau.current = 0;
+      continuity.frame(tau.current, "seek");
       seen.current = engine.events.length;
       setPlans(Object.fromEntries(users.map((user) => [user.id, startPlan(engine, kind)])));
       setPlaying(true);
@@ -405,6 +424,7 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
   const skip = () => {
     runSegmentToEnd(engine, { autopilot: true });
     tau.current = engine.clock;
+    continuity.frame(tau.current, "seek");
     digest();
     repaint();
   };
@@ -413,6 +433,7 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
   const nextEvent = () => {
     runToNextSessionEvent(engine, { userIds: users.map((user) => user.id), from: tau.current });
     tau.current = Math.max(tau.current, engine.clock);
+    continuity.frame(tau.current, "seek");
     digest();
     repaint();
   };
@@ -458,8 +479,29 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
     });
   };
 
+  // VIEW-01: the HUD by zones over the picture (hudLayout.js, hud.json layout).
+  const userIds = users.map((user) => user.id);
+  const zoneState = {
+    cards: users.slice(0, 2).map((user) => ({ open: cardOpenOf({ id: user.id, zoned: shell.canZone, folds: cardFolds, focusId, userIds, inGarage: runPhaseOf(statuses[user.id]) === "GARAGE" }) })),
+    mid: false,
+    towerRows: towerRowsShown({ rows, open: towerOpen }),
+    towerFlag: true,
+    towerModes: towerModes.length > 1,
+    feedOpen,
+    map: cameraMode !== "map",
+  };
+  const zones = shell.canZone ? hudZonesOf(shell.box, zoneState) : { zoned: false };
+  const zoned = Boolean(zones.zoned);
+
   return (
-    <div className={`lv lv--session${compact ? " is-compact" : ""}${in3D ? " is-3d" : ""}`} data-session={kind}>
+    <ImmersiveHost active={shell.immersive} portal={shell.canZone}>
+    <div
+      ref={rootRef}
+      className={`lv lv--session${compact ? " is-compact" : ""}${in3D ? " is-3d" : ""}${zoned ? " is-zoned" : ""}${shell.immersive ? " is-immersive" : ""}`}
+      style={zoneStyleOf(zones)}
+      data-session={kind}
+      data-clock-mode="live"
+    >
       <StatusStrip
         flag={flagState}
         clock={strip.clock ?? "—"}
@@ -529,12 +571,15 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
         rows={rows}
         onPick={setFocusId}
         flag={flagState}
+        fold={zoned ? { open: towerOpen, onToggle: setTowerOpen, rows: HUD.layout.blocks.tower.foldedRows } : null}
       />
 
       <section className="lv-cards" aria-label={t("Tus pilotos", "Your drivers")}>
-          {users.map((user) => (
+          {users.map((user, index) => (
             <RunCard
               key={user.id}
+              zone={index < 2 ? `card${index}` : undefined}
+              fold={zoned && HUD.layout.cards.foldable ? { open: zoneState.cards[index]?.open ?? true, onToggle: (open) => setCardFolds((folds) => ({ ...folds, [user.id]: !open })) } : null}
               kind={kind}
               engine={engine}
               user={user}
@@ -556,7 +601,12 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
           ))}
       </section>
 
-      <aside className="lv-side" aria-label={t("Pista", "Track")}>
+      <aside className={`lv-side${zoned && !feedOpen ? " is-feed-closed" : ""}`} aria-label={t("Pista", "Track")}>
+        {zoned && (
+          <span className="lv-side__radio">
+            <FoldToggle open={feedOpen} onToggle={setFeedOpen} what={t("la radio", "the radio")} />
+          </span>
+        )}
         {cameraMode !== "map" && <MiniMap circuit={circuit} cars={stageCars} focusId={focusId} label={t("Minimapa", "Mini map")} />}
         <Feed entries={feedRef.current.slice(0, 24).map((entry) => ({ ...entry, lap: null }))} title={t("Radio y pista", "Radio and track")} />
       </aside>
@@ -588,8 +638,10 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
           </button>
         )}
         <SoundControl audio={audio} />
+        <ImmersiveToggle shell={shell} />
       </PlaybackBar>
     </div>
+    </ImmersiveHost>
   );
 }
 
@@ -597,7 +649,7 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
  * One of your drivers: in the garage, the run plan and "Salir a pista"; on track, the lap
  * clock, the sectors and the calls; at the end, where they finished.
  */
-function RunCard({ kind, engine, user, status, position, danger, flag, over, plan, onPlan, order, bestSectors, pole, focused, onFocus, slotAt, now }) {
+function RunCard({ kind, engine, user, status, position, danger, flag, over, plan, onPlan, order, bestSectors, pole, focused, onFocus, slotAt, now, zone, fold = null }) {
   const car = status.car;
   const segment = engine.segments[engine.segment];
   const phase = status.phase;
@@ -623,7 +675,8 @@ function RunCard({ kind, engine, user, status, position, danger, flag, over, pla
       ? t("Zona de corte", "Drop zone")
       : phaseWord(status);
   return (
-    <section className={`lv-card${focused ? " is-focus" : ""}${car.eliminated ? " is-out" : ""}`} aria-label={user.name} data-phase={phase} data-run-phase={runPhase}>
+    <section className={`lv-card${focused ? " is-focus" : ""}${car.eliminated ? " is-out" : ""}${fold && !fold.open ? " is-collapsed" : ""}`} aria-label={user.name} data-phase={phase} data-run-phase={runPhase} data-zone={zone}>
+      {fold && <FoldToggle open={fold.open} onToggle={fold.onToggle} what={user.name} />}
       <button type="button" className="lv-card__head" onClick={onFocus}>
         <span className="lv-card__pos">{position ?? "—"}</span>
         <i className="lv-card__stripe" style={{ "--stripe": readableOn(user.color) }} aria-hidden="true" />

@@ -174,7 +174,9 @@
     "$comment": "HUD-4 (start-lights-sound-and-timing, la vista; §1.5 «Semáforo de salida»): el motor decide los instantes del semáforo con su semilla (SIM-3: eventos formation/grid/light/lightsOut con t, era-defaults.json startProcedure, race-sim.json start.procedures); la vista solo los lee (components/startLights.js) y guarda aquí lo suyo. hudDelaySec: segundos de carrera tras el apagado antes de que vuelvan los banners, el chip de lucha y el widget de parada (el apagado y la primera curva se ven limpios); lightsOutBannerSec: segundos de carrera que dura el rótulo «Se apagan los semáforos» (antes, literal 3 en LiveRace.js). Decisiones de presentación de OverCut, sin fuente que medir; de F1 Manager 24 ningún valor. Sustituyen a INTRO_SECONDS = 4,6 y a la luz cada 0,8 s que tenía la vista.",
     "status": "behaviour",
     "hudDelaySec": 1.5,
-    "lightsOutBannerSec": 3
+    "lightsOutBannerSec": 3,
+    "$fadeSec": "HUD-C1 crea la clave (contrato de la ola 1, F1M24-CHINA §3.2); la usa HUD-C3 (VIEW-10): segundos de carrera del fundido de entrada del HUD a partir de hudDelaySec. pending: null = el HUD vuelve de golpe, como hoy; el valor lo fija HUD-C3 con diseño propio (el del juego es solo referencia, §1.4).",
+    "fadeSec": null
   },
   "finish": {
     "$comment": "HUD-4 (vuelta-enfriamiento y start-finish-scripts, la vista; §2.13): al cruzar cada coche la meta (evento finished {carId, t, pos} de SIM-3, §1.7; en el modo rápido, su última línea) la torre le pone los cuadros y, si es tuyo, su panel se pliega a la posición final (foldPanel). chequeredBannerSec: segundos de carrera que dura el rótulo de la bandera a cuadros con el ganador (antes, mientras durase la vista).",
@@ -210,6 +212,36 @@
       "enabled": true,
       "staleSec": 5
     }
+  },
+  "layout": {
+    "$comment": "VIEW-01 (F1M24-CHINA §2.5; RF-3D-04, RNF-09, RNF-07, RF-WKD-07): HUD por zonas sobre la imagen en directo. Con la ventana de al menos minViewportPx, cada bloque va en su zona (anchor) con un tamaño máximo en % de la ventana (o en px donde la letra manda) y el resto del lienzo queda libre para el 3D: components/hudLayout.js calcula los rectángulos (hudZonesOf) y la parte libre en una rejilla grid (freeShareOf, la misma cuenta que elementsFromPoint en la prueba Playwright); components/styles/hudZones.css los aplica con variables. Por debajo de minViewportPx, la disposición apilada de siempre. immersive: modo directo a pantalla completa que tapa la cabecera del sitio y el stepper del GP (se sale con exitKey o con el botón de la barra); default: encendido al entrar en directo en 3D. cards: las fichas de piloto se pliegan a una línea (foldedHeightPx); defaultOpen: focus = abierta la del coche que sigues si es tuyo, la otra plegada; none = todas plegadas; all = todas abiertas; openInGarage: en libres y clasificación la ficha de un coche en el garaje va abierta (es donde se prepara la tanda: fichas grandes en el garaje, una línea en pista, §2.5). En las sesiones de libres sobre el banco de reglajes (is-compact) el modo inmersivo no arranca solo, para no tapar el banco. tower.foldedRows: filas que enseña la torre plegada (más las tuyas). side.feedOpen: la radio abierta por defecto o solo el minimapa. target: lo que pide la aceptación de VIEW-01 (libre ≥ 65 % con todo plegado y ≥ 50 % con una ficha abierta, a 1280×720 y 1920×1080). Todo decisión de presentación de OverCut, sin fuente que medir; de F1 Manager 24 solo la idea de dejar ver la imagen (~70 % libre), ningún valor.",
+    "status": "behaviour",
+    "minViewportPx": { "w": 1101, "h": 560 },
+    "gapPx": 8,
+    "immersive": { "enabled": true, "default": true, "exitKey": "Escape" },
+    "blocks": {
+      "status": { "anchor": "top-right", "maxWidthPct": 34, "heightPx": 36 },
+      "play": { "anchor": "top-center", "maxWidthPct": 44, "heightPx": 44, "rows": 1 },
+      "tower": { "anchor": "top-left", "widthPx": 232, "maxHeightPct": 72, "headPx": 40, "flagPx": 26, "modesPx": 34, "rowPx": 24, "morePx": 26, "foldedRows": 10 },
+      "side": { "anchor": "bottom-right", "widthPx": 220, "mapHeightPx": 132, "feedHeightPct": 30, "feedOpen": false },
+      "cards": { "anchor": "bottom", "widthPct": 30, "maxWidthPx": 460, "foldedHeightPx": 40, "openMaxHeightPct": 40, "midWidthPx": 168, "midHeightPx": 64 }
+    },
+    "cards": { "foldable": true, "defaultOpen": "focus", "openInGarage": true },
+    "target": { "freeFolded": 0.65, "freeOneCard": 0.5, "grid": [32, 18], "viewports": [[1280, 720], [1920, 1080]] }
+  },
+  "tags": {
+    "$comment": "VIEW-11 (F1M24-CHINA §2.3; RF-3D-04, RNF-09, RNF-07): etiquetas de nombre sobre los coches en 3D. HUD-C1 crea la clave (contrato de la ola 1); la aplica CAM-C4 en three/Race3D.js (repulsión 1D y ocultación). policy: focus (solo el coche que sigues), focus+rival (y su rival en lucha; por defecto), all, none. maxVisible y hideBelowWidthShare (un coche más estrecho que esa parte del ancho no lleva etiqueta) son los de la aceptación de VIEW-11 y de la §2.3; decisión de presentación de OverCut. pending hasta que CAM-C4 la enganche: mientras, Race3D etiqueta como hoy.",
+    "status": "pending",
+    "policy": "focus+rival",
+    "policies": ["focus", "focus+rival", "all", "none"],
+    "maxVisible": 2,
+    "hideBelowWidthShare": 0.02
+  },
+  "lapCountdown": {
+    "$comment": "VIEW-16 (F1M24-CHINA §2.5; RF-WKD-07, RNF-08): cuenta atrás de vueltas en la cabecera de la torre, solo en estas vueltas para el final («last» = la última). HUD-C1 crea la clave (contrato de la ola 1); la aplica HUD-C2, que también decide si sustituye a banners.lapsToGoCallouts (hoy los avisos en banner, que siguen mandando). pending: enabled false hasta HUD-C2.",
+    "status": "pending",
+    "enabled": false,
+    "laps": [15, 10, 3, "last"]
   },
   "$transitionSec": "WKD-1 (session-options-transition, §2.12.2: hud.json transitionSec): segundos de la transición con el logotipo de OverCut entre pantallas del fin de semana; saltable y sin animación con prefers-reduced-motion. pending: null = la fija WKD-1; mientras, sin transición (hoy).",
   "transitionSec": null

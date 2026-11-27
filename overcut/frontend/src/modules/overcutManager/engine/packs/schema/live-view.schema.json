@@ -3,7 +3,7 @@
   "$comment": "RNF-07: esquema de data/balance/live-view.json (reproducción en directo: velocidades, auto-velocidad, pausa, siguiente evento, vistas y cámaras; RF-CMD-04, RF-3D-04, RNF-05). Lo comprueba components/playback.test.js.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["$comment", "version", "speeds", "defaultSpeed", "engineLead", "autoSpeed", "eventPriority", "triggers", "pauseOn", "nextEvent", "views", "start", "finish", "replay"],
+  "required": ["$comment", "version", "speeds", "defaultSpeed", "engineLead", "autoSpeed", "eventPriority", "triggers", "pauseOn", "nextEvent", "views", "start", "finish", "replay", "continuity", "fastForward"],
   "definitions": {
     "status": { "enum": ["srs", "behaviour", "pending", "measured", "NV"] },
     "speed": { "enum": [1, 2, 4, 8, 16] },
@@ -150,7 +150,7 @@
     "views": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["$comment", "status", "list", "defaultView", "cameras", "defaultCamera"],
+      "required": ["$comment", "status", "list", "defaultView", "cameras", "defaultCamera", "camerasByEra"],
       "properties": {
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
@@ -172,6 +172,30 @@
           "additionalProperties": false,
           "required": ["with3D", "without3D"],
           "properties": { "with3D": { "type": "string" }, "without3D": { "type": "string" } }
+        },
+        "camerasByEra": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "list"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "list": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["from", "to", "with3D", "source", "status"],
+                "properties": {
+                  "from": { "type": "integer", "minimum": 1950, "maximum": 2100 },
+                  "to": { "type": "integer", "minimum": 1950, "maximum": 2100 },
+                  "with3D": { "$ref": "#/definitions/cameraList" },
+                  "source": { "type": "string", "minLength": 1 },
+                  "status": { "$ref": "#/definitions/status" }
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -213,6 +237,31 @@
         "status": { "$ref": "#/definitions/status" },
         "auto": { "type": "boolean" },
         "autoViews": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/definitions/view" } }
+      }
+    },
+    "continuity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "enabled", "k", "marginM", "fallbackSpeedFactor"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "enabled": { "type": "boolean" },
+        "k": { "type": "number", "minimum": 1, "maximum": 3 },
+        "marginM": { "type": "number", "minimum": 0, "maximum": 20 },
+        "fallbackSpeedFactor": { "type": "number", "minimum": 1, "maximum": 4 }
+      }
+    },
+    "fastForward": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "enabled", "mapAtSpeed", "restoreCamera"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "enabled": { "type": "boolean" },
+        "mapAtSpeed": { "$ref": "#/definitions/speed" },
+        "restoreCamera": { "type": "boolean" }
       }
     }
   }

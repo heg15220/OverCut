@@ -239,13 +239,17 @@ export const defaultViewOf = (kind, has3D, config = LIVE_VIEW) => {
  * list of live-view.json (today's cameras).
  */
 export const camerasOf = ({ has3D, year = null, catalogue = null, config = LIVE_VIEW } = {}) => {
-  const fallback = config.views.cameras[has3D ? "with3D" : "without3D"].slice();
+  // HUD-C1: live-view.json views.camerasByEra (the ring per era, HUD-C2) replaces the 3D list in its years.
+  const byEra = has3D && year !== null ? (config.views.camerasByEra?.list || []).find((row) => row.from <= year && year <= row.to) : null;
+  const fallback = (byEra ? byEra.with3D : config.views.cameras[has3D ? "with3D" : "without3D"]).slice();
   if (!has3D || !Array.isArray(catalogue) || catalogue.length === 0) return fallback;
   const inEra = catalogue
     .filter((camera) => camera && camera.id)
     .filter((camera) => !Array.isArray(camera.eras) || year === null || camera.eras.some((era) => (era.from ?? -Infinity) <= year && year <= (era.to ?? Infinity)))
     .map((camera) => camera.id);
-  return inEra.length > 0 ? inEra : fallback;
+  // The era's ring (its order) keeps only the cameras the catalogue has that year.
+  const ring = byEra ? fallback.filter((id) => inEra.includes(id)) : inEra;
+  return ring.length > 0 ? ring : fallback;
 };
 
 export const defaultCameraOf = (cameras, has3D, config = LIVE_VIEW) => {

@@ -62,9 +62,18 @@
  * energy assist (only with KERS or ERS) through setTactics once SIM-7 has it. Your card shows the car's damage in
  * words with its loss a lap (§1.7 damage, or the engine's own front-wing loss and puncture before SIM-7) and when to
  * change the nose, at the engine's own repair threshold.
+ *
+ * Continuity and zones (HUD-C1 of F1M24-CHINA: GS-01, VIEW-01, AUD-C1): the clock has a mode - live, replay
+ * or seek (raceClock.clockModeOf) - and in live it only runs forward (nextLiveTau) and no car is drawn
+ * further from where it was the frame before than its speed allows (raceClock.createContinuity,
+ * live-view.json continuity): only a skip (seek) moves a car at once. On a big enough window the HUD sits in
+ * zones over the picture (hudLayout.js, hud.json layout): tower top left, playback on one row top centre,
+ * conditions top right, map bottom right with the radio on demand, your cards along the bottom folding to
+ * one line, and an immersive live mode over the site header and the GP stepper (HudZones.js). The sound
+ * gets the playback speed in every frame (audio.frame speed; its fast-forward mix is AUD-C-1's).
  */
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   cancelPit, commandsFor, delayStop, drsOpen, energyEra, mixEffect, requestPit, rulesOf, runToFinish, setErs, setMix, setMode, setTeamOrder, skipStop,
   stepLap, tyreLifeUsed,
@@ -96,7 +105,9 @@ import { canRender3D } from "../three/support";
 import { useRaceAudio } from "../three/audio";
 import SoundControl from "../three/audio/SoundControl";
 
-import { battlesIn, carAt, computedUntil, eventTime, leaderLap, liveCarAt, liveSafetyCarAt, liveSafetyCarWindows, liveVscAt, liveYellowsAt, raceEndTime, safetyCarWindows, standingsAt } from "./raceClock";
+import { battlesIn, carAt, clockModeOf, computedUntil, createContinuity, eventTime, leaderLap, liveCarAt, liveSafetyCarAt, liveSafetyCarWindows, liveVscAt, liveYellowsAt, nextLiveTau, raceEndTime, safetyCarWindows, standingsAt } from "./raceClock";
+import { FoldToggle, ImmersiveHost, ImmersiveToggle, useHudShell } from "./HudZones";
+import { cardOpenOf, hudZonesOf, towerRowsShown, zoneStyleOf } from "./hudLayout";
 import { SC_HUD, scBannerOf, scInThisLap, scMapPose, scPhaseLabel, scPhaseOf, vscDeltaOf, vscDeltaText, vscEnding } from "./hudSafetyCar";
 import { lightsOutOf, procedureLimit, replayTimelineOf, startProcedureOf, startStateAt, startTimelineOf } from "./startLights";
 import { clockLabel, raceConditionsOf, raceStartOf } from "./hudConditions";
@@ -429,6 +440,12 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   in3DRef.current = in3D;
   const zoom = 1;
   const [focusId, setFocusId] = useState(userCars[0]?.id ?? current.cars[0]?.id);
+  // VIEW-01: the shell (zones, immersive) and what the viewer has folded.
+  const rootRef = useRef(null);
+  const shell = useHudShell(rootRef);
+  const [cardFolds, setCardFolds] = useState({});
+  const [towerOpen, setTowerOpen] = useState(false);
+  const [feedOpen, setFeedOpen] = useState(HUD.layout.blocks.side.feedOpen);
   // tower-modes (HUD-2): hud.json's order for the year; sectors only when the engine times them.
   const sectorTimes = hasSectorTimes(current.cars);
   const towerModes = towerModesFor({ session: "race", year: current.year, available: HUD.tower.modes.filter((mode) => mode !== "sectors" || sectorTimes) });
@@ -450,6 +467,12 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const [replay, setReplay] = useState(null);
   const replayRef = useRef(null);
   replayRef.current = replay;
+  // GS-01: the continuity guard over every pose the view draws (live-view.json continuity), and a skip
+  // waiting to be told to it (seek: the only time a car may move at once).
+  const continuity = useMemo(() => createContinuity({ circuit, lapRef, config: LIVE_VIEW.continuity }), [circuit, lapRef]);
+  const seeking = useRef(false);
+  const guardedSample = useCallback((car, at) => continuity.pose(car, at, source.sample(car, at)), [continuity, source]);
+  const rowsAt = (at) => standingsAt(current.cars, at, circuit, lapRef, guardedSample);
   const camera = useRef(null);
   // The director's last shot (directorState keeps its camera and its follow-the-action hold).
   const director = useRef(null);
@@ -488,6 +511,9 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     if (out !== null) procedureClock.current = Math.max(procedureClock.current, out);
     introDone.current = true;
     tau.current = Math.max(tau.current, time);
+    // GS-01: a skip is a seek - the cars are placed where the engine has them, at once.
+    continuity.frame(tau.current, "seek");
+    seeking.current = false;
     repaint();
   };
 
@@ -522,9 +548,13 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
             source.raceBegins();
           }
         } else {
-          tau.current = source.limit(tau.current + dt * rate);
+          // GS-01: live, the clock only runs forward (and never past the engine).
+          tau.current = nextLiveTau(tau.current, dt, rate, source.limit);
         }
       }
+      // GS-01: every pose drawn this frame is guarded at this τ, in the clock's mode.
+      continuity.frame(tau.current, clockModeOf({ replay: Boolean(replayRef.current), seeking: seeking.current }));
+      seeking.current = false;
       // Paused (or held by an open dialog, HUD-3 PitDialog): the engine is asked for nothing.
       if (isPlaying && introDone.current && !finishedRef.current) source.advance(tau.current, rate);
       // The sound follows the clock every frame, as the 3D view does: fed only on React's repaints
@@ -540,7 +570,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     };
     handle = raf(tick);
     return () => cancel(handle);
-  }, [source, procedure]);
+  }, [source, procedure, continuity]);
 
   const raceEnd = raceEndTime(current);
   // HUD-4: the view stays on after the last car's flag (live-view.json finish), then hands the race back.
@@ -557,7 +587,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     return () => clearTimeout(id);
   }, [done, source]);
 
-  const rows = source.rows(tau.current);
+  const rows = rowsAt(tau.current);
   const byId = Object.fromEntries(current.cars.map((car) => [car.id, car]));
   const rowOf = Object.fromEntries(rows.map((row) => [row.car.id, row]));
   const positions = Object.fromEntries(rows.map((row) => [row.car.id, row.position]));
@@ -700,9 +730,11 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
         const replayNow = replayRef.current ? replayFrameAt(replayRef.current.plan, replayClock.current) : null;
         const replayLive = Boolean(replayNow && replayNow.phase === "content");
         const at = replayLive ? replayNow.tau : tau.current;
-        const live = source.rows(tau.current);
+        const live = rowsAt(tau.current);
         audio.frame({
           tau: at,
+          // AUD-C1 (HUD-C1): the playback speed - a replay plays in real time; the mix decides (audio.json).
+          speed: replayLive ? 1 : playRef.current.auto.machine.speed,
           playing: (replayLive ? ctx.playing : ctx.playing && !ctx.held) && !ctx.done,
           view: replayLive ? "replay" : null,
           mode: ctx.cameraMode,
@@ -724,6 +756,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   };
   const skip = (fn) => () => {
     introDone.current = true;
+    seeking.current = true;
     fn(tau.current);
     repaint();
   };
@@ -921,12 +954,38 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     : null;
   const chequeredUp = leaderFinished && winnerFlagAt !== null && tau.current < winnerFlagAt + HUD.finish.chequeredBannerSec;
 
+  // ---- VIEW-01: the HUD by zones over the picture (hudLayout.js, hud.json layout)
+  const userIds = userCars.map((car) => car.id);
+  const zoneState = {
+    cards: userCars.slice(0, 2).map((car) => ({ open: cardOpenOf({ id: car.id, zoned: shell.canZone, folds: cardFolds, focusId, userIds }) })),
+    mid: userCars.length > 1 && !current.finished && !commands.teamOrdersBanned,
+    towerRows: towerRowsShown({ rows: towerRows, open: towerOpen }),
+    towerFlag: true,
+    towerModes: towerModes.length > 1,
+    feedOpen,
+    map: cameraMode !== "map",
+  };
+  const zones = shell.canZone ? hudZonesOf(shell.box, zoneState) : { zoned: false };
+  const zoned = Boolean(zones.zoned);
+  const clockMode = clockModeOf({ replay: Boolean(replay) });
+
   const eraNotes = [commands.drs && "DRS", commands.activeAero && t("Aero activa", "Active aero"), energy === "kers" ? "KERS" : energy ? "ERS" : null, refuel && t("Repostaje", "Refuelling")].filter(Boolean);
   const orderOptions = commands.teamOrders;
   const ORDER_LABEL = { free: t("Libres", "Race"), hold: t("Mantener", "Hold"), swap: t("Intercambiar", "Swap") };
 
   return (
-    <div className={`lv lv--race${in3D ? " is-3d" : ""}${replay ? " is-replay" : ""}`} data-engine={source.kind} data-start={startNow.phase} data-sc={scPhase || undefined} data-testid="live-race">
+    <ImmersiveHost active={shell.immersive} portal={shell.canZone}>
+    <div
+      ref={rootRef}
+      className={`lv lv--race${in3D ? " is-3d" : ""}${replay ? " is-replay" : ""}${zoned ? " is-zoned" : ""}${shell.immersive ? " is-immersive" : ""}`}
+      style={zoneStyleOf(zones)}
+      data-engine={source.kind}
+      data-start={startNow.phase}
+      data-sc={scPhase || undefined}
+      data-clock-mode={clockMode}
+      data-continuity={continuity.stats.corrected}
+      data-testid="live-race"
+    >
       <StatusStrip flag={flag} clock={clock} airTemp={conditions.airC} rainChance={current.weather.forecast ?? 0} change={change} trackTemp={trackTemp} wetness={wetness} waterMm={conditions.waterMm} rubber={conditions.rubber} notes={[current.year, ...eraNotes].join(" · ")} />
 
       <div className="lv-stage">
@@ -942,7 +1001,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
               lights={lightsOn}
               safetyCarOn={Boolean(scWindow && !scWindow.virtual && !scWindow.red)}
               clock={tau}
-              sample={source.sample}
+              sample={guardedSample}
               teams={teams}
               onPick={setFocusId}
               labels={{ near: t("Retransmisión en 3D", "3D broadcast") }}
@@ -1013,13 +1072,14 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
         rows={towerRows}
         onPick={setFocusId}
         flag={flag}
+        fold={zoned ? { open: towerOpen, onToggle: setTowerOpen, rows: HUD.layout.blocks.tower.foldedRows } : null}
       />
 
       <section className="lv-cards" aria-label={t("Órdenes", "Orders")}>
         {userCars.map((car, index) => (
           <React.Fragment key={car.id}>
             {index === 1 && (
-              <div className="lv-cards__mid">
+              <div className="lv-cards__mid" data-zone="mid">
                 {!current.finished && !commands.teamOrdersBanned && (
                   <div className="lv-orders__team">
                     <span>{t("Órdenes de equipo", "Team orders")}</span>
@@ -1044,6 +1104,8 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
               flag={HUD.finish.foldPanel && flagged(car) ? { pos: flagOf[car.id]?.pos ?? rowOf[car.id]?.position ?? car.position } : null}
               vscDelta={vscNow ? vscDeltaOf(vscNow, carIndex[car.id], raceRules) : null}
               clock={tau.current}
+              zone={index < 2 ? `card${index}` : undefined}
+              fold={zoned && HUD.layout.cards.foldable ? { open: zoneState.cards[index]?.open ?? true, onToggle: (open) => setCardFolds((folds) => ({ ...folds, [car.id]: !open })) } : null}
             />
           </React.Fragment>
         ))}
@@ -1075,7 +1137,12 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
         />
       )}
 
-      <aside className="lv-side" aria-label={t("Pista", "Track")}>
+      <aside className={`lv-side${zoned && !feedOpen ? " is-feed-closed" : ""}`} aria-label={t("Pista", "Track")}>
+        {zoned && (
+          <span className="lv-side__radio">
+            <FoldToggle open={feedOpen} onToggle={setFeedOpen} what={t("la radio", "the radio")} />
+          </span>
+        )}
         {cameraMode !== "map" && <MiniMap circuit={circuit} cars={stageCars} focusId={tvSubjectId} label={t("Minimapa", "Mini map")} />}
         <Feed entries={feedEntries} />
       </aside>
@@ -1107,10 +1174,13 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
           {t("Al final", "To the flag")}
         </button>
         <SoundControl audio={audio} />
+        <ImmersiveToggle shell={shell} />
       </PlaybackBar>
     </div>
+    </ImmersiveHost>
   );
 }
+
 
 /** The tyre's heat against the engine's own window (race-eras.json tyres.thermal, 0..1 scale; RNF-07). */
 const THERMAL = RACE_ERAS.tyres.thermal;
@@ -1174,7 +1244,7 @@ const PANEL_TAB = {
  * may not be changed) and "Pit options" opens the pit dialog (PitDialog, which pauses the
  * session). Every order goes through `command` (the race worker for a step race).
  */
-function DriverCard({ car, row, state, commands, energy, command, steps, supports = null, pitThisLap, focused, onFocus, onPitDialog, flag = null, vscDelta = null, clock = 0 }) {
+function DriverCard({ car, row, state, commands, energy, command, steps, supports = null, pitThisLap, focused, onFocus, onPitDialog, flag = null, vscDelta = null, clock = 0, zone, fold = null }) {
   const PANEL = HUD.driverPanel;
   const tabs = PANEL.tabs.filter((tab) => tab !== "telemetry" || steps);
   const [tabPick, setTab] = useState(PANEL.defaultTab);
@@ -1229,7 +1299,8 @@ function DriverCard({ car, row, state, commands, energy, command, steps, support
   // HUD-5: the car's VSC delta while the VSC is out (snapshot.vsc.deltaSec, hudSafetyCar.vscDeltaOf).
   const vscText = vscDeltaText(vscDelta);
   return (
-    <section className={`lv-card${running ? "" : " is-out"}${flag ? " is-folded" : ""}${focused ? " is-focus" : ""}`} aria-label={car.name}>
+    <section className={`lv-card${running ? "" : " is-out"}${flag ? " is-folded" : ""}${focused ? " is-focus" : ""}${fold && !fold.open ? " is-collapsed" : ""}`} aria-label={car.name} data-zone={zone}>
+      {fold && <FoldToggle open={fold.open} onToggle={fold.onToggle} what={car.name} />}
       <button type="button" className="lv-card__head" onClick={onFocus}>
         <span className="lv-card__pos">{position}</span>
         <i className="lv-card__stripe" style={{ "--stripe": readableOn(car.color) }} aria-hidden="true" />

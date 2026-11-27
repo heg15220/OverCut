@@ -88,7 +88,12 @@
       "with3D": ["chase", "drone", "heli", "tcam", "visor", "nose", "tcamRear"],
       "without3D": ["follow"]
     },
-    "defaultCamera": { "with3D": "chase", "without3D": "follow" }
+    "defaultCamera": { "with3D": "chase", "without3D": "follow" },
+    "camerasByEra": {
+      "$comment": "HUD-C1 (contrato de la ola 1, F1M24-CHINA §3.2; VIEW-14, RF-3D-04, SRS §6): lista del selector por era, [{from, to, with3D, source, status}], que sustituye a cameras.with3D en esos años (components/playback.js camerasOf). Vacía y pending: el catálogo por era lo pone CAM-C1 en data/balance/cameras.json (onboard[].eras, hfovDeg, cockpitHigh) y HUD-C2 decide aquí el anillo por era (p. ej. sin halo antes de 2018) con fuente de retransmisiones FOM. Mientras, manda cameras.json si trae eras y, si no, cameras.with3D.",
+      "status": "pending",
+      "list": []
+    }
   },
   "start": {
     "$comment": "HUD-4 (start-lights-sound-and-timing, la vista): la carrera por pasos en directo pide al motor su fase PRE_START (SIM-3, createStepRace args.preStart): parrilla, las luces de la era y el apagado tras la espera con semilla, en su propio flujo (la carrera es la misma con o sin ella, RNF-05; lo comprueba components/hud4.test.js). formation: «skip» sale sin vuelta de formación conducida, «drive» la conduce (~1,66 vueltas base de reloj de procedimiento, race-sim.json start.formation); por defecto «skip» porque el worker todavía no tiene la orden skipFormation de stepRace.js para saltarla a mitad (pending: engine/worker/raceSession.js, carril CAM). lightsSpeed: velocidad del reloj de procedimiento desde la parrilla (las luces se ven a una por segundo real, FIA art. 44.10 b); null = la velocidad de reproducción. La vuelta de formación conducida va a la velocidad de reproducción. El modo rápido no tiene PRE_START: la vista enseña el mismo procedimiento con la espera tirada en el flujo de salida de la carrera (components/startLights.js replayTimelineOf).",
@@ -109,5 +114,20 @@
     "status": "behaviour",
     "auto": true,
     "autoViews": ["tv"]
+  },
+  "continuity": {
+    "$comment": "GS-01 (F1M24-CHINA §2.1, §1.3; RF-SIM-01, RF-3D-03, RNF-02, RNF-05; enmienda 12 al criterio 7.2): continuidad de la imagen. El reloj de la vista tiene modo live|replay|seek (components/raceClock.js clockModeOf). En live el reloj solo avanza y ningún coche se dibuja más lejos de donde se dibujó en el fotograma anterior que v·Δt·k + marginM metros (v = velocidad del motor, pose.v; Δt en segundos de carrera): un salto del rastro del motor se ve como un acercamiento a ese límite, nunca como un teletransporte; solo seek (siguiente evento, una vuelta, al final) recoloca. k y marginM son los de diseño de la §2.1 (1,2 y 2 m): no salen de una medida externa. fallbackSpeedFactor: sin velocidad del motor (repetición del modo rápido) se usa la media de la vuelta (longitud/vuelta de referencia) por este factor como tope de velocidad; decisión de diseño (la punta en recta es ~1,5 veces la media en la mayoría de circuitos), pending de medir con OpenF1 car_data. enabled: apagado, la vista dibuja el rastro tal cual (como antes). Lo comprueba components/raceClock.test.js (carrera por pasos a 60 Hz).",
+    "status": "behaviour",
+    "enabled": true,
+    "k": 1.2,
+    "marginM": 2,
+    "fallbackSpeedFactor": 1.6
+  },
+  "fastForward": {
+    "$comment": "VIEW-17 (F1M24-CHINA §1.5 «Avance rápido», §2.5; RF-CMD-04): con enabled y la velocidad ≥ mapAtSpeed la vista pasa sola al mapa 2D y, al bajar, vuelve a la cámara que tenía (restoreCamera). Apagado por defecto: el 3D a ×8 es una ventaja nuestra. Es decisión de vista; el sonido entra en su modo fastForward siempre por su cuenta (audio.json mixer.views.fastForward.minSpeed, AUD-C-1), y para eso la vista le pasa la velocidad en cada audio.frame (HUD-C1). Clave creada por HUD-C1 (contrato de la ola 1); la usa HUD-C2.",
+    "status": "behaviour",
+    "enabled": false,
+    "mapAtSpeed": 8,
+    "restoreCamera": true
   }
 }
