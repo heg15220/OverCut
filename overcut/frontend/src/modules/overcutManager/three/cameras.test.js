@@ -16,8 +16,11 @@ import zoneFiles from "../data/circuits/cameraZones";
 import {
   CAMERA_LABELS, CAMERA_MODES, ONBOARDS, SIGHT_EVERY, buildCameraZones, buildPitRig, buildRig, buildZoneRig, critDampStep, fitRig, frame, frameWidth, framingFor,
   laneBoxOf, lanePoseAt, modeForYear, onboardsFor, pickVariant, pitShot, seedOf, shakeOffset, tvRival, zonesFor,
-  heliGeometry, hfovOf, onboardFor, vfovOf, REF_ASPECT,
+  heliGeometry, hfovOf, onboardFor, vfovOf, REF_ASPECT, angularShake, carBodyFrame, onboardWobble, roadRoughness,
 } from "./cameras";
+import { onRacingLine } from "./racingLine";
+import { positionAt, trackDataFor } from "../engine/trackData";
+import racePhysics from "../data/balance/race-physics.json";
 import { zonePlanFor } from "./cameraZones";
 import { carSpec } from "./carBody";
 import { cameraFor } from "../components/director/directorState";
@@ -838,5 +841,222 @@ describe("contracts of wave 1 (CAM-C1, F1M24-CHINA §3.2)", () => {
     expect(broadcastData.framing.train.phases).toEqual(["TRAIN"]);
     expect(broadcastData.scriptRig.cams.some((cam) => cam.id === "startLightsLow")).toBe(true);
     expect(broadcastData.sequences.start.holdShotSec).toBeNull();
+  });
+});
+
+// ------------------------------------------------------------------------------------------------
+// CAM-C2 (F1M24-CHINA §3.3 ola 2): VIEW-04 vibración y pose, VIEW-08 / GS-07 trazada en la vista.
+
+describe("CAM-C2 · VIEW-04: onboards ride the chassis and shake by angle (RF-3D-04, RNF-05, RNF-07)", () => {
+  const RATE = 120;
+  const SECONDS = 20;
+  const series = (id, axis, opts = {}) => {
+    const { shake } = ONBOARDS.find((entry) => entry.id === id);
+    const seed = seedOf(`ham|${id}`);
+    return Array.from({ length: RATE * SECONDS }, (_, i) => onboardWobble(shake, { speed: 80, tSec: 100 + i / RATE, seed, ...opts })[axis]);
+  };
+  // One-sided amplitude spectrum: |X_k| · 2 / N at f_k = k / SECONDS.
+  const spectrum = (values) => {
+    const n = values.length;
+    const mean = values.reduce((sum, v) => sum + v, 0) / n;
+    const out = [];
+    for (let k = 1; k < n / 2; k += 1) {
+      let re = 0;
+      let im = 0;
+      for (let t = 0; t < n; t += 1) {
+        const a = (2 * Math.PI * k * t) / n;
+        re += (values[t] - mean) * Math.cos(a);
+        im -= (values[t] - mean) * Math.sin(a);
+      }
+      out.push({ hz: k / SECONDS, amp: (2 * Math.hypot(re, im)) / n });
+    }
+    return out;
+  };
+  const rmsAbove = (spec, hz) => Math.sqrt(spec.filter((bin) => bin.hz > hz).reduce((sum, bin) => sum + (bin.amp * bin.amp) / 2, 0));
+
+  it("cameras.json passes its schema with shakeModel and the angular shake; null angles keep the old jitter", () => {
+    const ajv = new Ajv({ allErrors: true });
+    const ok = ajv.validate(cameraSchema, cameraData);
+    if (!ok) throw new Error(ajv.errorsText());
+    ["tcam", "cockpitHigh", "halo", "visor"].forEach((id) => expect(angularShake(ONBOARDS.find((entry) => entry.id === id).shake)).toBe(true));
+    ["cockpitSide", "sidepod", "nose"].forEach((id) => expect(angularShake(ONBOARDS.find((entry) => entry.id === id).shake)).toBe(false));
+    expect(angularShake({ hf: { deg: null, hz: null } })).toBe(false);
+    expect(cameraData.shakeModel.status).toBe("pending");
+  });
+
+  it("CP (high cockpit, halo, T-cam): 0.03-0.08° rms above 3 Hz", () => {
+    ["cockpitHigh", "halo", "tcam"].forEach((id) => {
+      const rms = rmsAbove(spectrum(series(id, "pitch")), 3);
+      expect(rms).toBeGreaterThanOrEqual(0.03);
+      expect(rms).toBeLessThanOrEqual(0.08);
+    });
+  });
+
+  it("HP (the driver's eyes): the head's peak in 2.5-3.5 Hz", () => {
+    ["pitch", "yaw"].forEach((axis) => {
+      const bins = spectrum(series("visor", axis)).filter((bin) => bin.hz >= 0.8 && bin.hz <= 15);
+      const peak = bins.reduce((best, bin) => (bin.amp > best.amp ? bin : best), bins[0]);
+      expect(peak.hz).toBeGreaterThanOrEqual(2.5);
+      expect(peak.hz).toBeLessThanOrEqual(3.5);
+    });
+  });
+
+  it("is deterministic by seed and race clock, still when slow, bigger on a kerb and on a rough road", () => {
+    const { shake } = ONBOARDS.find((entry) => entry.id === "tcam");
+    const seed = seedOf("ham|tcam");
+    const at = (opts) => onboardWobble(shake, { speed: 80, tSec: 12.345, seed, ...opts });
+    expect(at({})).toEqual(at({}));
+    expect(at({ seed: seedOf("ver|tcam") })).not.toEqual(at({}));
+    expect(onboardWobble(shake, { speed: shake.minSpeed, tSec: 3, seed })).toEqual({ pitch: 0, yaw: 0, roll: 0 });
+    const bobRms = (opts) => rmsAbove(spectrum(series("tcam", "pitch", opts)), 0.5);
+    const plain = bobRms({});
+    expect(bobRms({ kerb: true })).toBeGreaterThan(plain * 1.5);
+    expect(bobRms({ rough: cameraData.shakeModel.roughRefPerM })).toBeGreaterThan(plain * 1.2);
+    // A slower car shakes less (up to fullSpeedMs).
+    const slow = rmsAbove(spectrum(Array.from({ length: RATE * SECONDS }, (_, i) => onboardWobble(shake, { speed: 30, tSec: 100 + i / RATE, seed }).pitch)), 0.5);
+    expect(slow).toBeLessThan(plain);
+    // The road's vertical curvature: flat is 0, a dip is not.
+    expect(roadRoughness(() => 3, 0.5, 5000)).toBe(0);
+    expect(roadRoughness((s) => 400 * (s - 0.5) * (s - 0.5), 0.5, 5000)).toBeGreaterThan(0);
+    expect(roadRoughness(null, 0.5, 5000)).toBe(0);
+  });
+
+  it("a child of the car: with the body pitched and rolled, the car holds still in its camera's frame (< 0.2 px at 1080p)", () => {
+    const spec = carSpec(2013);
+    const share = 0.31;
+    const pose = poseAt(circuit, share);
+    const focus = { x: pose.x, y: 0, z: pose.y, heading: pose.heading, speed: 70, share, spec };
+    const nose = new THREE.Vector3(spec.front + 0.6, 0.35, 0.2);
+    const pixelOf = (pitch, roll, id) => {
+      const car = new THREE.Object3D();
+      car.position.set(focus.x, 0, focus.z);
+      car.rotation.order = "YXZ";
+      car.rotation.y = -focus.heading;
+      car.rotation.x = roll;
+      car.rotation.z = pitch;
+      car.updateMatrixWorld(true);
+      const shot = frame(id, focus, circuit, [], { year: 2013, aspect: 16 / 9 }, 0.016);
+      const placed = carBodyFrame(shot.pos, shot.look, car.position, { yaw: focus.heading, pitch, roll });
+      const camera = new THREE.PerspectiveCamera(shot.fov, 16 / 9, 0.05, 5000);
+      camera.position.copy(placed.pos);
+      camera.up.copy(placed.up);
+      camera.lookAt(placed.look);
+      camera.updateMatrixWorld(true);
+      const p = car.localToWorld(nose.clone()).project(camera);
+      return { x: ((p.x + 1) / 2) * 1920, y: ((1 - p.y) / 2) * 1080 };
+    };
+    ["tcam", "cockpitHigh", "visor"].forEach((id) => {
+      const rest = pixelOf(0, 0, id);
+      [[-0.05, 0], [0.03, 0.06], [0, -0.08], [-0.04, 0.09]].forEach(([pitch, roll]) => {
+        const moved = pixelOf(pitch, roll, id);
+        expect(Math.hypot(moved.x - rest.x, moved.y - rest.y)).toBeLessThan(0.2);
+      });
+    });
+    // The body motion does turn the world: a point far ahead moves in the frame.
+    const placed = carBodyFrame(new THREE.Vector3(0, 1, 0), new THREE.Vector3(10, 1, 0), new THREE.Vector3(0, 0, 0), { yaw: 0, pitch: 0.05, roll: 0 });
+    expect(placed.look.y).toBeGreaterThan(1.4);
+    // The wobble turns the lens about the camera (nose up = looking higher), not the camera's place.
+    const shaken = carBodyFrame(new THREE.Vector3(0, 1, 0), new THREE.Vector3(10, 1, 0), new THREE.Vector3(0, 0, 0), { yaw: 0 }, { pitch: 1, yaw: 0, roll: 0 });
+    expect(shaken.pos.toArray()).toEqual([0, 1, 0]);
+    expect(shaken.look.y).toBeGreaterThan(1.15);
+  });
+});
+
+describe("CAM-C2 · GS-07 / VIEW-08: the view draws the engine's racing line (RF-3D-03, criterio 7.2)", () => {
+  const china = circuitFor({ name: "Chinese Grand Prix", circuit: "shanghai" }, 2013);
+  const circuits = [china, circuit, circuitFor({ name: "Bahrain Grand Prix", circuit: "bahrain" }, 2024)];
+  const carWidth2013 = racePhysics.lateral.eras.find((era) => 2013 >= era.from && 2013 <= era.to).carWidth;
+
+  it("onRacingLine is engine/trackData.js positionAt: one geometry for engine, cameras and view", () => {
+    circuits.forEach((c) => {
+      [0.013, 0.2471, 0.5, 0.7719, 0.9993, 3.25].forEach((P) => {
+        [-2.5, 0, 1.1, 40].forEach((lat) => {
+          const base = poseAt(c, P - Math.floor(P));
+          const raw = { x: base.x - Math.sin(base.heading) * lat, y: base.y + Math.cos(base.heading) * lat, heading: base.heading, progress: P, lateral: lat };
+          const drawn = onRacingLine(c, raw);
+          const engine = positionAt(c, P, lat);
+          expect(drawn.x).toBeCloseTo(engine.x, 9);
+          expect(drawn.y).toBeCloseTo(engine.y, 9);
+          expect(drawn.heading).toBeCloseTo(engine.heading, 12);
+          expect(drawn.lineOffset).toBeCloseTo(engine.lineOffset, 12);
+        });
+      });
+    });
+  });
+
+  it("GS-07: with no duel, the line drawn at every apex is within 1.5 m of the solver's", () => {
+    circuits.forEach((c) => {
+      const { line } = trackDataFor(c);
+      const n = c.points.length;
+      c.corners.forEach((corner) => {
+        const i = Math.round(corner.apex * n) % n;
+        const drawn = positionAt(c, i / n, 0);
+        expect(Math.abs(drawn.axisOffset - line[i])).toBeLessThanOrEqual(1.5);
+      });
+    });
+  });
+
+  it("VIEW-08 at Shanghai's T14 (the hairpin after the back straight): ≥ 3 m to the outside 50 m before it, apex ≤ 1.5 m from the inside edge", () => {
+    const L = china.length;
+    const brake = china.brakingZones.slice().sort((a, b) => b.metres - a.metres)[0];
+    const t14 = china.corners.find((corner) => corner.number === brake.corner);
+    const outside = -t14.sign;
+    expect(outside * positionAt(china, t14.from - 50 / L, 0).axisOffset).toBeGreaterThanOrEqual(3);
+    // The apex: the closest the car's inner side comes to the edge of the measured asphalt in the corner.
+    const { wl, wr } = trackDataFor(china);
+    const n = china.points.length;
+    let closest = Infinity;
+    for (let m = t14.from * L; m <= t14.to * L; m += 1) {
+      const P = m / L;
+      const i = Math.floor(P * n) % n;
+      const edge = t14.sign > 0 ? wr[i] : wl[i];
+      const inner = t14.sign * positionAt(china, P, 0).axisOffset + carWidth2013 / 2;
+      closest = Math.min(closest, edge - inner);
+    }
+    expect(closest).toBeLessThanOrEqual(1.5);
+    expect(closest).toBeGreaterThanOrEqual(0);
+  });
+
+  it("fitRig checks each camera's sight of the racing line, where the cars are drawn", () => {
+    const rig = buildZoneRig(china).filter((cam) => !cam.moving && cam.type !== "cable").slice(0, 8);
+    const seen = [];
+    const field = {
+      topNear: () => null,
+      sight: (pos, target) => {
+        seen.push(target);
+        return true;
+      },
+    };
+    fitRig(rig, china, field, () => 0);
+    const line = Array.from({ length: 4000 }, (_, k) => positionAt(china, k / 4000, 0));
+    const fromLine = (t) => Math.min(...line.map((p) => Math.hypot(p.x - t.x, p.y - t.z)));
+    expect(seen.length).toBeGreaterThan(0);
+    seen.forEach((t) => expect(fromLine(t)).toBeLessThan(1.5));
+  });
+
+  it("GS-07: the TV keeps the car drawn on the racing line inside its frame in ≥ 98 % of frames over two laps", () => {
+    const rig = buildZoneRig(china);
+    const state = { seed: 7, aspect: 16 / 9 };
+    const frames = Math.round(china.simulatedLap * 60);
+    const camera = new THREE.PerspectiveCamera(50, 16 / 9, 0.3, 20000);
+    let inside = 0;
+    let total = 0;
+    for (let lap = 0; lap < 2; lap += 1) {
+      for (let i = 0; i < frames; i += 1) {
+        const d = distanceAtTimeShare(china, i / frames);
+        const p = positionAt(china, d, 0);
+        const focus = { x: p.x, y: 0, z: p.y, heading: p.heading, speed: 60, share: lap + d, lap, spec: {} };
+        const shot = frame("tv", focus, china, rig, state, 1 / 60);
+        camera.fov = shot.fov;
+        camera.updateProjectionMatrix();
+        camera.position.copy(shot.pos);
+        camera.lookAt(shot.look);
+        camera.updateMatrixWorld(true);
+        const ndc = new THREE.Vector3(focus.x, 0.6, focus.z).project(camera);
+        total += 1;
+        if (ndc.z < 1 && Math.abs(ndc.x) <= 1 && Math.abs(ndc.y) <= 1) inside += 1;
+      }
+    }
+    expect(inside / total).toBeGreaterThanOrEqual(0.98);
   });
 });

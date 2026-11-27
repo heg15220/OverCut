@@ -1,6 +1,6 @@
 {
   "$comment": "RNF-07: cámaras que viajan con el coche (onboards, persecución, dron, helicóptero, plano de garaje) de la vista 3D (RF-3D-04, RF-3D-05). Lo leen three/cameras.js y three/Race3D.js; lo comprueba three/cameras.test.js contra engine/packs/schema/cameras.schema.json. Las medidas de montaje son metros en ejes del coche: 'ahead' hacia el morro, 'side' de lado (con el signo del vector lateral de three/cameras.js frame), 'up' hacia arriba; 'anchor' dice desde dónde se miden (head = spec.head del modelo de su era, front = eje delantero spec.front, ground = el suelo bajo el centro del coche, road = 'ahead' metros por la carretera y 'up' sobre ella). 'aim' es un punto así o, en su lugar, {horizonShare}: la cámara se inclina hasta que el horizonte cae a esa fracción del alto del cuadro desde arriba (CAM-C1, VIEW-03). Los campos de visión son HORIZONTALES (hfovDeg, CAM-C1 VIEW-03, F1M24-CHINA §2.4): three.js usa el vertical, que three/cameras.js deriva con el aspecto del lienzo (vfov = 2·atan(tan(hfov/2)/aspecto)), así el mismo hfov da el mismo encuadre a lo ancho a 16:9 y a 21:9; hfovDeg es un número o una lista por eras [{from, to, deg}]. De F1 Manager 24 solo la idea de qué onboards hay (docs/manager/f1m24-analysis/cameras.md §3, F1M24-CHINA §2.4); ningún valor suyo se copia sin marcarlo 'pending'. 'status: current' = valor que OverCut ya usaba antes de CAM-1 (cameras.js / Race3D.js), trasladado sin cambios; 'status: pending' = punto de partida sin fuente real, por calibrar.",
-  "version": 2,
+  "version": 3,
   "refAspect": 1.7778,
   "horizonReachM": 20,
   "horizonReachNote": "Cámaras con aim {horizonShare}: metros por delante del coche a los que se mide la pendiente de la carretera para inclinar la cámara con ella (en llano no cambia nada). Diseño propio (pending).",
@@ -12,6 +12,15 @@
     "reference": "docs/manager/f1m24-analysis/cameras.md §3 (posiciones y FOV inferidos de vídeo, confianza media-baja; solo referencia)",
     "china": "docs/manager/F1M24-CHINA.md §2.4 (CAM-C1, VIEW-03 y VIEW-12; contratos de la ola 1 para VIEW-04 y VIEW-15: shake angular y wheelDisplay.byEra, sin cablear). Composición buscada en la T-cam: horizonte al 30-40 % desde arriba y ruedas delanteras ≤ 30 % del ancho (§3.1 VIEW-03); los FOM por era no se han consultado: pending",
     "previous": "three/cameras.js y three/Race3D.js antes de CAM-1 (valores trasladados sin cambios)"
+  },
+  "shakeModel": {
+    "partials": [{ "k": 1, "w": 1 }, { "k": 1.41, "w": 0.5 }, { "k": 1.83, "w": 0.25 }],
+    "roughStepM": 4,
+    "roughRefPerM": 0.004,
+    "headDriftPitchShare": 0.4,
+    "kerbReachM": 0.9,
+    "status": "pending",
+    "source": "CAM-C2 (VIEW-04): forma de la vibración angular de las onboards (three/cameras.js onboardWobble). partials: múltiplos k de la frecuencia base y su peso w (un tono con armónicos inarmónicos, fases con semilla seedOf(coche|cámara) sobre el reloj de carrera, RNF-05); con 1,41 y 1,83 el rebote de 1,5 Hz no pasa de 3 Hz y la cabeza de 3 Hz tiene su pico en 3 Hz. roughStepM / roughRefPerM: la rugosidad es la curvatura vertical del perfil de la carretera (heightAt del GLB) medida a ±roughStepM; roughRefPerM es la que da todo el roughGain. headDriftPitchShare: parte de la deriva de la cabeza que va al cabeceo (el resto a la guiñada). kerbReachM: el coche pisa el piano cuando su centro está a menos de esto del borde del piano (three/audio/kerbs.js onKerb; ~medio coche). Diseño propio, pending de calibrar con vídeo onboard FOM."
   },
   "onboard": [
     {
@@ -25,9 +34,9 @@
       ],
       "near": 0.05,
       "shake": {
-        "perMs": 33, "perSpeed": 0.00012, "max": 0.012, "minSpeed": 5,
-        "hf": { "deg": null, "hz": null }, "bob": { "deg": null, "hz": null },
-        "status": "pending", "note": "hf/bob: contrato de la ola 1 para VIEW-04 (vibración angular rígida al chasis); null = sin valor con fuente, la vista sigue con la vibración de posición de perMs..minSpeed"
+        "perMs": 33, "perSpeed": 0.00012, "max": 0.012, "minSpeed": 5, "fullSpeedMs": 70,
+        "hf": { "deg": 0.055, "hz": 7, "axes": ["pitch", "roll"] }, "bob": { "deg": 0.2, "hz": 1.5, "axes": ["pitch"], "kerbGain": 2.5, "roughGain": 1 },
+        "status": "pending", "note": "CAM-C2 (VIEW-04, F1M24-CHINA §2.4): vibración angular rígida al chasis. hf = vibración alta (rms en grados a hz, ejes axes), bob = rebote lento (rms a hz; ×kerbGain sobre un piano de kerbs.json y ×(1+roughGain·rugosidad) en carretera con baches, shakeModel); crecen con la velocidad hasta fullSpeedMs. Punto de partida: el rango que F1M24-CHINA §2.4 observa en el vídeo del juego (mundo ~0,06° por encima de 3 Hz, rebote ~0,25° a 1-2 Hz), solo referencia y aceptación §3.1 (CP 0,03-0,08° rms > 3 Hz); pending de medir en vídeo onboard FOM (no consultado)"
       },
       "eras": [{ "from": 1993, "to": 2100 }],
       "status": "pending",
@@ -52,9 +61,9 @@
       "hfovDeg": 85,
       "near": 0.05,
       "shake": {
-        "perMs": 33, "perSpeed": 0.00012, "max": 0.012, "minSpeed": 5,
-        "hf": { "deg": null, "hz": null }, "bob": { "deg": null, "hz": null },
-        "status": "pending", "note": "hf/bob: contrato de la ola 1 para VIEW-04; null = sin valor con fuente"
+        "perMs": 33, "perSpeed": 0.00012, "max": 0.012, "minSpeed": 5, "fullSpeedMs": 70,
+        "hf": { "deg": 0.055, "hz": 7, "axes": ["pitch", "roll"] }, "bob": { "deg": 0.2, "hz": 1.5, "axes": ["pitch"], "kerbGain": 2.5, "roughGain": 1 },
+        "status": "pending", "note": "CAM-C2 (VIEW-04, F1M24-CHINA §2.4): vibración angular rígida al chasis. hf = vibración alta (rms en grados a hz, ejes axes), bob = rebote lento (rms a hz; ×kerbGain sobre un piano de kerbs.json y ×(1+roughGain·rugosidad) en carretera con baches, shakeModel); crecen con la velocidad hasta fullSpeedMs. Punto de partida: el rango que F1M24-CHINA §2.4 observa en el vídeo del juego (mundo ~0,06° por encima de 3 Hz, rebote ~0,25° a 1-2 Hz), solo referencia y aceptación §3.1 (CP 0,03-0,08° rms > 3 Hz); pending de medir en vídeo onboard FOM (no consultado)"
       },
       "eras": [{ "from": 1993, "to": 2017 }],
       "status": "pending",
@@ -68,9 +77,9 @@
       "hfovDeg": 116.91,
       "near": 0.05,
       "shake": {
-        "perMs": 33, "perSpeed": 0.00012, "max": 0.012, "minSpeed": 5,
-        "hf": { "deg": null, "hz": null }, "bob": { "deg": null, "hz": null },
-        "status": "pending", "note": "hf/bob: contrato de la ola 1 para VIEW-04; null = sin valor con fuente"
+        "perMs": 33, "perSpeed": 0.00012, "max": 0.012, "minSpeed": 5, "fullSpeedMs": 70,
+        "hf": { "deg": 0.055, "hz": 7, "axes": ["pitch", "roll"] }, "bob": { "deg": 0.2, "hz": 1.5, "axes": ["pitch"], "kerbGain": 2.5, "roughGain": 1 },
+        "status": "pending", "note": "CAM-C2 (VIEW-04, F1M24-CHINA §2.4): vibración angular rígida al chasis. hf = vibración alta (rms en grados a hz, ejes axes), bob = rebote lento (rms a hz; ×kerbGain sobre un piano de kerbs.json y ×(1+roughGain·rugosidad) en carretera con baches, shakeModel); crecen con la velocidad hasta fullSpeedMs. Punto de partida: el rango que F1M24-CHINA §2.4 observa en el vídeo del juego (mundo ~0,06° por encima de 3 Hz, rebote ~0,25° a 1-2 Hz), solo referencia y aceptación §3.1 (CP 0,03-0,08° rms > 3 Hz); pending de medir en vídeo onboard FOM (no consultado)"
       },
       "eras": [{ "from": 2018, "to": 2100 }],
       "status": "pending",
@@ -84,9 +93,10 @@
       "hfovDeg": 114.19,
       "near": 0.05,
       "shake": {
-        "perMs": 33, "perSpeed": 0.00012, "max": 0.012, "minSpeed": 5,
-        "hf": { "deg": null, "hz": null }, "bob": { "deg": null, "hz": null }, "head": { "deg": null, "hz": null, "driftDeg": null },
-        "status": "pending", "note": "hf/bob/head: contrato de la ola 1 para VIEW-04 (solo la vista del piloto mueve la cabeza, F1M24-CHINA §2.4); null = sin valor con fuente"
+        "perMs": 33, "perSpeed": 0.00012, "max": 0.012, "minSpeed": 5, "fullSpeedMs": 70,
+        "hf": { "deg": 0.03, "hz": 7, "axes": ["pitch", "roll"] }, "bob": { "deg": 0.08, "hz": 1.5, "axes": ["pitch"], "kerbGain": 2.5, "roughGain": 1 },
+        "head": { "deg": 0.15, "hz": 3, "driftDeg": 0.5, "driftHz": 0.15, "axes": ["pitch", "yaw"] },
+        "status": "pending", "note": "CAM-C2 (VIEW-04, F1M24-CHINA §2.4): solo la vista del piloto tiene cabeza (head: rms en grados a hz más una deriva lenta de driftDeg a driftHz); el casco y el cuello filtran parte del chasis (hf y bob menores que en las cámaras de chasis). Punto de partida: lo que §2.4 observa en el vídeo del juego (cabeza ~0,15° a ~3 Hz, deriva ~0,5°), solo referencia y aceptación §3.1 (pico en 2,5-3,5 Hz); pending de medir en vídeo onboard FOM (no consultado)"
       },
       "eras": [{ "from": 1985, "to": 2100 }],
       "status": "current",

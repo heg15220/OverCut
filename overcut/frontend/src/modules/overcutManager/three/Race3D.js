@@ -42,7 +42,9 @@ import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { buildCar } from "./carModel";
 import { buildTrack } from "./trackScene";
-import { buildPitRig, buildZoneRig, critDampStep, fitRig, frame, garageShot, isOnboard, modeForYear, onboardFor, pitShot, rigCamOfType, scParkedPose, scriptShot, seedOf, shakeOffset, tvRival } from "./cameras";
+import { angularShake, buildPitRig, buildZoneRig, carBodyFrame, critDampStep, fitRig, frame, garageShot, isOnboard, modeForYear, onboardFor, onboardWobble, pitShot, rigCamOfType, roadRoughness, scParkedPose, scriptShot, seedOf, shakeOffset, tvRival } from "./cameras";
+import { kerbZonesFor, onKerb } from "./audio/kerbs";
+import cameraData from "../data/balance/cameras.json";
 import { onRacingLine } from "./racingLine";
 import { QUICK_REPLAY, boxSpecFor, countOverlap, overlapPass } from "./viewOverlap";
 import { boxPointOf, etaToBox, stepSequence } from "../components/director/pitSequence";
@@ -492,7 +494,7 @@ function step(state, props, dt) {
       entry.compound = car.compound;
     }
     if (car.id === focusId) {
-      focus = { x, z, y: ground, heading: entry.yaw, speed: entry.speed || 0, share: pose.progress, turn: entry.turn, spec, item: { ...item, pose } };
+      focus = { x, z, y: ground, heading: entry.yaw, speed: entry.speed || 0, share: pose.progress, turn: entry.turn, spec, item: { ...item, pose }, entry };
       // The gear on the steering wheel (pose.gear from the power unit), read only from the cockpit.
       if (onboard && Number.isFinite(pose.gear)) object.userData.setGear?.(pose.gear);
     }
@@ -714,8 +716,33 @@ function step(state, props, dt) {
     // clock (the view's own time when there is none), never Math.random (RNF-05).
     state.viewTime = (state.viewTime || 0) + dt;
     const mount = !inGarage && scriptBus?.kind === "onboard" ? onboardFor(scriptBus.id) : !inGarage && !scriptBus && onboard ? onboardFor(mode) : null;
-    if (mount?.shake) camera.position.y += shakeOffset(mount.shake, focus.speed || 0, tau ?? state.viewTime, seedOf(`${focus.item?.car?.id ?? ""}|${mode}`));
-    camera.lookAt(cam.look);
+    const shakeSeed = seedOf(`${focus.item?.car?.id ?? ""}|${mode}`);
+    const rider = mount && !seqCam ? focus.entry : null;
+    if (rider) {
+      // CAM-C2 (VIEW-04): the onboard is a child of the car - it turns with the chassis' own pitch
+      // and roll (the body motion the engine gives the pose, as the car's group is drawn) - and its
+      // shake turns the lens by angle, seeded on the race clock; a kerb (three/audio/kerbs.js, on
+      // the engine's line + lateral) and a bumpy road (heightAt) make it bounce more.
+      let wobble = null;
+      let lift = 0;
+      if (angularShake(mount.shake)) {
+        const pose = focus.item?.pose || {};
+        const offAxis = Number.isFinite(pose.lateral) ? (pose.lineOffset ?? 0) + pose.lateral : NaN;
+        const kerb = onKerb(kerbZonesFor(circuit), focus.share, offAxis, cameraData.shakeModel.kerbReachM);
+        const rough = roadRoughness(state.heightAt, focus.share, circuit.length);
+        wobble = onboardWobble(mount.shake, { speed: focus.speed || 0, tSec: tau ?? state.viewTime, seed: shakeSeed, kerb, rough });
+      } else if (mount.shake) lift = shakeOffset(mount.shake, focus.speed || 0, tau ?? state.viewTime, shakeSeed);
+      const placed = carBodyFrame(cam.pos, cam.look, rider.object.position, { yaw: rider.yaw, pitch: rider.pitch || 0, roll: rider.object.rotation.x }, wobble);
+      placed.pos.y += lift;
+      placed.look.y += lift;
+      camera.position.copy(placed.pos);
+      camera.up.copy(placed.up);
+      camera.lookAt(placed.look);
+    } else {
+      camera.up.set(0, 1, 0);
+      if (mount?.shake) camera.position.y += shakeOffset(mount.shake, focus.speed || 0, tau ?? state.viewTime, shakeSeed);
+      camera.lookAt(cam.look);
+    }
     // The camera on air, for whoever listens (the TV sound, AUD-2).
     if (cameraBus) {
       // A TV shot no tower can take is flown by the helicopter (cameras.js frame).
