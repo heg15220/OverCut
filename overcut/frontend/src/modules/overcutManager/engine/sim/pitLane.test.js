@@ -19,7 +19,7 @@ import { reference } from "../../data/reference";
 import pitBalance from "../../data/balance/race-pit.json";
 import pitSchema from "../../data/balance/race-pit.schema.json";
 import { createCareer, createContext, currentRace, entrantsFor, runPractice, runQualifyingSession, seasonWorld } from "../career";
-import { createRace, pitLaneLoss, runToFinish, stepLap } from "../race";
+import { createRace, pitLaneLoss, requestPit, runToFinish, stepLap } from "../race";
 import { pitLaneSpeedFor, rulesFor } from "../rules";
 import { eraWithRegulations } from "../packs/packWorld";
 import { loadSeasonPack, seasonPackYears } from "../packs/seasonPacks";
@@ -42,9 +42,13 @@ import {
   pitLinesFor,
   pitLossFor,
   previewPit,
+  timingLinesFor,
 } from "./pitLane";
 import { expectedStationary, stopEraFor } from "./pitStop";
-import { fromQuickRace, runStepToFinish, stepOnce, toRaceState } from "./index";
+import { fromQuickRace, runStepToFinish, snapshot, stepOnce, toRaceState } from "./index";
+import { deployNeutralisation, trainGrouped } from "./safetyCar";
+import { weekend } from "./simTestKit";
+import { createPitClock, stepPitClock } from "../../components/pitTimer";
 
 const FIELDED = [1976, 1988, 1998, 2005, 2008, 2012, 2016, 2024];
 let context = null;
@@ -648,5 +652,315 @@ describe("PIT-2 · the white lines and the merge out of the pit lane (RF-SIM-12,
     } finally {
       spec.from = saved;
     }
+  });
+});
+
+/**
+ * PIT-C1 (docs/manager/F1M24-CHINA.md §2.2 GS-15, §3.1, §1.5): previewPit and the stopwatch share one
+ * definition - the same two timing lines (timingLinesFor), the same lane profile, the car's own box -
+ * so the estimate is what the clock reads (RF-SIM-12, RF-CMD-02, RF-SIM-13; F1M24-CHINA §1.6: the
+ * game's menu said 25.6 s for a 30.9 s lane). Acceptance: |previewPit − measured| ≤ 0.5 s under green
+ * and ≤ 1.5 s under the safety car, on 8 circuits.
+ */
+describe("PIT-C1 · GS-15 the estimate is the stopwatch (RF-SIM-12, RF-CMD-02, RF-SIM-13)", () => {
+  const CIRCUITS = ["bahrain", "suzuka", "shanghai", "monaco", "hungaroring", "silverstone", "monza", "marina_bay"];
+  const GREEN_TOL = 0.5;
+  const SC_TOL = 1.5;
+
+  /** Time a car crosses lap time share `x` inside this step (tau0 → tau, wrapping at the line), or null. */
+  const crossing = (sim, i, x) => {
+    const t0 = sim.tau0[i];
+    let t1 = sim.tau[i];
+    if (t1 < t0) t1 += 1;
+    for (const target of [x, x + 1]) {
+      if (target > t0 && target <= t1) return sim.clock - sim.dt + (sim.dt * (target - t0)) / Math.max(1e-12, t1 - t0);
+    }
+    return null;
+  };
+
+  /**
+   * Step the race until every car in `asked` ({ [index]: preview }) has been through the lane.
+   * Per stop: the engine's exact line-to-line (entered → out of the lane), the HUD stopwatch's
+   * (pitTimer.js on the poses), the stationary time the crew really drew; and for every car the
+   * times it crossed the two lines on the track, to measure the stretch they span.
+   */
+  /** One step of the race, writing down when each car on the track crossed the two timing lines. */
+  const recorder = (state) => {
+    const sim = state._sim;
+    const { pitEntryTau, pitExitTau } = sim.tables;
+    const entries = state.cars.map(() => []);
+    const exits = state.cars.map(() => []);
+    // The safety car's own passes between the two lines (distance shares on the ring).
+    const sc = { entries: [], exits: [] };
+    const pit = sim.lane.circuit.pit;
+    const scCross = (P0, P1, share) => {
+      const k = Math.floor(P1 - share);
+      const at = k + share;
+      return at > P0 && at <= P1 ? sim.clock - sim.dt + (sim.dt * (at - P0)) / Math.max(1e-12, P1 - P0) : null;
+    };
+    const step = () => {
+      const wasIn = Uint8Array.from(sim.inPit);
+      const N0 = sim.neutral && !sim.neutral.virtual && !sim.neutral.inLane && !sim.neutral.gone ? sim.neutral.P : null;
+      stepOnce(state);
+      const N = sim.neutral;
+      if (N0 !== null && N && !N.virtual && !N.inLane && !N.gone && N.P > N0) {
+        const tIn = scCross(N0, N.P, pit.entry - Math.floor(pit.entry));
+        // Only its passes at its own pace (TRAIN), not the slower PICKUP.
+        if (tIn !== null && state.safetyCar && state.safetyCar.phase === "TRAIN") sc.entries.push(tIn);
+        const tOut = scCross(N0, N.P, pit.exit - Math.floor(pit.exit));
+        if (tOut !== null) sc.exits.push(tOut);
+      }
+      for (let i = 0; i < sim.n; i += 1) {
+        if (wasIn[i] !== 0 || sim.inPit[i] !== 0 || !sim.active[i]) continue;
+        const tIn = crossing(sim, i, pitEntryTau);
+        if (tIn !== null) entries[i].push(tIn);
+        const tOut = crossing(sim, i, pitExitTau);
+        if (tOut !== null) exits[i].push(tOut);
+      }
+      return wasIn;
+    };
+    const runFor = (seconds) => {
+      const until = sim.clock + seconds;
+      while (!state.finished && sim.clock < until) step();
+    };
+    return { entries, exits, sc, step, runFor };
+  };
+
+  const runStops = (state, asked, rec, { maxSeconds = 600 } = {}) => {
+    const sim = state._sim;
+    const { entries, exits } = rec;
+    const clocks = {};
+    const out = {};
+    const until = sim.clock + maxSeconds;
+    const keys = Object.keys(asked).map(Number);
+    keys.forEach((i) => {
+      clocks[i] = createPitClock();
+    });
+    while (!state.finished && sim.clock < until && Object.keys(out).length < keys.length) {
+      const lane = sim.lane.cars;
+      const before = {};
+      keys.forEach((i) => {
+        if (sim.inPit[i] !== 0 && lane.prof[i]) {
+          const tStop = lane.prof[i].tStop;
+          before[i] = { end: lane.enteredAt[i] + lane.prof[i].T + (tStop >= 0 ? lane.stopFor[i] : 0) + sim.side.exitWait[i], stopFor: lane.stopFor[i], entered: lane.enteredAt[i] };
+        }
+      });
+      const wasIn = rec.step();
+      const shot = snapshot(state);
+      keys.forEach((i) => {
+        const pose = shot[i] ? { inPit: shot[i].inPit, pitPhase: shot[i].pit ? shot[i].pit.phase : null } : null;
+        const read = stepPitClock(clocks[i], pose, sim.clock, sim.clock, { pitTimer: { holdRealSec: 1e9 } });
+        if (wasIn[i] !== 0 && sim.inPit[i] === 0 && !out[i] && before[i]) {
+          out[i] = { entered: before[i].entered, left: before[i].end, stationary: before[i].stopFor, hud: read ? read.totalSec : null };
+        }
+      });
+    }
+    return { out, entries, exits };
+  };
+
+  /** The stretch entry line → exit line on the track: the first exit crossing after an entry crossing at `from`. */
+  const stretchFrom = (exits, from) => {
+    const next = exits.find((t) => t > from);
+    return Number.isFinite(next) ? next - from : null;
+  };
+
+  const raceAt = (circuit, seed) => {
+    const w = weekend({ year: 2024, circuit, context, seed });
+    return fromQuickRace(w.make(), { race: w.race });
+  };
+
+  /** Three running cars of three teams in mid-field, none due to stop in the next laps. */
+  const pickCars = (state, skip = new Set()) => {
+    const sim = state._sim;
+    const teams = new Set();
+    const order = state.cars
+      .map((car, i) => ({ car, i }))
+      .filter(({ car, i }) => car.status === "running" && sim.inPit[i] === 0 && sim.active[i] && !skip.has(car.teamId))
+      .sort((a, b) => a.car.position - b.car.position);
+    const picked = [];
+    for (const row of order.slice(2)) {
+      if (teams.has(row.car.teamId)) continue;
+      const lapNow = sim.laps[row.i] + 1;
+      if ((row.car.plan?.stops || []).some((stop) => stop >= lapNow - 1 && stop <= lapNow + 2)) continue;
+      teams.add(row.car.teamId);
+      picked.push(row);
+      if (picked.length === 3) break;
+    }
+    return picked;
+  };
+
+  const rows = [];
+  beforeAll(() => {
+    CIRCUITS.forEach((circuit) => {
+      const state = raceAt(circuit, `gs15-${circuit}`);
+      const sim = state._sim;
+      const lapSec = state.race.baseLap;
+      const rec = recorder(state);
+      rec.runFor(lapSec * 3.4);
+      // Green: ask, preview, and time the stop.
+      const green = pickCars(state);
+      const asked = {};
+      green.forEach(({ car, i }) => {
+        requestPit(state, car.id, null);
+        asked[i] = previewPit(state, car.id);
+      });
+      const g = runStops(state, asked, rec);
+      Object.entries(g.out).forEach(([key, stop]) => {
+        const i = Number(key);
+        // The same car's previous pass between the two lines, on the track.
+        const previous = g.entries[i].filter((t) => t < stop.entered - lapSec * 0.5);
+        const from = previous[previous.length - 1];
+        const stretch = Number.isFinite(from) ? stretchFrom(g.exits[i], from) : null;
+        rows.push({ circuit, kind: "green", preview: asked[i], ...stop, stretch });
+      });
+      // Safety car: bring it out, let the field settle for half a lap, then ask three other teams.
+      deployNeutralisation(state, { virtual: false, reason: "accident", share: 0.4, corner: 4, rules: sim.rules, lap: sim.leaderLap });
+      state.events.push({ type: "sc", lap: sim.leaderLap, forced: true });
+      rec.step();
+      // A long cleanup (the marshals' draw is on its own stream): the train stays out long enough to
+      // time stops in it, rather than the restart that a short one would bring as it groups.
+      if (sim.neutral && !sim.neutral.virtual) sim.neutral.cleanupUntil = sim.clock + lapSec * 4;
+      rec.runFor(lapSec * 0.5);
+      if (!state.safetyCar) return;
+      const sc = pickCars(state, new Set(green.map(({ car }) => car.teamId)));
+      const askedSc = {};
+      sc.forEach(({ car, i }) => {
+        requestPit(state, car.id, null);
+        askedSc[i] = previewPit(state, car.id);
+      });
+      const timeScStops = (batch, phase) => {
+        const s = runStops(state, batch, rec);
+        Object.entries(s.out).forEach(([key, stop]) => {
+          const i = Number(key);
+          const spells = state.safetyCarSpells || [];
+          const underSc = spells.some((spell) => !spell.virtual && spell.from <= stop.entered && (spell.to ?? Infinity) >= stop.left);
+          if (!underSc) return;
+          // The cars that stayed out just ahead of and just behind this one on the road: the
+          // last to cross the entry line before it and the first after it; their mean stretch.
+          let before = null;
+          let after = null;
+          s.entries.forEach((times, j) => {
+            if (batch[j] || j === i) return;
+            times.forEach((t) => {
+              const stretch = stretchFrom(s.exits[j], t);
+              if (stretch === null) return;
+              if (t <= stop.entered && (!before || t > before.t)) before = { t, stretch };
+              if (t > stop.entered && (!after || t < after.t)) after = { t, stretch };
+            });
+          });
+          const around = [before, after].filter(Boolean);
+          let stretch = around.length ? around.reduce((sum, row) => sum + row.stretch, 0) / around.length : null;
+          if (phase === "train") {
+            // In the grouped train the field goes round at the safety car's pace: the stretch is
+            // the SC's own pass between the lines nearest in time. (Inside the train the step
+            // simulator's followers concertina - quicker than the SC on the straights, slower
+            // elsewhere - which moves no car relative to the train as a whole.)
+            const near = rec.sc.entries.reduce((best, t) => (best === null || Math.abs(t - stop.entered) < Math.abs(best - stop.entered) ? t : best), null);
+            stretch = near === null ? null : stretchFrom(rec.sc.exits, near);
+          }
+          rows.push({ circuit, kind: "sc", phase, preview: batch[i], ...stop, stretch, around: around.map((row) => row.stretch) });
+        });
+      };
+      // Asked while the field still closes up on the safety car.
+      timeScStops(askedSc, "pickup");
+      // And once the field is in line behind it (safetyCar.js trainGrouped), if it is still out. The
+      // moments in between - a car joining the tail of the train inside the stretch - are the one
+      // case the estimate reads from the gaps of the moment (pitLane.js scPaceOf), not asserted here.
+      const used = new Set([...green, ...sc].map(({ car }) => car.teamId));
+      const grouped = () => Boolean(state.safetyCar && sim.neutral && !sim.neutral.virtual && sim.neutral.ref === state.safetyCar && trainGrouped(state));
+      for (let k = 0; k < 24 && state.safetyCar && !grouped(); k += 1) rec.runFor(lapSec * 0.125);
+      if (!grouped()) return;
+      const askedTrain = {};
+      pickCars(state, used).forEach(({ car, i }) => {
+        requestPit(state, car.id, null);
+        askedTrain[i] = previewPit(state, car.id);
+      });
+      timeScStops(askedTrain, "train");
+    });
+    const fmt = (x) => (Number.isFinite(x) ? x.toFixed(2) : "-");
+    // eslint-disable-next-line no-console
+    console.log(rows.map((r) => `${r.circuit} ${r.kind}${r.phase ? `/${r.phase}` : ""}: preview ${fmt(r.kind === "sc" ? r.preview.lineToLineSc : r.preview.lineToLine)} (loss ${fmt(r.kind === "sc" ? r.preview.lossSc : r.preview.lossGreen)}) | engine ${fmt(r.left - r.entered)} hud ${fmt(r.hud)} stop ${fmt(r.stationary)}/${fmt(r.preview.stopMedian)} | stretch ${fmt(r.stretch)}${r.around ? ` [${r.around.map(fmt).join(" ")}]` : ""} track ${fmt(r.kind === "sc" ? r.preview.trackSc : r.preview.trackGreen)} | miss ${r.stretch === null ? "-" : fmt((r.kind === "sc" ? r.preview.lossSc : r.preview.lossGreen) - (r.left - r.entered - r.stationary + r.preview.stopMedian - r.stretch))}`).join("\n"));
+  }, 300000);
+
+  it("times stops on all 8 circuits, under green and under the safety car", () => {
+    CIRCUITS.forEach((circuit) => {
+      expect([circuit, rows.filter((r) => r.circuit === circuit && r.kind === "green").length >= 2]).toEqual([circuit, true]);
+      expect([circuit, rows.filter((r) => r.circuit === circuit && r.kind === "sc").length >= 1]).toEqual([circuit, true]);
+    });
+    rows.forEach((r) => expect(r.preview.clock).toBe("step"));
+  });
+
+  it("line to line: the estimate is the engine's stopwatch (≤ 0.5 s green, ≤ 1.5 s SC; the crew's own draw aside)", () => {
+    rows.forEach((r) => {
+      const measured = r.left - r.entered;
+      // The estimate cannot know the crew's draw: compare with the stop it expects in its place.
+      const like = measured - r.stationary + r.preview.stopMedian;
+      const predicted = r.kind === "sc" ? r.preview.lineToLineSc : r.preview.lineToLine;
+      expect([r.circuit, r.kind, Math.abs(predicted - like) <= (r.kind === "sc" ? SC_TOL : GREEN_TOL)]).toEqual([r.circuit, r.kind, true]);
+    });
+    // And raw, the stop's draw included, the median miss stays inside the green tolerance.
+    const misses = rows.map((r) => Math.abs((r.kind === "sc" ? r.preview.lineToLineSc : r.preview.lineToLine) - (r.left - r.entered))).sort((a, b) => a - b);
+    expect(misses[Math.floor(misses.length / 2)]).toBeLessThanOrEqual(GREEN_TOL);
+  });
+
+  it("the HUD stopwatch (pitTimer.js on the poses) reads the same lines: within one step of the engine's", () => {
+    rows.forEach((r) => {
+      expect(r.hud).not.toBeNull();
+      expect(Math.abs(r.hud - (r.left - r.entered))).toBeLessThanOrEqual(0.25 + 1e-9);
+    });
+  });
+
+  it("net loss: the stopwatch less the same stretch driven on the track (≤ 0.5 s green, ≤ 1.5 s SC)", () => {
+    const measuredRows = rows.filter((r) => r.stretch !== null);
+    expect(measuredRows.length).toBeGreaterThanOrEqual(rows.length * 0.75);
+    measuredRows.forEach((r) => {
+      const measured = r.left - r.entered - r.stationary + r.preview.stopMedian - r.stretch;
+      const predicted = r.kind === "sc" ? r.preview.lossSc : r.preview.lossGreen;
+      expect([r.circuit, r.kind, Math.abs(predicted - measured) <= (r.kind === "sc" ? SC_TOL : GREEN_TOL)]).toEqual([r.circuit, r.kind, true]);
+    });
+  });
+
+  it("one definition: loss = line to line − the track stretch, in both modes; the lines are the lane's ends", () => {
+    rows.forEach((r) => {
+      expect(r.preview.lossGreen).toBeCloseTo(r.preview.lineToLine - r.preview.trackGreen, 9);
+      expect(r.preview.lossSc).toBeCloseTo(r.preview.lineToLineSc - r.preview.trackSc, 9);
+      expect(r.preview.extraLoss).toBe(0);
+      expect(r.preview.lines.definition).toBe("laneEnds");
+    });
+    const { race, state } = quickRace(2024, "gs15-quick");
+    const circuit = circuitFor(race, 2024);
+    const lines = timingLinesFor(circuit);
+    expect(lines.entryShare).toBeCloseTo(circuit.pit.entry - Math.floor(circuit.pit.entry), 12);
+    expect(lines.exitShare).toBeCloseTo(circuit.pit.exit - Math.floor(circuit.pit.exit), 12);
+    expect(lines.laneMetres).toBeCloseTo(laneGeometry(circuit).total, 9);
+    const preview = previewPit(state, state.cars[0].id, { circuit });
+    const lane = pitLaneFor(circuit, { kmh: state.pitLane.kmh, baseLap: state.race.baseLap, circuitId: state.pitLane.circuitId });
+    expect(preview.clock).toBe("quick");
+    // The quick mode still charges state.pitLane (SRS 4.2); its stopwatch is that charge + the stretch.
+    expect(preview.lossGreen).toBeCloseTo(state.pitLane.stop + preview.stopMedian, 12);
+    expect(preview.lineToLine).toBeCloseTo(preview.lossGreen + lane.track, 9);
+    expect(preview.lineToLine).toBeCloseTo(lane.lane + preview.extraLoss + preview.stopMedian, 2);
+    expect(preview.lineToLineSc).toBeCloseTo(preview.lineToLine, 2);
+    expect(preview.laneDrive).toBe(lane.lane);
+    // Line to line is the loss plus the stretch, as in the real numbers (OpenF1 lane duration > net loss).
+    expect(preview.lineToLine).toBeGreaterThan(preview.lossGreen);
+    expect(bahrain2024.openf1.laneDurationMedian).toBeGreaterThan(bahrain2024.openf1.lossMedian);
+    // eslint-disable-next-line no-console
+    console.log(`Bahrain 2024 quick: lineToLine ${preview.lineToLine.toFixed(2)} s (real lane duration ${bahrain2024.openf1.laneDurationMedian}, f1db ${bahrain2024.f1db.pitLaneMedian}), lossGreen ${preview.lossGreen.toFixed(2)} s (real ${bahrain2024.openf1.lossMedian}); lane ${lines.laneMetres.toFixed(0)} m between the timing lines`);
+    // Without a circuit the quick mode cannot time a lane: no invented line-to-line.
+    expect(previewPit(state, state.cars[0].id).lineToLine).toBeNull();
+    expect(timingLinesFor({ pit: null })).toBeNull();
+  });
+
+  it("asking in a step race draws nothing and writes nothing (RF-SIM-15, RNF-05)", () => {
+    const a = raceAt("suzuka", "gs15-pure");
+    const b = raceAt("suzuka", "gs15-pure");
+    for (let k = 0; k < 900; k += 1) {
+      if (k % 30 === 0) a.cars.forEach((car) => previewPit(a, car.id));
+      stepOnce(a);
+      stepOnce(b);
+    }
+    expect(JSON.stringify(toRaceState(a))).toBe(JSON.stringify(toRaceState(b)));
+    expect(Array.from(a._sim.tau)).toEqual(Array.from(b._sim.tau));
   });
 });

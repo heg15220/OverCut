@@ -42,6 +42,12 @@
  * (race-eras.json pitExitLine / pitEntryLine, years pending). All pure; the step simulator
  * (stepRace.js, SIM lane) calls them.
  *
+ * One definition for the estimate and the stopwatch (PIT-C1, GS-15; docs/manager/F1M24-CHINA.md
+ * §1.5, §2.2): `timingLinesFor(circuit)` names the two timing lines (the lane leaves the track →
+ * the lane ends, where `pose.inPit` starts and stops the HUD's pit clock), and previewPit times a
+ * stop between them on the clock it will really run on - the step simulator's own box and pace,
+ * or the quick mode's charge - so `lineToLine` is the stopwatch and `loss* = lineToLine* − track*`.
+ *
  * Only + − × ÷ and Math.sqrt in the tables (RNF-05: bit-identical across JS engines).
  */
 
@@ -54,6 +60,7 @@ import { pitLaneSpeedFor, rulesFor } from "../rules";
 import { pitMarksFor, trackDataFor } from "../trackData";
 import { distanceAtTimeShare, timeShareAtDistance } from "../trackGeometry";
 import { expectedStationary } from "./pitStop";
+import { SC_PHASE, gapToSc } from "./safetyCar";
 
 const LANE = pitBalance.pitLane;
 const KMH = 1 / 3.6;
@@ -429,6 +436,184 @@ const laneLossesOf = (state, circuit) => {
   return { green: lane.stop, sc: lane.sc, vsc: lane.vsc };
 };
 
+// ------------------------------------------------------------ the stopwatch's lines (PIT-C1, GS-15)
+
+/**
+ * RF-SIM-12, RF-CMD-02 (PIT-C1, GS-15; docs/manager/F1M24-CHINA.md §1.5, §2.2): the two timing
+ * lines of the pit lane, the one definition the estimate and the stopwatch share:
+ *
+ *   entry   where the lane leaves the track (circuit.pit.entry, lap distance share): the step
+ *           simulator puts the car in the lane there (trackTables pitEntryTau) and its pose turns
+ *           `inPit`, so the HUD's stopwatch (components/pitTimer.js) starts there
+ *   exit    the lane's end (circuit.pit.exit): the car is back on the track and `inPit` turns
+ *           false, so the stopwatch stops there. The painted white line runs on past it
+ *           (pitLinesFor exit.toShare) but is a rule of the merge, not a timing line
+ *
+ * The line-to-line time is the stopwatch's; the net loss is that time less the same stretch of
+ * track (entry → exit) at the car's pace. Null for a circuit without a lane. Pure.
+ */
+export const timingLinesFor = (circuit) => {
+  if (!circuit || !circuit.pit || !circuit.pit.path) return null;
+  const geo = laneGeometry(circuit);
+  return { entryShare: frac(circuit.pit.entry), exitShare: frac(circuit.pit.exit), laneMetres: geo.total, definition: "laneEnds" };
+};
+
+const driveCache = new WeakMap();
+
+/**
+ * Seconds of driving from the entry line to the exit line (stationary excluded) for a stop at
+ * `stopAt` metres along the lane (null = drive-through), on the same profile the step simulator
+ * drives (buildProfile). Cached per circuit, limit, pace and box.
+ */
+export const laneDriveTime = (circuit, { vLimit, baseLap, stopAt = null }) => {
+  let byKey = driveCache.get(circuit);
+  if (!byKey) {
+    byKey = new Map();
+    driveCache.set(circuit, byKey);
+  }
+  const key = `${vLimit}|${baseLap}|${stopAt}`;
+  if (!byKey.has(key)) byKey.set(key, buildProfile(circuit, { vLimit, baseLap, stopAt }).T);
+  return byKey.get(key);
+};
+
+/**
+ * How car `index` runs on the track under the safety car in a step race, read the way the step
+ * simulator paces it (safetyCar.js scRateCap; race-sim.json safetyCar): `{ closing, train,
+ * joinMetres }` in seconds per lap and metres. In the train (within trainGapMetres of the car
+ * ahead, or of the SC for the leader) at the SC's pace (baseLap × lapFactor); still closing up at
+ * catchUp × that rate, for `joinMetres` more; a lapped car waved by, or the restart, at its own
+ * pace - never quicker than its own. With no SC on the ring it is the train's pace from the start:
+ * what a stop would save once the field is behind the car.
+ */
+const scPaceOf = (state, index, own, baseLap) => {
+  const sc = simBalance.safetyCar;
+  const train = baseLap * sc.lapFactor;
+  const sim = state._sim;
+  const N = sim && sim.neutral;
+  const none = { closing: Math.max(own, train), train: Math.max(own, train), joinMetres: 0 };
+  if (!state.safetyCar || state.safetyCar.virtual || !N || N.virtual || N.ref !== state.safetyCar || index < 0) return none;
+  if ((N.unlap && N.unlap[index] === 1) || N.phase === SC_PHASE.RESTART) return { closing: own, train: own, joinMetres: 0 };
+  // The slack between this car and the safety car: every gap over trainGapMetres up the road from
+  // it to the SC (the leader's gap to the SC on the ring, gapToSc, or the road to it while the SC is
+  // still more than half a lap away). A car held close behind another that is still closing up keeps
+  // being let go again (scRateCap), so it is in the train only once the whole slack ahead is gone.
+  const scAhead = (k) => {
+    const gap = gapToSc(sim, N, k);
+    if (Number.isFinite(gap)) return gap;
+    return Number.isFinite(N.P) && !N.gone ? frac(N.P - sim.P[k]) * sim.tables.length : 0;
+  };
+  let slack = 0;
+  let k = index;
+  for (let guard = 0; guard < sim.n && k >= 0; guard += 1) {
+    const gap = k === N.leader ? scAhead(k) : sim.ahead[k] >= 0 ? sim.gapM[k] : 0;
+    slack += Math.max(0, gap - sc.trainGapMetres);
+    if (k === N.leader) break;
+    k = sim.ahead[k];
+  }
+  const closing = Math.max(own, train / sc.catchUp);
+  const trainLap = Math.max(own, train);
+  // Metres this car covers before it has closed the slack (closing at closing pace on a train at the SC's).
+  const joinMetres = slack > 0 ? (closing < trainLap ? (slack * trainLap) / (trainLap - closing) : Infinity) : 0;
+  return { closing, train: trainLap, joinMetres };
+};
+
+/**
+ * Seconds car `index` takes on the track from the entry line to the exit line in a step race, the
+ * way the step simulator spends its lap budget `pace` over the lap (stepRace: the time share of
+ * cell j costs pace × (1 − dev + dev × sens[j]), trackTables `sens` with mean 1 and the car's
+ * `dev`), no quicker per cell than `capLap` seconds per lap (the SC / VSC pace; 0 = none). The
+ * driver's corner shape and the sector shares of a wet lap average out over a lap and are left out.
+ */
+const stretchTime = (sim, index, pace, capLap, capBins = null) => {
+  const tables = sim.tables;
+  const from = tables.pitEntryTau;
+  let to = tables.pitExitTau;
+  if (to <= from) to += 1;
+  const M = tables.M || 0;
+  const sens = tables.sens;
+  const dev = sim.dev && index >= 0 && Number.isFinite(sim.dev[index]) ? sim.dev[index] : 0;
+  if (!M || !sens) return (to - from) * Math.max(pace, capLap);
+  let total = 0;
+  for (let k = Math.floor(from * M); k < Math.ceil(to * M); k += 1) {
+    const lo = Math.max(from, k / M);
+    const hi = Math.min(to, (k + 1) / M);
+    if (!(hi > lo)) continue;
+    const own = pace * (1 - dev + dev * sens[k % M]);
+    // capBins: seconds per lap of time share in each bin (the safety car's own profile), else flat.
+    const cap = capBins ? capBins[k % M] : capLap;
+    total += (hi - lo) * Math.max(own, cap);
+  }
+  return total;
+};
+
+/**
+ * The safety car's pace bin by bin (seconds per lap of time share), from the profile the step
+ * simulator drives it on (safetyCar.js profileOf, cached on the sim as `scProfile` once a SC is
+ * out): bin j of width dd_j of the lap at v_j m/s costs dd_j × L / v_j, i.e. M × dd_j × L / v_j
+ * seconds per lap. Null before any safety car has been out (then the flat lapFactor pace).
+ */
+const scBinsOf = (sim) => {
+  const profile = sim.scProfile;
+  const tables = sim.tables;
+  if (!profile || !profile.v || !tables.dOfTau || !(tables.length > 0)) return null;
+  const M = tables.M;
+  const out = new Float64Array(M);
+  for (let j = 0; j < M; j += 1) {
+    const dd = tables.dOfTau[j + 1] - tables.dOfTau[j];
+    out[j] = profile.v[j] > 0 ? (M * dd * tables.length) / profile.v[j] : 0;
+  }
+  return out;
+};
+
+/**
+ * The clock a stop will be timed on, for previewPit: `{ mode, drive, track, extra }` per
+ * condition. `drive` = seconds from line to line without the stop, `track` = the same stretch on
+ * the track, `extra` = the per-circuit correction the quick mode charges (race-pit.json extraLoss).
+ *
+ *   step   the race in the step simulator (state._sim.lane): the car drives the lane to its own
+ *          team's box (stepRace laneSetup boxOf, moved back by queueOffsetMetres when it queues)
+ *          and the track stretch runs at its own lap budget (sim.budget), or at the SC / VSC
+ *          pace (race-sim.json safetyCar) while one is out. No extraLoss: the step mode drives
+ *          the lane, it does not charge a correction
+ *   quick  the quick mode: the middle garage (pitLaneFor), the track at `baseLap`, the
+ *          correction included - exactly what race.js charges (state.pitLane)
+ */
+const stopClockOf = (state, circuit, index, car, queued) => {
+  const L = state._sim && state._sim.lane && state._sim.lane.circuit && state._sim.lane.geo ? state._sim.lane : null;
+  const sc = simBalance.safetyCar;
+  if (L) {
+    const geo = L.geo;
+    const own = L.boxOf?.[car.teamId] ?? (geo.slotFrom + geo.slotTo) / 2;
+    const box = Math.max(geo.limitFromS + 1, own - (queued ? LANE.queueOffsetMetres : 0));
+    const drive = laneDriveTime(L.circuit, { vLimit: L.vLimit, baseLap: L.baseLap, stopAt: box });
+    const budget = state._sim.budget && index >= 0 && index < state._sim.budget.length ? state._sim.budget[index] : NaN;
+    const pace = Number.isFinite(budget) && budget > 1 ? budget : L.baseLap;
+    const green = stretchTime(state._sim, index, pace, 0);
+    // Under the SC: closing up until the slack is gone, then at the train's pace (blended by the
+    // share of the stretch, entry line → exit line, the car drives in the train).
+    const scPace = scPaceOf(state, index, pace, L.baseLap);
+    const lapMetres = state._sim.tables.length || lapMetresOf(L.circuit);
+    const here = index >= 0 && state._sim.P ? frac(state._sim.P[index]) : 0;
+    const toEntry = frac(frac(L.circuit.pit.entry) - here) * lapMetres;
+    const stretchMetres = frac(frac(L.circuit.pit.exit) - frac(L.circuit.pit.entry)) * lapMetres;
+    const inTrain = stretchMetres > 0 ? clamp((toEntry + stretchMetres - scPace.joinMetres) / stretchMetres, 0, 1) : 1;
+    const closingT = stretchTime(state._sim, index, pace, scPace.closing);
+    const bins = scPace.train > pace ? scBinsOf(state._sim) : null;    const trainT = stretchTime(state._sim, index, pace, scPace.train, bins);
+    return {
+      mode: "step",
+      drive,
+      extra: 0,
+      track: { green, sc: closingT + (trainT - closingT) * inTrain, vsc: stretchTime(state._sim, index, pace, L.baseLap * sc.virtualLapFactor) },
+      lines: timingLinesFor(L.circuit),
+    };
+  }
+  if (!circuit || !circuit.pit || !circuit.pit.path || !(state.race?.baseLap > 0)) return null;
+  const circuitId = state.pitLane?.circuitId ?? null;
+  const lane = pitLaneFor(circuit, { kmh: state.pitLane ? state.pitLane.kmh : null, baseLap: state.race.baseLap, circuitId });
+  const extra = (circuitId && LANE.extraLoss.circuits[circuitId]) ?? LANE.extraLoss.default;
+  return { mode: "quick", drive: lane.lane, extra, track: { green: lane.track, sc: lane.track * sc.lapFactor, vsc: lane.track * sc.virtualLapFactor }, lines: timingLinesFor(circuit) };
+};
+
 /** Distance share of the lap car `index` has covered: given, the step simulator's (its time share on the trace), or the line. */
 const shareOfCar = (state, circuit, index, given) => {
   if (Number.isFinite(given)) return frac(given);
@@ -443,13 +628,33 @@ const shareOfCar = (state, circuit, index, given) => {
  * writes nothing, and draws from no stream (the crew's stream is not even created), so asking
  * never changes a result (RF-SIM-15, RNF-05).
  *
- * What each number measures - net losses, never the line-to-line lane time that f1db's
- * pit_stop.time or a timing screen shows (F1M24-GAMEPLAY §1.6):
+ * GS-15 (PIT-C1, F1M24-CHINA.md §1.5, §2.2): the estimate and the stopwatch share one definition.
+ * Both are timed between the same two lines (timingLinesFor: the lane leaves the track → the lane
+ * ends), on the clock the stop will really run on (`clock`): in a step race the car's own box and
+ * its own pace on the track, in the quick mode the middle garage and the charge race.js makes. So
+ * `lineToLine` is what the HUD stopwatch (pitTimer.js, from `pose.inPit`) will read when the car
+ * is out, and `lossGreen = lineToLine − trackGreen` exactly.
+ *
+ * What each number measures - the `loss*` fields are net losses, never the line-to-line lane time
+ * that f1db's pit_stop.time or a timing screen shows (F1M24-GAMEPLAY §1.6); the `lineToLine*`
+ * fields are that line-to-line time:
  *
  *   lossGreen   seconds lost against staying out, under green: the lane at the limit with the
  *               braking into the box and the launch out of it, less the same stretch of track
- *               at race pace (state.pitLane.stop, the loss both modes charge, SRS 4.2), plus
- *               `stopMedian`, plus `queueSec`
+ *               at race pace (quick mode: state.pitLane.stop, the loss both modes charge, SRS
+ *               4.2; step mode: the car's own box and lap budget), plus `stopMedian`, plus
+ *               `queueSec`
+ *   lineToLine  the stopwatch: seconds from the entry line to the exit line, stop and queue
+ *               included (= lossGreen + trackGreen). `lineToLineSc` / `lineToLineVsc` the same
+ *               under a SC / VSC: the lane is driven at its limit either way, so they differ
+ *               from `lineToLine` only by the quick mode's floor at zero loss
+ *   trackGreen  seconds the same stretch (entry line → exit line) takes on the track: the car's
+ *               pace (step) or `baseLap` (quick); `trackSc` / `trackVsc` at the SC / VSC pace
+ *               (race-sim.json safetyCar lapFactor / virtualLapFactor)
+ *   laneDrive   the driving part of `lineToLine` (no stop, no queue), from the profile
+ *   extraLoss   the per-circuit correction inside the quick mode's loss (race-pit.json
+ *               extraLoss); 0 in a step race, which drives the lane and charges no correction
+ *   clock       "step" | "quick": which of the two clocks above; `lines` the timing lines
  *   lossSc      the same with the track stretch at safety-car pace (state.pitLane.sc), `lossVsc`
  *               at VSC pace: derived, not configured (§2.11). Whether the era has a SC or a VSC
  *               at all is `scAllowed` / `vscAllowed` (rules.raceControl)
@@ -490,11 +695,21 @@ export const previewPit = (state, carId, opts = {}) => {
   const mateFirst = teamMateSameLap && Number.isFinite(mate.time) && Number.isFinite(car.time) && mate.time < car.time;
   const queueSec = mateFirst ? stopOf(mate, fuelFor(mate)) : 0;
 
-  const lane = laneLossesOf(state, circuit);
+  // GS-15: the clock the stop will be timed on - the step simulator's own lane and box, or the
+  // quick mode's charge - so the estimate is what the stopwatch will show (one definition).
+  const clock = stopClockOf(state, circuit, index, car, queueSec > 0);
+  const lane = clock && clock.mode === "step"
+    ? { green: clock.drive - clock.track.green, sc: Math.max(0, clock.drive - clock.track.sc), vsc: Math.max(0, clock.drive - clock.track.vsc) }
+    : laneLossesOf(state, circuit);
   const total = (laneLoss) => (laneLoss === null || laneLoss === undefined ? null : laneLoss + stopMedian + queueSec);
   const lossGreen = lane ? total(lane.green) : null;
   const lossSc = lane ? total(lane.sc) : null;
   const lossVsc = lane ? total(lane.vsc) : null;
+  // Line to line = the net loss + the same stretch of track (the definition, both ways round).
+  const lineOf = (loss, track) => (loss === null || !clock ? null : loss + track);
+  const lineToLine = clock ? lineOf(lossGreen, clock.track.green) : null;
+  const lineToLineSc = clock ? lineOf(lossSc, clock.track.sc) : null;
+  const lineToLineVsc = clock ? lineOf(lossVsc, clock.track.vsc) : null;
 
   // Where it rejoins, with the condition on track now (a safety car out lowers everybody's loss).
   const neutral = state.safetyCar;
@@ -533,6 +748,17 @@ export const previewPit = (state, carId, opts = {}) => {
     scAllowed: Boolean(rules.raceControl?.safetyCar),
     vscAllowed: Boolean(rules.raceControl?.vsc),
     measures: "net",
+    // GS-15: what the stopwatch will show, between the same two lines (timingLinesFor).
+    lineToLine,
+    lineToLineSc,
+    lineToLineVsc,
+    trackGreen: clock ? clock.track.green : null,
+    trackSc: clock ? clock.track.sc : null,
+    trackVsc: clock ? clock.track.vsc : null,
+    laneDrive: clock ? clock.drive : null,
+    extraLoss: clock ? clock.extra : null,
+    clock: clock ? clock.mode : null,
+    lines: clock ? clock.lines : null,
   };
 };
 
