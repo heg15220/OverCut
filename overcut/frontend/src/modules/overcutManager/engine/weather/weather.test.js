@@ -227,9 +227,9 @@ describe("GS-13 · water evacuation by tyre generation (RF-SIM-03, RF-SIM-11, SR
   it("the eras are ordered, contiguous, cover every playable season and cite a source when measured", () => {
     EV.eras.forEach((era, k) => {
       expect(era.to).toBeGreaterThanOrEqual(era.from);
-      if (k > 0) expect(era.from).toBe(EV.eras[k - 1].to + 1);
-      if (era.status === "measured") expect(era.source).toMatch(/^https:\/\//);
-      if (era.status !== "measured") expect(era.note.length).toBeGreaterThan(20);
+      expect(era.from).toBe(k > 0 ? EV.eras[k - 1].to + 1 : era.from);
+      expect(era.status === "measured" ? era.source : "https://").toMatch(/^https:\/\//);
+      expect(era.status !== "measured" ? era.note.length : 21).toBeGreaterThan(20);
     });
     PLAYABLE.forEach((year) => expect(EV.eras.some((era) => year >= era.from && year <= era.to)).toBe(true));
     // Pirelli's 2014 figure for the Pirelli years before the wider tyres; nothing published before 2011.

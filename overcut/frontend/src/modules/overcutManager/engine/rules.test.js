@@ -284,12 +284,11 @@ describe("SIM-C0 · GS-08 DRS by table, every year (RF-SIM-08, RF-SIM-10, SRS §
     rows.forEach((row) => {
       for (let year = row.from; year <= row.to; year += 1) covered.push(year);
       expect(["source", "pending"]).toContain(row.status);
-      if (row.status === "pending") expect(typeof row.note).toBe("string");
-      if (row.status === "source" && row.value) expect([typeof row.url, typeof row.quote]).toEqual(["string", "string"]);
+      expect(row.status === "pending" ? typeof row.note : "string").toBe("string");
+      expect(row.status === "source" && row.value ? [typeof row.url, typeof row.quote] : ["string", "string"]).toEqual(["string", "string"]);
       (row.pendingKeys || []).forEach((key) => expect(row.value).toHaveProperty(key));
-      if (row.value) {
-        expect(Object.keys(row.value).sort()).toEqual(["detectionGapSec", "disableVisibility", "disableYellowInZone", "raceAfterLaps", "restartAfterLaps", "sprintAfterLaps"]);
-      }
+      const keys = ["detectionGapSec", "disableVisibility", "disableYellowInZone", "raceAfterLaps", "restartAfterLaps", "sprintAfterLaps"];
+      expect(row.value ? Object.keys(row.value).sort() : keys).toEqual(keys);
     });
     expect(covered).toEqual(YEARS);
     // The procedure exists exactly where DRS does (criterio 7.2).

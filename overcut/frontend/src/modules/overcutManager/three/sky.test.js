@@ -105,7 +105,8 @@ describe("posición del sol (NOAA)", () => {
         const ours = solarPosition({ ...site, hour });
         const ref = usno({ ...site, hour });
         expect(Math.abs(ours.trueElevationDeg - ref.elevationDeg)).toBeLessThanOrEqual(2);
-        if (ref.elevationDeg > 2 && ref.elevationDeg < 85) expect(angleDiff(ours.azimuthDeg, ref.azimuthDeg)).toBeLessThanOrEqual(2);
+        const azimuthChecked = ref.elevationDeg > 2 && ref.elevationDeg < 85;
+        expect(azimuthChecked ? angleDiff(ours.azimuthDeg, ref.azimuthDeg) : 0).toBeLessThanOrEqual(2);
       });
     });
   });
@@ -201,12 +202,11 @@ describe("nubes, luz y sombra", () => {
       let prev = null;
       for (let cloud = 0; cloud <= 1.0001; cloud += 0.05) {
         const l = lightingFor({ elevationDeg, cloud });
-        if (prev) {
-          expect(l.shadowOpacity).toBeLessThanOrEqual(prev.shadowOpacity + 1e-12);
-          expect(l.shadowRadius).toBeGreaterThanOrEqual(prev.shadowRadius - 1e-12);
-          expect(l.sunIntensity).toBeLessThanOrEqual(prev.sunIntensity + 1e-12);
-          expect(l.hemiIntensity).toBeGreaterThanOrEqual(prev.hemiIntensity - 1e-12);
-        }
+        const p = prev || l;
+        expect(l.shadowOpacity).toBeLessThanOrEqual(p.shadowOpacity + 1e-12);
+        expect(l.shadowRadius).toBeGreaterThanOrEqual(p.shadowRadius - 1e-12);
+        expect(l.sunIntensity).toBeLessThanOrEqual(p.sunIntensity + 1e-12);
+        expect(l.hemiIntensity).toBeGreaterThanOrEqual(p.hemiIntensity - 1e-12);
         prev = l;
       }
     });

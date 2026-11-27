@@ -333,7 +333,7 @@ describe("AUD-C10 licences: public builds and defaults (SRS 3.3, 7.3)", () => {
     expect(audioData.mixer.defaults.recorded).toBe(false);
     expect(SAMPLES.enabledByDefault).toBe(false);
     // Should a licensed bank arrive, the defaults may change; until all are, they must not.
-    if (!recordedDefaultAllowed()) expect(audioData.mixer.defaults.recorded || SAMPLES.enabledByDefault).toBe(false);
+    expect(!recordedDefaultAllowed() && (audioData.mixer.defaults.recorded || SAMPLES.enabledByDefault)).toBe(false);
     expect(publicExcludedFiles()).toEqual(soundManifest.banks.map((bank) => bank.file));
   });
 

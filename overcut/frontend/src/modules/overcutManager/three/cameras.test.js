@@ -716,7 +716,7 @@ describe("the helicopter (CAM-C1 VIEW-12; RF-3D-04, RNF-05)", () => {
       }
       const focus = { x, y: 0, z, heading, speed: v, share: 0.5, spec: {} };
       const shot = frame("heli", focus, circuit, [], state, 1 / 60);
-      if (i > 0) expect(shot.snap).toBe(false);
+      expect(i > 0 && shot.snap).toBe(false);
       expect(shot.held).toBe(true);
       const elevation = (Math.atan2(shot.pos.y, Math.hypot(shot.pos.x - x, shot.pos.z - z)) * 180) / Math.PI;
       expect(elevation).toBeGreaterThanOrEqual(35);
@@ -824,9 +824,9 @@ describe("contracts of wave 1 (CAM-C1, F1M24-CHINA §3.2)", () => {
     const energy = (era) => era.fields.some((field) => field === "kers" || field === "ers");
     eras.forEach((era) => {
       expect(era.status).toBe("pending");
-      if (era.to < 2009) expect(energy(era)).toBe(false);
-      if (era.from <= 2010 && era.to >= 2010) expect(energy(era)).toBe(false);
-      if (era.to <= 2013) expect(era.fields).not.toContain("ers");
+      expect(era.to < 2009 && energy(era)).toBe(false);
+      expect(era.from <= 2010 && era.to >= 2010 && energy(era)).toBe(false);
+      expect(era.to <= 2013 && era.fields.includes("ers")).toBe(false);
     });
   });
 

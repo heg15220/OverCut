@@ -146,7 +146,9 @@ describe("desenfoque con máscara (VIEW-05)", () => {
     const img = checker();
     const mask = carMask();
     const out = blurImage(img, W, H, mask, params());
-    for (let i = 0; i < img.length; i += 1) if (mask[i] >= 1) expect(out[i]).toBe(img[i]);
+    const touched = [];
+    for (let i = 0; i < img.length; i += 1) if (mask[i] >= 1 && out[i] !== img[i]) touched.push(i);
+    expect(touched).toEqual([]);
   });
 
   it("es determinista: mismas entradas, mismos bytes, sin Math.random", () => {

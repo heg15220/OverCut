@@ -75,9 +75,11 @@ describe("RF-CMD-01/02: every order changes the race", () => {
     const front = { ...given, grid: [user[0], ...given.grid.filter((id) => id !== user[0])] };
     const fast = play(front, [[200, "setMode", user[0], "attack"]]);
     const slow = play(front, [[200, "setMode", user[0], "conserve"]]);
-    // Eight laps from lap 5 that neither race ran behind (or just after) a safety car or VSC: the
-    // order moves every car's draws, so a crash elsewhere can bring one out in one race only
-    // (135 s laps against 95 s).
+    // Eight laps from lap 4 (the first whole lap after the order, given at 200 s in lap 3) that neither
+    // race ran behind (or just after) a safety car or VSC: the order moves every car's draws, so a crash
+    // elsewhere can bring one out in one race only (135 s laps against 95 s). From lap 5 the window
+    // fell, with SIM-C1's trajectories, on the end of the first stint, where attack has already used
+    // up its tyres (laps 18-20) - the order working, not failing.
     const neutralised = (state) => {
       const laps = new Set();
       let open = null;
@@ -92,7 +94,7 @@ describe("RF-CMD-01/02: every order changes the race", () => {
       return laps;
     };
     const skip = new Set([...neutralised(fast), ...neutralised(slow)]);
-    const laps = Array.from({ length: 20 }, (_, k) => k + 5).filter((lap) => !skip.has(lap)).slice(0, 8);
+    const laps = Array.from({ length: 20 }, (_, k) => k + 4).filter((lap) => !skip.has(lap)).slice(0, 8);
     expect(laps.length).toBe(8);
     const sum = (state) => laps.reduce((total, lap) => total + lapTimes(state, user[0])[lap - 1], 0);
     expect(sum(fast)).toBeLessThan(sum(slow));
@@ -128,9 +130,10 @@ describe("RF-CMD-01/02: every order changes the race", () => {
 
 describe("RF-CMD-02 in a refuelling era (2008)", () => {
   it("the player sets the fuel of a requested stop, and it is what goes in", () => {
-    // Seed "refuel-c": on "refuel" the long-fill car is taken out by a collision before its next stop
-    // since the fuel's real weight (RF-SIM-04) changed the plans, leaving nothing to compare.
-    const { args, user } = sunday(2008, "refuel-c");
+    // Seed "refuel-d": on "refuel" the long-fill car is taken out by a collision before its next stop
+    // since the fuel's real weight (RF-SIM-04) changed the plans, and on "refuel-c" the short-fill one
+    // since SIM-C1 (F1M24-CHINA ola 1), leaving nothing to compare.
+    const { args, user } = sunday(2008, "refuel-d");
     const short = play(args, [[200, "requestPit", user[0], null, { fuel: 6 }]]);
     const long = play(args, [[200, "requestPit", user[0], null, { fuel: 30 }]]);
     const stopOf = (state) => state.events.find((event) => event.type === "pit" && event.carId === user[0]);

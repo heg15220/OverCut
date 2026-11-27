@@ -72,14 +72,39 @@ const gearsOnRealTrace = (pt, lap) => {
 };
 
 /** A step race of `year` at `circuit`, the snapshots of car `index` over `lap`. */
+/**
+ * Car 0's trace over the first lap from `lap` on that runs wholly green and alone (no SC at any step,
+ * car 0 in no duel and not in the pit lane). A neutralised lap, a stop or a fight for a place says nothing about the car's own pace
+ * through the corners, and which lap a SC or a duel hits depends on the seed's whole trajectory
+ * (F1M24-CHINA SIM-C1: the drawn-box gate and GS-03 moved them), so the bench takes the next clean lap
+ * instead of a partial one. When lap `lap` is clean the trace is the same as before.
+ */
+const greenLapTrace = (state, lap) => {
+  let target = lap;
+  let trace = [];
+  let clean = true;
+  while (!state.finished) {
+    stepOnce(state);
+    const now = state._sim.laps[0];
+    if (now > target) {
+      if (clean && trace.length) break;
+      target = now;
+      trace = [];
+      clean = true;
+    }
+    if (now === target) {
+      const sim = state._sim;
+      if (state.safetyCar || sim.inPit[0] !== 0 || sim.duelOther[0] >= 0 || sim.duelOther.some((other) => other === 0)) clean = false;
+      else trace.push(snapshot(state)[0]);
+    }
+  }
+  return trace;
+};
+
 const lapTrace = (year, circuit, lap = 4, seed = "powertrain") => {
   const w = weekend({ year, circuit, context, seed });
   const state = fromQuickRace(w.make(), { race: w.race });
-  const trace = [];
-  while (!state.finished && state._sim.laps[0] <= lap) {
-    stepOnce(state);
-    if (state._sim.laps[0] === lap && !state.safetyCar) trace.push(snapshot(state)[0]);
-  }
+  const trace = greenLapTrace(state, lap);
   return { state, trace };
 };
 

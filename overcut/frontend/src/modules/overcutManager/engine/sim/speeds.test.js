@@ -44,15 +44,23 @@ beforeAll(async () => {
   context = await packContext();
 });
 
-/** The fastest any running car goes on track (no SC, not in the pit lane) over `laps` racing laps after lap 2. */
+/**
+ * The fastest any running car goes on track (no SC, not in the pit lane) over `laps` racing laps after lap 2.
+ * The window runs `laps` green laps' worth of time: the time spent behind a SC is added to it, so a SC that
+ * the seed brings out early (Monza 2012 "speeds", laps 1-5 since SIM-C1, F1M24-CHINA ola 1) does not leave
+ * the field one or two green laps to reach its top speed in.
+ */
 const raceTop = (year, circuit, laps = 6, seed = "speeds") => {
   const w = weekend({ year, circuit, context, seed });
   const state = fromQuickRace(w.make(), { race: w.race });
   let top = 0;
   let min = Infinity;
   const until = state.race.baseLap * (laps + 2);
-  while (state.clock < until && !state.finished) {
+  let neutral = 0;
+  while (state.clock < until + neutral && !state.finished) {
+    const before = state.clock;
     stepOnce(state);
+    if (state.safetyCar && state.clock >= state.race.baseLap * 2) neutral += state.clock - before;
     if (state.clock < state.race.baseLap * 2 || state.safetyCar) continue;
     snapshot(state).forEach((car) => {
       if (car.status !== "running" || car.inPit) return;
@@ -236,6 +244,35 @@ const inSpan = (share, from, to) => {
   return f <= t ? share >= f && share <= t : share >= f || share <= t;
 };
 
+/**
+ * Car 0's trace over the first lap from `lap` on that runs wholly green and alone (no SC at any step,
+ * car 0 in no duel and not in the pit lane). A neutralised lap, a stop or a fight for a place says nothing about the car's own pace
+ * through the corners, and which lap a SC or a duel hits depends on the seed's whole trajectory
+ * (F1M24-CHINA SIM-C1: the drawn-box gate and GS-03 moved them), so the bench takes the next clean lap
+ * instead of a partial one. When lap `lap` is clean the trace is the same as before.
+ */
+const greenLapTrace = (state, lap) => {
+  let target = lap;
+  let trace = [];
+  let clean = true;
+  while (!state.finished) {
+    stepOnce(state);
+    const now = state._sim.laps[0];
+    if (now > target) {
+      if (clean && trace.length) break;
+      target = now;
+      trace = [];
+      clean = true;
+    }
+    if (now === target) {
+      const sim = state._sim;
+      if (state.safetyCar || sim.inPit[0] !== 0 || sim.duelOther[0] >= 0 || sim.duelOther.some((other) => other === 0)) clean = false;
+      else trace.push(snapshot(state)[0]);
+    }
+  }
+  return trace;
+};
+
 const benchCache = {};
 /** The real laps a circuit's bench reads: the 2024 pole lap and the pole sitter's race laps (realLapOf rows). */
 const defaultSource = (circuit) => ({
@@ -248,18 +285,14 @@ const defaultSource = (circuit) => ({
  * PT-C1: `year` is the season the step race runs (2013 for China), `source` the real laps (China 2024
  * comes from the fixture's `china` key; the 2013 bench reads the 2024 laps scaled by the f1db lap ratio, NV).
  */
-const benchOf = (circuit, { year = BENCH.year, source = null } = {}) => {
-  const key = `${circuit}@${year}`;
+const benchOf = (circuit, { year = BENCH.year, source = null, seed = BENCH.seed } = {}) => {
+  const key = `${circuit}@${year}@${seed}`;
   if (benchCache[key]) return benchCache[key];
   const given = source || defaultSource(circuit);
-  const w = weekend({ year, circuit, context, seed: BENCH.seed });
+  const w = weekend({ year, circuit, context, seed });
   const state = fromQuickRace(w.make(), { race: w.race });
   const track = circuitFor(w.race, year);
-  const trace = [];
-  while (!state.finished && state._sim.laps[0] <= BENCH.lap) {
-    stepOnce(state);
-    if (state._sim.laps[0] === BENCH.lap && !state.safetyCar) trace.push(snapshot(state)[0]);
-  }
+  const trace = greenLapTrace(state, BENCH.lap);
   const sim = trace.filter((car) => car.status === "running" && !car.inPit).sort((x, y) => x.share - y.share);
   const matched = matchCorners(sim, track, given.pole, given.raceLaps);
   const top = sim.reduce((most, car) => (car.v > most ? car.v : most), 0) * KMH;
@@ -514,16 +547,20 @@ const chinaEvent = (pack) => pack.calendar.find((event) => event.layoutId === "s
  * public telemetry, so the 2013 bench reads the 2024 laps scaled by the f1db lap ratio within ±12 % (NV).
  * `poleTolerance`: §3.1 GS-02, the best car's physical lap against the real pole.
  */
-const CHINA_BENCH = { circuit: "shanghai", spline: "shanghai-1", nvYear: 2013, nvTolerance: 0.12, poleTolerance: 0.015, topTolerance: 0.05, hairpinShare: 0.9 };
+// seeds: the China bench's race per year. 2024 keeps BENCH.seed; with it the 2013 race has car 0 under a SC or
+// in a duel on every lap from 4 until it retires on lap 25 (since SIM-C1, F1M24-CHINA ola 1), so 2013 runs
+// "china", which gives it a clean lap 4 (on 2024 "china" brings rain: a 14 % slower budget).
+const CHINA_BENCH = { circuit: "shanghai", spline: "shanghai-1", seeds: { 2024: "powertrain", 2013: "china" }, nvYear: 2013, nvTolerance: 0.12, poleTolerance: 0.015, topTolerance: 0.05, hairpinShare: 0.9 };
 const chinaSource = () => ({ pole: realLapOf({ lap: china.pole }), raceLaps: china.race.laps.map((lap) => realLapOf({ lap })) });
 /** 2024 -> 2013 speed scale (NV): the f1db lap ratio, pole for the pole lap and fastest race lap for the race laps. */
 const nvScale = (key) => chinaEvent(pack2024).refLaps[key] / chinaEvent(pack2013).refLaps[key];
 const scaleRows = (rows, scale) => rows.map((row) => ({ ...row, kmh: row.kmh * scale }));
 const chinaBench = (year = BENCH.year) => {
-  if (year === BENCH.year) return benchOf(CHINA_BENCH.circuit, { source: chinaSource() });
+  if (year === BENCH.year) return benchOf(CHINA_BENCH.circuit, { source: chinaSource(), seed: CHINA_BENCH.seeds[year] });
   const source = chinaSource();
   return benchOf(CHINA_BENCH.circuit, {
     year,
+    seed: CHINA_BENCH.seeds[year],
     source: { pole: scaleRows(source.pole, nvScale("pole")), raceLaps: source.raceLaps.map((rows) => scaleRows(rows, nvScale("fastestRaceLap"))) },
   });
 };
@@ -565,6 +602,9 @@ const traceBenchOf = (year) => {
  *    shift.brakingG (1.5 g, fitted on the 2024 pole laps), so the gearbox only drops a gear when the rpm
  *    falls under floorRpm. Lowering brakingG to 0.5 g gives 3rd there but puts the hairpins in 1st-2nd
  *    (real 3rd) and moves Bahrain T8/T10 and Hungaroring T1 out of the PT-2 bench (tried 27/11).
+ *  - 2024 race T13 (official T14, the back-straight hairpin): the speed is within ±10 % (57 against 59) but in
+ *    1st where Verstappen is in 3rd, the same shift.brakingG cause as T1-T2; since SIM-C1 (F1M24-CHINA ola 1)
+ *    the bench lap reaches it 3 km/h slower than before, where the gearbox drops one gear more.
  *  - 2024 race T4 and 2013 T12: one OpenF1 race lap with telemetry (lap 46, OpenF1 shut its historical
  *    API to accounts during a live session on 27/11) at 3.7 Hz; T4 is 78 on that lap against 99 on the
  *    pole lap. Re-run powertrain_from_openf1.py --china without --raw for laps 3-8 and re-check.
@@ -580,6 +620,7 @@ const CHINA_KNOWN_OFF = {
   "race:2024:1": [131, 137, 7, 3],
   "race:2024:2": [87, 85, 5, 3],
   "race:2024:4": [89, 78, 4, 3],
+  "race:2024:13": [57, 59, 1, 3],
   "race:2024:14": [122, 156, 3, 4],
   "race:2013:12": [167, 201],
   "race:2013:14": [120, 158],

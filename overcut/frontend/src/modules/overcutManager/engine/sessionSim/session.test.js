@@ -978,7 +978,8 @@ describe("SES-C1: radio and events with the race's shape", () => {
       // In time order within each segment, like the race's.
       state.radio.forEach((message, index) => {
         const previous = state.radio[index - 1];
-        if (previous && previous.segment === message.segment) expect(message.t).toBeGreaterThanOrEqual(previous.t - 1e-9);
+        const floor = previous && previous.segment === message.segment ? previous.t - 1e-9 : -Infinity;
+        expect(message.t).toBeGreaterThanOrEqual(floor);
       });
     });
   });
@@ -1032,8 +1033,8 @@ describe("SES-C1: radio and events with the race's shape", () => {
       done.forEach((event) => {
         const improved = state.events.some((other) => (other.type === "pb" || other.type === "best") && other.carId === event.carId && other.segment === event.segment && Math.abs(other.t - event.t) < 0.001);
         expect(event.improved).toBe(improved);
-        if (event.position !== null) expect(event.gapSec).toBeGreaterThanOrEqual(0);
-        if (event.position === 1) expect(event.gapSec).toBe(0);
+        expect(event.position === null || event.gapSec >= 0).toBe(true);
+        expect(event.position !== 1 || event.gapSec === 0).toBe(true);
       });
     });
     // Knockout segments say where the cut is.
@@ -1070,8 +1071,7 @@ describe("SES-C1: radio and events with the race's shape", () => {
       });
       expect(ends.map((message) => message.carId).sort()).toEqual(alive.sort());
       ends.forEach((message) => {
-        if (segment.drop) expect(["session-through", "session-knocked-out"]).toContain(message.kind);
-        else expect(message.kind).toBe("session-result");
+        expect(segment.drop ? ["session-through", "session-knocked-out"] : ["session-result"]).toContain(message.kind);
         const car = state.cars.find((entry) => entry.id === message.carId);
         expect(message.kind === "session-knocked-out").toBe(car.out === index);
       });
