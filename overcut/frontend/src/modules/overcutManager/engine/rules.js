@@ -92,6 +92,26 @@ const trackLimitsOf = (value) => {
   };
 };
 
+/**
+ * SIM-C0 (F1M24-CHINA GS-08, RF-SIM-08): the era's DRS procedure (era-defaults.json drsProcedure, read in the FIA
+ * regulations of 2011, 2018 and 2024) in the engine's terms. "After he has completed two laps after the start" is
+ * fromLap 3; the restart wait counts laps after the last neutralised lap (state.restartLap). Keys the era does not
+ * carry keep race-eras.json drs (the fallback of a pack that turns DRS on in an era without the procedure).
+ */
+const drsProcedureOf = (value) => {
+  if (!value) return {};
+  const lapsAfter = (laps) => (Number.isInteger(laps) && laps >= 0 ? laps + 1 : undefined);
+  const out = {
+    fromLap: lapsAfter(value.raceAfterLaps),
+    sprintFromLap: lapsAfter(value.sprintAfterLaps) ?? null,
+    restartLaps: Number.isInteger(value.restartAfterLaps) ? value.restartAfterLaps : undefined,
+    detectionGap: typeof value.detectionGapSec === "number" ? value.detectionGapSec : undefined,
+    disableVisibility: value.disableVisibility !== false,
+    disableYellowInZone: value.disableYellowInZone !== false,
+  };
+  return Object.fromEntries(Object.entries(out).filter(([, v]) => v !== undefined));
+};
+
 const resolve = (eraOrYear) => {
   const year = yearOf(eraOrYear);
   // A bare year reads as its era profile (no pack).
@@ -148,6 +168,11 @@ const resolve = (eraOrYear) => {
     drs: {
       enabled: Boolean(regs.drs),
       ...balance.drs,
+      sprintFromLap: null,
+      disableVisibility: true,
+      disableYellowInZone: false,
+      ...(regs.drs ? drsProcedureOf(regs.drsProcedure) : {}),
+      procedure: regs.drs && regs.drsProcedure ? regs.drsProcedure : null,
     },
     activeAero: Boolean(regs.activeAero),
     raceControl: {
@@ -238,19 +263,79 @@ export const rulesFor = (eraOrYear) => {
 };
 
 /**
- * RF-SIM-08: is DRS open for a car this lap? Era, zones on this circuit, from
- * lap `fromLap`, `restartLaps` laps after any restart, dry track, and the car
- * within `detectionGap` of the one ahead (pass gapAhead = undefined to ask only
- * whether DRS is enabled on the lap).
+ * SIM-C0 (F1M24-CHINA §1.5 "DRS habilitado", GS-08): the race-control events of DRS. The engine emits
+ * `{type: "control", kind: "drsEnabled", lap}` when DRS becomes usable on a lap and
+ * `{type: "control", kind: "drsDisabled", reason, lap}` when it stops being so; the HUD only paints them
+ * (F1M24-GAMEPLAY §1.7: optional for the view). Build them with drsControlEvent so every producer (quick mode,
+ * step mode, sessions) shares the shape.
  */
-export const drsOpen = (rules, { lap, wetness = 0, zones = 1, restartLap = 0, gapAhead } = {}) => {
+export const CONTROL_EVENT = "control";
+export const DRS_CONTROL = Object.freeze({ ENABLED: "drsEnabled", DISABLED: "drsDisabled" });
+/** Why DRS is shut on a lap: no DRS in the era, no zones here, the opening laps, the wait after a restart, a
+ *  neutralisation in progress (safety car, VSC, red flag), water on the track, a yellow in the activation zone. */
+export const DRS_REASONS = Object.freeze(["era", "noZones", "start", "restart", "safetyCar", "vsc", "redFlag", "wet", "yellow"]);
+const NEUTRAL_REASONS = new Set(["safetyCar", "vsc", "redFlag"]);
+
+/**
+ * RF-SIM-08: is DRS enabled on this lap, and if not, why? Era, zones on this circuit, from lap `fromLap`
+ * (`sprintFromLap` in a sprint when the era has one), `restartLaps` laps after the last neutralised lap
+ * (`restartLap`), no neutralisation in progress (`neutralised`: "safetyCar"|"vsc"|"redFlag"), dry enough
+ * (`wetness` below `wetLimit`, the race director's visibility call) and no yellow in the activation zone
+ * (`yellowInZone`, where the era lets the race director close it). Pure.
+ */
+export const drsStatus = (rules, { lap, wetness = 0, zones = 1, restartLap = 0, sprint = false, neutralised = null, yellowInZone = false } = {}) => {
   const drs = rules.drs;
-  if (!drs.enabled || !(zones > 0)) return false;
-  if (lap < drs.fromLap) return false;
-  if (restartLap && lap <= restartLap + drs.restartLaps) return false;
-  if (wetness >= drs.wetLimit) return false;
+  if (!drs.enabled) return { enabled: false, reason: "era" };
+  if (!(zones > 0)) return { enabled: false, reason: "noZones" };
+  if (neutralised) return { enabled: false, reason: NEUTRAL_REASONS.has(neutralised) ? neutralised : "safetyCar" };
+  const fromLap = sprint && drs.sprintFromLap ? drs.sprintFromLap : drs.fromLap;
+  if (lap < fromLap) return { enabled: false, reason: "start" };
+  if (restartLap && lap <= restartLap + drs.restartLaps) return { enabled: false, reason: "restart" };
+  if (drs.disableVisibility !== false && wetness >= drs.wetLimit) return { enabled: false, reason: "wet" };
+  if (yellowInZone && drs.disableYellowInZone) return { enabled: false, reason: "yellow" };
+  return { enabled: true, reason: null };
+};
+
+/**
+ * RF-SIM-08: is DRS open for a car this lap? drsStatus, plus the car within `detectionGap` of the one ahead
+ * (pass gapAhead = undefined to ask only whether DRS is enabled on the lap).
+ */
+export const drsOpen = (rules, { gapAhead, ...context } = {}) => {
+  if (!drsStatus(rules, context).enabled) return false;
   if (gapAhead === undefined) return true;
-  return gapAhead !== null && gapAhead < drs.detectionGap;
+  return gapAhead !== null && gapAhead < rules.drs.detectionGap;
+};
+
+/**
+ * The control event between two drsStatus results (previous lap → this lap), or null when nothing changes. An era
+ * without DRS never emits: it starts and stays disabled. `previous` null means the race has just started (disabled).
+ */
+export const drsControlEvent = (previous, status, lap) => {
+  const before = Boolean(previous && previous.enabled);
+  if (status.enabled && !before) return { type: CONTROL_EVENT, kind: DRS_CONTROL.ENABLED, lap };
+  if (!status.enabled && before) return { type: CONTROL_EVENT, kind: DRS_CONTROL.DISABLED, reason: status.reason, lap };
+  return null;
+};
+
+/**
+ * The DRS control events of a whole race lap by lap (laps 1..laps), from per-lap context: `wetness[lap]`,
+ * `neutralised[lap]` (reason or null), the restart laps in order and `zones`. The quick mode and the tests read the
+ * same sequence the step mode produces lap by lap.
+ */
+export const drsTimeline = (rules, { laps, zones = 1, wetness = [], neutralised = [], restartLaps = [], sprint = false } = {}) => {
+  const events = [];
+  let previous = null;
+  let restartLap = 0;
+  for (let lap = 1; lap <= laps; lap += 1) {
+    restartLaps.forEach((at) => {
+      if (at < lap) restartLap = Math.max(restartLap, at);
+    });
+    const status = drsStatus(rules, { lap, zones, sprint, restartLap, wetness: wetness[lap] ?? 0, neutralised: neutralised[lap] ?? null });
+    const event = drsControlEvent(previous, status, lap);
+    if (event) events.push(event);
+    previous = status;
+  }
+  return events;
 };
 
 /** The penalty an offence earns in this era: the first of its list the era has, or null (no further action). */
