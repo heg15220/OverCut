@@ -372,6 +372,82 @@ export const splineLap = (spline, car) => {
   return { ...trace, minAt: at, onLine: geometry.onLine, geometry };
 };
 
+// ------------------------------------------------------------------ the lap budget by band and radius
+
+/**
+ * Radius (m) of the corner whose limit speed is v (m/s): the inverse of cornerLimit,
+ * r = v² / (μ(v)·(g + q·v²)). Only arithmetic (RNF-05).
+ */
+export const radiusAt = (car, v) => {
+  const q = (0.5 * car.rho * car.ClA) / car.mass;
+  return (v * v) / (muAt(car, v) * (car.g + q * v * v));
+};
+
+/**
+ * x^e for x > 0 and e a multiple of 0.25 (race-physics.json budget.radiusExponent): repeated
+ * square roots and products, which IEEE rounds the same in every JS engine (no Math.pow, RNF-05).
+ */
+export const quarterPower = (x, e) => {
+  const steps = Math.round(e * 4);
+  if (steps === 0 || !(x > 0)) return 1;
+  const root = Math.sqrt(Math.sqrt(x));
+  let out = 1;
+  for (let k = 0; k < (steps < 0 ? -steps : steps); k += 1) out *= root;
+  return steps < 0 ? 1 / out : out;
+};
+
+/** Speed band of a time bin as race-physics.json `budget.sensitivity` names it (corners by `bands`). */
+export const budgetBandOf = (kmh, corner, physics = data) => {
+  if (!corner) return "straight";
+  if (kmh < physics.bands.slowMaxKmh) return "slow";
+  return kmh > physics.bands.fastMinKmh ? "fast" : "medium";
+};
+
+/**
+ * GS-02 (docs/manager/F1M24-CHINA.md §2.1; RF-SIM-01, RF-SIM-02, RNF-07): where a car slower than the
+ * physical trace spends the extra time, per time-share bin of the lap. Each bin weighs its band's
+ * `budget.sensitivity` (WP3 of SIM-FISICA.md, the weights trackTables uses), and inside a corner band
+ * the weight follows the corner's radius as r^radiusExponent, normalised so each band keeps its
+ * weight: with exponent 0 the result is the band weights alone, bit for bit what trackTables
+ * computes today. The whole lap is normalised to mean 1, so a lap still lasts its budget (SRS 4.2).
+ *
+ * vRef: trace speed per bin (m/s); corner: 1 where the bin is in a corner; car: carFor(...) of the
+ * circuit's era, for the radius (radiusAt). Returns a Float64Array of the bins' weights.
+ */
+export const budgetWeights = (vRef, corner, car, physics = data) => {
+  const M = vRef.length;
+  const weight = physics.budget.sensitivity;
+  const exponent = radiusExponentOf(physics);
+  const bands = new Array(M);
+  const shape = new Float64Array(M).fill(1);
+  for (let j = 0; j < M; j += 1) bands[j] = budgetBandOf(vRef[j] * KMH, corner[j], physics);
+  if (exponent !== 0 && car) {
+    const sum = { slow: 0, medium: 0, fast: 0 };
+    const count = { slow: 0, medium: 0, fast: 0 };
+    for (let j = 0; j < M; j += 1) {
+      if (bands[j] === "straight") continue;
+      shape[j] = quarterPower(radiusAt(car, vRef[j] > 1 ? vRef[j] : 1), exponent);
+      sum[bands[j]] += shape[j];
+      count[bands[j]] += 1;
+    }
+    for (let j = 0; j < M; j += 1) if (bands[j] !== "straight") shape[j] = (shape[j] * count[bands[j]]) / sum[bands[j]];
+  }
+  const out = new Float64Array(M);
+  let total = 0;
+  for (let j = 0; j < M; j += 1) {
+    out[j] = exponent !== 0 ? weight[bands[j]] * shape[j] : weight[bands[j]];
+    total += out[j];
+  }
+  for (let j = 0; j < M; j += 1) out[j] = (out[j] * M) / total;
+  return out;
+};
+
+/** race-physics.json budget.radiusExponent (0 while absent: band weights only). */
+export const radiusExponentOf = (physics = data) => {
+  const entry = physics.budget && physics.budget.radiusExponent;
+  return entry && typeof entry.value === "number" ? entry.value : 0;
+};
+
 export const toKmh = (v) => v * KMH;
 
 export const physicsData = data;

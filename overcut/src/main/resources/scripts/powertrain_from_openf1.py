@@ -42,6 +42,12 @@ según `pit` y `race_control`), con el mismo formato que `sessions[].lap`. engin
 la vuelta de pole para ver en qué banda se pierde el tiempo de carrera (race-physics.json `budget.sensitivity`).
 
     python overcut/src/main/resources/scripts/powertrain_from_openf1.py --racelaps [--cache DIR]
+
+Con --china (F1M24-CHINA §2.1 GS-02, paquete PT-C1) solo rehace la clave `china`: pole y vueltas limpias de carrera
+de Verstappen en Shanghái 2024 (OpenF1 9664 y 9673) para el banco de curvas de China de engine/sim/speeds.test.js.
+--raw DIR lee respuestas de OpenF1 ya descargadas en vez de pedirlas (ver china_main).
+
+    python overcut/src/main/resources/scripts/powertrain_from_openf1.py --china [--cache DIR] [--raw DIR]
 """
 
 import collections
@@ -434,6 +440,108 @@ def racelaps_main():
     print(OUT)
 
 
+# --china (docs/manager/F1M24-CHINA.md §2.1 GS-02, paquete PT-C1): Shanghái 2024 para el banco de curvas de China
+# (engine/sim/speeds.test.js). OpenF1 9664 es la clasificación (pole de Verstappen, 1:33.660) y 9673 la carrera.
+# Se piden por session_key, sin buscar la sesión. Escribe la clave `china`:
+#   pole: la vuelta de la pole (mismo formato que sessions[].lap);
+#   race.laps: vueltas limpias de Verstappen con telemetría (sin parada en ella ni en la siguiente, sin SC/VSC):
+#     las del primer relevo (RACE_LAPS) y, si se dan con --raw, las sueltas que haya descargadas;
+#   race.cleanLapTimes: tiempos de todas las vueltas limpias del primer relevo según `laps` (ritmo de carrera).
+# --raw DIR: lee respuestas ya descargadas de los mismos endpoints en lugar de pedirlas (OpenF1 cierra el acceso
+# histórico sin cuenta mientras hay una sesión en directo). Ficheros: ver_quali.json y ver_race*.json con
+# {"lap": fila de `laps`, "car": filas de `car_data` de esa vuelta}, laps_9673.json (`laps?session_key=9673`) y
+# race_control_9673.json (`race_control?session_key=9673`). Los números son los de OpenF1; nada se elabora aquí.
+CHINA = {"year": 2024, "openf1": "Shanghai", "circuit": "shanghai", "driver": 1, "qualifying": 9664, "race": 9673,
+         "raceLaps": (3, 8)}
+
+
+def samples_of(lap, rows):
+    start = dt.datetime.fromisoformat(lap["date_start"])
+    out = []
+    for row in rows:
+        t = (dt.datetime.fromisoformat(row["date"]) - start).total_seconds()
+        if 0 <= t <= lap["lap_duration"]:
+            out.append([round(t, 3), row["speed"], row["rpm"], row["n_gear"], row["throttle"], row["brake"]])
+    return out
+
+
+def car_data_of(session, driver, lap):
+    start = dt.datetime.fromisoformat(lap["date_start"])
+    end = start + dt.timedelta(seconds=lap["lap_duration"])
+    return get(f"car_data?session_key={session}&driver_number={driver}"
+               f"&date>={iso(start - dt.timedelta(seconds=1))}&date<={iso(end + dt.timedelta(seconds=1))}")
+
+
+def china_main(raw=None):
+    c = CHINA
+    driver = c["driver"]
+
+    def read(name):
+        with open(os.path.join(raw, name), encoding="utf-8") as handle:
+            return json.load(handle)
+
+    if raw:
+        quali = read("ver_quali.json")
+        pole = {"sessionKey": c["qualifying"], "driver": driver, "lapTime": quali["lap"]["lap_duration"],
+                "samples": samples_of(quali["lap"], quali["car"])}
+        all_laps = [lap for lap in read(f"laps_{c['race']}.json") if lap["driver_number"] == driver]
+        messages = read(f"race_control_{c['race']}.json")
+        downloaded = [read(name) for name in sorted(os.listdir(raw)) if name.startswith("ver_race")]
+    else:
+        laps_q = [lap for lap in get(f"laps?session_key={c['qualifying']}&driver_number={driver}") if lap.get("lap_duration")]
+        best = min(laps_q, key=lambda lap: lap["lap_duration"])
+        pole = {"sessionKey": c["qualifying"], "driver": driver, "lapTime": best["lap_duration"],
+                "samples": samples_of(best, car_data_of(c["qualifying"], driver, best))}
+        all_laps = get(f"laps?session_key={c['race']}&driver_number={driver}")
+        messages = get(f"race_control?session_key={c['race']}", missing_ok=True)
+        downloaded = []
+    # Neutralised laps (SC or VSC from DEPLOYED to the end message, by lap number) and stops (pit-out laps and
+    # the lap before them, the in-laps).
+    neutral, opened = set(), None
+    for message in messages:
+        text = (message.get("message") or "").upper()
+        lap = message.get("lap_number")
+        if "SAFETY CAR DEPLOYED" in text and lap:
+            opened = lap if opened is None else opened
+        elif opened is not None and ("ENDING" in text or "IN THIS LAP" in text) and lap:
+            neutral.update(range(opened, lap + 2))
+            opened = None
+    outs = {lap["lap_number"] for lap in all_laps if lap.get("is_pit_out_lap")}
+    clean = lambda lap: (lap.get("lap_duration") and lap["lap_number"] > 1 and lap["lap_number"] not in neutral
+                         and lap["lap_number"] not in outs and lap["lap_number"] + 1 not in outs)
+    first, last = c["raceLaps"]
+    first_stop = min(outs) if outs else 10 ** 6
+    stint = sorted((lap for lap in all_laps if clean(lap) and lap["lap_number"] < first_stop - 1), key=lambda lap: lap["lap_number"])
+    race_laps = []
+    if raw:
+        for item in downloaded:
+            if clean(item["lap"]):
+                race_laps.append({"lap": item["lap"]["lap_number"], "lapTime": item["lap"]["lap_duration"],
+                                  "samples": samples_of(item["lap"], item["car"])})
+    else:
+        for lap in stint:
+            if first <= lap["lap_number"] <= last:
+                race_laps.append({"lap": lap["lap_number"], "lapTime": lap["lap_duration"],
+                                  "samples": samples_of(lap, car_data_of(c["race"], driver, lap))})
+    fixture = load_fixture()
+    fixture["china"] = {
+        "$comment": "Generado por powertrain_from_openf1.py --china (F1M24-CHINA §2.1 GS-02, PT-C1): Shanghái 2024, "
+                    "Verstappen. pole: vuelta de la pole (OpenF1 9664), mismo formato que sessions[].lap. race.laps: "
+                    "vueltas limpias de carrera con car_data (OpenF1 9673; sin parada en ella ni en la siguiente, sin "
+                    "SC/VSC). race.cleanLapTimes: vueltas limpias del primer relevo según `laps`. La lee "
+                    "engine/sim/speeds.test.js (banco de curvas de China, 2024 y 2013).",
+        "year": c["year"], "circuit": c["circuit"], "openf1": c["openf1"], "driver": driver,
+        "pole": pole,
+        "race": {"sessionKey": c["race"], "driver": driver, "laps": race_laps,
+                 "cleanLapTimes": [{"lap": lap["lap_number"], "lapTime": lap["lap_duration"]} for lap in stint]},
+    }
+    with open(OUT, "w", encoding="utf-8") as handle:
+        json.dump(fixture, handle, separators=(",", ":"))
+    print("pole", pole["lapTime"], len(pole["samples"]), "race laps", [(lap["lap"], lap["lapTime"], len(lap["samples"])) for lap in race_laps],
+          "stint", [lap["lap_number"] for lap in stint])
+    print(OUT)
+
+
 if __name__ == "__main__":
     if "--cache" in sys.argv:
         CACHE = sys.argv[sys.argv.index("--cache") + 1]
@@ -444,5 +552,7 @@ if __name__ == "__main__":
         corners_main()
     elif "--racelaps" in sys.argv:
         racelaps_main()
+    elif "--china" in sys.argv:
+        china_main(sys.argv[sys.argv.index("--raw") + 1] if "--raw" in sys.argv else None)
     else:
         main()
