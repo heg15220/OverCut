@@ -2,6 +2,7 @@
  * SIM-2 (no-solape, F1M24-GAMEPLAY §2.9 and §3.3; RF-SIM-07, RF-SIM-01, SRS §6): the other half of
  * the 64-race check (lateral.test.js has 2024) - 32 races of 1988, with the era's 215 cm cars
  * (FIA technical regulations 1988, art. 3.1) on circuits without a mesh (procedural width).
+ * SIM-C1 (F1M24-CHINA §3.3, GS-07; criterio 7.2): drawn on the racing line, no view correction (closes CAM-3).
  */
 
 import { lateralSpecFor } from "./lateral";
@@ -22,6 +23,13 @@ describe("SIM-2 · 32 races of 1988: boxes never overlap, clearance side by side
   it("races with the era's car: 215 cm wide", () => {
     runs.forEach(({ state }) => expect(state._sim.side.spec.carWidth).toBe(lateralSpecFor(1988).carWidth));
     expect(lateralSpecFor(1988).carWidth).toBe(2.15);
+  });
+
+  it("SIM-C1 GS-07: drawn on the racing line, the view's safety pass corrects nothing (CAM-3)", () => {
+    // eslint-disable-next-line no-console
+    console.log(`SIM-C1 1988: ${total.viewFrames} frames, ${total.viewCorrections} view corrections (first: ${total.viewExample ?? "none"})`);
+    expect(total.viewFrames).toBeGreaterThan(RACES * 1000);
+    expect(total.viewCorrections).toBe(0);
   });
 
   it("distance between boxes ≥ 0 at every step", () => {
