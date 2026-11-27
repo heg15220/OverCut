@@ -282,5 +282,23 @@
         "shootout": 12.75
       }
     }
+  },
+  "radio": {
+    "$comment": "SES-C1 (F1M24-CHINA §1.5 «Radio en sesiones», §2.7 AUD-C3 parte motor; RF-CMD-03, RF-WKD-02, RNF-05, RNF-07): la radio del ingeniero a los pilotos del jugador en libres, clasificación y shootout, con la misma forma que la de carrera (state.radio {lap, carId, kind, t, segment, alert, ...}; engine/sessionSim/sessionRadio.js). Cada tipo se emite en el instante del motor que lo produce: salida a pista al final de la línea de salida del pit lane (evento garageExit), inicio de una vuelta lanzada, vuelta lanzada terminada (evento lapComplete: tiempo, posición y hueco; en eliminatoria, si está en la zona de eliminación), vuelta borrada, amarilla encontrada, estorbo, bandera y final del segmento (pasa o queda eliminado; resultado en los segmentos sin eliminación). quietSec: segundos de sesión antes de repetir el mismo tipo al mismo piloto dentro del segmento. alert: el mensaje abre con el aviso doble de la radio (three/audio uiSounds). Nada sale de un flujo aleatorio: la radio no cambia ninguna vuelta ni tirada.",
+    "status": "pending",
+    "note": "Diseño propio (NV): qué se dice y cada cuánto. La idea de radio también en clasificación viene del vídeo de F1M24 (un mensaje cada 20-40 s, F1M24-CHINA §2.7), del que no se copia texto ni ajuste; los silencios no están medidos contra radios reales de la FIA/FOM.",
+    "enabled": true,
+    "kinds": {
+      "session-garage-exit": { "quietSec": 0, "alert": false },
+      "session-push": { "quietSec": 0, "alert": false },
+      "session-lap": { "quietSec": 0, "alert": false },
+      "session-lap-deleted": { "quietSec": 0, "alert": true },
+      "session-yellow": { "quietSec": 10, "alert": true },
+      "session-impeded": { "quietSec": 30, "alert": false },
+      "session-flag": { "quietSec": 0, "alert": false },
+      "session-through": { "quietSec": 0, "alert": false },
+      "session-knocked-out": { "quietSec": 0, "alert": true },
+      "session-result": { "quietSec": 0, "alert": false }
+    }
   }
 }

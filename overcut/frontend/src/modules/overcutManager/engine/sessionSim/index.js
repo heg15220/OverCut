@@ -9,3 +9,4 @@ export {
   sessionResult, sessionYellows, stepOnce, yellowEraOf, exitTrafficOf,
 } from "./session";
 export { TRAFFIC, impedingPenaltyOf } from "./stepSession";
+export { SESSION_RADIO_KINDS, sessionRadioAt } from "./sessionRadio";

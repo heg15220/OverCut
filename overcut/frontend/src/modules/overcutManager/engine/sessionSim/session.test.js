@@ -42,6 +42,9 @@ import {
 import { PIT_LANE_BALANCE, buildProfile, garageExitProfile, laneGeometry } from "../sim/pitLane";
 import { evolutionImprovement, evolutionOf, garageWorkOf, localClockOf, sessionConditions, sessionScheduleOf, sessionYellows, yellowEraOf, yellowLapRuleOf } from "./session";
 import { sectorOfShare, sessionYellowsAt, yellowFlag } from "../../components/tower";
+import { SESSION_RADIO_KINDS, sessionRadioAt } from ".";
+import { pushSessionRadio } from "./sessionRadio";
+import { sessionEventText, sessionRadioText } from "../../components/sessionRadioTexts";
 
 let context = null;
 let packs = null;
@@ -910,5 +913,249 @@ describe("SES-4: the lap under a yellow - lifted, abandoned or deleted by era (F
     // The abort's warp starts where the car is, after the lift's.
     expect(record.warp.at).toBeGreaterThanOrEqual(lifted.at);
     expect(record.warp.share).toBeGreaterThanOrEqual(lifted.share - 1e-9);
+  });
+});
+
+/**
+ * SES-C1 (docs/manager/F1M24-CHINA.md §1.5 «Radio en sesiones», §3.3 ola 1; AUD-C3 engine part; RF-CMD-03, RF-WKD-02,
+ * RF-SIM-15, RNF-05, RNF-07, RNF-08): the session emits radio[] and events[] with the race's shape - the flying lap
+ * finished (lapComplete), the garage exit (garageExit) and the flag - and the same seed gives the same ones.
+ */
+describe("SES-C1: radio and events with the race's shape", () => {
+  const R = balance.radio;
+  const optionsFor = (year, kind, round, seed) => {
+    const career = createCareer(contextOf(), { year, teamId: "ferrari", seed });
+    career.round = round % packs[year].calendar.length;
+    runPractice(career, {});
+    return { ...sessionOptions(career, kind), wetness: 0 };
+  };
+  /** Every segment to the end with the engineers driving the player's cars; each segment's histories kept. */
+  const playAll = (options) => {
+    const state = createSession(options);
+    const segments = [];
+    for (let guard = 0; guard < 10; guard += 1) {
+      runSegmentToEnd(state);
+      segments.push(state.cars.map((car) => ({ id: car.id, isUser: car.isUser, history: car.history.slice() })));
+      if (state.done) break;
+      nextSegment(state);
+    }
+    return { state, segments };
+  };
+  const ofType = (state, type) => state.events.filter((event) => event.type === type);
+  // `seenYellows` holds event indices (SES-4 bookkeeping): new events shift them, the laps do not change.
+  const lapsOf = (segments) => JSON.stringify(segments.map((cars) => cars.map((car) => car.history.map(({ seenYellows, ...lap }) => lap))));
+
+  let quali = null;
+  let practice = null;
+  beforeAll(() => {
+    quali = playAll(optionsFor(2024, "qualifying", 3, "sesc1-q"));
+    practice = playAll(optionsFor(2013, "practice", 2, "sesc1-p"));
+  });
+
+  it("sessions.json radio matches its schema, closes the kinds and is pending design (RNF-07)", () => {
+    const validate = new Ajv({ allErrors: true, strict: false }).compile(schema);
+    expect(validate(balance)).toBe(true);
+    expect(R.status).toBe("pending");
+    expect(R.note.length).toBeGreaterThan(20);
+    expect([...SESSION_RADIO_KINDS].sort()).toEqual(Object.keys(R.kinds).sort());
+    expect(SESSION_RADIO_KINDS.every((kind) => kind.startsWith("session-"))).toBe(true);
+    const broken = { ...balance, radio: { ...R, kinds: { ...R.kinds, "session-garage-exit": { quietSec: 0, alert: false, volume: 1 } } } };
+    expect(validate(broken)).toBe(false);
+  });
+
+  it("the radio has the race's shape, goes to the player's drivers only and only in known kinds", () => {
+    [quali, practice].forEach(({ state }) => {
+      expect(state.radio.length).toBeGreaterThan(0);
+      const users = new Set(state.cars.filter((car) => car.isUser).map((car) => car.id));
+      state.radio.forEach((message) => {
+        expect(users.has(message.carId)).toBe(true);
+        expect(SESSION_RADIO_KINDS).toContain(message.kind);
+        expect(Number.isFinite(message.t)).toBe(true);
+        expect(Number.isInteger(message.segment)).toBe(true);
+        expect(message.lap === null || Number.isInteger(message.lap)).toBe(true);
+        expect(message.alert).toBe(R.kinds[message.kind].alert);
+      });
+      // In time order within each segment, like the race's.
+      state.radio.forEach((message, index) => {
+        const previous = state.radio[index - 1];
+        if (previous && previous.segment === message.segment) expect(message.t).toBeGreaterThanOrEqual(previous.t - 1e-9);
+      });
+    });
+  });
+
+  it("garageExit: once per run, when the car crosses the end of the exit line (GARAGE_EXIT -> OUT_LAP)", () => {
+    const { state, segments } = quali;
+    const exits = ofType(state, "garageExit");
+    const outs = ofType(state, "out");
+    expect(exits.length).toBe(outs.length);
+    expect(exits.length).toBeGreaterThan(0);
+    exits.forEach((event) => {
+      expect(event).toEqual(expect.objectContaining({ lap: expect.any(Number), carId: expect.any(String), segment: expect.any(Number), queueSec: expect.any(Number), laneSec: expect.any(Number) }));
+      const record = segments[event.segment].find((car) => car.id === event.carId).history.find((lap) => lap.garageExit && Math.abs(lap.garageExit.trackAt - event.t) < 0.001);
+      expect(record).toBeTruthy();
+      expect(record.lap).toBe(event.lap);
+      const out = outs.find((other) => other.carId === event.carId && Math.abs(other.trackAt - event.t) < 0.001);
+      expect(out).toBeTruthy();
+      expect(event.t).toBeGreaterThanOrEqual(out.t);
+    });
+    // The phase flips at the event, in a segment replayed to that instant.
+    const fresh = createSession(optionsFor(2024, "qualifying", 3, "sesc1-q"));
+    // The same orders as runSegmentToEnd gave: the engineers drive the player's cars from the start.
+    fresh.cars.filter((car) => car.isUser).forEach((car) => command(fresh, "autopilot", car.id));
+    const first = exits.find((event) => event.segment === 0);
+    advanceTo(fresh, first.t + 2);
+    expect(carStatus(fresh, first.carId, first.t - 0.05).runPhase).toBe("GARAGE_EXIT");
+    expect(carStatus(fresh, first.carId, first.t + 0.05).runPhase).not.toBe("GARAGE_EXIT");
+  });
+
+  it("lapComplete: one per timed lap finished (kept or deleted), never for an aborted one, with the order after it", () => {
+    [quali, practice].forEach(({ state, segments }) => {
+      const done = ofType(state, "lapComplete");
+      expect(done.length).toBeGreaterThan(0);
+      let expected = 0;
+      segments.forEach((cars, segment) =>
+        cars.forEach((car) =>
+          car.history.forEach((lap) => {
+            if ((lap.kind !== "push" && lap.kind !== "timed") || lap.aborted) return;
+            expected += 1;
+            const event = done.find((entry) => entry.segment === segment && entry.carId === car.id && entry.lap === lap.lap);
+            expect(event).toBeTruthy();
+            expect(event.t).toBeCloseTo(lap.end, 3);
+            expect(event.kind).toBe(lap.kind);
+            expect(event.time).toBeCloseTo(lap.deleted ? lap.deleted.time : lap.flying, 3);
+            expect(event.deleted).toBe(lap.deleted ? lap.deleted.reason : null);
+          }),
+        ),
+      );
+      expect(done.length).toBe(expected);
+      // An improvement is the session's own pb/best at the same instant.
+      done.forEach((event) => {
+        const improved = state.events.some((other) => (other.type === "pb" || other.type === "best") && other.carId === event.carId && other.segment === event.segment && Math.abs(other.t - event.t) < 0.001);
+        expect(event.improved).toBe(improved);
+        if (event.position !== null) expect(event.gapSec).toBeGreaterThanOrEqual(0);
+        if (event.position === 1) expect(event.gapSec).toBe(0);
+      });
+    });
+    // Knockout segments say where the cut is.
+    const knockout = ofType(quali.state, "lapComplete").filter((event) => quali.state.segments[event.segment].drop);
+    expect(knockout.length).toBeGreaterThan(0);
+    knockout.forEach((event) => {
+      expect(event.cutoff).toBeGreaterThan(0);
+      expect(event.dropZone).toBe(event.position === null || event.position > event.cutoff);
+    });
+  });
+
+  it("the engineer's calls line up with the events: a lap call per own lap, the flag, through or out at each knockout", () => {
+    const { state } = quali;
+    const users = state.cars.filter((car) => car.isUser).map((car) => car.id);
+    const ownLaps = ofType(state, "lapComplete").filter((event) => users.includes(event.carId));
+    const lapCalls = state.radio.filter((message) => message.kind === "session-lap" || message.kind === "session-lap-deleted");
+    expect(lapCalls.length).toBe(ownLaps.length);
+    lapCalls.forEach((message) => {
+      const event = ownLaps.find((other) => other.carId === message.carId && other.segment === message.segment && Math.abs(other.t - message.t) < 0.001);
+      expect(event).toBeTruthy();
+      expect(message.lap).toBe(event.lap);
+      expect(message.position).toBe(event.position);
+    });
+    ofType(state, "garageExit")
+      .filter((event) => users.includes(event.carId))
+      .forEach((event) => expect(state.radio.some((message) => message.kind === "session-garage-exit" && message.carId === event.carId && Math.abs(message.t - event.t) < 0.001)).toBe(true));
+    // The flag call at the flag's own instant.
+    ofType(state, "flag").forEach((flag) => state.radio.filter((message) => message.kind === "session-flag" && message.segment === flag.segment).forEach((message) => expect(message.t).toBeCloseTo(flag.t, 3)));
+    state.segments.forEach((segment, index) => {
+      const ends = state.radio.filter((message) => message.segment === index && ["session-through", "session-knocked-out", "session-result"].includes(message.kind));
+      const alive = users.filter((id) => {
+        const car = state.cars.find((entry) => entry.id === id);
+        return car.out === undefined || car.out >= index;
+      });
+      expect(ends.map((message) => message.carId).sort()).toEqual(alive.sort());
+      ends.forEach((message) => {
+        if (segment.drop) expect(["session-through", "session-knocked-out"]).toContain(message.kind);
+        else expect(message.kind).toBe("session-result");
+        const car = state.cars.find((entry) => entry.id === message.carId);
+        expect(message.kind === "session-knocked-out").toBe(car.out === index);
+      });
+    });
+    // Practice: a push call never (no attempts), a result at the end.
+    expect(practice.state.radio.some((message) => message.kind === "session-push")).toBe(false);
+    expect(practice.state.radio.filter((message) => message.kind === "session-result")).toHaveLength(practice.state.cars.filter((car) => car.isUser).length);
+  });
+
+  it("the same seed gives the same events and radio, however the view slices time (RF-SIM-15, RNF-05)", () => {
+    const options = optionsFor(2024, "qualifying", 3, "sesc1-q");
+    const again = playAll(options);
+    expect(JSON.stringify(again.state.events)).toBe(JSON.stringify(quali.state.events));
+    expect(JSON.stringify(again.state.radio)).toBe(JSON.stringify(quali.state.radio));
+    const fine = createSession(options);
+    const coarse = createSession(options);
+    for (let guard = 0; guard < 200000 && !fine.over; guard += 1) stepOnce(fine);
+    for (let tau = 0; !coarse.over && tau < 20000; tau += 37) advanceTo(coarse, tau);
+    expect(ofType(fine, "garageExit").length).toBeGreaterThan(0);
+    expect(JSON.stringify(coarse.events)).toBe(JSON.stringify(fine.events));
+    expect(JSON.stringify(coarse.radio)).toBe(JSON.stringify(fine.radio));
+    // Another seed is another session.
+    const other = playAll(optionsFor(2024, "qualifying", 3, "sesc1-other"));
+    expect(JSON.stringify(other.state.events)).not.toBe(JSON.stringify(quali.state.events));
+  });
+
+  it("the radio never changes a lap or another event: off, the session is the same (RNF-05)", () => {
+    const options = optionsFor(2024, "qualifying", 3, "sesc1-q");
+    const was = R.enabled;
+    R.enabled = false;
+    let off;
+    try {
+      off = playAll(options);
+    } finally {
+      R.enabled = was;
+    }
+    expect(off.state.radio).toEqual([]);
+    expect(lapsOf(off.segments)).toBe(lapsOf(quali.segments));
+    expect(JSON.stringify(off.state.events)).toBe(JSON.stringify(quali.state.events));
+  });
+
+  it("quietSec holds a repeated kind to the same driver within the segment; rivals never get one", () => {
+    const state = { segment: 0, radio: [] };
+    const mine = { id: "a", isUser: true };
+    const cfg = { enabled: true, kinds: { "session-yellow": { quietSec: 10, alert: true } } };
+    expect(pushSessionRadio(state, mine, "session-yellow", 100, 3, {}, cfg)).toEqual({ lap: 3, carId: "a", kind: "session-yellow", t: 100, segment: 0, alert: true });
+    expect(pushSessionRadio(state, mine, "session-yellow", 105, 3, {}, cfg)).toBeNull();
+    expect(pushSessionRadio(state, mine, "session-yellow", 110, 4, {}, cfg)).not.toBeNull();
+    state.segment = 1;
+    expect(pushSessionRadio(state, mine, "session-yellow", 1, 1, {}, cfg)).not.toBeNull();
+    expect(pushSessionRadio(state, { id: "b", isUser: false }, "session-yellow", 500, 1, {}, cfg)).toBeNull();
+    expect(pushSessionRadio(state, mine, "session-unknown", 500, 1, {}, cfg)).toBeNull();
+    // A session saved before SES-C1 has no radio list: it is made on first use.
+    const old = { segment: 0 };
+    pushSessionRadio(old, mine, "session-yellow", 0, 1, {}, cfg);
+    expect(old.radio).toHaveLength(1);
+    expect(sessionRadioAt(quali.state, Infinity, 0).every((message) => message.segment === 0)).toBe(true);
+  });
+
+  it("every kind and both new events have words in ES and EN; unknown ones none (RNF-08)", () => {
+    const names = { a: "Alonso", b: "Massa" };
+    const samples = {
+      "session-garage-exit": { queueSec: 1.5, compound: "soft" },
+      "session-push": { attempt: 1, of: 2 },
+      "session-lap": { time: 92.345, improved: true, position: 3, gapSec: 0.215, dropZone: true },
+      "session-lap-deleted": { time: 92.345, reason: "doubleYellow" },
+      "session-yellow": { outcome: "delete", double: true, sector: 2 },
+      "session-impeded": { otherId: "b", outcome: "lift", lossSec: 0.4 },
+      "session-flag": { counts: true },
+      "session-through": { position: 8 },
+      "session-knocked-out": { position: 16 },
+      "session-result": { position: 4 },
+    };
+    SESSION_RADIO_KINDS.forEach((kind) => {
+      const text = sessionRadioText({ carId: "a", kind, ...samples[kind] }, names);
+      expect(text.length).toBeGreaterThan(0);
+      expect(text).toContain("Alonso");
+      expect(text).not.toMatch(/undefined|NaN/);
+    });
+    expect(sessionRadioText({ carId: "a", kind: "battle-passed" }, names)).toBe("");
+    expect(sessionEventText({ type: "garageExit", carId: "a" }, names)).toContain("Alonso");
+    expect(sessionEventText({ type: "lapComplete", carId: "a", time: 92.1, position: 1, gapSec: 0 }, names)).toMatch(/P1/);
+    expect(sessionEventText({ type: "flag" }, names)).toBe("");
+    // Every real message of a played session reads.
+    quali.state.radio.forEach((message) => expect(sessionRadioText(message, names)).not.toMatch(/undefined|NaN/));
   });
 });
