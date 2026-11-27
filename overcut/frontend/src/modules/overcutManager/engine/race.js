@@ -65,9 +65,10 @@ import {
 } from "./weather";
 import { circuitFor } from "./venue";
 import { commandsFor, drsOpen, penaltyFor, pitLaneSpeedFor, raceBalance as BALANCE, rulesFor } from "./rules";
-import { circuitIdOf, pitLaneFor } from "./sim/pitLane";
+import { circuitIdOf, pitLaneFor, previewPit } from "./sim/pitLane";
 import { expectedStationary, planStop } from "./sim/pitStop";
-import { battleAssistModeOf, fuelSpecOf } from "./energy";
+import { battleAssistModeOf, ersEndgameModeOf, fuelReserveKgOf, fuelSpecOf, fuelSpendMixOf } from "./energy";
+import strategyBalance from "../data/balance/race-strategy.json";
 import {
   RELIABILITY as REL, calibrationFor, contactOutcome, debrisLapsOf, debrisPunctureChanceOf, floorDamageChancesOf, floorLossOf, leavesDebris, pickGroup, raceHazards, turnOnePlan,
   wetRiskOf,
@@ -1154,11 +1155,18 @@ export const rivalCalls = (state, car, lap = state.lap) => {
   else car.mode = "normal";
   car.outLap = false;
   if (!rules.refuelling) {
-    const need = remaining + 0.6;
-    car.fuelMode = car.fuel < need ? "lean" : remaining < 15 && car.fuel > need * 1.07 + 0.3 ? "rich" : "standard";
+    // SIM-C5 / GS-09 (race-energy.json tactics.fuelSpendToTarget): the target at the flag is the FIA's
+    // fuel sample; what a safety car saved (scBurn) is burnt on the rich mix in the last laps.
+    const fuelSpec = fuelOfState(state);
+    const reserve = fuelReserveKgOf(rules.year ?? state.year) / (fuelSpec.kgPerLap > 0 ? fuelSpec.kgPerLap : 1);
+    const paceBurn = MODES[car.mode]?.burn ?? MODE_BURN[car.mode] ?? 1;
+    const lapBurn = paceBurn * (state.safetyCar ? SC_BURN : 1);
+    const spend = fuelSpendMixOf({ fuel: car.fuel, remaining, reserve, lapBurn, paceBurn, mixes: MIXES });
+    car.fuelMode = spend.mix;
+    car.fuelDelta = Math.round(spend.delta * fuelSpec.kgPerLap * 100) / 100;
     // RF-SIM-04: started short of the race (the era's limit, engine/energy.js) by more than the lean
     // mix saves - the conserve pace on top (its burn, race-eras.json modes), as the fuel-saving laps.
-    if (car.fuel < need * MIXES.lean.burn && MODES.conserve?.burn) car.mode = "conserve";
+    if (car.fuel < (remaining + reserve) * MIXES.lean.burn && MODES.conserve?.burn) car.mode = "conserve";
   }
   if (car.battery !== null && car.battery !== undefined) {
     const fight = (car.gapAhead !== null && car.gapAhead < 1) || (car.gapBehind !== null && car.gapBehind < 0.8);
@@ -1166,9 +1174,12 @@ export const rivalCalls = (state, car, lap = state.lap) => {
       // KERS: the budget comes back every lap, so it is spent every lap; all of it on the straight when fighting.
       car.ersMode = fight || remaining <= 2 ? "deploy" : "balanced";
     } else {
-      car.ersMode = car.battery < 22 ? "harvest" : fight && car.battery > 40 ? "deploy" : remaining <= 2 && car.battery > 15 ? "deploy" : "balanced";
+      car.ersMode = car.battery < 22 ? "harvest" : fight && car.battery > 40 ? "deploy" : "balanced";
       // 2026: within a second of the car ahead, the manual overtake mode replaces DRS.
       if (rules.energy.overtakeMode && car.gapAhead !== null && car.gapAhead < rules.energy.balance.overtakeGap && car.battery > 40) car.ersMode = "overtake";
+      // SIM-C5 / GS-09 (race-energy.json tactics.ersEndgame): the last laps empty the store, all of it in a fight.
+      const endgame = ersEndgameModeOf(rules, car, remaining);
+      if (endgame) car.ersMode = endgame;
     }
   }
 };
@@ -2192,6 +2203,47 @@ const unplannedStop = (car, lap, compound) => {
   return { compound, planned: true };
 };
 
+/** RNF-07: the rival pit walls under a neutralisation (race-strategy.json scStop). */
+const SC_STOP = strategyBalance.scStop;
+
+/**
+ * SIM-C5 / GS-09 (RF-SIM-13, RF-SIM-12; race-strategy.json scStop): the AI strategist weighing a stop
+ * under the SC (or VSC) that brings forward the next planned one when it is at most `windowLaps` away.
+ * What it saves is read from the one estimate of a stop (engine/sim/pitLane.js previewPit: lossGreen
+ * against lossSc / lossVsc, F1M24-CHINA §1.5), against `earlyLapCostSec` for each lap brought forward;
+ * the set fitted must reach the next stop or the flag. One draw per neutralisation and car (the
+ * strategist's quality), on the race's stream. Returns the stop, or null. Both modes (SRS 4.2).
+ */
+export const scStopCall = (state, car, stream, { lap = state.lap, remaining = state.laps - lap, rules = stateRules(state) } = {}) => {
+  const sc = state.safetyCar;
+  if (!sc || (sc.virtual && !SC_STOP.virtual)) return null;
+  // The same neutralisation while it was seen on the previous lap too (or this one, a second call).
+  const memo = car.scSpell && car.scSpell.seen >= lap - 1 && car.scSpell.virtual === Boolean(sc.virtual) ? car.scSpell : { decided: false, virtual: Boolean(sc.virtual) };
+  memo.seen = lap;
+  car.scSpell = memo;
+  if (memo.decided) return null;
+  const soon = car.plan.stops.find((stop) => stop > lap && stop - lap <= SC_STOP.windowLaps);
+  if (soon === undefined) return null;
+  const preview = previewPit(state, car.id, { lap, sc: true });
+  const now = preview ? (sc.virtual ? preview.lossVsc : preview.lossSc) : null;
+  const gain = preview && Number.isFinite(preview.lossGreen) && Number.isFinite(now) ? preview.lossGreen - now : pitLaneLoss(state) - pitLaneLoss(state, sc);
+  if (!(gain > (soon - lap) * SC_STOP.earlyLapCostSec)) return null;
+  // The set fitted runs to the stop after the one brought forward, or to the flag.
+  const later = car.plan.stops.find((stop) => stop > soon);
+  const stint = (later ?? state.laps) - lap;
+  const wear = car.wearFactor ?? 1;
+  let compound = nextPlannedCompound(car, rules);
+  if (tyreSpec(compound, rules).life < stint * 0.85 * wear) {
+    compound = dryCompoundFor(stint, rules, wear);
+    if (later === undefined && tyreSpec(compound, rules).life < stint * 0.9 * wear) return null;
+  }
+  memo.decided = true;
+  const chance = clamp(SC_STOP.takeChance + (((car.strategist ?? 50) - 50) / 100) * SC_STOP.strategistSlope, SC_STOP.minChance, SC_STOP.maxChance);
+  if (!stream.chance(chance)) return null;
+  car.plan = { ...car.plan, stops: car.plan.stops.filter((stop) => stop !== soon) };
+  return { compound, planned: true, fuel: 0 };
+};
+
 export const pitDecision = (state, car, wetness, stream, { lap = state.lap, order } = {}) => {
   const remaining = state.laps - lap;
   if (remaining <= 0) return null;
@@ -2267,13 +2319,10 @@ export const pitDecision = (state, car, wetness, stream, { lap = state.lap, orde
     return { compound, planned: true, fuel: refuel ? fuelToNextStop(car, lap, state.laps) : 0 };
   }
 
-  // A cheap stop under the safety car, if one was coming within a few laps.
-  if (state.safetyCar && !car.isUser && !refuel) {
-    const soon = car.plan.stops.find((stop) => stop > lap && stop - lap <= 9);
-    if (soon && stream.chance(clamp(0.35 + car.strategist / 120, 0.3, 0.95))) {
-      car.plan = { ...car.plan, stops: car.plan.stops.filter((stop) => stop !== soon) };
-      return { compound: nextPlannedCompound(car, rules), planned: true, fuel: 0 };
-    }
+  // A cheap stop under the safety car, if one was coming within the window (SIM-C5 / GS-09).
+  if (state.safetyCar && !car.isUser && !refuel && tyreChanges) {
+    const call = scStopCall(state, car, stream, { lap, remaining, rules });
+    if (call) return call;
   }
 
   // Tyres off the cliff with a long way to go: an unplanned stop (only where tyres may be changed).
