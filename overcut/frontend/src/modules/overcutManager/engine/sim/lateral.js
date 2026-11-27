@@ -19,6 +19,15 @@
  *   3. never   if the asphalt or the speed limit leave no room, the pair keeps last step's places,
  *              which by rule 1 were a car's width apart: boxes never overlap.
  *
+ * GS-07 / VIEW-08 (F1M24-CHINA §1.5, §3.3 SIM-C1; RF-3D-03, criterio 7.2): the boxes are also kept apart
+ * where the cars are drawn - on the racing line (engine/trackData.js positionAt, the same placement as
+ * the live view). Along the centreline two cars a box apart can be closer than a box on the line (the
+ * inside of a tight corner, the line's own angle), so rule 1 also caps the advance at the last place
+ * whose oriented box (separating axes, the era's width and length) is clear of the boxes ahead, rule 2
+ * also pushes apart sideways a pair whose drawn boxes touch (side by side in a hairpin), and rule 3 also
+ * undoes a sideways move that would sink two drawn boxes deeper into each other. Both frames
+ * hold at once: the Frenet one the tests of SIM-2 measure and the drawn one the view shows (CAM-3).
+ *
  * A car leaving the pit lane rejoins on the pit side of the road and stays there for
  * `pitExit.holdMetres` (PIT_EXIT); it waits at the end of the lane while that spot is taken
  * (`exitBlocked`). Deterministic (RF-SIM-15): no draws, fixed processing order, typed arrays
@@ -26,7 +35,7 @@
  */
 
 import physicsData from "../../data/balance/race-physics.json";
-import { trackDataFor } from "../trackData";
+import { lineAt, positionAt, trackDataFor } from "../trackData";
 
 export const LATERAL = physicsData.lateral;
 
@@ -91,7 +100,176 @@ export const lateralSetup = (track, year, n, data = LATERAL) => {
     exitWait: new Float64Array(n),
     shift: new Float64Array(n),
     order: new Int32Array(n),
+    // GS-07: the drawn frame - the circuit, the centreline reach beyond which two drawn boxes cannot
+    // touch (their diagonal over the least stretch of an offset line), and each car's drawn pose,
+    // remembered for the (P, lat) it was computed at.
+    track,
+    reach: drawnReachOf(track, td, lo, hi, spec),
+    ...roughFrameOf(track, spec, lo, hi),
+    memoP: new Float64Array(n).fill(NaN),
+    memoLat: new Float64Array(n).fill(NaN),
+    memoX: new Float64Array(n),
+    memoY: new Float64Array(n),
+    memoH: new Float64Array(n),
+    near: [],
+    nearBase: [],
   };
+};
+
+/**
+ * GS-07: how far along the centreline (metres) two cars can be and still have their drawn boxes touch:
+ * the box's diagonal over the least ratio, over the lap and the room across it, between the length of
+ * an offset line (racing line plus a lateral the room allows) and the centreline's, plus a car's length
+ * for the samples' spacing. A tight corner with the line on the inside has a ratio well below 1
+ * (Bahrain T1: about 0.5).
+ */
+const drawnReachOf = (track, td, lo, hi, spec) => {
+  const pts = track.points;
+  const head = track.heading;
+  const n = pts.length;
+  const diag = Math.sqrt(spec.carLength * spec.carLength + spec.carWidth * spec.carWidth);
+  if (!head || head.length < n || td.line.length !== n) return 2 * diag + spec.carLength;
+  let least = Infinity;
+  for (let k = 0; k < n; k += 1) {
+    const j = (k + 1) % n;
+    const cx = pts[j].x - pts[k].x;
+    const cy = pts[j].y - pts[k].y;
+    const ds = Math.sqrt(cx * cx + cy * cy);
+    if (!(ds > 0)) continue;
+    for (let e = 0; e < 3; e += 1) {
+      const ok = td.line[k] + (e === 0 ? lo[k] : e === 1 ? 0 : hi[k]);
+      const oj = td.line[j] + (e === 0 ? lo[j] : e === 1 ? 0 : hi[j]);
+      const dx = cx - Math.sin(head[j]) * oj + Math.sin(head[k]) * ok;
+      const dy = cy + Math.cos(head[j]) * oj - Math.cos(head[k]) * ok;
+      const ratio = Math.sqrt(dx * dx + dy * dy) / ds;
+      if (ratio < least) least = ratio;
+    }
+  }
+  // A fold of the offset line (ratio ~0) would make every car a neighbour: the whole lap is the bound then.
+  return least > 0 ? diag / least + spec.carLength : track.length;
+};
+
+/**
+ * GS-07: a rough drawn frame for the prefilter - the racing line's exact point and the centreline's normal at
+ * the shares k / n the engine's P runs on, interpolated linearly in between - and, per sample, how far the rough
+ * place can be from positionAt's anywhere in that cell for a lateral the room allows (measured here, at a
+ * quarter, half and three quarters of the cell and at both edges of the room and on the line, plus 10 cm for
+ * what lies between). Two cars whose rough centres are further apart than the box's diagonal plus both
+ * cells' error cannot touch; every other pair is tested on positionAt.
+ */
+const roughFrameOf = (track, spec, lo, hi) => {
+  const n = track.points.length;
+  const roughX = new Float64Array(n);
+  const roughY = new Float64Array(n);
+  const roughNx = new Float64Array(n);
+  const roughNy = new Float64Array(n);
+  const roughErr = new Float64Array(n);
+  for (let k = 0; k < n; k += 1) {
+    const at = positionAt(track, k / n, 0);
+    const h = at.heading - lineAt(track, k / n, 0).angle;
+    roughNx[k] = -Math.sin(h);
+    roughNy[k] = Math.cos(h);
+    roughX[k] = at.x;
+    roughY[k] = at.y;
+  }
+  const m = lo.length;
+  for (let k = 0; k < n; k += 1) {
+    const j = (k + 1) % n;
+    const cell = Math.min(m - 1, Math.floor((k / n) * m));
+    let worst = 0;
+    for (let q = 1; q <= 3; q += 1) {
+      const t = q / 4;
+      for (let e = 0; e < 3; e += 1) {
+        const lat = e === 0 ? lo[cell] : e === 1 ? 0 : hi[cell];
+        const exact = positionAt(track, (k + t) / n, lat);
+        const x = roughX[k] + (roughX[j] - roughX[k]) * t + (roughNx[k] + (roughNx[j] - roughNx[k]) * t) * lat;
+        const y = roughY[k] + (roughY[j] - roughY[k]) * t + (roughNy[k] + (roughNy[j] - roughNy[k]) * t) * lat;
+        const dx = x - exact.x;
+        const dy = y - exact.y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d > worst) worst = d;
+      }
+    }
+    roughErr[k] = worst + 0.1;
+  }
+  const diag = Math.sqrt(spec.carLength * spec.carLength + spec.carWidth * spec.carWidth);
+  return { roughX, roughY, roughNx, roughNy, roughErr, roughDiag: diag };
+};
+
+/** GS-07: are cars at (Pa, la) and (Pb, lb) certainly too far apart for their drawn boxes to touch? */
+const roughApart = (G, Pa, la, Pb, lb) => {
+  const n = G.roughX.length;
+  const fa = frac(Pa) * n;
+  const fb = frac(Pb) * n;
+  const ia = Math.floor(fa) % n;
+  const ib = Math.floor(fb) % n;
+  const ta = fa - Math.floor(fa);
+  const tb = fb - Math.floor(fb);
+  const ja = (ia + 1) % n;
+  const jb = (ib + 1) % n;
+  const ax = G.roughX[ia] + (G.roughX[ja] - G.roughX[ia]) * ta + (G.roughNx[ia] + (G.roughNx[ja] - G.roughNx[ia]) * ta) * la;
+  const ay = G.roughY[ia] + (G.roughY[ja] - G.roughY[ia]) * ta + (G.roughNy[ia] + (G.roughNy[ja] - G.roughNy[ia]) * ta) * la;
+  const bx = G.roughX[ib] + (G.roughX[jb] - G.roughX[ib]) * tb + (G.roughNx[ib] + (G.roughNx[jb] - G.roughNx[ib]) * tb) * lb;
+  const by = G.roughY[ib] + (G.roughY[jb] - G.roughY[ib]) * tb + (G.roughNy[ib] + (G.roughNy[jb] - G.roughNy[ib]) * tb) * lb;
+  const dx = bx - ax;
+  const dy = by - ay;
+  const far = G.roughDiag + G.roughErr[ia] + G.roughErr[ib];
+  return dx * dx + dy * dy > far * far;
+};
+
+/** GS-07: car `k`'s drawn pose at its current (P, lat), memoised per car (positionAt is the view's placement). */
+const drawnOf = (G, sim, k) => {
+  if (G.memoP[k] !== sim.P[k] || G.memoLat[k] !== sim.lat[k]) {
+    const pose = positionAt(G.track, sim.P[k], sim.lat[k]);
+    G.memoP[k] = sim.P[k];
+    G.memoLat[k] = sim.lat[k];
+    G.memoX[k] = pose.x;
+    G.memoY[k] = pose.y;
+    G.memoH[k] = pose.heading;
+  }
+};
+
+/**
+ * GS-07: how far two oriented boxes `width x length` sink into each other (separating axes over their
+ * four axes; <= 0 when apart) - the same test as the view's safety pass (three/viewOverlap.js).
+ */
+export const drawnDepth = (ax, ay, ah, bx, by, bh, width, length) => {
+  const hl = length / 2;
+  const hw = width / 2;
+  const ac = Math.cos(ah);
+  const as = Math.sin(ah);
+  const bc = Math.cos(bh);
+  const bs = Math.sin(bh);
+  const dx = bx - ax;
+  const dy = by - ay;
+  let depth = Infinity;
+  for (let e = 0; e < 4; e += 1) {
+    const ux = e === 0 ? ac : e === 1 ? -as : e === 2 ? bc : -bs;
+    const uy = e === 0 ? as : e === 1 ? ac : e === 2 ? bs : bc;
+    const ra = hl * Math.abs(ac * ux + as * uy) + hw * Math.abs(-as * ux + ac * uy);
+    const rb = hl * Math.abs(bc * ux + bs * uy) + hw * Math.abs(-bs * ux + bc * uy);
+    const overlap = ra + rb - Math.abs(dx * ux + dy * uy);
+    if (overlap < depth) depth = overlap;
+  }
+  return depth;
+};
+
+/** A millimetre between two drawn boxes counts as a touch (the view's tolerance is broadcast.json's, larger). */
+const TOUCH = -1e-3;
+
+/** GS-07: how far the drawn boxes of cars `i` and `k` (at their current P and lat) sink into each other (<= 0 apart). */
+const drawnPairDepth = (G, sim, i, k) => {
+  if (roughApart(G, sim.P[i], sim.lat[i], sim.P[k], sim.lat[k])) return -1;
+  drawnOf(G, sim, i);
+  drawnOf(G, sim, k);
+  return drawnDepth(G.memoX[i], G.memoY[i], G.memoH[i], G.memoX[k], G.memoY[k], G.memoH[k], G.spec.carWidth, G.spec.carLength);
+};
+
+/** GS-07: the same with car `i` at lateral `li` and car `k` at `lk` (their P as they are), without the memo. */
+const drawnDepthAt = (G, sim, i, li, k, lk) => {
+  const a = positionAt(G.track, sim.P[i], li);
+  const b = positionAt(G.track, sim.P[k], lk);
+  return drawnDepth(a.x, a.y, a.heading, b.x, b.y, b.heading, G.spec.carWidth, G.spec.carLength);
 };
 
 const cellOf = (G, d) => Math.min(G.m - 1, (frac(d) * G.m) | 0);
@@ -143,7 +321,55 @@ export const gateBoxes = (sim, i, P1) => {
     }
     k = sim.ahead[k];
   }
-  return limit > P0 ? limit : P0;
+  if (!(limit > P0)) return P0;
+  return gateDrawn(sim, i, P0, limit);
+};
+
+/**
+ * GS-07, rule 1 where the cars are drawn: the furthest place in [P0, P1] at which car `i`'s drawn box (its
+ * lateral of last step) does not sink into the drawn box of any car ahead of it within the drawn reach
+ * (they have already moved this step). A pair that already touched at P0 may move on as long as the touch
+ * gets no deeper. If P1 is clear it is P1; otherwise the clear end of a bisection from P0. The car behind
+ * is the one that gives way: a car in front never waits for it (a tail turning into a car alongside in a
+ * hairpin is opened sideways by the lateral step, rule 2).
+ */
+const BISECT = 30;
+const gateDrawn = (sim, i, P0, P1) => {
+  const G = sim.side;
+  const len = sim.tables.length;
+  const reach = P1 - P0 + G.reach / len;
+  const near = G.near;
+  const base = G.nearBase;
+  near.length = 0;
+  let k = sim.ahead[i];
+  for (let guard = 0; k >= 0 && k !== i && guard < sim.ringSize; guard += 1) {
+    if (frac(sim.P0[k] - P0) > reach) break;
+    if (sim.active[k] && sim.inPit[k] === 0 && !roughApart(G, P1, sim.lat[i], sim.P[k], sim.lat[k])) near.push(k);
+    k = sim.ahead[k];
+  }
+  if (!near.length) return P1;
+  const saved = sim.P[i];
+  sim.P[i] = P0;
+  base.length = 0;
+  for (let q = 0; q < near.length; q += 1) base.push(Math.max(TOUCH, drawnPairDepth(G, sim, i, near[q]) + 1e-9));
+  const clearAt = (P) => {
+    sim.P[i] = P;
+    for (let q = 0; q < near.length; q += 1) if (drawnPairDepth(G, sim, i, near[q]) > base[q]) return false;
+    return true;
+  };
+  let result = P1;
+  if (!clearAt(P1)) {
+    let lo = P0;
+    let hi = P1;
+    for (let step = 0; step < BISECT; step += 1) {
+      const mid = (lo + hi) / 2;
+      if (clearAt(mid)) lo = mid;
+      else hi = mid;
+    }
+    result = lo;
+  }
+  sim.P[i] = saved;
+  return result;
 };
 
 /** Where on the road the pit exit puts a car: the edge on the lane's side. */
@@ -293,6 +519,21 @@ const forOverlapping = (sim, size, visit) => {
   return true;
 };
 
+/** GS-07: visit every pair of cars on the road within `reachM` metres along the centreline, as (behind, ahead). */
+const forNear = (sim, size, reachM, visit) => {
+  const order = sim.side.order;
+  const len = sim.tables.length;
+  for (let a = 0; a < size; a += 1) {
+    const i = order[a];
+    for (let s = 1; s < size; s += 1) {
+      const j = order[(a + s) % size];
+      if (frac(sim.P[j] - sim.P[i]) * len >= reachM) break;
+      if (visit(i, j) === false) return false;
+    }
+  }
+  return true;
+};
+
 /**
  * Rules 2 and 3: one lateral step for the cars on the road. `roleNone` is duel.js ROLE.NONE;
  * the duel targets (sim.latTarget) and states are duel.js's.
@@ -327,10 +568,11 @@ export const stepLateral = (sim, roleNone, mistake, yieldShare) => {
     const bound = delta > 0 ? Math.min(G.hi[k], most) : Math.max(G.lo[k], most);
     return delta > 0 ? Math.max(0, bound - lat[i]) : Math.min(0, bound - lat[i]);
   };
-  const push = (i, j) => {
+  // `need` (GS-07): how much further apart the pair must go where drawn; by default the Frenet gap's deficit.
+  const push = (i, j, need) => {
     const before = prev[j] - prev[i];
     const sign = before > 0 ? 1 : before < 0 ? -1 : G.target[j] - G.target[i] >= 0 ? 1 : -1;
-    const deficit = S - sign * (lat[j] - lat[i]);
+    const deficit = need === undefined ? S - sign * (lat[j] - lat[i]) : need;
     if (deficit <= 1e-9) return true;
     // A car let alongside at a car's width (rule 1) may open the clearance at once; a squeeze from the
     // edge passes on to the neighbour (and on through a group three wide).
@@ -356,19 +598,40 @@ export const stepLateral = (sim, roleNone, mistake, yieldShare) => {
     lat[i] += di;
     return true;
   };
-  for (let pass = 0; pass < G.data.solverPasses; pass += 1) forOverlapping(sim, size, push);
-  // Rule 3: a pair still closer than a car's width keeps last step's places.
-  for (let guard = 0; guard <= size; guard += 1) {
+  // GS-07: two boxes the Frenet gap keeps apart can still touch where they are drawn (side by side in a hairpin
+  // each is turned by its own place on the line): such a pair is pushed apart by the depth and the clearance, in
+  // the same passes, within the same lateral speed and asphalt, before the Frenet gap is put right again.
+  const drawnPush = (i, j) => {
+    const depth = drawnPairDepth(G, sim, i, j);
+    if (depth > TOUCH) push(i, j, depth + G.spec.clearance);
+    return true;
+  };
+  for (let pass = 0; pass < G.data.solverPasses; pass += 1) {
+    forNear(sim, size, G.reach, drawnPush);
+    forOverlapping(sim, size, push);
+  }
+  // Rule 3: a pair still closer than a car's width keeps last step's places - in the Frenet frame
+  // (within a car's length along the centreline) and, GS-07, where the two are drawn.
+  const revert = (i, j) => {
+    if (lat[i] === prev[i] && lat[j] === prev[j]) return false;
+    lat[i] = prev[i];
+    lat[j] = prev[j];
+    G.nV[i] = 0;
+    G.nV[j] = 0;
+    return true;
+  };
+  for (let guard = 0; guard <= 2 * size; guard += 1) {
     let reverted = false;
     forOverlapping(sim, size, (i, j) => {
       if (Math.abs(lat[j] - lat[i]) >= W - 1e-9) return true;
-      if (lat[i] !== prev[i] || lat[j] !== prev[j]) {
-        lat[i] = prev[i];
-        lat[j] = prev[j];
-        G.nV[i] = 0;
-        G.nV[j] = 0;
-        reverted = true;
-      }
+      if (revert(i, j)) reverted = true;
+      return true;
+    });
+    forNear(sim, size, G.reach, (i, j) => {
+      if (lat[i] === prev[i] && lat[j] === prev[j]) return true;
+      // A move that leaves the pair touching where drawn is kept only if the touch got shallower.
+      const depth = drawnPairDepth(G, sim, i, j);
+      if (depth > TOUCH && depth > drawnDepthAt(G, sim, i, prev[i], j, prev[j]) + 1e-9 && revert(i, j)) reverted = true;
       return true;
     });
     if (!reverted) break;

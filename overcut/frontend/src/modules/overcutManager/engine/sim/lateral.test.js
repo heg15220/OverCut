@@ -8,6 +8,10 @@
  *     overlap, side by side the flanks keep at least 0.3 m in 99 % of the steps, and nobody moves
  *     forward more than its own speed allows in a step (no jumps of P);
  *   - a car out of the pit lane rejoins on the lane's side (lane PIT_EXIT).
+ *
+ * SIM-C1 (F1M24-CHINA §3.3, GS-07 / GS-03; RF-3D-03, RF-SIM-06, criterio 7.2): the same races placed where the
+ * live view draws them (engine/trackData.js positionAt) need no correction from the view's safety pass (closes
+ * CAM-3), and outside a duel the follower keeps the era's time gap (race-sim.json traffic.minFollowSec).
  */
 
 import physicsData from "../../data/balance/race-physics.json";
@@ -17,6 +21,7 @@ import { fromQuickRace, snapshot, stepFor } from "./index";
 import { LANE_NAMES, LATERAL, lateralSpecFor } from "./lateral";
 import { totalOf, watchRace } from "./lateralWatch";
 import { weekend } from "./simTestKit";
+import { minFollowSecOf } from "./stepRace";
 
 const RACES = 32;
 
@@ -86,9 +91,13 @@ describe("SIM-2 the room across the road is the measured asphalt (splines.json w
 
 describe("SIM-2 · 32 races of 2024: boxes never overlap, clearance side by side, no jumps", () => {
   let total;
+  let follow;
   beforeAll(() => {
     const runs = Array.from({ length: RACES }, (_, k) => watchRace({ seed: `nos24-${k + 1}`, year: 2024, teamId: "ferrari" }));
     total = totalOf(runs);
+    follow = runs.flatMap((run) => run.follow).sort((a, b) => a - b);
+    // eslint-disable-next-line no-console
+    console.log(`SIM-C1 2024: ${total.viewFrames} frames drawn on the line, ${total.viewCorrections} view corrections (first: ${total.viewExample ?? "none"}); side by side where drawn ${((total.drawnClear / total.drawnPairs) * 100).toFixed(2)} % with ≥ 0.3 m; follow gap at > 250 km/h: n ${follow.length}, p1 ${follow[Math.floor(follow.length * 0.01)]?.toFixed(3)} s, p5 ${follow[Math.floor(follow.length * 0.05)]?.toFixed(3)} s`);
     // eslint-disable-next-line no-console
     console.log(`SIM-2 2024: ${RACES} races, ${total.steps} steps; ${total.pairs} pair-steps side by side, ${((total.clear / total.pairs) * 100).toFixed(2)} % with ≥ 0.3 m; worst box ${total.worstBox.toFixed(3)} m; ${total.rejoins} rejoins`);
   }, 600000);
@@ -108,6 +117,18 @@ describe("SIM-2 · 32 races of 2024: boxes never overlap, clearance side by side
     expect(total.example ?? "none").toBe("none");
     expect(total.overSpeed).toBe(0);
     expect(total.backwards).toBe(0);
+  });
+
+  it("SIM-C1 GS-07: drawn on the racing line, the view's safety pass corrects nothing (CAM-3, criterio 7.2)", () => {
+    expect(total.viewFrames).toBeGreaterThan(RACES * 1000);
+    expect(total.viewCorrections).toBe(0);
+  });
+
+  it("SIM-C1 GS-03: outside a duel, the p5 of the follower's gap above 250 km/h is at least the era's minFollowSec", () => {
+    const want = minFollowSecOf(simData.traffic, 2024);
+    expect(want).toBeGreaterThan(0);
+    expect(follow.length).toBeGreaterThan(10000);
+    expect(follow[Math.floor(follow.length * 0.05)]).toBeGreaterThanOrEqual(want);
   });
 
   it("a car out of the pit lane rejoins on the lane's side as PIT_EXIT", () => {

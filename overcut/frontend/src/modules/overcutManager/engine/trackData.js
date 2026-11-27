@@ -28,6 +28,7 @@
 
 import calibrated from "../data/splines.json";
 import { lineCurvature, minCurvatureLine } from "./racingLineSolver";
+import { poseAt } from "./trackGeometry";
 
 export { lineCurvature, minCurvatureLine, normalsOf } from "./racingLineSolver";
 
@@ -121,4 +122,77 @@ export const pitMarksFor = (circuit, splines = calibrated.splines || {}, default
   const limitFrom = Math.min(share(first(atFull)), boxAt);
   const limitTo = Math.max(share(last(atFull)), pit.lineAt);
   return { entryLine, limitFrom, boxFrom: boxAt, boxTo: boxAt, limitTo, exitBlend, source: "procedural" };
+};
+
+// ------------------------------------------------- GS-07 / VIEW-08: one racing line for everybody
+
+const lineCache = new WeakMap();
+const fracOf = (value) => value - Math.floor(value);
+
+/**
+ * GS-07 (F1M24-CHINA §1.5 «Trazada y lateral»; RF-3D-03, criterio 7.2): the racing line as the
+ * live view draws it - the offset of every centreline sample (single precision, as the view keeps
+ * it), the angle the line makes with the centreline and the measured half widths. The engine owns
+ * this geometry: three/racingLine.js, three/cameraZones.js, Race3D.js and three/audio/kerbs.js only
+ * read it (they move onto positionAt in CAM-C2). Cached per circuit object.
+ */
+export const lineGeometryFor = (circuit) => {
+  if (lineCache.has(circuit)) return lineCache.get(circuit);
+  const n = circuit.points.length;
+  const data = trackDataFor(circuit);
+  const offsets = Float32Array.from(data.line);
+  const angles = new Float32Array(n);
+  for (let i = 0; i < n; i += 1) {
+    const step = Math.max(1, (circuit.dist[i + 1] ?? circuit.length) - circuit.dist[i]);
+    angles[i] = Math.atan((offsets[(i + 1) % n] - offsets[(i - 1 + n) % n]) / (2 * step));
+  }
+  const geometry = { offsets, angles, wl: data.wl, wr: data.wr, marginM: data.marginM };
+  lineCache.set(circuit, geometry);
+  return geometry;
+};
+
+/**
+ * The racing line's offset from the centreline (metres, + to the right of travel) and its angle at
+ * distance share `P` for a car `lat` metres off the line: Catmull-Rom across the samples, and line
+ * plus lateral kept on the asphalt (the measured half widths less the margin), as the view does.
+ * Returns { offset, angle } with `offset` the line's part once clamped (offset + lat is the car's
+ * distance from the centreline).
+ */
+export const lineAt = (circuit, P, lat = 0) => {
+  const { offsets, angles, wl, wr, marginM } = lineGeometryFor(circuit);
+  const n = offsets.length;
+  const f = fracOf(P) * n;
+  const i = Math.floor(f) % n;
+  const j = (i + 1) % n;
+  const k = f - Math.floor(f);
+  const h = (q0, q1, q2, q3) => 0.5 * (2 * q1 + (q2 - q0) * k + (2 * q0 - 5 * q1 + 4 * q2 - q3) * k * k + (3 * q1 - q0 - 3 * q2 + q3) * k * k * k);
+  const before = (i - 1 + n) % n;
+  const after = (j + 1) % n;
+  let offset = h(offsets[before], offsets[i], offsets[j], offsets[after]);
+  const angle = h(angles[before], angles[i], angles[j], angles[after]);
+  if (wl && wr) {
+    const left = -(wl[i] + (wl[j] - wl[i]) * k - marginM);
+    const right = wr[i] + (wr[j] - wr[i]) * k - marginM;
+    const total = Math.max(Math.min(left, right), Math.min(Math.max(left, right), offset + lat));
+    offset = total - lat;
+  }
+  return { offset, angle };
+};
+
+/**
+ * GS-07: where a car is on the road - the centreline pose at distance share `P` (engine/trackGeometry
+ * poseAt), moved `lat` metres off the racing line and onto the line itself. Returns
+ * { x, y, heading, lineOffset, lateral, axisOffset }: `lineOffset` the racing line's offset there,
+ * `lateral` the car's own offset from the line (the engine's `lat`), `axisOffset` their sum (from the
+ * centreline). The same placement as the live view (components/raceClock.js liveCarAt +
+ * three/racingLine.js onRacingLine), so the engine can keep the boxes apart where they are drawn.
+ */
+export const positionAt = (circuit, P, lat = 0) => {
+  const pose = poseAt(circuit, fracOf(P));
+  const { offset, angle } = lineAt(circuit, P, lat);
+  const s = Math.sin(pose.heading);
+  const c = Math.cos(pose.heading);
+  const x = pose.x - s * lat;
+  const y = pose.y + c * lat;
+  return { x: x - s * offset, y: y + c * offset, heading: pose.heading + angle, lineOffset: offset, lateral: lat, axisOffset: offset + lat };
 };

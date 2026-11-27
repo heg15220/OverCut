@@ -173,6 +173,35 @@
         },
         "followWindowSec": {
           "$ref": "#/definitions/nonNegative"
+        },
+        "minFollowSec": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["eras"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "settleSec": { "$ref": "#/definitions/nonNegative" },
+            "settleStatus": { "enum": ["source", "measured", "pending"] },
+            "settleNote": { "type": "string" },
+            "eras": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["from", "to", "value", "source", "status"],
+                "properties": {
+                  "$comment": { "type": "string" },
+                  "from": { "type": "integer" },
+                  "to": { "type": "integer" },
+                  "value": { "$ref": "#/definitions/nonNegative" },
+                  "source": { "type": "string", "minLength": 3 },
+                  "status": { "enum": ["source", "measured", "pending"] },
+                  "note": { "type": "string" }
+                }
+              }
+            }
+          }
         }
       }
     },

@@ -75,13 +75,14 @@ import { calibrationFor, damageOf } from "../incidents";
 import { circuitFor } from "../venue";
 import { DUEL_GEOMETRY, LANE_NAMES, ROLE, battleOf, battleSetup, battleStep, drsAllowed, duelGeometrySetup, duelWatch, endDuel, fightOf, lineRadio, openDuel, resolveClaim, trySwitchback } from "./duel";
 import { exitBlocked, gateBoxes, lateralSetup, rejoin, roomAt, stepLateral } from "./lateral";
+import { positionAt } from "../trackData";
 import { cornerNoiseSigmaOf, profileFactorsOf } from "../drivers/skills";
 import { beginLeaderLap, finishRace, pitDecision, planLap, pushEvent, radioFor, retire, rivalCalls, rollFailure, wetnessAt } from "./lapModel";
 import physicsData from "../../data/balance/race-physics.json";
 import { buildTrackTables, dAt, dirtyAt, inCorner, sensAt, tauAtD } from "./trackTables";
 import { PHASE, PHASE_NAMES, PIT_LANE_BALANCE, boxPosition, buildProfile, createLaneState, laneGeometry, limitSpeed, sampleProfile, timeAtS } from "./pitLane";
 import { stageAt } from "./pitStop";
-import { WEATHER_BALANCE, gripRatio, sprayLossOf, weatherSnapshot } from "../weather";
+import { WEATHER_BALANCE, gripRatio, sprayLevelOf, sprayLossOf, weatherSnapshot } from "../weather";
 import { POWERTRAIN, coastDecel, coastPlan, createDrive, curvatureBins, driveSnapshot, launchAccel, powertrainFor, updateDrive } from "./powertrain";
 import { ENERGY, cellsFor, energyPlanOf, ersSpecOf, fuelEraOf, fuelFlowOf, lapDeployOf, referenceDeployOf, storeKwAt, traceDriveOf } from "../energy";
 import { SC_BALANCE, neutralAfter, neutralLeader, neutralLine, neutralStep, pitClosedFor, scLimit, scRateCap, scSnapshot, unlapExempt, vscDeltaStep, vscRate, vscSnapshot } from "./safetyCar";
@@ -101,6 +102,44 @@ const FULL_TOP_SHARE = physicsData.trace.fullThrottleTopShare;
 
 /** The quick mode's start stagger per grid slot (race-eras.json `start.gridSpacing`); here the slot is physical. */
 const START_SPACING = raceBalance.start.gridSpacing;
+
+/** GS-03: keep this step's starting places in the ring (newest at followHead). */
+const recordPlaces = (sim) => {
+  const K = sim.followSteps;
+  if (!sim.followHist) sim.followHist = new Float64Array(sim.n * K).fill(NaN);
+  sim.followHead = (sim.followHead + 1) % K;
+  const base = sim.followHead * sim.n;
+  for (let i = 0; i < sim.n; i += 1) sim.followHist[base + i] = sim.P0[i];
+};
+
+/**
+ * GS-03: where car `a` was `ago` seconds before the end of this step (it has already moved): between its place
+ * now and its starting places of the last steps, linearly. Older than the ring holds, its oldest place.
+ */
+const placeAgo = (sim, a, ago) => {
+  const { dt, n, followHist, followSteps: K } = sim;
+  const back = ago / dt;
+  const at = (k) => (k === 0 ? sim.P[a] : followHist ? followHist[((sim.followHead - (k - 1) + K * 4) % K) * n + a] : NaN);
+  const k0 = Math.min(K, Math.floor(back));
+  const k1 = Math.min(K, k0 + 1);
+  const p0 = at(k0);
+  const p1 = at(k1);
+  if (!Number.isFinite(p0)) return sim.P0[a];
+  if (!Number.isFinite(p1) || k1 === k0) return p0;
+  return p0 + (p1 - p0) * (back - k0);
+};
+
+/**
+ * GS-03 (RF-SIM-06; F1M24-CHINA §2.1, §1.5 «Seguimiento»): the least time gap (s) a car keeps behind
+ * another outside a duel in `year`, from race-sim.json traffic.minFollowSec.eras ({from, to, value,
+ * source, status}); 0 without the key or the era (only minGapMetres then).
+ */
+export const minFollowSecOf = (traffic, year) => {
+  const eras = traffic && traffic.minFollowSec && traffic.minFollowSec.eras;
+  if (!Array.isArray(eras) || !Number.isFinite(year)) return 0;
+  const era = eras.find((entry) => year >= entry.from && year <= entry.to);
+  return era && era.value > 0 ? era.value : 0;
+};
 
 /** SIM-8 (F1M24-GAMEPLAY §3.3 trafico-sesion): what the step simulator runs - a race, or a session's traffic. */
 export const SIM_MODE = { RACE: "race", SESSION: "session" };
@@ -154,6 +193,18 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData, pre
     // RF-SIM-06: the era's dirty air is the quick mode's (rules.js), the tow is step-only data.
     dirtyLoss: rules.dirtyAir,
     slipGain: byYear(balance.slipstream.byEra, rules.year)?.gainPerLap ?? 0,
+    // GS-03 (RF-SIM-06; F1M24-CHINA §2.1): the era's least time gap kept behind a car outside a duel (race-sim.json
+    // traffic.minFollowSec.eras); 0 (absent) leaves only minGapMetres, the behaviour before.
+    minFollowSec: minFollowSecOf(balance.traffic, rules.year ?? state.year),
+    followSettleSec: balance.traffic.minFollowSec ? balance.traffic.minFollowSec.settleSec ?? 0 : 0,
+    // GS-03: the car each one has had ahead since `followSince` (race time) with no duel between them.
+    followOf: new Int32Array(n).fill(-1),
+    followSince: new Float64Array(n),
+    // GS-03: each car's place at the start of the last steps (ring of followSteps per car), to read where the car
+    // ahead was minFollowSec ago.
+    followSteps: Math.max(1, Math.ceil(minFollowSecOf(balance.traffic, rules.year ?? state.year) / balance.step.dt) + 1),
+    followHist: null,
+    followHead: 0,
     // RF-SIM-05: 2026's overtake mode, run by distance: the extra over "deploy" per lap, from the era's energy balance.
     overtake: rules.energy.overtakeMode
       ? {
@@ -1221,6 +1272,35 @@ const advance = (state, i) => {
       }
     }
   }
+  // GS-03 (RF-SIM-06, F1M24-CHINA §2.1): a car settled behind another - the same car ahead for
+  // traffic.minFollowSec.settleSec, no duel between them - keeps a gap in time, as a timing interval is: it is
+  // never further on than the car ahead was minFollowSec ago (its own past places, followHist), nor closer than
+  // minGapMetres. So it brakes where the car ahead braked, not when, and in a train it "breathes" by itself:
+  // close in the slow corners, a few lengths back on the straights. Already inside that gap it gains nothing on
+  // the car ahead this step - nobody is stopped or pushed back, the gap opens on pace. A car still closing in on
+  // a new car ahead, or with the DRS open (an attack: the tow and the flap take it to the braking zone, where
+  // the duel is decided, RF-SIM-08), runs free; so does everybody behind the safety car or the VSC, under a red
+  // flag and between cars on different laps.
+  if (a >= 0 && sim.inPit[i] === 0 && (sim.followOf[i] !== a || sim.duelOther[i] === a || sim.duelOther[a] === i || sim.drsOpen[i] !== 0)) {
+    sim.followOf[i] = a;
+    sim.followSince[i] = sim.clock;
+  }
+  if (
+    a >= 0 && sim.inPit[i] === 0 && sim.minFollowSec > 0 && sim.clock - sim.followSince[i] >= sim.followSettleSec && !sc && !N && !sim.red &&
+    sim.lapDiff[i] === 0 && !unlapExempt(sim, i)
+  ) {
+    const ahead = sim.P0[i] + frac(sim.P[a] - sim.P0[i]);
+    const limit = Math.min(ahead - balance.traffic.minGapMetres / tables.length, ahead - (sim.P[a] - placeAgo(sim, a, sim.minFollowSec)));
+    if (P1 > limit) {
+      const keep = sim.P0[i] + Math.max(0, sim.P[a] - sim.P0[a]);
+      const held = Math.max(sim.P0[i], Math.max(limit, Math.min(P1, keep)));
+      if (held < P1) {
+        P1 = held;
+        tau1 = Math.max(tau0, tauAtD(tables, P1 - laps));
+        sim.lapFlags[i] |= 8;
+      }
+    }
+  }
   // SIM-5: the leader stays behind the safety car (the cars between them are waved by, art. 55.9).
   if (N && !N.virtual && sim.inPit[i] === 0) {
     const held = scLimit(sim, i, P1);
@@ -2185,6 +2265,7 @@ export const stepOnce = (state) => {
     sim.P0[i] = sim.P[i];
     sim.tau0[i] = sim.tau[i];
   }
+  recordPlaces(sim);
   // Front to back around the loop, starting behind the biggest gap, so each car sees
   // the car ahead where it already is this step.
   for (let k = 0; k < sim.ringSize; k += 1) {
@@ -2422,6 +2503,10 @@ export const snapshot = (state) => {
     progress: sim.cool[i] ? sim.coolP[i] : sim.P[i],
     share: frac(sim.cool[i] ? sim.coolP[i] : sim.P[i]),
     lateral: sim.cool[i] ? sim.coolLat[i] : sim.lat[i],
+    // GS-07 / VIEW-08 (F1M24-CHINA §1.5): the racing line's offset from the centreline where the car is (metres, + right
+    // of travel; engine/trackData.js positionAt, the view's own placement) and the car's distance from the centreline
+    // (line + lateral), in every phase on the road - start, safety car and cooldown lap included; null in the pit lane.
+    ...lineOf(sim, i),
     // SIM-FISICA §3.7: speed on the road (m/s), from the sim - the view no longer infers it.
     v: sim.cool[i] ? sim.coolV[i] : sim.inPit[i] !== 0 && sim.lane.cars.prof[i] ? sim.lane.cars.v[i] : sim.v[i],
     inPit: sim.inPit[i] !== 0,
@@ -2465,8 +2550,55 @@ export const snapshot = (state) => {
   cars.vsc = vscSnapshot(state);
   // SIM-7 danos-visibles: debris on the track, at its corner's apex (distance share `s`), for the view.
   cars.debris = activeDebris(state, sim.leaderLap).map((item) => ({ corner: item.corner, s: sim.cornerRange.get(item.corner)?.apex ?? null, until: item.until }));
+  // F1M24-CHINA §1.5 «Spray» (SIM-C1 contract): the water the view and the sound read, never recomputed there.
+  cars.weather = weatherOf(state);
+  cars.spray = state.cars.map((car, i) => sprayOf(state, i));
   return cars;
 };
+
+/** GS-07: `lineOffset` and `axisOffset` of car `i` for the snapshot (null in the pit lane). */
+const lineOf = (sim, i) => {
+  if (sim.inPit[i] !== 0 || !sim.side || !sim.side.track) return { lineOffset: null, axisOffset: null };
+  const cool = sim.cool[i] === 1;
+  const pose = positionAt(sim.side.track, cool ? sim.coolP[i] : sim.P[i], cool ? sim.coolLat[i] : sim.lat[i]);
+  return { lineOffset: Math.round(pose.lineOffset * 1000) / 1000, axisOffset: Math.round(pose.axisOffset * 1000) / 1000 };
+};
+
+/**
+ * F1M24-CHINA §1.5 «Spray» / §3.2 contract of SIM-C1 (RF-SIM-11): `snapshot.weather` - the state, the rain
+ * rate (mm/h) and the water (mm) on the racing line, off it and per timing sector on the leader's lap - read
+ * from engine/weather weatherSnapshot (nothing computed here); null without a weather model.
+ */
+const weatherOf = (state) => {
+  const w = weatherSnapshot(state, state._sim.leaderLap);
+  if (!w) return null;
+  return { state: w.state, rainRate: w.rainMmPerHour, waterMm: { line: w.waterMm, off: w.offLineMm, sectors: w.sectorsMm } };
+};
+
+/**
+ * F1M24-CHINA §1.5 «Spray» (RF-SIM-11): how much spray car `i` throws now, 0..1 - engine/weather's level of
+ * the water under it (its sector on its lap). WX-C2 calibrates a pure `sprayAt` in engine/weather; this is
+ * where it goes in then.
+ * 0 in the pit lane, stopped, on the cooldown lap or on a dry track. The view and the sound only read it.
+ */
+const sprayOf = (state, i) => {
+  const sim = state._sim;
+  const weather = state.weather;
+  if (!weather || !weather.water || sim.inPit[i] !== 0 || sim.cool[i] || !sim.active[i] || !(sim.v[i] > 0)) return 0;
+  const k = Math.min(Math.max(0, sim.laps[i] + 1), weather.water.length - 1);
+  const sectors = weather.sectors && weather.sectors[k];
+  const h = sectors ? sectors[sim.tables.sectorOf[Math.min(sim.tables.M - 1, (frac(sim.tau[i]) * sim.tables.M) | 0)]] ?? weather.water[k] : weather.water[k];
+  return Math.round(sprayLevelOf(h) * 1000) / 1000;
+};
+
+/**
+ * F1M24-CHINA §1.5 (contracts of wave 1, SIM-C1 declares them): the race-control messages the engine emits as
+ * events `{type: "control", kind, lap, t, sector?, reason?}`. "drsEnabled" `{lap}` and "drsDisabled" `{reason}`
+ * (GS-08, engine/rules.js drsOpen); the wet chain "climaticChange", "wetTrack", "slippery" (by sector) and
+ * "lowGrip", with the thresholds of race-sim.json raceControl.wet (GS-12, SIM-C4). Declared here so the HUD and
+ * the sound can code against them; the engine emits each kind from the package that owns it (none yet).
+ */
+export const CONTROL_KINDS = Object.freeze(["drsEnabled", "drsDisabled", "climaticChange", "wetTrack", "slippery", "lowGrip"]);
 
 /** SIM-7: the longitudinal state of car `i` for the view (F1M24-GAMEPLAY §1.7 `lon[i]`). */
 const lonOf = (sim, i) => {
