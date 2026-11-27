@@ -13,6 +13,10 @@
  *   grip      lap-time ratio over the dry race pace for slick, inter and wet against the water,
  *             with the crossovers measured in OpenF1 wet races and the inter's and wet's water
  *             capacity from Pirelli's litres per second: above it a tyre floats (aquaplaning).
+ *             GS-13: the litres per second go by tyre generation (grip.evacuation.eras); the
+ *             functions take an optional `year`, and without it use the calibration era (the
+ *             OpenF1 2023-2025 races the water was fitted to). The timeline carries `year` and
+ *             `capacity` for the engine lanes that wire it in.
  *   wetness   the 0..1 index the rest of the engine reads (pace class, DRS, mistakes, incidents,
  *             red flag), piecewise in the water with 0.24 and 0.62 at the two crossovers.
  *   forecast  Friday's rain chance and the live outlook, with an error that shrinks with the
@@ -34,31 +38,86 @@ const RAIN_FROM = W.states.rainFrom;
 // ------------------------------------------------------------------ grip
 
 const G = W.grip;
-/** Water (mm) a tyre clears at top speed: litres per second over speed × tread width (Pirelli). */
-const capacityOf = (litres) => (litres / 1000 / ((G.topSpeedKmh / 3.6) * G.tyreWidthM)) * 1000;
-export const INTER_CAPACITY_MM = capacityOf(G.evacuationLitresPerSec.inter);
-export const WET_CAPACITY_MM = capacityOf(G.evacuationLitresPerSec.wet);
+const EV = G.evacuation;
+/** Water (mm) a tyre clears at `kmh`: litres per second over speed × tread width (Pirelli). */
+const capacityMm = (litres, kmh) => (litres / 1000 / ((kmh / 3.6) * G.tyreWidthM)) * 1000;
+const yearOf = (year) => (Number.isFinite(year) ? year : EV.calibrationYear);
+
+/**
+ * GS-13 (RF-SIM-03, RF-SIM-11, SRS §6): the wet-weather tyres' water evacuation in force in
+ * `year` (race-weather.json grip.evacuation.eras, Pirelli and FIA tyre generations). Before the
+ * first era with a published figure the earliest row (NV) holds; after the last, the last.
+ * Without a year: the calibration era (the OpenF1 races the water model was fitted to).
+ */
+export const evacuationFor = (year) => {
+  const y = yearOf(year);
+  const eras = EV.eras;
+  return eras.find((era) => y >= era.from && y <= era.to) || (y < eras[0].from ? eras[0] : eras[eras.length - 1]);
+};
+
+const CAPACITY_CACHE = new Map();
+/**
+ * The water (mm) each wet-weather tyre clears in `year` and where slick and inter cross: the
+ * inter rises linearly from its near-dry ratio to the inter/wet crossover at its capacity, so the
+ * crossovers keep the measured lap ratios (1.11, 1.27) in every era and move in millimetres with
+ * the tyre generation. The millimetres are the model's (the fit's scale, grip.evacuation.fit):
+ * a year's capacity is the fit's × its litres over the calibration era's, so the calibration
+ * era is exactly the fitted model. Pure and memoised by year.
+ */
+const FIT_INTER_MM = capacityMm(EV.fit.inter, EV.fit.atKmh);
+const FIT_WET_MM = capacityMm(EV.fit.wet, EV.fit.atKmh);
+export const capacityFor = (year) => {
+  const y = yearOf(year);
+  if (CAPACITY_CACHE.has(y)) return CAPACITY_CACHE.get(y);
+  const era = evacuationFor(y);
+  const cal = evacuationFor(EV.calibrationYear);
+  const interMm = FIT_INTER_MM * (capacityMm(era.inter, era.atKmh) / capacityMm(cal.inter, cal.atKmh));
+  const out = Object.freeze({
+    year: y,
+    interMm,
+    wetMm: FIT_WET_MM * (capacityMm(era.wet, era.atKmh) / capacityMm(cal.wet, cal.atKmh)),
+    slickInterMm: (interMm * (G.slickInterRatio - G.interDryRatio)) / (G.interWetRatio - G.interDryRatio),
+    status: era.status,
+  });
+  CAPACITY_CACHE.set(y, out);
+  return out;
+};
+
+const DEFAULT_CAPACITY = capacityFor(null);
+/** The calibration era's capacities (no year given: what race.js and stepRace.js read today). */
+export const INTER_CAPACITY_MM = DEFAULT_CAPACITY.interMm;
+export const WET_CAPACITY_MM = DEFAULT_CAPACITY.wetMm;
 /** Where slick and inter give the same lap (the inter rises linearly from its near-dry ratio to the wet crossover). */
-export const SLICK_INTER_MM = (INTER_CAPACITY_MM * (G.slickInterRatio - G.interDryRatio)) / (G.interWetRatio - G.interDryRatio);
+export const SLICK_INTER_MM = DEFAULT_CAPACITY.slickInterMm;
+const capOf = (year) => (year === undefined || year === null ? DEFAULT_CAPACITY : capacityFor(year));
 
 const floating = (h, capacity) => (h > capacity ? G.aquaplane * (h / capacity - 1) ** G.aquaplaneExponent : 0);
 
 /**
  * Lap time on `compound` with `h` mm of water, as a ratio over the dry race pace (fresh tyre, no
  * wear): 1 for a slick on a dry track, 1.11 where slick and inter cross, 1.27 where inter and wet
- * cross (race-weather.json grip, OpenF1).
+ * cross (race-weather.json grip, OpenF1). `year` (optional) picks the tyre generation's water
+ * capacity (GS-13); without it, the calibration era.
  */
-export const gripRatio = (compound, h) => {
+export const gripRatio = (compound, h, year) => {
   const water = Math.max(0, h);
-  if (compound === "inter") return G.interDryRatio + ((G.interWetRatio - G.interDryRatio) * water) / INTER_CAPACITY_MM + floating(water, INTER_CAPACITY_MM);
-  if (compound === "wet") return G.wetDryRatio + (G.wetSlopePerInterCap * water) / INTER_CAPACITY_MM + floating(water, WET_CAPACITY_MM);
-  return Math.min(G.slickMax, 1 + (G.slickInterRatio - 1) * (water / SLICK_INTER_MM) ** G.slickExponent);
+  const cap = capOf(year);
+  if (compound === "inter") return G.interDryRatio + ((G.interWetRatio - G.interDryRatio) * water) / cap.interMm + floating(water, cap.interMm);
+  if (compound === "wet") return G.wetDryRatio + (G.wetSlopePerInterCap * water) / cap.interMm + floating(water, cap.wetMm);
+  return Math.min(G.slickMax, 1 + (G.slickInterRatio - 1) * (water / cap.slickInterMm) ** G.slickExponent);
 };
 
 /** How far past its water capacity a tyre is (0 within it): the aquaplaning share mistakes read. */
-export const aquaplaningOf = (compound, h) => {
-  const capacity = compound === "inter" ? INTER_CAPACITY_MM : compound === "wet" ? WET_CAPACITY_MM : SLICK_INTER_MM;
+export const aquaplaningOf = (compound, h, year) => {
+  const cap = capOf(year);
+  const capacity = compound === "inter" ? cap.interMm : compound === "wet" ? cap.wetMm : cap.slickInterMm;
   return Math.max(0, h / capacity - 1);
+};
+
+/** The quickest tyre for `h` mm of water in `year` (its crossovers): "wet", "inter" or null for slicks. */
+export const tyreForDepth = (h, year) => {
+  const cap = capOf(year);
+  return h >= cap.interMm ? "wet" : h >= cap.slickInterMm ? "inter" : null;
 };
 
 /** Seconds on the wet-weather tyres of `age` laps on a near-dry track (they overheat) and their wear. */
@@ -260,8 +319,13 @@ export const weatherTimeline = ({ race = {}, laps, cars = 20, seed = "weather", 
     water = advanceWater(water, { rain: STATES[state].rainMmPerHour, trackC: trackTempOf(airOf(state), state, night), cars: cars * W.chain.preCarsShare, minutes, spread });
   }
 
+  // GS-13: the season's tyre generation, for the engine lanes that read the capacity by year.
+  const year = Number.isFinite(race.year) ? race.year : typeof race.date === "string" && race.date.length >= 4 ? Number(race.date.slice(0, 4)) : null;
+  const capacity = capacityFor(year);
   const out = {
     climate: climate.key,
+    year,
+    capacity: { interMm: capacity.interMm, wetMm: capacity.wetMm, slickInterMm: capacity.slickInterMm },
     states: [state],
     rain: [STATES[state].rainMmPerHour],
     water: [water.line],
@@ -300,6 +364,17 @@ export const trackTargetOf = (weather, lap) => {
   const k = Math.min(Math.max(0, lap), weather.states.length - 1);
   return trackTempOf(weather.air[k], weather.states[k], Boolean(weather.night));
 };
+
+/**
+ * GS-13: the track temperature after `minutes` relaxing towards `targetC` (the rain's air +
+ * trackOverAirRain, or the sun's) with the measured time constant (race-weather.json
+ * temperature.relaxTauMin, OpenF1 9668: the Chinese sprint qualifying 2024 cooled under rain).
+ * The per-lap step the race applies is 1 − exp(−lap minutes / τ). Pure.
+ */
+export const relaxTrackTemp = (trackC, targetC, minutes) => targetC + (trackC - targetC) * Math.exp(-Math.max(0, minutes) / W.temperature.relaxTauMin);
+
+/** The rain's target for the track: the air plus trackOverAirRain (OpenF1). */
+export const rainTrackTargetOf = (airC) => clamp(airC + W.temperature.trackOverAirRain, W.temperature.minC, W.temperature.maxC);
 
 /**
  * Lap `lap` for real (beginLapWorld, both modes): the water after the previous lap with the cars
@@ -389,20 +464,20 @@ export const hourlyConditions = ({ race = {}, hour, state = 0, diurnal = null })
 // ------------------------------------------------------------------ the view and the sound
 
 /** The spray a follower meets (0..1) with this much water on the line. */
-export const sprayLevelOf = (h) => clamp(h / INTER_CAPACITY_MM, 0, 1);
+export const sprayLevelOf = (h, year) => clamp(h / capOf(year).interMm, 0, 1);
 
 /** Seconds a follower `gapSec` behind loses in the spray over a lap (race-weather.json spray). */
-export const sprayLossOf = (h, gapSec) => {
+export const sprayLossOf = (h, gapSec, year) => {
   const s = W.spray;
   if (!(h > 0) || gapSec === null || gapSec === undefined || gapSec >= s.windowSec) return 0;
-  return s.lossSec * sprayLevelOf(h) * (1 - Math.max(0, gapSec) / s.windowSec);
+  return s.lossSec * sprayLevelOf(h, year) * (1 - Math.max(0, gapSec) / s.windowSec);
 };
 
 /** The follower's accident factor in the spray (≥ 1). */
-export const sprayRiskOf = (h, gapSec) => {
+export const sprayRiskOf = (h, gapSec, year) => {
   const s = W.spray;
   if (!(h > 0) || gapSec === null || gapSec === undefined || gapSec >= s.windowSec) return 1;
-  return 1 + s.incident * sprayLevelOf(h) * (1 - Math.max(0, gapSec) / s.windowSec);
+  return 1 + s.incident * sprayLevelOf(h, year) * (1 - Math.max(0, gapSec) / s.windowSec);
 };
 
 /**

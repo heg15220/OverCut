@@ -1,0 +1,21 @@
+{
+ "$comment": "GS-13: OpenF1 session 9668 (Shanghai 2024 Sprint Qualifying). PENDING: transcribed from docs/manager/F1M24-CHINA.md §2.9-2.10 (the spec's weather report read OpenF1 9668) because api.openf1.org refused every request while a live session was running (2026-11-27: 'Live F1 session in progress ... restricted to authenticated users'). Regenerate with overcut/src/main/resources/scripts/wet_session_from_openf1.py --session 9668, which writes the same keys from the raw feed. Minutes from the first rainfall row (15:52 local). airAtEndC is not in the spec: derived as the final track minus race-weather.json temperature.trackOverAirRain (the spec: 'pista - aire hacia ~5 °C'), so the cooling test checks the time constant, not the air.",
+ "source": "https://api.openf1.org/v1/{weather,race_control,laps,stints}?session_key=9668",
+ "status": "pending",
+ "session": { "key": 9668, "year": 2024, "name": "Sprint Qualifying", "location": "Shanghai" },
+ "firstRainLocal": "15:52",
+ "messages": {
+  "climaticChange": [{ "min": 9, "sector": null, "text": "CHANGE IN CLIMATIC CONDITIONS" }],
+  "wetTrack": [{ "min": 9, "sector": null, "text": "WET TRACK" }],
+  "slippery": [
+   { "min": 9, "sector": 5, "text": "TRACK SURFACE SLIPPERY IN TRACK SECTOR 5" },
+   { "min": 9, "sector": 6, "text": "TRACK SURFACE SLIPPERY IN TRACK SECTOR 6" },
+   { "min": 9, "sector": 17, "text": "TRACK SURFACE SLIPPERY IN TRACK SECTOR 17" },
+   { "min": 9, "sector": 19, "text": "TRACK SURFACE SLIPPERY IN TRACK SECTOR 19" }
+  ],
+  "lowGrip": [{ "min": 9, "sector": null, "text": "LOW GRIP CONDITIONS" }],
+  "drsDisabled": [{ "min": 17, "sector": null, "text": "DRS DISABLED" }]
+ },
+ "cooling": { "fromC": 28.9, "toC": 22.2, "minutes": 33, "humidityFrom": 32, "humidityTo": 64, "airAtEndC": 17.3, "airDerived": true },
+ "laps": { "interOverDry": 1.234, "interOverSaturdayPole": 1.26, "interSession": "SQ3" }
+}
