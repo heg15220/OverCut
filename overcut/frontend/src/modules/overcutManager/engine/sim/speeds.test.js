@@ -20,6 +20,12 @@
  * bands, where the real race lap loses its time against the pole lap (the numbers race-physics.json
  * `budget.sensitivity` stands for). What it found is in the KNOWN_OFF note: the gap is in the trace
  * the race runs, not in the budget or the gearbox, and the trace is outside PT's files.
+ *
+ * PT-C1 of docs/manager/F1M24-CHINA.md (§2.1 GS-02; RF-SIM-01, RF-SIM-02, RNF-07): the same bench at
+ * Shanghai, 2024 against OpenF1 (fixture `china`: Verstappen's pole lap, session 9664, and his clean race
+ * laps, 9673) and 2013 against those laps scaled by the f1db lap ratio (no public telemetry for 2013:
+ * ±12 %, NV); the pole of the physical trace; and race-physics.json `budget.radiusExponent`, the share of
+ * the band's budget by corner radius, fitted on the OpenF1 race laps of every bench circuit.
  */
 
 import { SIM_BALANCE, airEffect, fromQuickRace, snapshot, stepOnce } from "./index";
@@ -27,6 +33,10 @@ import { dirtyAt, sensAt } from "./trackTables";
 import physicsData from "../../data/balance/race-physics.json";
 import { packContext, weekend } from "./simTestKit";
 import { circuitFor } from "../venue";
+import { budgetBandOf, budgetWeights, carFor, quarterPower, radiusAt, radiusExponentOf, splineLap } from "./physics";
+import splineData from "../../data/splines.json";
+import pack2013 from "../../data/seasons/2013.json";
+import pack2024 from "../../data/seasons/2024.json";
 import telemetry from "./__fixtures__/openf1-powertrain.json";
 
 let context = null;
@@ -35,8 +45,8 @@ beforeAll(async () => {
 });
 
 /** The fastest any running car goes on track (no SC, not in the pit lane) over `laps` racing laps after lap 2. */
-const raceTop = (year, circuit, laps = 6) => {
-  const w = weekend({ year, circuit, context, seed: "speeds" });
+const raceTop = (year, circuit, laps = 6, seed = "speeds") => {
+  const w = weekend({ year, circuit, context, seed });
   const state = fromQuickRace(w.make(), { race: w.race });
   let top = 0;
   let min = Infinity;
@@ -227,19 +237,42 @@ const inSpan = (share, from, to) => {
 };
 
 const benchCache = {};
-/** Per numbered corner of `circuit`: the sim's slowest point in the corner and the real slowest there. */
-const benchOf = (circuit) => {
-  if (benchCache[circuit]) return benchCache[circuit];
-  const w = weekend({ year: BENCH.year, circuit, context, seed: BENCH.seed });
+/** The real laps a circuit's bench reads: the 2024 pole lap and the pole sitter's race laps (realLapOf rows). */
+const defaultSource = (circuit) => ({
+  pole: realLapOf(realSessions.find((session) => session.circuit === circuit && session.year === BENCH.year)),
+  raceLaps: raceLapsOf(circuit),
+});
+
+/**
+ * Per numbered corner of `circuit`: the sim's slowest point in the corner and the real slowest there.
+ * PT-C1: `year` is the season the step race runs (2013 for China), `source` the real laps (China 2024
+ * comes from the fixture's `china` key; the 2013 bench reads the 2024 laps scaled by the f1db lap ratio, NV).
+ */
+const benchOf = (circuit, { year = BENCH.year, source = null } = {}) => {
+  const key = `${circuit}@${year}`;
+  if (benchCache[key]) return benchCache[key];
+  const given = source || defaultSource(circuit);
+  const w = weekend({ year, circuit, context, seed: BENCH.seed });
   const state = fromQuickRace(w.make(), { race: w.race });
-  const track = circuitFor(w.race, BENCH.year);
+  const track = circuitFor(w.race, year);
   const trace = [];
   while (!state.finished && state._sim.laps[0] <= BENCH.lap) {
     stepOnce(state);
     if (state._sim.laps[0] === BENCH.lap && !state.safetyCar) trace.push(snapshot(state)[0]);
   }
   const sim = trace.filter((car) => car.status === "running" && !car.inPit).sort((x, y) => x.share - y.share);
-  const real = realLapOf(realSessions.find((session) => session.circuit === circuit && session.year === BENCH.year));
+  const matched = matchCorners(sim, track, given.pole, given.raceLaps);
+  const top = sim.reduce((most, car) => (car.v > most ? car.v : most), 0) * KMH;
+  benchCache[key] = { ...matched, samples: sim.length, tables: state._sim.tables, budget: state._sim.budget[0], track, top };
+  return benchCache[key];
+};
+
+/**
+ * The bench's corner matching (PT-2/PT-3), shared by the step race and, for PT-C1, the physical trace:
+ * `sim` rows `{share, v (m/s), gear}` sorted by share, the circuit, the real pole lap and race laps
+ * (realLapOf rows). Returns the lap offset, its rms and one row per numbered corner.
+ */
+const matchCorners = (sim, track, real, raceLaps) => {
   const at = (share) => {
     let lo = 0;
     while (lo < sim.length - 1 && sim[lo + 1].share < share) lo += 1;
@@ -289,7 +322,6 @@ const benchOf = (circuit) => {
   // PT-3: the sim runs a race lap, so the reference is the real race lap (like for like): at the point
   // found on the pole lap, each clean first-stint race lap's slowest sample within matchShare, the
   // median over the laps (raceLapsOf). The pole's own minimum stays in `pole` for the record.
-  const raceLaps = raceLapsOf(circuit);
   const corners = rows.map(({ corner, simMin, realShare }, index) => {
     let realMin = matched.get(index)?.minimum || null;
     if (!realMin && realShare !== null) realMin = real.reduce((near, row) => (!near || circular(row.share, realShare) < circular(near.share, realShare) ? row : near), null);
@@ -310,8 +342,7 @@ const benchOf = (circuit) => {
       real: race && { kmh: race.kmh, gear: race.gear, laps: raceMins.length },
     };
   });
-  benchCache[circuit] = { offset: best.off, rms: Math.sqrt(best.err / real.length), samples: sim.length, corners, tables: state._sim.tables, budget: state._sim.budget[0] };
-  return benchCache[circuit];
+  return { offset: best.off, rms: Math.sqrt(best.err / real.length), corners };
 };
 
 const withinTolerance = (row) =>
@@ -472,5 +503,253 @@ describe("PT-3 · race laps against the pole lap (F1M24-GAMEPLAY §2.3 curvas-le
       expect(r.sim.slow).toBeGreaterThan(1);
       expect(r.sim.medium).toBeGreaterThan(1);
     });
+  });
+});
+// ------------------------------------------------------------------ F1M24-CHINA §2.1 GS-02 (PT-C1)
+
+const china = telemetry.china;
+const chinaEvent = (pack) => pack.calendar.find((event) => event.layoutId === "shanghai-1");
+/**
+ * Bench set-up for Shanghai (test parameters, not balance). `nvTolerance`: F1M24-CHINA §2.1, 2013 has no
+ * public telemetry, so the 2013 bench reads the 2024 laps scaled by the f1db lap ratio within ±12 % (NV).
+ * `poleTolerance`: §3.1 GS-02, the best car's physical lap against the real pole.
+ */
+const CHINA_BENCH = { circuit: "shanghai", spline: "shanghai-1", nvYear: 2013, nvTolerance: 0.12, poleTolerance: 0.015, topTolerance: 0.05, hairpinShare: 0.9 };
+const chinaSource = () => ({ pole: realLapOf({ lap: china.pole }), raceLaps: china.race.laps.map((lap) => realLapOf({ lap })) });
+/** 2024 -> 2013 speed scale (NV): the f1db lap ratio, pole for the pole lap and fastest race lap for the race laps. */
+const nvScale = (key) => chinaEvent(pack2024).refLaps[key] / chinaEvent(pack2013).refLaps[key];
+const scaleRows = (rows, scale) => rows.map((row) => ({ ...row, kmh: row.kmh * scale }));
+const chinaBench = (year = BENCH.year) => {
+  if (year === BENCH.year) return benchOf(CHINA_BENCH.circuit, { source: chinaSource() });
+  const source = chinaSource();
+  return benchOf(CHINA_BENCH.circuit, {
+    year,
+    source: { pole: scaleRows(source.pole, nvScale("pole")), raceLaps: source.raceLaps.map((rows) => scaleRows(rows, nvScale("fastestRaceLap"))) },
+  });
+};
+
+/**
+ * Per numbered corner, the physical trace the race runs (circuitFor: the best car of the year on a
+ * qualifying lap) against the real pole lap, aligned the way the bench aligns the step race.
+ */
+const traceBenchCache = {};
+const traceBenchOf = (year) => {
+  if (traceBenchCache[year]) return traceBenchCache[year];
+  const poleRows = scaleRows(chinaSource().pole, year === BENCH.year ? 1 : nvScale("pole"));
+  const track = circuitFor({ circuit: CHINA_BENCH.circuit }, year);
+  const sim = Array.from({ length: track.speed.length }, (_, i) => ({ share: track.distShare[i], v: track.speed[i], gear: null }));
+  // Against the pole lap only (no race laps): `pole` is the real minimum, as the bench finds it.
+  const matched = matchCorners(sim, track, poleRows, []);
+  traceBenchCache[year] = {
+    offset: matched.offset,
+    corners: matched.corners.map((row) => ({ number: row.number, kind: row.kind, matched: row.matched, sim: row.sim.kmh, real: row.pole.kmh })),
+    lapTime: track.simulatedLap,
+  };
+  return traceBenchCache[year];
+};
+
+/**
+ * Corners outside the tolerance at Shanghai, measured 27/11/2026 on wp/PT-C1 (feature/overcut-manager at
+ * the start of F1M24-CHINA wave 1): "bench:year:number" -> [sim km/h, real km/h] (race rows add the sim and
+ * real gear). The calibrated layout counts 14 corners against the official 16 (calibratedCircuit.test.js),
+ * so its T13 is the official T14 hairpin and its T14 the official T15-T16. What is off and why:
+ *
+ *  - The last corner (layout T14, official T15-T16): splines.json shanghai-1 gives it a 54 m radius on its
+ *    racing line, where Verstappen's pole lap keeps 178 km/h (about 75 m with the 2024 car, physics.radiusAt).
+ *    T11-T12 (official T12-T13, the long right-hander) are 10-20 % slow on the trace for the same reason.
+ *    That is the line in splines.json (assets pipeline, outside PT's files, F1M24-CHINA §3.2), not the
+ *    era's car: the same car makes the pole within 0.1 % (test above) and the slow corners within ±10 %.
+ *  - 2013 T9 on the trace: the scaled 2024 pole lap (NV) has no minimum there; the race lap does (136).
+ *  - 2024 race T1-T2 (official T1-T2, the snail): speeds within ±10 %, but the car stays in 7th / 5th where
+ *    Verstappen is in 3rd. The trace trails the brakes into the snail under race-powertrain.json
+ *    shift.brakingG (1.5 g, fitted on the 2024 pole laps), so the gearbox only drops a gear when the rpm
+ *    falls under floorRpm. Lowering brakingG to 0.5 g gives 3rd there but puts the hairpins in 1st-2nd
+ *    (real 3rd) and moves Bahrain T8/T10 and Hungaroring T1 out of the PT-2 bench (tried 27/11).
+ *  - 2024 race T4 and 2013 T12: one OpenF1 race lap with telemetry (lap 46, OpenF1 shut its historical
+ *    API to accounts during a live session on 27/11) at 3.7 Hz; T4 is 78 on that lap against 99 on the
+ *    pole lap. Re-run powertrain_from_openf1.py --china without --raw for laps 3-8 and re-check.
+ */
+const CHINA_KNOWN_OFF = {
+  "trace:2024:11": [99, 111],
+  "trace:2024:12": [179, 224],
+  "trace:2024:14": [131, 178],
+  "trace:2013:9": [152, 187],
+  "trace:2013:11": [95, 110],
+  "trace:2013:12": [174, 222],
+  "trace:2013:14": [125, 176],
+  "race:2024:1": [131, 137, 7, 3],
+  "race:2024:2": [87, 85, 5, 3],
+  "race:2024:4": [89, 78, 4, 3],
+  "race:2024:14": [122, 156, 3, 4],
+  "race:2013:12": [167, 201],
+  "race:2013:14": [120, 158],
+};
+
+const offOf = (rows, tolerance) => rows.filter((row) => Math.abs(row.sim / row.real - 1) > tolerance);
+
+describe("PT-C1 · Shanghai corners against OpenF1 2024 (F1M24-CHINA §2.1 GS-02; RF-SIM-01, RF-SIM-02)", () => {
+  it("the fixture holds Verstappen's 2024 pole lap (OpenF1 9664, 1:33.660, f1db pole) and clean race laps (9673)", () => {
+    expect(china.circuit).toBe(CHINA_BENCH.circuit);
+    expect(china.pole.sessionKey).toBe(9664);
+    expect(china.pole.lapTime).toBeCloseTo(chinaEvent(pack2024).refLaps.pole, 3);
+    expect(china.pole.samples.length).toBeGreaterThan(300);
+    expect(china.race.sessionKey).toBe(9673);
+    expect(china.race.laps.length).toBeGreaterThanOrEqual(1);
+    china.race.laps.forEach((lap) => {
+      expect(lap.samples.length).toBeGreaterThan(300);
+      expect(lap.lapTime / china.pole.lapTime).toBeGreaterThan(1.02);
+      expect(lap.lapTime / china.pole.lapTime).toBeLessThan(1.15);
+    });
+    // The first stint (laps 2-12, before the stop on lap 13): the race pace the step race is held to.
+    expect(china.race.cleanLapTimes.length).toBeGreaterThanOrEqual(8);
+  });
+
+  it("the best car's physical lap on the calibrated spline is the 2024 pole within ±1.5 % (and 2013 inside the ±3 % gate)", () => {
+    const spline = splineData.splines[CHINA_BENCH.spline];
+    const lap2024 = splineLap(spline, carFor({ year: 2024, layoutRef: spline.layoutRef })).lapTime;
+    expect(Math.abs(lap2024 / china.pole.lapTime - 1)).toBeLessThanOrEqual(CHINA_BENCH.poleTolerance);
+    // 2013 (Hamilton 1:34.484): the 2009-2013 block is one car for five seasons (physics.test.js gate ±3 %).
+    const lap2013 = splineLap(spline, carFor({ year: 2013, layoutRef: spline.layoutRef })).lapTime;
+    expect(Math.abs(lap2013 / chinaEvent(pack2013).refLaps.pole - 1)).toBeLessThanOrEqual(0.03);
+  });
+
+  it.each([2024, CHINA_BENCH.nvYear])("%i: the trace's slowest point per corner against the pole lap (2024 ±10 %%, 2013 ±12 %% NV)", (year) => {
+    const bench = traceBenchOf(year);
+    const tolerance = year === BENCH.year ? BENCH.minTolerance : CHINA_BENCH.nvTolerance;
+    expect(Math.abs(bench.offset)).toBeLessThan(BENCH.offsetRange);
+    if (process.env.PTC1_PRINT) console.log(year, "trace", bench.offset, JSON.stringify(bench.corners.map((r) => [r.number, Math.round(r.sim), Math.round(r.real)]))); // eslint-disable-line no-console
+    const off = Object.fromEntries(offOf(bench.corners, tolerance).map((row) => [`trace:${year}:${row.number}`, [Math.round(row.sim), Math.round(row.real)]]));
+    expect(Object.keys(off).filter((key) => !CHINA_KNOWN_OFF[key])).toEqual([]);
+    Object.keys(CHINA_KNOWN_OFF).filter((key) => key.startsWith(`trace:${year}:`)).forEach((key) => expect([key, off[key] !== undefined]).toEqual([key, true]));
+  });
+
+  it.each([2024, CHINA_BENCH.nvYear])("%i: the step race's lap per corner against the race lap (2024 ±10 %% and gear ±1, 2013 ±12 %% NV)", (year) => {
+    const bench = chinaBench(year);
+    expect(bench.samples).toBeGreaterThan(100);
+    expect(Math.abs(bench.offset)).toBeLessThan(BENCH.offsetRange);
+    const tolerance = year === BENCH.year ? BENCH.minTolerance : CHINA_BENCH.nvTolerance;
+    if (process.env.PTC1_PRINT) console.log(year, "race", bench.offset, JSON.stringify(bench.corners.map((r) => [r.number, Math.round(r.sim.kmh), r.sim.gear, Math.round(r.real.kmh), r.real.gear]))); // eslint-disable-line no-console
+    const off = {};
+    bench.corners.forEach((row) => {
+      const speed = Math.abs(row.sim.kmh / row.real.kmh - 1) > tolerance;
+      // Gears only against the same car: 2013 ran a 7-speed V8 at 18 000 rpm, 2024 an 8-speed V6 hybrid.
+      const gear = year === BENCH.year && Math.abs(row.sim.gear - row.real.gear) > BENCH.gearTolerance;
+      if (speed || gear) off[`race:${year}:${row.number}`] = [Math.round(row.sim.kmh), Math.round(row.real.kmh)];
+    });
+    expect(Object.keys(off).filter((key) => !CHINA_KNOWN_OFF[key])).toEqual([]);
+    Object.keys(CHINA_KNOWN_OFF).filter((key) => key.startsWith(`race:${year}:`)).forEach((key) => expect([key, off[key] !== undefined]).toEqual([key, true]));
+  });
+
+  it.each([2024, CHINA_BENCH.nvYear])("%i: the back-straight hairpin (official T14) is no slow outlier: at least 90 %% of OpenF1", (year) => {
+    // F1M24-CHINA §2.1 measured OverCut's 2013 view at ~55 km/h there. The spec's "T14 ≥ 65 km/h" came
+    // from memory (real 70-80 km/h, "verificar en OpenF1"); OpenF1 gives 64 km/h on the 2024 pole lap and
+    // 59 on the race lap, so the gate is the bench's own: no more than 10 % under the real minimum. The
+    // hairpin is the real lap's slowest point.
+    const bench = chinaBench(year);
+    const slowest = bench.corners.reduce((a, b) => (!a || b.real.kmh < a.real.kmh ? b : a), null);
+    expect(slowest.real.kmh).toBeLessThan(70);
+    expect(slowest.sim.kmh / slowest.real.kmh).toBeGreaterThanOrEqual(CHINA_BENCH.hairpinShare);
+    const hairpin = traceBenchOf(year).corners.reduce((a, b) => (!a || b.real < a.real ? b : a), null);
+    expect(hairpin.sim / hairpin.real).toBeGreaterThanOrEqual(CHINA_BENCH.hairpinShare);
+  });
+
+  it("2024: top speed of the bench lap within ±5 % of the real race lap's (OpenF1 9673), the field's under the DRS-and-tow ceiling", () => {
+    // Like for like: one car's racing lap against Verstappen's lap 46 (310 km/h, alone, no DRS). The field's
+    // top over six laps (raceTop, DRS and tow included; the bench seed, as the default one brings a safety
+    // car out on lap 1 at Shanghai) stays under that plus the DRS gain of SIM-FISICA §3.4 and 5 %.
+    const real = Math.max(...china.race.laps.flatMap((lap) => lap.samples.map((row) => row[1])));
+    expect(Math.abs(chinaBench().top / real - 1)).toBeLessThanOrEqual(CHINA_BENCH.topTolerance);
+    const { top } = raceTop(2024, CHINA_BENCH.circuit, 6, BENCH.seed);
+    expect(top).toBeGreaterThan(chinaBench().top);
+    expect(top / (real * (1 + SIM_BALANCE.drs.speedGain)) - 1).toBeLessThanOrEqual(CHINA_BENCH.topTolerance);
+  });
+
+  it("2024: the step race's lap budget is the real first-stint race pace (±3 % of the median clean lap)", () => {
+    const times = china.race.cleanLapTimes.map((lap) => lap.lapTime).sort((x, y) => x - y);
+    expect(Math.abs(chinaBench().budget / times[times.length >> 1] - 1)).toBeLessThanOrEqual(BENCH.paceTolerance);
+  });
+});
+
+// ------------------------------------------------------------------ budget.radiusExponent (PT-C1)
+
+/** The race-physics.json car a circuit's trace runs (era of `year`, the circuit's downforce level). */
+const benchCarOf = (circuit, year = BENCH.year) => carFor({ year, layoutRef: circuit });
+const RADIUS_FIT = { minGroup: 2, steps: [-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1] };
+const cornerFlagsOf = (t) => {
+  const corner = new Uint8Array(t.M);
+  for (let j = 0; j < t.M; j += 1) corner[j] = t.corner[Math.min(t.M - 1, Math.floor(((t.dOfTau[j] + t.dOfTau[j + 1]) / 2) * t.M))];
+  return corner;
+};
+const withExponent = (value) => ({ ...physicsData, budget: { ...physicsData.budget, radiusExponent: { value, status: "pending", source: "test" } } });
+
+/**
+ * The radius exponent the OpenF1 race laps give (every bench circuit, China included): per matched corner,
+ * the time the race lap loses against the pole lap there (pole min / race min − 1); inside each circuit and
+ * band, that loss over its group mean against r^e over its group mean (r from the pole minimum, radiusAt);
+ * the quarter step with the least squared residual.
+ */
+const radiusFit = () => {
+  const groups = {};
+  const benches = [...benchCircuits.map((circuit) => [circuit, benchOf(circuit)]), [CHINA_BENCH.circuit, chinaBench()]];
+  benches.forEach(([circuit, bench]) => {
+    const car = benchCarOf(circuit);
+    bench.corners.forEach((row) => {
+      if (!row.matched || !row.pole || !row.real) return;
+      const key = `${circuit}:${budgetBandOf(row.pole.kmh, true)}`;
+      (groups[key] = groups[key] || []).push({ loss: row.pole.kmh / row.real.kmh - 1, r: radiusAt(car, row.pole.kmh / KMH) });
+    });
+  });
+  const used = Object.values(groups).filter((group) => group.length >= RADIUS_FIT.minGroup);
+  const residual = (e) =>
+    used.reduce((sum, group) => {
+      const lossMean = group.reduce((acc, c) => acc + c.loss, 0) / group.length;
+      const f = group.map((c) => quarterPower(c.r, e));
+      const fMean = f.reduce((acc, x) => acc + x, 0) / f.length;
+      return sum + group.reduce((acc, c, k) => acc + (c.loss / lossMean - f[k] / fMean) ** 2, 0);
+    }, 0);
+  const scores = RADIUS_FIT.steps.map((e) => ({ e, residual: residual(e) }));
+  const best = scores.reduce((a, b) => (b.residual < a.residual - 1e-12 ? b : a));
+  return { best, scores, groups: used.length, corners: used.reduce((sum, group) => sum + group.length, 0) };
+};
+
+describe("PT-C1 · budget.radiusExponent (F1M24-CHINA §2.1 GS-02; RF-SIM-01, RNF-07, RNF-05)", () => {
+  it("budgetWeights with the band weights alone is trackTables' `sens`, bit for bit (Shanghai and Bahrain)", () => {
+    [CHINA_BENCH.circuit, "bahrain"].forEach((circuit) => {
+      const t = (circuit === CHINA_BENCH.circuit ? chinaBench() : benchOf(circuit)).tables;
+      expect(Array.from(budgetWeights(t.vRef, cornerFlagsOf(t), benchCarOf(circuit), withExponent(0)))).toEqual(Array.from(t.sens));
+    });
+  });
+
+  it("with an exponent the weights keep their mean of 1 and each band's own weight, and are deterministic", () => {
+    const t = chinaBench().tables;
+    const corner = cornerFlagsOf(t);
+    const car = benchCarOf(CHINA_BENCH.circuit);
+    const base = budgetWeights(t.vRef, corner, car, withExponent(0));
+    [-0.5, 0.5].forEach((value) => {
+      const w = budgetWeights(t.vRef, corner, car, withExponent(value));
+      expect(w.reduce((sum, x) => sum + x, 0) / t.M).toBeCloseTo(1, 9);
+      ["slow", "medium", "fast", "straight"].forEach((band) => {
+        const idx = [];
+        for (let j = 0; j < t.M; j += 1) if (budgetBandOf(t.vRef[j] * KMH, corner[j]) === band) idx.push(j);
+        if (!idx.length) return;
+        expect(idx.reduce((sum, j) => sum + w[j], 0) / idx.length).toBeCloseTo(idx.reduce((sum, j) => sum + base[j], 0) / idx.length, 9);
+      });
+      expect(Array.from(budgetWeights(t.vRef, corner, car, withExponent(value)))).toEqual(Array.from(w));
+    });
+    // quarterPower is x^e by square roots only.
+    expect(quarterPower(16, 0.5)).toBe(4);
+    expect(quarterPower(16, -0.25)).toBe(0.5);
+    expect(quarterPower(81, 0.75)).toBeCloseTo(27, 12);
+  });
+
+  it("race-physics.json budget.radiusExponent is the quarter step the OpenF1 race laps give", () => {
+    const fit = radiusFit();
+    if (process.env.PTC1_PRINT) console.log("radius fit", JSON.stringify(fit)); // eslint-disable-line no-console
+    const entry = physicsData.budget.radiusExponent;
+    expect(fit.corners).toBeGreaterThanOrEqual(20);
+    expect(radiusExponentOf()).toBe(fit.best.e);
+    expect(entry.status).toBe("measured");
+    expect(entry.fit.corners).toBe(fit.corners);
+    expect(entry.fit.groups).toBe(fit.groups);
   });
 });

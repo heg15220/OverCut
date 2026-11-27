@@ -539,7 +539,19 @@
     "share": [
       -0.08,
       0.3
-    ]
+    ],
+    "radiusExponent": {
+      "$comment": "GS-02 (docs/manager/F1M24-CHINA.md §2.1, PT-C1, 27/11/2026): dentro de cada banda de curva el peso del presupuesto sigue a r^value, normalizado para que la banda conserve su peso (engine/sim/physics.js budgetWeights; con 0 da bit a bit el `sens` de trackTables). Aún NO lo lee engine/sim/trackTables.js: ese fichero no tiene carril en F1M24-CHINA §3.2 y PT-C1 no lo escribe; el enganche es sustituir su bucle de bandas por budgetWeights(vRef, esquina, carFor del año del circuito). Medido con el enganche en una prueba local (27/11): la punta de carrera de Monza 2012 queda en +5,08 % (límite ±5 %) y la vuelta 4 del banco de Shanghái cae bajo coche de seguridad; hay que repetir speeds.test.js y la validación 7.2 al engancharlo.",
+      "value": 0.5,
+      "status": "measured",
+      "source": "OpenF1 car_data (powertrain_from_openf1.py --racelaps y --china): por curva emparejada del banco de engine/sim/speeds.test.js, pérdida de la vuelta de carrera frente a la de pole (mín. pole / mín. carrera − 1) en Monza, Baréin, Hungaroring y Shanghái 2024, normalizada por circuito y banda, contra r^e normalizado (r por physics.radiusAt con el coche de 2024); el paso de 0,25 con menor residuo. Mejora débil: el residuo baja un 7 % frente a 0 (fit), así que la mayor parte de la dispersión por curva es ruido de muestreo a 3,7 Hz.",
+      "fit": {
+        "corners": 35,
+        "groups": 11,
+        "residualAtZero": 4.862,
+        "residualAtValue": 4.512
+      }
+    }
   },
   "wake": {
     "$comment": "WP5 de SIM-FISICA.md §3.4 (RF-SIM-06, RF-SIM-08): la pérdida por vuelta en aire sucio es la del modo rápido (rulesFor(era).dirtyAir, race-eras.json; equivalencia SRS 4.2), pero no se reparte igual por todas las curvas: el aire sucio quita carga aerodinámica, que pesa poco en curva lenta y mucho en curva rápida (F1, «10 things you need to know about the all-new 2022 F1 car»: 35-47 % de carga perdida a 10-20 m en 2017-21; SIM-FISICA §4.6). `dirtyBand` es el peso relativo por banda de la curva (bands), normalizado en la pista para que la vuelta pierda lo mismo. Pesos inferidos (proporcionales a la parte aerodinámica del agarre en cada banda con los coches de race-physics.json eras), NV.",

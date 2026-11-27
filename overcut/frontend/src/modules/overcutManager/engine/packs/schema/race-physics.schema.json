@@ -206,7 +206,29 @@
           "required": ["slow", "medium", "fast", "straight"],
           "properties": {"slow": {"$ref": "#/definitions/positive"}, "medium": {"$ref": "#/definitions/positive"}, "fast": {"$ref": "#/definitions/positive"}, "straight": {"$ref": "#/definitions/positive"}}
         },
-        "share": {"type": "array", "items": {"type": "number", "minimum": -0.5, "maximum": 1}, "minItems": 2, "maxItems": 2}
+        "share": {"type": "array", "items": {"type": "number", "minimum": -0.5, "maximum": 1}, "minItems": 2, "maxItems": 2},
+        "radiusExponent": {
+          "$comment": "GS-02 (F1M24-CHINA §2.1, PT-C1): dentro de cada banda de curva, el peso del presupuesto sigue a r^value (radio por la inversa del límite de paso, physics.radiusAt), normalizado para que cada banda conserve su peso. Pasos de 0,25 (physics.quarterPower: solo raíces cuadradas, RNF-05). 0 = solo pesos por banda.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "status", "source"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "value": {"type": "number", "minimum": -1, "maximum": 1, "multipleOf": 0.25},
+            "status": {"enum": ["measured", "pending"]},
+            "source": {"$ref": "#/definitions/text"},
+            "fit": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "corners": {"type": "integer", "minimum": 0},
+                "groups": {"type": "integer", "minimum": 0},
+                "residualAtZero": {"type": "number", "minimum": 0},
+                "residualAtValue": {"type": "number", "minimum": 0}
+              }
+            }
+          }
+        }
       }
     },
     "wake": {
