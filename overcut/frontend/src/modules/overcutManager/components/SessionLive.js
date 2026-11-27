@@ -31,21 +31,27 @@
  * the same continuity guard as the race (raceClock.createContinuity; a skip, the next event or a new segment
  * is a seek), the HUD sits in zones over the picture with the immersive live mode (HudZones.js, hudLayout.js,
  * hud.json layout), and the sound gets the playback speed in every frame.
+ *
+ * Selector, fast forward and radio (HUD-C2 of F1M24-CHINA: VIEW-14, VIEW-17, AUD-C3 the hook in sessions): the same
+ * camera ring by era, held mirror and kept camera on a new focus as the race, the optional map in fast forward, and the
+ * session engineer's radio (engine/sessionSim state.radio, SES-C1) in the feed in its own words (sessionRadioTexts.js)
+ * and, with the session's log, in every audio frame with the side of each of your cards.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { SESSION_BALANCE, advanceTo, carStatus, command, createSession, defaultCompound, nextSegment, runSegmentToEnd, sessionBestSectors, sessionResult } from "../engine/sessionSim";
+import { SESSION_BALANCE, advanceTo, carStatus, command, createSession, defaultCompound, nextSegment, runSegmentToEnd, sessionBestSectors, sessionRadioAt, sessionResult } from "../engine/sessionSim";
 import { Segmented, Tyre, readableOn } from "./atoms";
-import { Feed, PlaybackBar, SectorBars, SpeedCallout, StatusStrip, TimingTower } from "./Broadcast";
+import { Feed, HudMiniMap, PlaybackBar, SectorBars, SpeedCallout, StatusStrip, TimingTower } from "./Broadcast";
 import { boxDistanceOf, distanceText, isInPhase, isOutPhase, lapSectorsOf, runPhaseOf, runPhaseText, sessionYellowsAt, towerModeName, towerModesFor, yellowFlag } from "./tower";
-import { HUD, LIVE_VIEW, cameraModeOf, cameraName, camerasOf, cycle, defaultCameraOf, defaultSpeedOf, defaultViewOf, reasonText, runToNextSessionEvent, sessionTriggers, speedsOf, stepCar, viewName, viewsOf } from "./playback";
+import { HUD, LIVE_VIEW, cameraModeOf, cameraName, cameraOnFocus, cameraRingOf, cameraSegmentOf, createFastForward, cycle, defaultCameraOf, defaultSpeedOf, defaultViewOf, fastForwardStep, isMirrorKey, mirrorCameraOf, pickViewDuringFastForward, radioForAudio, reasonText, runToNextSessionEvent, segmentName as cameraSegmentName, sessionTriggers, speedsOf, stepCar, viewName, viewsOf } from "./playback";
+import { sessionRadioText } from "./sessionRadioTexts";
 import useAutoSpeed from "./useAutoSpeed";
 import { IconExit, IconFlag, IconLock, IconNextEvent, IconPlay } from "./icons";
 import { carAt, clockModeOf, createContinuity } from "./raceClock";
 import { FoldToggle, ImmersiveHost, ImmersiveToggle, useHudShell } from "./HudZones";
 import { cardOpenOf, hudZonesOf, towerRowsShown, zoneStyleOf } from "./hudLayout";
 import { sessionConditionsOf } from "./hudConditions";
-import RaceStage, { MiniMap } from "./RaceStage";
+import RaceStage from "./RaceStage";
 import { COMPOUND, PROGRAM, QUALI_STYLE, lapTime, t } from "./texts";
 import { canRender3D } from "../three/support";
 import { useRaceAudio } from "../three/audio";
@@ -189,13 +195,58 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
   const auto = useAutoSpeed({ initial: defaultSpeedOf(kind) });
   const speed = auto.speed;
   // user-camera-lock: the view apart from the camera (practice opens on the map).
-  const cameraList = useMemo(() => camerasOf({ has3D, year }), [has3D, year]);
-  const [view, setView] = useState(() => defaultViewOf(kind, has3D));
+  // VIEW-14 (HUD-C2): the ring by era from cameras.json in broadcast.json's order.
+  const cameraList = useMemo(() => cameraRingOf({ has3D, year }), [has3D, year]);
+  const [viewPick, setViewPick] = useState(() => defaultViewOf(kind, has3D));
   const [cameraPick, setCameraPick] = useState(() => defaultCameraOf(cameraList, has3D));
-  const cameraMode = cameraModeOf(view, cameraPick);
+  // VIEW-17 (HUD-C2): the optional map in fast forward, the player's view and camera given back when the speed drops.
+  const [ffMap, setFfMap] = useState(Boolean(LIVE_VIEW.fastForward.enabled));
+  const fastForward = useRef(createFastForward());
+  const ffShown = fastForwardStep(fastForward.current, { view: viewPick, camera: cameraPick, speed, enabled: ffMap, has3D });
+  useEffect(() => {
+    if (ffShown.settle) setViewPick(ffShown.settle);
+  }, [ffShown.settle]);
+  const setView = (value) => {
+    pickViewDuringFastForward(fastForward.current);
+    setViewPick(value);
+  };
+  // VIEW-14: the rear-view camera while its key is held (live-view.json views.mirror).
+  const mirrorCamera = useMemo(() => mirrorCameraOf({ has3D, year }), [has3D, year]);
+  const [mirrorHeld, setMirrorHeld] = useState(false);
+  useEffect(() => {
+    if (!mirrorCamera || typeof window === "undefined") return undefined;
+    const down = (event) => {
+      if (!isMirrorKey(event)) return;
+      event.preventDefault?.();
+      setMirrorHeld(true);
+    };
+    const up = (event) => {
+      if (isMirrorKey(event)) setMirrorHeld(false);
+    };
+    const blur = () => setMirrorHeld(false);
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    window.addEventListener("blur", blur);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", blur);
+    };
+  }, [mirrorCamera]);
+  const view = mirrorHeld && mirrorCamera ? "camera" : ffShown.view;
+  const shownCamera = mirrorHeld && mirrorCamera ? mirrorCamera : ffShown.camera;
+  const cameraMode = mirrorHeld && mirrorCamera ? mirrorCamera : cameraModeOf(view, ffShown.camera);
   const in3DRef = useRef(false);
   const users = entrants.filter((entry) => entry.isUser);
-  const [focusId, setFocusId] = useState(users[0]?.id ?? entrants[0]?.id);
+  const [focusId, setFocusRaw] = useState(users[0]?.id ?? entrants[0]?.id);
+  // VIEW-14: a new car to follow keeps the camera's type.
+  const setFocusId = useCallback(
+    (next) => {
+      setFocusRaw(next);
+      setCameraPick((value) => cameraOnFocus(value, cameraList, has3D));
+    },
+    [cameraList, has3D],
+  );
   // VIEW-01: the shell (zones, immersive) and what the viewer has folded.
   const rootRef = useRef(null);
   const shell = useHudShell(rootRef, { defaultOn: !compact });
@@ -211,6 +262,7 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
   const [, setFrame] = useState(0);
   const tau = useRef(0);
   const seen = useRef(0);
+  const radioSeen = useRef(0);
   const phases = useRef({});
   const feedRef = useRef([]);
   const playRef = useRef({ playing, auto });
@@ -219,6 +271,7 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
   callbacks.current = { onRun, onPhase };
   const repaint = () => setFrame((value) => (value + 1) % 1e9);
   const byId = useMemo(() => Object.fromEntries(entrants.map((entry) => [entry.id, entry])), [entrants]);
+  const names = useMemo(() => Object.fromEntries(entrants.map((entry) => [entry.id, entry.name])), [entrants]);
   const teamOrder = useMemo(() => [...new Set(entrants.map((entry) => entry.teamId))], [entrants]);
   const teams = useMemo(() => teamOrder.map((teamId, index) => ({ id: teamId, color: entrants.find((entry) => entry.teamId === teamId)?.color, slot: index / Math.max(1, teamOrder.length - 1) })), [teamOrder, entrants]);
   const segment = engine.segments[engine.segment];
@@ -269,6 +322,14 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
       } else if (event.type === "eliminated") push(t(`${name} queda eliminado`, `${name} is knocked out`), { kind: mine ? "radio" : "race" });
       else if (event.type === "flag") push(t("Bandera a cuadros", "Chequered flag"), { kind: "race", alert: true });
     }
+    // AUD-C3 (HUD-C2, SES-C1): the session engineer's radio (state.radio) in the feed, in its own words.
+    const radioLog = Array.isArray(engine.radio) ? engine.radio : [];
+    if (radioSeen.current > radioLog.length) radioSeen.current = radioLog.length;
+    for (; radioSeen.current < radioLog.length; radioSeen.current += 1) {
+      const message = radioLog[radioSeen.current];
+      const text = sessionRadioText(message, names);
+      if (text) feedRef.current.unshift({ key: `radio-${radioSeen.current}`, at: message.t, kind: "radio", alert: Boolean(message.alert), text });
+    }
     if (feedRef.current.length > 40) feedRef.current.length = 40;
     users.forEach((user) => {
       const phase = carStatus(engine, user.id, engine.clock)?.phase;
@@ -280,7 +341,7 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
     });
     const triggers = sessionTriggers({ events: fresh, phases: entered, isUser: (id) => Boolean(byId[id]?.isUser) });
     if (triggers.length) playRef.current.auto.notify(triggers, engine.clock);
-  }, [engine, byId, users]);
+  }, [engine, byId, users, names]);
 
   // The session clock: real time times the speed; the engine is run up to it every frame.
   useEffect(() => {
@@ -404,7 +465,10 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
       focusId,
       cars: stageCars.map((item) => ({ id: item.car.id, teamId: item.car.teamId, pose: item.pose })),
       wetness: engine.wetness || 0,
-      events: [],
+      // AUD-C3 (HUD-C2, F1M24-CHINA §1.5 «Radio en sesiones»): the session's log and its engineer's radio with the race's
+      // shape (SES-C1), the radio with the side of each of your cards for its pan.
+      events: engine.events,
+      radio: radioForAudio(sessionRadioAt(engine, tau.current), null, users),
       started: false,
     });
   });
@@ -607,7 +671,7 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
             <FoldToggle open={feedOpen} onToggle={setFeedOpen} what={t("la radio", "the radio")} />
           </span>
         )}
-        {cameraMode !== "map" && <MiniMap circuit={circuit} cars={stageCars} focusId={focusId} label={t("Minimapa", "Mini map")} />}
+        {cameraMode !== "map" && <HudMiniMap circuit={circuit} cars={stageCars} focusId={focusId} box={shell.box} zoned={zoned} label={t("Minimapa", "Mini map")} />}
         <Feed entries={feedRef.current.slice(0, 24).map((entry) => ({ ...entry, lap: null }))} title={t("Radio y pista", "Radio and track")} />
       </aside>
 
@@ -622,8 +686,9 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
         disabled={over}
         views={{ value: view, onChange: setView, options: viewsOf().map((value) => ({ value, label: viewName(value) })) }}
         car={{ label: code(byId[focusId]?.name || ""), onStep: (step) => setFocusId((id) => stepCar(towerOrder, id, step)) }}
-        cameraLabel={view === "tv" ? "TV" : cameraName(cameraPick)}
+        cameraLabel={view === "tv" ? "TV" : view === "map" ? viewName("map") : `${cameraSegmentName(cameraSegmentOf(shownCamera))} · ${cameraName(shownCamera)}`}
         onCamera={(step) => (view !== "camera" ? setView("camera") : setCameraPick((value) => cycle(cameraList, value, step)))}
+        fastForwardMap={has3D && LIVE_VIEW.fastForward.userToggle ? { enabled: ffMap, onToggle: setFfMap, atSpeed: LIVE_VIEW.fastForward.mapAtSpeed } : null}
       >
         {!over && (
           <button type="button" className="mn-btn mn-btn--sm" onClick={nextEvent} aria-label={t("Siguiente evento", "Next event")} title={t("Saltar al siguiente evento", "Skip to the next event")}>

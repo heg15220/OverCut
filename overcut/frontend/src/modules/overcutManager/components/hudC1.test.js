@@ -52,12 +52,14 @@ describe("HUD-C1 · data and the wave-1 contracts (RNF-07, §3.2)", () => {
     expect(HUD.tags.policies).toContain(HUD.tags.policy);
     expect(HUD.tags.status).toBe("pending");
     expect(HUD.start).toHaveProperty("fadeSec", null);
-    expect(HUD.lapCountdown).toMatchObject({ status: "pending", enabled: false });
+    // HUD-C2 applied the countdown (hudC2.test.js); the contract's keys stay.
+    expect(HUD.lapCountdown).toHaveProperty("enabled");
     expect(HUD.lapCountdown.laps).toContain("last");
     expect(LIVE_VIEW.continuity).toMatchObject({ enabled: true, k: 1.2, marginM: 2 });
     // The 3D at ×8 is ours: the automatic switch to the map stays off (§1.5 «Avance rápido»).
     expect(LIVE_VIEW.fastForward.enabled).toBe(false);
-    expect(LIVE_VIEW.views.camerasByEra).toMatchObject({ status: "pending", list: [] });
+    // HUD-C2: the ring by era comes from cameras.json (views.ring); camerasByEra stays empty on purpose.
+    expect(LIVE_VIEW.views.camerasByEra).toMatchObject({ list: [] });
   });
 
   it("the ring per era replaces the 3D cameras in its years, and only those the catalogue has then", () => {

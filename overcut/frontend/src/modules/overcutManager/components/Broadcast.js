@@ -26,9 +26,17 @@
  *   PitTimer      HUD-3: your cars' stops as they happen - lane, stationary, total.
  *   TyreTemp      HUD-6: the tyre in °C (surface and carcass, §1.7 tyreC), its trend and
  *                 the warning against the compound's window, all in words too.
+ *   HudMiniMap    HUD-C2 (F1M24-CHINA VIEW-16): the circuit in a corner with every car and the
+ *                 DRS zones only in the eras that have DRS, with the word on them.
+ *
+ * HUD-C2 also adds the lap countdown to the tower header (tower.lapCountdownOf), the steps
+ * and the estimate to the pit widget (pitTimer.pitStepsOf, previewPit lineToLine), the
+ * segment of the camera to its label and the fast-forward-to-map option to the playback bar.
  */
 
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
+import { offsetSpan, pathOf } from "../engine/trackGeometry";
+import HUD_DATA from "../data/balance/hud.json";
 import { Flag, Segmented, Tabs, readableOn } from "./atoms";
 import { IconArrowDown, IconArrowUp, IconChevronLeft, IconChevronRight, IconFlag, IconPlay, IconRadio } from "./icons";
 import { IconCamera, IconCloud, IconDroplet, IconPause, IconRain, IconSun, IconThermometer, IconTimer } from "./icons";
@@ -121,7 +129,7 @@ export const SectorBars = ({ sectors, best = [], own = [] }) => (
  * plus yours and the one you follow, and the viewer opens or folds it (the view keeps the state, for the
  * zones); without it, the phone fold of always (five rows around your car).
  */
-export const TimingTower = ({ title, subtitle, modes, rows, onPick, label, flag = null, fold = null }) => {
+export const TimingTower = ({ title, subtitle, modes, rows, onPick, label, flag = null, fold = null, countdown = null }) => {
   const [collapsedOwn, setCollapsedOwn] = useState(true);
   const collapsed = fold ? !fold.open : collapsedOwn;
   const setCollapsed = fold ? (next) => fold.onToggle(!(typeof next === "function" ? next(collapsed) : next)) : setCollapsedOwn;
@@ -135,6 +143,11 @@ export const TimingTower = ({ title, subtitle, modes, rows, onPick, label, flag 
       <header className="lv-tower__head">
         <strong>{title}</strong>
         {subtitle && <span className="lv-tower__sub">{subtitle}</span>}
+        {countdown && (
+          <span className={`lv-tower__countdown${countdown.last ? " is-last" : ""}`} role="status" aria-live="polite" data-testid="lap-countdown" data-left={countdown.left}>
+            {countdown.label}
+          </span>
+        )}
       </header>
       {header && (
         <p className="lv-tower__flag" data-flag={header.kind} role="status" aria-label={t("Bandera en pista", "Track flag")}>
@@ -270,13 +283,27 @@ export const StatusStrip = ({ flag, clock, airTemp, rainChance, change, trackTem
  * auto-velocidad): `views` { value, options, onChange } - the view (map, TV, camera) apart
  * from the camera arrows; `car` { label, onStep } - the car before or after the focused one
  * by position; `autoSpeed` { enabled, onToggle }; `held` - paused by an open dialog.
+ * HUD-C2 (VIEW-17): `fastForwardMap` { enabled, onToggle, atSpeed } - the option to go to the map at that speed.
  */
-export const PlaybackBar = ({ playing, onPlay, speeds, speed, onSpeed, speedText = (value) => `×${value}`, cameraLabel, onCamera, children, disabled, views = null, car = null, autoSpeed = null, held = false }) => (
+export const PlaybackBar = ({ playing, onPlay, speeds, speed, onSpeed, speedText = (value) => `×${value}`, cameraLabel, onCamera, children, disabled, views = null, car = null, autoSpeed = null, held = false, fastForwardMap = null }) => (
   <div className="lv-play" data-held={held ? "" : undefined}>
     <button type="button" className="mn-icon-btn lv-play__toggle" onClick={onPlay} aria-label={playing ? t("Pausa", "Pause") : t("Seguir", "Play")} title={held ? t("En pausa mientras el diálogo está abierto", "Paused while the dialog is open") : playing ? t("Pausa", "Pause") : t("Seguir", "Play")} disabled={disabled}>
       {playing && !held ? <IconPause size={18} /> : <IconPlay size={18} />}
     </button>
     <Segmented label={t("Velocidad", "Speed")} value={speed} onChange={onSpeed} options={speeds.map((value) => ({ value, label: speedText(value) }))} />
+    {fastForwardMap && (
+      <button
+        type="button"
+        className={`mn-btn mn-btn--sm mn-btn--ghost lv-play__ffmap${fastForwardMap.enabled ? " is-on" : ""}`}
+        aria-pressed={fastForwardMap.enabled}
+        data-testid="ff-map"
+        onClick={() => fastForwardMap.onToggle(!fastForwardMap.enabled)}
+        title={t(`Mapa en avance rápido: a ×${fastForwardMap.atSpeed} o más la vista pasa al mapa y vuelve a tu cámara al bajar`, `Map in fast forward: at ×${fastForwardMap.atSpeed} or more the view goes to the map and back to your camera when you slow down`)}
+      >
+        {t("Mapa ×", "Map ×")}
+        {fastForwardMap.atSpeed}
+      </button>
+    )}
     {autoSpeed && (
       <button
         type="button"
@@ -455,10 +482,126 @@ export const PitTimer = ({ entries = [] }) => {
           {clock.stationarySec !== null && (
             <span className={`lv-pittimer__stop${clock.state === "stationary" ? " is-live" : ""}`} title={t("Tiempo parado", "Stationary time")}>
               {t("Parado", "Stopped")} {seconds(clock.stationarySec)}
+              {clock.stage ? ` · ${stageWord(clock.stage)}` : ""}
             </span>
+          )}
+          {clock.estimate && (
+            <span className="lv-pittimer__estimate" data-testid="pit-estimate" title={t("Estimación de línea a línea al pedir la parada", "Line-to-line estimate when the stop was called")}>
+              {t("Estimado", "Estimate")} {seconds(clock.estimate.sec)}
+              {clock.estimate.kind !== "green" ? ` (${clock.estimate.kind === "sc" ? t("con SC", "under SC") : t("con VSC", "under VSC")})` : ""}
+              {Number.isFinite(clock.deltaSec) ? ` · ${clock.deltaSec >= 0 ? "+" : "−"}${Math.abs(clock.deltaSec).toFixed(1)} s` : ""}
+            </span>
+          )}
+          {clock.steps && clock.steps.length > 0 && (
+            <ol className="lv-pittimer__steps" aria-label={t("Fases de la parada", "Stop phases")}>
+              {clock.steps.map((step) => (
+                <li key={step.id} data-step={step.id} data-state={step.state} className={`is-${step.state}`}>
+                  {pitStepWord(step.id)}
+                  <span className="lv-sr"> · {pitStepStateWord(step.state)}</span>
+                </li>
+              ))}
+            </ol>
           )}
         </div>
       ))}
+    </div>
+  );
+};
+
+/** HUD-C2: the words of a stop step and of its state (never colour alone, RNF-09). */
+export const pitStepWord = (id) =>
+  ({
+    entry: () => t("Entrada", "Entry"),
+    queue: () => t("En cola", "Queue"),
+    stationary: () => t("Parado", "Stop"),
+    release: () => t("Suelta", "Release"),
+    exit: () => t("Salida", "Exit"),
+  })[id]?.() ?? id;
+const pitStepStateWord = (state) => ({ done: () => t("hecho", "done"), now: () => t("ahora", "now"), next: () => t("por venir", "to come") })[state]?.() ?? "";
+const stageWord = (stage) =>
+  ({
+    marks: () => t("en sus marcas", "on the marks"),
+    jackUp: () => t("elevar", "jack up"),
+    wheels: () => t("ruedas", "wheels"),
+    wing: () => t("alerón", "wing"),
+    refuel: () => t("repostaje", "refuelling"),
+    jackDown: () => t("bajar", "jack down"),
+    release: () => t("suelta", "release"),
+  })[stage]?.() ?? stage;
+
+/** HUD-C2 (VIEW-16): the DRS zones the minimap draws - the circuit's, only when the era has DRS (rules.drs.enabled). */
+export const miniMapDrsOf = (circuit, rules, hud = HUD_DATA) => {
+  if (!hud.miniMap?.drs?.enabled || !rules?.drs?.enabled) return [];
+  return Array.isArray(circuit?.drsZones) ? circuit.drsZones.filter((zone) => Number.isFinite(zone.from) && Number.isFinite(zone.to)) : [];
+};
+
+/**
+ * HUD-C2 (VIEW-16 «minimapa ≤ 6 % del lienzo»): the share of a `viewport` {w, h} the minimap takes - in zones the
+ * side block's map (hud.json layout.blocks.side widthPx × mapHeightPx), outside them the CSS width min(30 %,
+ * miniMap.maxWidthPx) with the circuit's aspect (`aspect` = height / width, at most 1).
+ */
+/**
+ * The minimap's width outside the zones for a view of `w × h` px and a circuit `aspect` (height / width of its box,
+ * with the padding): min(30 % of the width, miniMap.maxWidthPx, the width whose area is maxCanvasShare of the view).
+ */
+export const miniMapWidthOf = ({ w, h }, aspect = 1, hud = HUD_DATA) => {
+  if (!(w > 0 && h > 0)) return hud.miniMap.maxWidthPx;
+  const byShare = Math.sqrt((hud.miniMap.maxCanvasShare * w * h) / Math.max(0.2, Math.min(1, aspect)));
+  return Math.floor(Math.min(0.3 * w, hud.miniMap.maxWidthPx, byShare));
+};
+
+export const miniMapShareOf = ({ w, h }, { zoned = true, aspect = 1 } = {}, hud = HUD_DATA) => {
+  if (!(w > 0 && h > 0)) return 0;
+  if (zoned) {
+    const side = hud.layout.blocks.side;
+    return (side.widthPx * side.mapHeightPx) / (w * h);
+  }
+  const width = miniMapWidthOf({ w, h }, aspect, hud);
+  return (width * width * Math.min(1, aspect)) / (w * h);
+};
+
+/**
+ * HUD-C2 (VIEW-16): the minimap over the picture - the circuit, every car as a dot (the one you follow bigger, yours
+ * outlined) and the DRS zones of the era (miniMapDrsOf) with the word on them (RNF-09). `rules` the race's rules.
+ * Outside the zones (`zoned` false) its width is capped by miniMapWidthOf for the view's `box` {w, h}.
+ */
+export const HudMiniMap = ({ circuit, cars, focusId, label, rules = null, box: viewBox = null, zoned = false }) => {
+  const { box } = circuit;
+  const span = Math.max(box.maxX - box.minX, box.maxY - box.minY);
+  const pad = span * 0.06;
+  const loop = useMemo(() => pathOf(circuit.points), [circuit]);
+  const drs = useMemo(() => miniMapDrsOf(circuit, rules), [circuit, rules]);
+  const drsPaths = useMemo(() => drs.map((zone) => offsetSpan(circuit, zone.from, zone.to, 0)), [circuit, drs]);
+  const aspect = (box.maxY - box.minY + pad * 2) / Math.max(1e-6, box.maxX - box.minX + pad * 2);
+  const style = !zoned && viewBox && viewBox.w > 0 ? { width: `${miniMapWidthOf(viewBox, aspect)}px` } : undefined;
+  return (
+    <div className="lv-minimap" data-testid="hud-minimap" data-drs={drs.length} style={style}>
+      <svg viewBox={`${box.minX - pad} ${box.minY - pad} ${box.maxX - box.minX + pad * 2} ${box.maxY - box.minY + pad * 2}`} role="img" aria-label={drs.length ? `${label} · ${t(`${drs.length} zonas DRS`, `${drs.length} DRS zones`)}` : label}>
+        <path d={loop} className="lv-minimap__road" strokeWidth={span / 40} />
+        {drsPaths.map((points, index) => (
+          <g key={`drs-${index}`} className="lv-minimap__drs" data-drs-zone={index}>
+            <path d={pathOf(points, false)} strokeWidth={span / 40} />
+            {HUD_DATA.miniMap.drs.label && points.length > 0 && (
+              <text x={points[Math.floor(points.length / 2)].x} y={points[Math.floor(points.length / 2)].y - span / 30} fontSize={span / 16} textAnchor="middle">
+                DRS
+              </text>
+            )}
+          </g>
+        ))}
+        {cars.map(({ car, pose }) =>
+          pose.gone ? null : (
+            <circle
+              key={car.id}
+              cx={pose.x}
+              cy={pose.y}
+              r={car.id === focusId ? span / 36 : car.isUser ? span / 48 : span / 70}
+              fill={pose.parked ? "#5d6470" : car.color}
+              stroke={car.id === focusId || car.isUser ? "#f2b705" : "#0b111b"}
+              strokeWidth={span / 260}
+            />
+          ),
+        )}
+      </svg>
     </div>
   );
 };

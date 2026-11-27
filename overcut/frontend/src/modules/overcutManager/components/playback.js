@@ -10,6 +10,9 @@
  *   raceTriggers / sessionTriggers  engine events and phases turned into trigger ids
  *   viewsOf / camerasOf /         the view (map, TV, camera) apart from the camera, and the car
  *   cameraModeOf / stepCar        before or after the focused one by position
+ *   cameraRingOf / mirrorCameraOf /  HUD-C2 (F1M24-CHINA VIEW-14, VIEW-17): the camera ring by era from cameras.json in
+ *   cameraOnFocus / fastForwardStep  broadcast.json's order, the held rear-view camera, the camera kept when the focus
+ *                                 moves, and the optional switch to the map in fast forward with the camera given back
  *
  * The view only reads the engine (§1.4 rule 5): auto-speed changes how many seconds of race
  * the view asks for per real second, and the race worker cuts any request into the same fixed
@@ -18,6 +21,8 @@
 
 import LIVE_VIEW from "../data/balance/live-view.json";
 import HUD from "../data/balance/hud.json";
+import CAMERAS from "../data/balance/cameras.json";
+import BROADCAST from "../data/balance/broadcast.json";
 import { advanceTo, carStatus } from "../engine/sessionSim";
 import { t } from "./texts";
 
@@ -252,6 +257,117 @@ export const camerasOf = ({ has3D, year = null, catalogue = null, config = LIVE_
   return ring.length > 0 ? ring : fallback;
 };
 
+// ------------------------------------------------------------------ HUD-C2: the camera ring, the mirror, fast forward
+
+const inYears = (eras, year) => !Array.isArray(eras) || year === null || year === undefined || eras.some((era) => (era.from ?? -Infinity) <= year && year <= (era.to ?? Infinity));
+
+/**
+ * VIEW-14 (HUD-C2): the ring of the camera view with 3D for `year`, in broadcast.json cycleOrder (live-view.json
+ * views.ring): the exterior cameras always, each onboard of cameras.json only in its years and never a replay-only
+ * one. Without 3D, live-view.json cameras.without3D. A camera the order names but nobody knows is left out; a known
+ * camera the order forgets goes at the end, so nothing the catalogue has is lost.
+ */
+export const cameraRingOf = ({ has3D, year = null, config = LIVE_VIEW, catalogue = CAMERAS.onboard, order = BROADCAST.cycleOrder?.cameras } = {}) => {
+  if (!has3D) return config.views.cameras.without3D.slice();
+  const ring = config.views.ring;
+  if (!ring) return camerasOf({ has3D, year, config });
+  const exterior = ring.segments.exterior;
+  const onboard = (catalogue || []).filter((camera) => camera && camera.id && !camera.replayOnly && inYears(camera.eras, year)).map((camera) => camera.id);
+  const known = new Set([...exterior, ...onboard]);
+  const ordered = (order || []).filter((id) => known.has(id));
+  const rest = [...exterior, ...onboard].filter((id) => !ordered.includes(id));
+  const list = [...ordered, ...rest];
+  return list.length ? list : camerasOf({ has3D, year, config });
+};
+
+/** The segment of a camera in the ring: "exterior" or "onboard" (live-view.json views.ring.segments). */
+export const cameraSegmentOf = (id, config = LIVE_VIEW) => (config.views.ring?.segments.exterior.includes(id) ? "exterior" : "onboard");
+
+export const segmentName = (segment) => (segment === "exterior" ? t("Exterior", "Exterior") : t("A bordo", "Onboard"));
+
+/**
+ * VIEW-14: the rear-view camera held by its key (live-view.json views.mirror), or null when the season's cars do not
+ * carry it (cameras.json eras) or there is no 3D.
+ */
+export const mirrorCameraOf = ({ has3D, year = null, config = LIVE_VIEW, catalogue = CAMERAS.onboard } = {}) => {
+  const mirror = config.views.mirror;
+  if (!has3D || !mirror?.enabled) return null;
+  const camera = (catalogue || []).find((entry) => entry.id === mirror.camera);
+  return camera && inYears(camera.eras, year) ? camera.id : null;
+};
+
+/** Is a key event the mirror's key (never typing in a field)? */
+export const isMirrorKey = (event, config = LIVE_VIEW) => {
+  const key = config.views.mirror?.key;
+  if (!key || !event || typeof event.key !== "string") return false;
+  const target = event.target;
+  const tag = target && typeof target.tagName === "string" ? target.tagName.toUpperCase() : "";
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (target && target.isContentEditable)) return false;
+  return event.key.toLowerCase() === key.toLowerCase() && !event.ctrlKey && !event.metaKey && !event.altKey;
+};
+
+/**
+ * VIEW-14 "al cambiar de foco se conserva el tipo": the camera after the focus moves to another car - the same camera
+ * when it is in the ring (keepTypeOnFocus), otherwise the ring's default.
+ */
+export const cameraOnFocus = (camera, ring, has3D, config = LIVE_VIEW) => (config.views.ring?.keepTypeOnFocus && ring.includes(camera) ? camera : defaultCameraOf(ring, has3D, config));
+
+/**
+ * VIEW-17 (HUD-C2): fast forward to the map, a pure step over what the player chose. `view` and `camera` are the
+ * player's (the view's state, never changed by fast forward), `speed` the playback speed and `enabled` the player's
+ * option (live-view.json fastForward.enabled at the start). Returns { view, camera, settle } to show: at mapAtSpeed
+ * or more, the map; below it again, the player's view and camera as they were (restoreCamera), or `settle: "map"`
+ * when restoreCamera is off so the caller keeps the map. A view the player picks while it is fast wins
+ * (pickViewDuringFastForward). Without 3D nothing changes (it is the map or the overhead camera already).
+ */
+export const createFastForward = () => ({ active: false, userPicked: false });
+export const fastForwardStep = (memo, { view, camera, speed, enabled, has3D = true }, config = LIVE_VIEW) => {
+  const ff = config.fastForward;
+  if (!ff || !has3D) return { view, camera, settle: null };
+  const fast = Boolean(enabled) && speed >= ff.mapAtSpeed;
+  if (fast) {
+    if (!memo.active) {
+      memo.active = true;
+      memo.userPicked = false;
+    }
+    return memo.userPicked ? { view, camera, settle: null } : { view: "map", camera, settle: null };
+  }
+  if (memo.active) {
+    memo.active = false;
+    const keep = !ff.restoreCamera && !memo.userPicked;
+    memo.userPicked = false;
+    return keep ? { view: "map", camera, settle: "map" } : { view, camera, settle: null };
+  }
+  return { view, camera, settle: null };
+};
+/** The player picks a view while fast forward shows the map: theirs wins until the speed drops. */
+export const pickViewDuringFastForward = (memo) => {
+  if (memo && memo.active) memo.userPicked = true;
+  return memo;
+};
+
+/**
+ * AUD-C3 (HUD-C2, F1M24-CHINA §1.5 «Radio en sesiones», §2.7): the radio messages a view hands to audio.frame, race
+ * and sessions alike - those `visible(message)` says are already heard, each { key, lap, carId, kind, alert, panel,
+ * pan }: `panel` the side of the player's card for that car ("left" for the first, "right" for the second, null for
+ * another car; hud.json layout puts the first card on the left) and `pan` the same as −1 / +1 / 0, for the radio's
+ * pan (audio.json ui.radio, AUD-C-2). The key is stable as the log grows: the message's segment, time, car and kind
+ * when it is timed, its place in the log otherwise.
+ */
+export const radioForAudio = (messages, visible, userCars = []) => {
+  const side = new Map((userCars || []).slice(0, 2).map((car, index) => [car.id, index === 0 ? "left" : "right"]));
+  const out = [];
+  (messages || []).forEach((message, index) => {
+    if (!message || (visible && !visible(message))) return;
+    const panel = side.get(message.carId) ?? null;
+    const time = Number.isFinite(message.t) ? message.t : Number.isFinite(message.at) ? message.at : null;
+    // Timed messages (sessions, the step race) are keyed by what they are; the quick mode's by their place in the log.
+    const key = time !== null ? `radio-${message.segment ?? ""}-${time}-${message.carId ?? ""}-${message.kind ?? ""}` : `radio-${index}`;
+    out.push({ key, lap: message.lap ?? null, carId: message.carId ?? null, kind: message.kind ?? null, alert: Boolean(message.alert), panel, pan: panel === "left" ? -1 : panel === "right" ? 1 : 0 });
+  });
+  return out;
+};
+
 export const defaultCameraOf = (cameras, has3D, config = LIVE_VIEW) => {
   const wanted = config.views.defaultCamera[has3D ? "with3D" : "without3D"];
   return cameras.includes(wanted) ? wanted : cameras[0];
@@ -291,6 +407,8 @@ export const cameraName = (id) =>
     visor: () => t("Visor", "Visor"),
     nose: () => t("Morro", "Nose"),
     tcamRear: () => t("T-cam trasera", "Rear T-cam"),
+    halo: () => t("Halo", "Halo"),
+    cockpitHigh: () => t("Cabina alta", "High cockpit"),
     cockpitSide: () => t("Lateral de cabina", "Cockpit side"),
     sidepod: () => t("Pontón", "Sidepod"),
     follow: () => t("Cenital", "Overhead"),

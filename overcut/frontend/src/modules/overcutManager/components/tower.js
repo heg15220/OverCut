@@ -248,3 +248,112 @@ export const boxDistanceOf = (car) => {
   const request = car?.boxRequest;
   return request && typeof request === "object" && Number.isFinite(request.distanceM) ? request.distanceM : null;
 };
+
+// ------------------------------------------------------------------ HUD-C2: lap countdown and live sectors
+
+/**
+ * VIEW-16 (HUD-C2, hud.json lapCountdown): the countdown in the tower header for a race of `laps` laps when the leader
+ * has completed `completed` (0 before the first line). A number n shows through the lap on which n laps are left to
+ * complete (completed = laps − n), "last" through the last lap (completed = laps − 1). Null on every other lap, after
+ * the leader's flag, or with the countdown off. Returns { left, last, label } - always with words (RNF-09).
+ */
+export const lapCountdownOf = ({ laps, completed, finished = false } = {}, hud = HUD) => {
+  const cfg = hud.lapCountdown;
+  if (!cfg || !cfg.enabled || finished || !Number.isFinite(laps) || !Number.isFinite(completed)) return null;
+  const left = laps - completed;
+  if (left < 1 || completed < 0) return null;
+  if (left === 1 && cfg.laps.includes("last")) return { left: 1, last: true, label: t("Última vuelta", "Final lap") };
+  if (left > 1 && left < laps && cfg.laps.includes(left)) return { left, last: false, label: t(`Quedan ${left} vueltas`, `${left} laps to go`) };
+  return null;
+};
+
+/** Does the countdown replace the laps-to-go banners (hud.json lapCountdown.replacesBanners)? */
+export const countdownReplacesBanners = (hud = HUD) => Boolean(hud.lapCountdown?.enabled && hud.lapCountdown.replacesBanners);
+
+/**
+ * VIEW-16 sectors mode in a step race (hud.json tower.liveSectors): the view times each car at the circuit's sector
+ * lines (circuit.sectors, distance shares) on the engine's trace - `sample(car, t)` the unguarded pose with `progress`
+ * (laps + distance share) - like the pit stopwatch times the lane lines. The crossing instant is found by bisection
+ * between two frames, so it does not depend on the frame rate.
+ *
+ *   createSectorClock()               a fresh memory for one car
+ *   stepSectorClock(memo, sample, car, tau, circuit, { seek })   moves it to race time `tau`
+ *   sectorClockSectors(memo)          the sectors to show: the running lap's done so far once it has one, else the
+ *                                     last full lap's; null when there is none
+ *   sectorClockBest(memo)             the car's best of each sector
+ */
+export const createSectorClock = () => ({ tau: null, progress: null, mark: null, last: null, current: [null, null, null], best: [Infinity, Infinity, Infinity] });
+const emptySectors = () => [null, null, null];
+
+// The share of each line on the lap (exact: value - floor, so 0.3 stays 0.3 and a line is never skipped by rounding).
+const boundaryList = (circuit) => (Array.isArray(circuit?.sectors) && circuit.sectors.length >= 2 ? circuit.sectors.map((value) => value - Math.floor(value)) : null);
+
+/** The first sector line (as absolute progress) strictly after `progress`, and which line it is. */
+const nextLine = (starts, progress) => {
+  const lap = Math.floor(progress);
+  for (let k = 0; k < starts.length; k += 1) {
+    const at = lap + starts[k];
+    if (at > progress) return { at, index: k };
+  }
+  return { at: lap + 1 + starts[0], index: 0 };
+};
+
+const traceProgress = (pose) => (pose && Number.isFinite(pose.progress) && !pose.inPit && !pose.garage && !pose.parked && !pose.onGrid && !pose.finished ? pose.progress : null);
+
+export const stepSectorClock = (memo, sample, car, tau, circuit, { seek = false } = {}, hud = HUD) => {
+  const cfg = hud.tower.liveSectors;
+  const starts = boundaryList(circuit);
+  if (!cfg || !cfg.enabled || !starts || starts.length !== 3 || typeof sample !== "function" || !Number.isFinite(tau)) return memo;
+  const progress = traceProgress(sample(car, tau));
+  const broken = progress === null || seek || memo.progress === null || memo.tau === null || tau < memo.tau || progress < memo.progress;
+  if (broken) {
+    // Nothing timed across a skip, a stop or a step back of the trace: the lap in course is dropped.
+    memo.mark = null;
+    memo.current = emptySectors();
+    memo.tau = tau;
+    memo.progress = progress;
+    return memo;
+  }
+  let fromTau = memo.tau;
+  let fromProgress = memo.progress;
+  for (let guard = 0; guard < 2 * starts.length; guard += 1) {
+    const line = nextLine(starts, fromProgress);
+    if (line.at > progress) break;
+    // Bisection on the trace between the last time before the line and this frame (frame-rate independent).
+    let lo = fromTau;
+    let hi = tau;
+    for (let step = 0; step < cfg.bisectSteps; step += 1) {
+      const mid = (lo + hi) / 2;
+      const p = traceProgress(sample(car, mid));
+      if (p !== null && p >= line.at) hi = mid;
+      else lo = mid;
+    }
+    const at = Math.round(hi * 1000) / 1000;
+    const prev = memo.mark;
+    if (prev && prev.index === (line.index + starts.length - 1) % starts.length) {
+      const sector = Math.round((at - prev.at) * 1000) / 1000;
+      if (sector >= cfg.minSectorSec) {
+        memo.current[prev.index] = sector;
+        if (sector < memo.best[prev.index]) memo.best[prev.index] = sector;
+      } else memo.current = emptySectors();
+    }
+    if (line.index === 0) {
+      if (memo.current.every(Number.isFinite)) memo.last = memo.current.slice();
+      memo.current = emptySectors();
+    }
+    memo.mark = { index: line.index, at };
+    fromTau = hi;
+    fromProgress = line.at;
+  }
+  memo.tau = tau;
+  memo.progress = progress;
+  return memo;
+};
+
+export const sectorClockSectors = (memo) => {
+  if (!memo) return null;
+  if (memo.current.some(Number.isFinite)) return [0, 1, 2].map((index) => (Number.isFinite(memo.current[index]) ? memo.current[index] : null));
+  return memo.last ? memo.last.slice() : null;
+};
+
+export const sectorClockBest = (memo) => (memo ? memo.best.slice() : [Infinity, Infinity, Infinity]);

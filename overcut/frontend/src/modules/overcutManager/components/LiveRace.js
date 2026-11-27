@@ -71,6 +71,15 @@
  * conditions top right, map bottom right with the radio on demand, your cards along the bottom folding to
  * one line, and an immersive live mode over the site header and the GP stepper (HudZones.js). The sound
  * gets the playback speed in every frame (audio.frame speed; its fast-forward mix is AUD-C-1's).
+ *
+ * Tower, selector, pit and radio (HUD-C2 of F1M24-CHINA: VIEW-16, VIEW-14, VIEW-17, GS-15 the menu, AUD-C3): the tower
+ * header counts the last laps down (hud.json lapCountdown, instead of the laps-to-go banners), the sectors mode times a
+ * step race at the sector lines on the engine's trace (tower.stepSectorClock), the minimap draws the DRS zones only in
+ * the eras with DRS, and the pit widget shows the stop's steps by the engine's phase with the dialog's line-to-line
+ * estimate (previewPit). The camera ring comes by era from cameras.json in broadcast.json's order, holding the mirror
+ * key shows the rear T-cam until it is released, a new car to follow keeps the camera, and the optional map in fast
+ * forward gives the camera back when the speed drops (live-view.json views.ring/mirror, fastForward). The radio
+ * messages go to the sound with the side of their card.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -85,22 +94,22 @@ import { applyTick, createRaceClient, mirrorOf } from "../engine/worker/raceClie
 import { circuitFor } from "../engine/venue";
 import { useManager } from "./context";
 import { Meter, Segmented, Tabs, Tyre, readableOn } from "./atoms";
-import { Dots, EventBanner, Feed, PitTimer, PlaybackBar, SectorBars, SpeedCallout, StatusStrip, TimingTower, TyreTemp } from "./Broadcast";
+import { Dots, EventBanner, Feed, HudMiniMap, PitTimer, PlaybackBar, SectorBars, SpeedCallout, StatusStrip, TimingTower, TyreTemp } from "./Broadcast";
 import { TYRE_TEMP, createTempTrend, loadRaceTyres, mirrorTyreC, pushTempSample, tempTrendOf, tyreCOf, tyreTempVerdict, tyreWindowOf } from "./tyreTempHud";
 import { createBannerQueue, currentBanner, drsBanners, drsCalls, eventBanners, lapCallouts, offerBanners } from "./hudBanners";
-import { createPitClock, stepPitClock } from "./pitTimer";
-import PitDialog from "./PitDialog";
+import { createPitClock, setPitEstimate, stepPitClock } from "./pitTimer";
+import PitDialog, { pitEstimateOf } from "./PitDialog";
 import { TACTIC_HINT, TACTIC_LABEL, adviceText, damageLines, damageOf, damageVerdict, engineSupports, lossText, mirrorDamage, tacticValue, tacticsFor, tacticsPatch } from "./tacticsHud";
 import RACE_ERAS from "../data/balance/race-eras.json";
 import { tvShotOf } from "./tvDirector";
-import { hasSectorTimes, incidentOf, lapSectorsOf, lastLapOf, raceInLap, raceOutLap, stopsOf, towerModeName, towerModesFor, yellowFlag } from "./tower";
-import { HUD, LIVE_VIEW, cameraModeOf, cameraName, camerasOf, cycle, defaultCameraOf, defaultSpeedOf, defaultViewOf, engineChunk, raceTriggers, reasonText, speedsOf, stepCar, viewName, viewsOf } from "./playback";
+import { countdownReplacesBanners, createSectorClock, hasSectorTimes, incidentOf, lapCountdownOf, lapSectorsOf, lastLapOf, raceInLap, raceOutLap, sectorClockBest, sectorClockSectors, stepSectorClock, stopsOf, towerModeName, towerModesFor, yellowFlag } from "./tower";
+import { HUD, LIVE_VIEW, cameraModeOf, cameraName, cameraOnFocus, cameraRingOf, cameraSegmentOf, createFastForward, cycle, defaultCameraOf, defaultSpeedOf, defaultViewOf, engineChunk, fastForwardStep, isMirrorKey, mirrorCameraOf, pickViewDuringFastForward, radioForAudio, raceTriggers, reasonText, segmentName, speedsOf, stepCar, viewName, viewsOf } from "./playback";
 import useAutoSpeed from "./useAutoSpeed";
 import { IconFastForward, IconFlag } from "./icons";
 import { IconLap, IconNextEvent } from "./icons";
 import "./styles/weekend.css";
 import { COMPOUND, DEFENCE, ERS, MIX, MODE, RISK, STATUS, commentary, duelEvent, lapTime, radioText, t } from "./texts";
-import RaceStage, { MiniMap } from "./RaceStage";
+import RaceStage from "./RaceStage";
 import { canRender3D } from "../three/support";
 import { useRaceAudio } from "../three/audio";
 import SoundControl from "../three/audio/SoundControl";
@@ -431,15 +440,59 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const speed = auto.speed;
   const has3D = useMemo(() => canRender3D(), []);
   // user-camera-lock: the view (map, TV, camera) apart from the camera of the camera view.
-  const cameraList = useMemo(() => camerasOf({ has3D, year: current.year }), [has3D, current.year]);
-  const [view, setView] = useState(() => defaultViewOf(sessionKind, has3D));
+  // VIEW-14 (HUD-C2): the ring by era from cameras.json in broadcast.json's order (playback.cameraRingOf).
+  const cameraList = useMemo(() => cameraRingOf({ has3D, year: current.year }), [has3D, current.year]);
+  const [viewPick, setViewPick] = useState(() => defaultViewOf(sessionKind, has3D));
   const [cameraPick, setCameraPick] = useState(() => defaultCameraOf(cameraList, has3D));
-  const cameraMode = cameraModeOf(view, cameraPick);
+  // VIEW-17 (HUD-C2): the optional map in fast forward (live-view.json fastForward), the player's view given back.
+  const [ffMap, setFfMap] = useState(Boolean(LIVE_VIEW.fastForward.enabled));
+  const fastForward = useRef(createFastForward());
+  const ffShown = fastForwardStep(fastForward.current, { view: viewPick, camera: cameraPick, speed, enabled: ffMap, has3D });
+  useEffect(() => {
+    if (ffShown.settle) setViewPick(ffShown.settle);
+  }, [ffShown.settle]);
+  const setView = (value) => {
+    pickViewDuringFastForward(fastForward.current);
+    setViewPick(value);
+  };
+  // VIEW-14: the rear-view camera while its key is held (live-view.json views.mirror); released, the same frame back.
+  const mirrorCamera = useMemo(() => mirrorCameraOf({ has3D, year: current.year }), [has3D, current.year]);
+  const [mirrorHeld, setMirrorHeld] = useState(false);
+  useEffect(() => {
+    if (!mirrorCamera || typeof window === "undefined") return undefined;
+    const down = (event) => {
+      if (!isMirrorKey(event)) return;
+      event.preventDefault?.();
+      setMirrorHeld(true);
+    };
+    const up = (event) => {
+      if (isMirrorKey(event)) setMirrorHeld(false);
+    };
+    const blur = () => setMirrorHeld(false);
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    window.addEventListener("blur", blur);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", blur);
+    };
+  }, [mirrorCamera]);
+  const view = mirrorHeld && mirrorCamera ? "camera" : ffShown.view;
+  const cameraMode = mirrorHeld && mirrorCamera ? mirrorCamera : cameraModeOf(view, ffShown.camera);
   const in3D = has3D && cameraMode !== "map";
   const in3DRef = useRef(in3D);
   in3DRef.current = in3D;
   const zoom = 1;
-  const [focusId, setFocusId] = useState(userCars[0]?.id ?? current.cars[0]?.id);
+  const [focusId, setFocusRaw] = useState(userCars[0]?.id ?? current.cars[0]?.id);
+  // VIEW-14 (HUD-C2): a new car to follow keeps the camera's type (live-view.json views.ring.keepTypeOnFocus).
+  const setFocusId = useCallback(
+    (next) => {
+      setFocusRaw(next);
+      setCameraPick((value) => cameraOnFocus(value, cameraList, has3D));
+    },
+    [cameraList, has3D],
+  );
   // VIEW-01: the shell (zones, immersive) and what the viewer has folded.
   const rootRef = useRef(null);
   const shell = useHudShell(rootRef);
@@ -448,7 +501,9 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const [feedOpen, setFeedOpen] = useState(HUD.layout.blocks.side.feedOpen);
   // tower-modes (HUD-2): hud.json's order for the year; sectors only when the engine times them.
   const sectorTimes = hasSectorTimes(current.cars);
-  const towerModes = towerModesFor({ session: "race", year: current.year, available: HUD.tower.modes.filter((mode) => mode !== "sectors" || sectorTimes) });
+  // VIEW-16 (HUD-C2): a step race's history has no sector times; the view times them on the engine's trace.
+  const liveSectors = !sectorTimes && Boolean(source.steps && HUD.tower.liveSectors?.enabled && Array.isArray(circuit.sectors) && circuit.sectors.length === 3);
+  const towerModes = towerModesFor({ session: "race", year: current.year, available: HUD.tower.modes.filter((mode) => mode !== "sectors" || sectorTimes || liveSectors) });
   const [towerModePick, setTowerMode] = useState(towerModes[0]);
   const towerMode = towerModes.includes(towerModePick) ? towerModePick : towerModes[0];
   // RF-3D-04 sound: engines per car and era, spatial mix per camera, ambience (three/audio).
@@ -471,6 +526,9 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   // waiting to be told to it (seek: the only time a car may move at once).
   const continuity = useMemo(() => createContinuity({ circuit, lapRef, config: LIVE_VIEW.continuity }), [circuit, lapRef]);
   const seeking = useRef(false);
+  // VIEW-16 (HUD-C2): each car timed at the sector lines on the engine's trace (tower.stepSectorClock).
+  const sectorClocks = useRef(new Map());
+  const sectorSeek = useRef(false);
   const guardedSample = useCallback((car, at) => continuity.pose(car, at, source.sample(car, at)), [continuity, source]);
   const rowsAt = (at) => standingsAt(current.cars, at, circuit, lapRef, guardedSample);
   const camera = useRef(null);
@@ -514,6 +572,8 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     // GS-01: a skip is a seek - the cars are placed where the engine has them, at once.
     continuity.frame(tau.current, "seek");
     seeking.current = false;
+    // VIEW-16: no sector is timed across a skip.
+    sectorSeek.current = true;
     repaint();
   };
 
@@ -588,7 +648,16 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   }, [done, source]);
 
   const rows = rowsAt(tau.current);
-  const byId = Object.fromEntries(current.cars.map((car) => [car.id, car]));
+  if (liveSectors && introDone.current) {
+    // VIEW-16: the sector lines timed on the engine's trace (source.sample, never the guarded pose), by bisection.
+    const seek = sectorSeek.current;
+    sectorSeek.current = false;
+    current.cars.forEach((car) => {
+      if (!sectorClocks.current.has(car.id)) sectorClocks.current.set(car.id, createSectorClock());
+      stepSectorClock(sectorClocks.current.get(car.id), source.sample, car, tau.current, circuit, { seek });
+    });
+  }
+  const byId =Object.fromEntries(current.cars.map((car) => [car.id, car]));
   const rowOf = Object.fromEntries(rows.map((row) => [row.car.id, row]));
   const positions = Object.fromEntries(rows.map((row) => [row.car.id, row.position]));
   const names = Object.fromEntries(current.cars.map((car) => [car.id, car.name]));
@@ -723,7 +792,10 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   // runs (a hold - a replay, a pit dialog - is a pause, never engines frozen at their last revs),
   // and during a replay's content the replayed cars at the replay's own race time (the buffer
   // Race3D draws), on the replay mix. The rest (camera, events, start) is this repaint's.
-  const audioContext = { playing, held: auto.held, done, cameraMode, tvSubjectId, wetness, events: visibleEvents, start: startNow };
+  // AUD-C3 (HUD-C2): the engineer's messages heard so far, each with its car and the side of its panel (your first card
+  // on the left, the second on the right; hud.json layout) for the radio's pan (audio.json ui.radio, AUD-C-2).
+  const audioRadio = radioForAudio(current.radio, (message) => source.radioTime(message) <= tau.current, userCars);
+  const audioContext = { playing, held: auto.held, done, cameraMode, tvSubjectId, wetness, events: visibleEvents, start: startNow, radio: audioRadio };
   audioPump.current = audio.enabled
     ? () => {
         const ctx = audioContext;
@@ -745,6 +817,8 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
           started: introDone.current,
           // AUD-3 reads the engine's start (§1.7) for the lights and the revs on the grid.
           start: ctx.start,
+          // AUD-C3 (HUD-C2): the radio of the race, as it is heard (replays have their own mix).
+          radio: replayLive ? undefined : ctx.radio,
         });
       }
     : null;
@@ -802,7 +876,9 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     if (view !== "camera") setView("camera");
     else setCameraPick((value) => cycle(cameraList, value, step));
   };
-  const cameraLabel = view === "tv" ? `TV · ${directorLabel}` : cameraName(cameraPick);
+  // VIEW-14 (HUD-C2): the label names the ring's segment (exterior or onboard), and the mirror while it is held.
+  const shownCamera = mirrorHeld && mirrorCamera ? mirrorCamera : ffShown.camera;
+  const cameraLabel = view === "tv" ? `TV · ${directorLabel}` : view === "map" ? viewName("map") : `${segmentName(cameraSegmentOf(shownCamera))} · ${cameraName(shownCamera)}`;
   const towerOrder = rows.map((row) => ({ id: row.car.id, out: Boolean(row.out || row.pose.gone) }));
 
   // tower-modes (HUD-2): what each mode shows, read from the lap history up to the clock.
@@ -818,7 +894,10 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     });
     return best;
   };
-  const raceBestSectors = towerMode === "sectors" ? current.cars.map(ownBestSectors).reduce((best, own) => best.map((value, index) => Math.min(value, own[index])), [Infinity, Infinity, Infinity]) : null;
+  // VIEW-16 (HUD-C2): in a step race the sector times are the view's own timing of the engine's trace.
+  const ownSectorBest = (car) => (liveSectors ? sectorClockBest(sectorClocks.current.get(car.id)) : ownBestSectors(car));
+  const sectorsOf = (car) => (liveSectors ? sectorClockSectors(sectorClocks.current.get(car.id)) : lapSectorsOf(car, tau.current));
+  const raceBestSectors = towerMode === "sectors" ? current.cars.map(ownSectorBest).reduce((best, own) => best.map((value, index) => Math.min(value, own[index])), [Infinity, Infinity, Infinity]) : null;
   const towerRows = rows.map((row, index) => {
     const { car, pose } = row;
     const out = row.out;
@@ -837,8 +916,8 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
       const last = lastLapOf(car, tau.current);
       value = last !== null ? lapTime(last) : "—";
     } else if (towerMode === "sectors") {
-      const sectors = lapSectorsOf(car, tau.current);
-      value = sectors ? <SectorBars sectors={sectors} best={raceBestSectors} own={ownBestSectors(car)} /> : "—";
+      const sectors = sectorsOf(car);
+      value = sectors ? <SectorBars sectors={sectors} best={raceBestSectors} own={ownSectorBest(car)} /> : "—";
     } else if (towerMode === "stops") {
       const stops = stopsOf(car, tau.current);
       value = stops === 1 ? t("1 parada", "1 stop") : t(`${stops} paradas`, `${stops} stops`);
@@ -904,7 +983,8 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
       bannerQueue.current,
       [
         ...eventBanners({ events: visibleEvents, timeOf: (event) => event.at ?? source.eventTime(event, leaderId), positions, isUser: (id) => Boolean(byId[id]?.isUser) }),
-        ...lapCallouts({ laps: current.laps, ends: leaderEnds }),
+        // VIEW-16 (HUD-C2): with the tower's countdown on, the laps to go are said there, not twice.
+        ...(countdownReplacesBanners() ? [] : lapCallouts({ laps: current.laps, ends: leaderEnds })),
         ...drsBanners(drsPlan, { ends: leaderEnds }),
       ],
       tau.current,
@@ -953,6 +1033,8 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     ? (shown) => startReplay(planReplay({ trigger: BANNER_REPLAY[shown.kind] || shown.kind, event: { type: shown.kind, carId: shown.carId, otherId: shown.otherId }, at: shown.at }, replayBuffer, { year: current.year, seed: current.seed ?? 0 }))
     : null;
   const chequeredUp = leaderFinished && winnerFlagAt !== null && tau.current < winnerFlagAt + HUD.finish.chequeredBannerSec;
+  // VIEW-16 (HUD-C2): the lap countdown in the tower header (hud.json lapCountdown), from the leader's line crossings.
+  const countdown = hudLive && !replay ? lapCountdownOf({ laps: current.laps, completed: leader?.completed ?? 0, finished: leaderFinished }) : null;
 
   // ---- VIEW-01: the HUD by zones over the picture (hudLayout.js, hud.json layout)
   const userIds = userCars.map((car) => car.id);
@@ -1073,6 +1155,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
         onPick={setFocusId}
         flag={flag}
         fold={zoned ? { open: towerOpen, onToggle: setTowerOpen, rows: HUD.layout.blocks.tower.foldedRows } : null}
+        countdown={countdown}
       />
 
       <section className="lv-cards" aria-label={t("Órdenes", "Orders")}>
@@ -1126,12 +1209,17 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
           pitThisLap={(((pitRow?.pose?.progress ?? 0) % 1) + 1) % 1 < circuit.pit.entry}
           defaultFuel={pitFuelDefault(current, pitCar)}
           maxFuel={Math.max(1, current.laps - current.lap + 1)}
-          onConfirm={(compound, options) => {
+          neutralised={scWindow && !scWindow.red ? (scWindow.virtual ? "vsc" : "sc") : null}
+          onConfirm={(compound, options, preview) => {
             command("requestPit", pitCar.id, compound, options);
+            // GS-15 (HUD-C2): the dialog's line-to-line estimate rides with the stop to the pit widget.
+            if (!pitClocks.current.has(pitCar.id)) pitClocks.current.set(pitCar.id, createPitClock());
+            setPitEstimate(pitClocks.current.get(pitCar.id), pitEstimateOf(preview, scWindow && !scWindow.red ? (scWindow.virtual ? "vsc" : "sc") : null));
             closePitDialog();
           }}
           onCancelCall={() => {
             command("cancelPit", pitCar.id);
+            if (pitClocks.current.has(pitCar.id)) setPitEstimate(pitClocks.current.get(pitCar.id), null);
             closePitDialog();
           }}
         />
@@ -1143,7 +1231,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
             <FoldToggle open={feedOpen} onToggle={setFeedOpen} what={t("la radio", "the radio")} />
           </span>
         )}
-        {cameraMode !== "map" && <MiniMap circuit={circuit} cars={stageCars} focusId={tvSubjectId} label={t("Minimapa", "Mini map")} />}
+        {cameraMode !== "map" && <HudMiniMap circuit={circuit} cars={stageCars} focusId={tvSubjectId} rules={raceRules} box={shell.box} zoned={zoned} label={t("Minimapa", "Mini map")} />}
         <Feed entries={feedEntries} />
       </aside>
 
@@ -1160,6 +1248,7 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
         car={{ label: code(focusName), onStep: (step) => setFocusId((id) => stepCar(towerOrder, id, step)) }}
         cameraLabel={cameraLabel}
         onCamera={onCamera}
+        fastForwardMap={has3D && LIVE_VIEW.fastForward.userToggle ? { enabled: ffMap, onToggle: setFfMap, atSpeed: LIVE_VIEW.fastForward.mapAtSpeed } : null}
       >
         <button type="button" className="mn-btn mn-btn--sm" onClick={skip(source.next)} aria-label={t("Siguiente evento", "Next event")} title={t("Saltar al siguiente evento", "Skip to the next event")} disabled={over}>
           <IconNextEvent size={16} />
