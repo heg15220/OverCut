@@ -36,11 +36,11 @@ const stopsPerFinisher = (state) => {
 const dry = (state) => state.weather.wetness.every((value) => value < 0.2);
 
 describe("WP11 · no lap quicker than 0.9 x baseLap after a red flag or a safety car (RF-SIM-10)", () => {
-  // Silverstone 2005 with these seeds has a red flag (the case of SIM-FISICA §2.6; "r13" in the step race
-  // since SIM-C1, F1M24-CHINA ola 1, moved the trajectories - "r10" had it before, "r6" before the fuel's real
-  // weight, RF-SIM-04 - and "r2" in the quick one); Monza 2012 safety cars. 3 of 36 seeds bring a red flag
-  // out in the step race after SIM-C1, against 1 of 12 before: the rate holds, the seed moved.
-  const cases = [...["r13", "r1", "r2"].map((seed) => [2005, "silverstone", seed]), ...["r8", "r3"].map((seed) => [2012, "monza", seed])];
+  // Silverstone 2005 with these seeds has a red flag (the case of SIM-FISICA §2.6; "r40" in the step race
+  // since WX-C2 - "r13" was a wet race and the measured spray loss, GS-11, moved it; "r13" after SIM-C1,
+  // "r10" before, "r6" before the fuel's real weight, RF-SIM-04 - and "r2" in the quick one); Monza 2012
+  // safety cars. r40 is a dry race, so later weather changes do not move it.
+  const cases = [...["r40", "r1", "r2"].map((seed) => [2005, "silverstone", seed]), ...["r8", "r3"].map((seed) => [2012, "monza", seed])];
   let runs = [];
   beforeAll(() => {
     runs = cases.map(([year, circuit, seed]) => both(year, circuit, seed));
