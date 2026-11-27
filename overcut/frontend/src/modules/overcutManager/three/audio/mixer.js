@@ -15,6 +15,17 @@
  * Per view (F1M24-GAMEPLAY §2.1, mix-snapshots-per-view): a snapshot (map, paused, replay,
  * menu) on top of the camera's mix, crossfaded on every cut, and the TV and helicopter ear
  * on the camera on air (Race3D `cameraBus`), the virtual post staying as the 2D fallback.
+ *
+ * Fast forward (AUD-C1, F1M24-CHINA §1.5, §2.7): from `views.fastForward.minSpeed` the view is
+ * `fastForward`, whatever the camera: the voices fall silent quickly and a fixed-pitch stereo
+ * bed (fastForwardBed.js) takes their place on its own bus; leaving it holds, then ramps back
+ * slowly (asymmetric fades, `viewTransition`). Camera cuts (AUD-C2) dip the engine and
+ * ambience buses to `views.cut.gapDb` and back (`cutEnvelope`) instead of a crossfade. The
+ * ui bus never moves with either.
+ *
+ * Recorded engines (AUD-C10): `defaults.recorded` is false; a mix saved before
+ * `settingsVersion` keeps its volumes but not its `recorded`, which was the old default and
+ * never the viewer's choice.
  */
 
 import audioData from "../../data/balance/audio.json";
@@ -38,19 +49,26 @@ export const busGains = (settings) => {
   return { master, engine: sliderToGain(settings.engine), ambience: sliderToGain(settings.ambience), ui };
 };
 
-const sanitize = (raw) => {
+/** The saved mix's version: older saves carried `recorded: true` as a default, not a choice (AUD-C10). */
+const SETTINGS_VERSION = Number.isInteger(MIXER.settingsVersion) ? MIXER.settingsVersion : 1;
+
+const sanitize = (raw, { trusted = true } = {}) => {
   const base = MIXER.defaults;
   const out = { ...base };
   if (raw && typeof raw === "object") {
     ["master", "engine", "ambience", "ui"].forEach((key) => {
       if (Number.isFinite(raw[key])) out[key] = clamp(raw[key], 0, 1);
     });
-    ["muted", "uiMuted", "recorded"].forEach((key) => {
+    ["muted", "uiMuted"].forEach((key) => {
       if (typeof raw[key] === "boolean") out[key] = raw[key];
     });
+    if (trusted && typeof raw.recorded === "boolean") out.recorded = raw.recorded;
   }
   return out;
 };
+
+/** Was this saved mix written by the current settings version (so its `recorded` is the viewer's)? */
+export const settingsCurrent = (raw) => Boolean(raw && typeof raw === "object" && raw.v === SETTINGS_VERSION);
 
 /** The browser's storage (reading it can throw when site data is blocked: callers wrap it). */
 const defaultStorage = () => (typeof window === "undefined" ? null : window.localStorage);
@@ -60,7 +78,8 @@ export const loadSettings = (storage) => {
   try {
     const store = storage === undefined ? defaultStorage() : storage;
     const text = store ? store.getItem(MIXER.storageKey) : null;
-    return sanitize(text ? JSON.parse(text) : null);
+    const raw = text ? JSON.parse(text) : null;
+    return sanitize(raw, { trusted: settingsCurrent(raw) });
   } catch (error) {
     return sanitize(null);
   }
@@ -71,7 +90,7 @@ export const saveSettings = (settings, storage) => {
   const clean = sanitize(settings);
   try {
     const store = storage === undefined ? defaultStorage() : storage;
-    if (store) store.setItem(MIXER.storageKey, JSON.stringify(clean));
+    if (store) store.setItem(MIXER.storageKey, JSON.stringify({ ...clean, v: SETTINGS_VERSION }));
   } catch (error) {
     /* storage blocked: keep the mix for this session only */
   }
@@ -120,23 +139,88 @@ export const listenerFor = (mix, focus, post = null) => {
 
 const VIEWS = MIXER.views;
 /** The fields a snapshot or a crossfade moves (lowpassHz in log, the rest linearly). */
-const BLENDED = ["focus", "field", "interior", "crowd", "wind", "lowpassHz", "engineDb", "bedDb"];
+const BLENDED = ["focus", "field", "interior", "crowd", "wind", "lowpassHz", "engineDb", "bedDb", "ffBed"];
+
+/** Is the simulation speed fast enough for the fast-forward mix (AUD-C1)? Without a speed, no. */
+export const fastForwardOn = (speed, views = VIEWS) => {
+  const ff = views.fastForward;
+  const value = Number(speed);
+  return Boolean(ff && views.snapshots.fastForward && speed !== null && Number.isFinite(value) && value >= ff.minSpeed);
+};
 
 /**
- * Which view snapshot applies (F1M24-GAMEPLAY §2.1): the screen's own (`replay`, `menu`)
- * when it names one; otherwise `paused` while the clock is stopped and the camera group's
- * (`map`); null is the live camera mix as it is.
+ * Which view snapshot applies (F1M24-GAMEPLAY §2.1, F1M24-CHINA §1.5): the screen's own
+ * (`replay`, `menu`) when it names one; otherwise `paused` while the clock is stopped,
+ * `fastForward` from its speed (map or not: the sound goes there at any camera), and the
+ * camera group's (`map`); null is the live camera mix as it is. `speed` absent is x1.
  */
-export const resolveView = ({ view = null, playing = true, mode = "tv" } = {}, views = VIEWS) => {
+export const resolveView = ({ view = null, playing = true, mode = "tv", speed = 1 } = {}, views = VIEWS) => {
   if (view && views.snapshots[view]) return view;
   if (!playing) return "paused";
+  if (fastForwardOn(speed, views)) return "fastForward";
   return views.byGroup[cameraMix(mode).group] || null;
 };
 
-/** The camera's mix with the view snapshot on top: { ...cameraMix, engineDb, bedDb, view }. */
+/** The camera's mix with the view snapshot on top: { ...cameraMix, engineDb, bedDb, ffBed, view }. */
 export const viewMix = (mode, view = null, views = VIEWS) => {
   const snapshot = view ? views.snapshots[view] : null;
-  return { ...cameraMix(mode), engineDb: 0, bedDb: 0, ...(snapshot || {}), view: snapshot ? view : null };
+  return { ...cameraMix(mode), engineDb: 0, bedDb: 0, ffBed: 0, ...(snapshot || {}), view: snapshot ? view : null };
+};
+
+/** The bus trims' time constant in seconds outside the timed transitions. */
+const trimTau = (views = VIEWS) => (Number.isFinite(views.trimTauMs) ? views.trimTauMs : 30) / 1000;
+
+/**
+ * How the mix moves from one view to the next, or across a camera cut in the same view
+ * (`cut`: another camera on air or, with `cut.onFocusChange`, another car):
+ *  - into `fastForward`: fast (`attackMs`, no hold, `attackTauMs`);
+ *  - out of `fastForward`: `holdMs` still on the old mix, then `releaseMs` (`releaseTauMs`);
+ *  - any other change of view: `snapshotFadeMs`;
+ *  - a cut: the dip of `views.cut` (`cutEnvelope`), unless the view is in `cut.skipViews`
+ *    or there is no `cut` block, then the `crossfadeMs` crossfade.
+ * Returns { kind: "view"|"cut"|"crossfade", holdMs, ms, tauSec } (a cut adds its dip).
+ */
+export const viewTransition = (fromView, toView, { cut = false } = {}, views = VIEWS) => {
+  const ff = views.fastForward;
+  const tauSec = trimTau(views);
+  if ((fromView || null) !== (toView || null)) {
+    if (ff && toView === "fastForward") return { kind: "view", holdMs: 0, ms: ff.attackMs, tauSec: ff.attackTauMs / 1000 };
+    if (ff && fromView === "fastForward") return { kind: "view", holdMs: ff.holdMs, ms: ff.releaseMs, tauSec: ff.releaseTauMs / 1000 };
+    return { kind: "view", holdMs: 0, ms: views.snapshotFadeMs, tauSec };
+  }
+  const dip = views.cut;
+  if (cut && dip && !(dip.skipViews || []).includes(toView)) {
+    return { kind: "cut", holdMs: 0, ms: dip.outMs, tauSec: dip.tauMs / 1000, outMs: dip.outMs, gapMs: dip.gapMs, inMs: dip.inMs, gapDb: dip.gapDb };
+  }
+  return { kind: "crossfade", holdMs: 0, ms: views.crossfadeMs, tauSec };
+};
+
+/**
+ * The cut's dip (AUD-C2) at `ms` after the cut, in dB on the engine and ambience buses:
+ * down to `gapDb` over `outMs`, held for `gapMs`, back to 0 over `inMs`; linear in dB.
+ */
+export const cutEnvelope = (ms, cut = VIEWS.cut) => {
+  if (!cut || !(ms > 0)) return 0;
+  const { outMs, gapMs, inMs, gapDb } = cut;
+  if (ms < outMs) return (gapDb * ms) / outMs;
+  if (ms < outMs + gapMs) return gapDb;
+  if (ms < outMs + gapMs + inMs) return gapDb * (1 - (ms - outMs - gapMs) / inMs);
+  return 0;
+};
+
+/**
+ * Where a transition stands `ms` after it began: `k` the share of the new mix for blendMix
+ * (a cut swaps the mix at the bottom of its dip), `db` the cut's extra trim and `done`.
+ */
+export const transitionAt = (transition, ms) => {
+  if (!transition) return { k: 1, db: 0, done: true };
+  const t = Number.isFinite(ms) ? Math.max(0, ms) : Infinity;
+  if (transition.kind === "cut") {
+    const total = transition.outMs + transition.gapMs + transition.inMs;
+    return { k: t >= transition.outMs ? 1 : 0, db: cutEnvelope(t, transition), done: t >= total };
+  }
+  const k = transition.ms > 0 ? clamp((t - transition.holdMs) / transition.ms, 0, 1) : t >= transition.holdMs ? 1 : 0;
+  return { k, db: 0, done: k >= 1 };
 };
 
 /** A crossfade between two mixes at k (0..1): numbers blend, the rest (listener, offsets) are the target's. */
@@ -265,6 +349,12 @@ export const createMixer = (ctx) => {
   // Interface and radio (AUD-4): straight to master, no view trim.
   const ui = ctx.createGain();
   ui.connect(master);
+  // The fast-forward bed (AUD-C1): its own level (the snapshot's ffBed share) under the
+  // viewer's engine volume, outside the engine bus's view trim.
+  const fastForward = ctx.createGain();
+  fastForward.gain.value = 0;
+  const fastForwardVolume = ctx.createGain();
+  fastForward.connect(fastForwardVolume).connect(master);
 
   const panner = () => {
     const node = ctx.createPanner();
@@ -285,6 +375,7 @@ export const createMixer = (ctx) => {
     engine,
     ambience,
     ui,
+    fastForward,
     panner,
     /** Scene metres (x, y on the ground, z up) to Web Audio (x right, y up, z towards the viewer). */
     setPosition(node, x, y, z, at) {
@@ -318,12 +409,19 @@ export const createMixer = (ctx) => {
       master.gain.setTargetAtTime(gains.master, at, 0.05);
       engine.gain.setTargetAtTime(gains.engine, at, 0.05);
       ambience.gain.setTargetAtTime(gains.ambience, at, 0.05);
+      fastForwardVolume.gain.setTargetAtTime(gains.engine, at, 0.05);
       ui.gain.setTargetAtTime(gains.ui, at, 0.05);
     },
-    /** The view snapshot's bus trims (already crossfaded by the caller). */
-    applyView(mix, at) {
-      engineView.gain.setTargetAtTime(dbToGain(mix.engineDb), at, 0.03);
-      ambienceView.gain.setTargetAtTime(dbToGain(mix.bedDb), at, 0.03);
+    /**
+     * The view snapshot's bus trims (already blended by the caller), plus a cut's dip
+     * (`extraDb`, AUD-C2) and the transition's time constant (`tauSec`). Never the ui bus.
+     */
+    applyView(mix, at, { extraDb = 0, tauSec = trimTau() } = {}) {
+      const tau = Number.isFinite(tauSec) && tauSec > 0 ? tauSec : trimTau();
+      const dip = Number.isFinite(extraDb) ? extraDb : 0;
+      engineView.gain.setTargetAtTime(dbToGain(mix.engineDb + dip), at, tau);
+      ambienceView.gain.setTargetAtTime(dbToGain(mix.bedDb + dip), at, tau);
+      fastForward.gain.setTargetAtTime(clamp(Number.isFinite(mix.ffBed) ? mix.ffBed : 0, 0, 1) * dbToGain(dip), at, tau);
     },
     disconnect() {
       master.disconnect();

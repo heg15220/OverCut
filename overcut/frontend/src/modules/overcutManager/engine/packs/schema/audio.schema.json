@@ -153,6 +153,7 @@
         "crowd": {"$ref": "#/definitions/share"},
         "wind": {"$ref": "#/definitions/share"},
         "lowpassHz": {"$ref": "#/definitions/positive"},
+        "ffBed": {"$ref": "#/definitions/share"},
         "engineDb": {"type": "number", "minimum": -60, "maximum": 6},
         "bedDb": {"type": "number", "minimum": -60, "maximum": 6}
       }
@@ -337,6 +338,7 @@
       "properties": {
         "$comment": {"type": "string"},
         "enabledByDefault": {"type": "boolean"},
+        "enabledByDefaultNote": {"type": "string"},
         "pitchFollow": {"type": "number", "minimum": 0, "maximum": 1},
         "minRate": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
         "maxRate": {"type": "number", "minimum": 1, "maximum": 4},
@@ -369,6 +371,8 @@
       "required": ["storageKey", "defaults", "volumeCurve", "maxVoices", "panningModel", "distance", "doppler", "masterLimiter", "cameras", "views"],
       "properties": {
         "storageKey": {"$ref": "#/definitions/text"},
+        "settingsVersion": {"type": "integer", "minimum": 1},
+        "settingsVersionNote": {"type": "string"},
         "defaults": {
           "type": "object",
           "additionalProperties": false,
@@ -419,6 +423,44 @@
             "$comment": {"type": "string"},
             "crossfadeMs": {"type": "number", "minimum": 0, "maximum": 5000},
             "snapshotFadeMs": {"type": "number", "minimum": 0, "maximum": 5000},
+            "trimTauMs": {"type": "number", "exclusiveMinimum": 0, "maximum": 1000},
+            "fastForward": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "minSpeed", "attackMs", "attackTauMs", "holdMs", "releaseMs", "releaseTauMs", "bed"],
+              "properties": {
+                "$comment": {"type": "string"},
+                "status": {"enum": ["NV", "pending", "sourced", "measured"]},
+                "minSpeed": {"type": "number", "exclusiveMinimum": 1, "maximum": 64},
+                "attackMs": {"type": "number", "minimum": 0, "maximum": 5000},
+                "attackTauMs": {"type": "number", "exclusiveMinimum": 0, "maximum": 1000},
+                "holdMs": {"type": "number", "minimum": 0, "maximum": 5000},
+                "releaseMs": {"type": "number", "minimum": 0, "maximum": 5000},
+                "releaseTauMs": {"type": "number", "exclusiveMinimum": 0, "maximum": 1000},
+                "bed": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["gain", "bandHz", "q", "lowpassHz", "decorrelateSec"],
+                  "properties": {"gain": {"$ref": "#/definitions/share"}, "bandHz": {"$ref": "#/definitions/positive"}, "q": {"$ref": "#/definitions/positive"}, "lowpassHz": {"$ref": "#/definitions/positive"}, "decorrelateSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 2}}
+                }
+              }
+            },
+            "cut": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "outMs", "gapMs", "inMs", "gapDb", "tauMs", "onFocusChange", "skipViews"],
+              "properties": {
+                "$comment": {"type": "string"},
+                "status": {"enum": ["NV", "pending", "sourced", "measured"]},
+                "outMs": {"type": "number", "exclusiveMinimum": 0, "maximum": 2000},
+                "gapMs": {"type": "number", "minimum": 0, "maximum": 2000},
+                "inMs": {"type": "number", "exclusiveMinimum": 0, "maximum": 5000},
+                "gapDb": {"type": "number", "minimum": -60, "maximum": 0},
+                "tauMs": {"type": "number", "exclusiveMinimum": 0, "maximum": 1000},
+                "onFocusChange": {"type": "boolean"},
+                "skipViews": {"type": "array", "items": {"$ref": "#/definitions/text"}, "uniqueItems": true}
+              }
+            },
             "byGroup": {"type": "object", "additionalProperties": {"$ref": "#/definitions/text"}},
             "cameraListener": {
               "type": "object",
@@ -428,8 +470,8 @@
             },
             "snapshots": {
               "type": "object",
-              "required": ["map", "paused", "replay", "menu"],
-              "properties": {"map": {"$ref": "#/definitions/viewSnapshot"}, "paused": {"$ref": "#/definitions/viewSnapshot"}, "replay": {"$ref": "#/definitions/viewSnapshot"}, "menu": {"$ref": "#/definitions/viewSnapshot"}},
+              "required": ["map", "paused", "replay", "menu", "fastForward"],
+              "properties": {"fastForward": {"$ref": "#/definitions/viewSnapshot"}, "map": {"$ref": "#/definitions/viewSnapshot"}, "paused": {"$ref": "#/definitions/viewSnapshot"}, "replay": {"$ref": "#/definitions/viewSnapshot"}, "menu": {"$ref": "#/definitions/viewSnapshot"}},
               "additionalProperties": {"$ref": "#/definitions/viewSnapshot"}
             }
           }

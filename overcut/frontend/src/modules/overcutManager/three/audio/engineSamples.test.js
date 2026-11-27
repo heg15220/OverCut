@@ -7,6 +7,10 @@ import soundManifest from "../../data/manager-sounds.json";
 import { engineSpecFor, safetyCarRowFor, safetyCarSpecFor } from "./engineSynth";
 import {
   bankAllowed,
+  bankLicensed,
+  publicBuild,
+  publicExcludedFiles,
+  recordedDefaultAllowed,
   bankEntry,
   binWeights,
   channelGains,
@@ -288,5 +292,67 @@ describe("recorded voice (mocked Web Audio)", () => {
     voice.silence(1 + SAMPLES.releaseSec + 0.01);
     expect(voice.playing).toBe(0);
     expect(() => voice.stop()).not.toThrow();
+  });
+});
+
+// ------------------------------------------------------------------ AUD-C10 (F1M24-CHINA §1.4 rule 6, §2.6)
+
+describe("AUD-C10 licences: public builds and defaults (SRS 3.3, 7.3)", () => {
+  const saved = { PUBLIC_BUILD: process.env.PUBLIC_BUILD, REACT_APP_PUBLIC_BUILD: process.env.REACT_APP_PUBLIC_BUILD };
+  afterEach(() => {
+    Object.entries(saved).forEach(([key, value]) => {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    });
+  });
+
+  test("PUBLIC_BUILD=1 (or REACT_APP_PUBLIC_BUILD=true) is a public build: no bank for a riskRipped engine", () => {
+    expect(publicBuild({})).toBe(false);
+    expect(publicBuild({ PUBLIC_BUILD: "1" })).toBe(true);
+    expect(publicBuild({ REACT_APP_PUBLIC_BUILD: "true" })).toBe(true);
+    expect(publicBuild({ PUBLIC_BUILD: "0" })).toBe(false);
+    process.env.PUBLIC_BUILD = "1";
+    expect(sampleBankFor(spec(2005, "3.0 V10"))).toBeNull();
+    expect(sampleBankFor(spec(2013, "2.4 V8", { manufacturer: "renault" }))).toBeNull();
+    expect(sampleBankFor(safetyCarSpecFor(2013))).toBeNull();
+    expect(recordedAvailable()).toBe(false);
+    delete process.env.PUBLIC_BUILD;
+    expect(sampleBankFor(spec(2005, "3.0 V10"))).not.toBeNull();
+  });
+
+  test("only a bank with riskRipped false and a licence may ship; one with license null never does", () => {
+    expect(bankLicensed({ riskRipped: false, license: "CC0-1.0" })).toBe(true);
+    expect(bankLicensed({ riskRipped: false, license: null })).toBe(false);
+    expect(bankLicensed({ riskRipped: true, license: "CC-BY-4.0" })).toBe(false);
+    expect(bankAllowed({ riskRipped: false, license: null }, { isPublic: true })).toBe(false);
+    expect(bankAllowed({ riskRipped: false, license: "CC0-1.0" }, { isPublic: true })).toBe(true);
+  });
+
+  test("today every bank is riskRipped or unlicensed: recorded never on by default, and the public build drops every file", () => {
+    expect(recordedDefaultAllowed()).toBe(false);
+    expect(audioData.mixer.defaults.recorded).toBe(false);
+    expect(SAMPLES.enabledByDefault).toBe(false);
+    // Should a licensed bank arrive, the defaults may change; until all are, they must not.
+    if (!recordedDefaultAllowed()) expect(audioData.mixer.defaults.recorded || SAMPLES.enabledByDefault).toBe(false);
+    expect(publicExcludedFiles()).toEqual(soundManifest.banks.map((bank) => bank.file));
+  });
+
+  test("scripts/prunePublicSounds.js applies the same rule and removes those files from a build", () => {
+    // eslint-disable-next-line global-require
+    const prune = require("../../../../../scripts/prunePublicSounds");
+    expect(prune.excludedFiles(soundManifest)).toEqual(publicExcludedFiles());
+    const os = require("os");
+    const fs = require("fs");
+    const path = require("path");
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "oc-prune-"));
+    const base = soundManifest.baseUrl.replace(/^\/+/, "");
+    const first = soundManifest.banks[0].file;
+    fs.mkdirSync(path.dirname(path.join(dir, base, first)), { recursive: true });
+    fs.writeFileSync(path.join(dir, base, first), "x");
+    fs.writeFileSync(path.join(dir, "index.html"), "<html></html>");
+    expect(prune.prune(dir)).toHaveLength(1);
+    expect(fs.existsSync(path.join(dir, base, first))).toBe(false);
+    expect(fs.existsSync(path.join(dir, "index.html"))).toBe(true);
+    fs.rmSync(dir, { recursive: true, force: true });
   });
 });

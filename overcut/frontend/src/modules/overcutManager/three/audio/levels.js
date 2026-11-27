@@ -12,19 +12,20 @@
 
 import audioData from "../../data/balance/audio.json";
 import { fieldBedOf, windOf } from "./ambience";
+import { fastForwardBedLevel } from "./fastForwardBed";
 import { cameraListener, cameraUsable, dbToGain, distanceGain, listenerFor, resolveView, selectVoices, viewMix } from "./mixer";
 
 const SOURCE_UP = 0.6;
 const toDb = (power) => (power > 1e-12 ? 10 * Math.log10(power) : -120);
 
 /**
- * `scene`: { mode, view, playing, focusId, cars: [{ id, x, y, heading, v, firingHz }],
+ * `scene`: { mode, view, playing, speed (x1 when absent), focusId, cars: [{ id, x, y, heading, v, firingHz }],
  * camera (Race3D cameraBus value, optional), crowd (0..1 crowd level), kmh (focus car) }.
  * Returns { view, engineDb, ambienceDb, totalDb, voices }.
  */
 export const mixLevels = (scene, data = audioData) => {
   const { mode = "tv", playing = true, focusId = null, cars = [], camera = null, crowd = data.ambience.crowd.base, kmh = 0 } = scene;
-  const view = resolveView({ view: scene.view, playing, mode });
+  const view = resolveView({ view: scene.view, playing, mode, speed: scene.speed });
   const mix = viewMix(mode, view);
   const focus = cars.find((car) => car.id === focusId) || cars[0] || null;
   const listener = cameraUsable(camera, mode, mix) ? cameraListener(camera) : listenerFor(mix, focus);
@@ -39,6 +40,8 @@ export const mixLevels = (scene, data = audioData) => {
   });
   engine += (fieldBedOf(cars, listener, voices).level * mix.field) ** 2;
   engine *= dbToGain(mix.engineDb) ** 2;
+  // The fast-forward bed (AUD-C1) sits on its own bus, outside the engine trim.
+  engine += fastForwardBedLevel(mix) ** 2;
   let ambience = (crowd * mix.crowd) ** 2 + windOf(kmh, mix.wind).gain ** 2;
   ambience *= dbToGain(mix.bedDb) ** 2;
   return { view, engineDb: toDb(engine), ambienceDb: toDb(ambience), totalDb: toDb(engine + ambience), voices };

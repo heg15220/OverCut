@@ -15,7 +15,8 @@ import {
   cycleFrequency, driveStep, engineSpecFor, eraFor, firingFrequency, gearSpeeds, harmonicWeights, hybridTones, loadFromAccel, nextGear, parseFormula, rpmByYear,
   shiftCutGain, shiftEnvelope, shiftProfileFor, pitLimiterFor, pitHoldKmh, limiterDepthOf, rpmInGear, createEngineVoice,
 } from "./engineSynth";
-import { assignVoices, blendMix, busGains, cameraListener, cameraMix, cameraUsable, distanceGain, dopplerFactor, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, sliderToGain, viewMix } from "./mixer";
+import { assignVoices, blendMix, busGains, cameraListener, cameraMix, cameraUsable, createMixer, cutEnvelope, dbToGain, distanceGain, dopplerFactor, fastForwardOn, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, settingsCurrent, sliderToGain, transitionAt, viewMix, viewTransition } from "./mixer";
+import { createFastForwardBed, fastForwardBedLevel } from "./fastForwardBed";
 import { crowdLevel, rainOf, swellFor, windOf, airGunsOn, squeals, fieldBedOf, kerbRumble, startLightsStep, gridRevsOf, gridRevsFor } from "./ambience";
 import { createRaceAudio, engineOff, teamEnginesOf } from "./index";
 import { heldGear, loadOf } from "./engineSynth";
@@ -358,6 +359,9 @@ class FakeContext {
   createDynamicsCompressor() {
     return node({ threshold: param(), knee: param(), ratio: param() });
   }
+  createChannelMerger() {
+    return node();
+  }
   createChannelSplitter() {
     return node();
   }
@@ -441,7 +445,7 @@ describe("race audio controller (mocked Web Audio)", () => {
   });
 
   test("seeded: no Math.random or Date in the audio code (RF-SIM-15, RNF-05)", () => {
-    ["engineSynth.js", "engineSamples.js", "mixer.js", "ambience.js", "index.js", "levels.js", "kerbs.js", "uiSounds.js"].forEach((file) => {
+    ["engineSynth.js", "engineSamples.js", "mixer.js", "ambience.js", "index.js", "levels.js", "kerbs.js", "uiSounds.js", "fastForwardBed.js"].forEach((file) => {
       const text = fs.readFileSync(path.join(__dirname, file), "utf8");
       expect(text).not.toMatch(/Math\.random|Date\.now|new Date/);
     });
@@ -1021,5 +1025,219 @@ describe("start lights (start-lights-sound-and-timing, RF-SIM-10, RF-SIM-15, RNF
     const a = calls(run(2024));
     expect(calls(run(2024))).toBe(a);
     expect(a).not.toBe(calls(run(2024, { withStart: false })));
+  });
+});
+
+// ------------------------------------------------------------------ AUD-C-1: licences, fast forward and cuts (F1M24-CHINA §2.6, §2.7)
+
+const VIEWS_CFG = audioData.mixer.views;
+const FF_CFG = VIEWS_CFG.fastForward;
+const CUT_CFG = VIEWS_CFG.cut;
+const toDbOf = (gain) => 20 * Math.log10(Math.max(gain, 1e-9));
+
+/**
+ * The engine bus trim as the live graph moves it: one view frame every `frameMs`, the blended
+ * target set with setTargetAtTime(tau) (exact one-pole between frames), from `fromMix` to
+ * `toMix` through `transition`. Returns [{ ms, db }].
+ */
+const trimTrace = (fromMix, toMix, transition, { frameMs = 1000 / 60, totalMs = 2000 } = {}) => {
+  let gain = dbToGain(fromMix.engineDb);
+  let target = gain;
+  const out = [];
+  // Read the gain every millisecond; the target only moves on a view frame.
+  for (let ms = 0; ms <= totalMs; ms += 1) {
+    if (ms % frameMs < 1) {
+      const step = transitionAt(transition, ms);
+      target = dbToGain(blendMix(fromMix, toMix, step.k).engineDb + step.db);
+    }
+    out.push({ ms, db: toDbOf(gain) });
+    gain += (target - gain) * (1 - Math.exp(-1 / 1000 / transition.tauSec));
+  }
+  return out;
+};
+
+/** A FakeContext that keeps every gain node it makes (to read what the buses were set to). */
+const gainSpy = () => {
+  const box = { made: null };
+  class Spy extends FakeContext {
+    constructor() {
+      super();
+      box.made = this;
+      this.gains = [];
+    }
+    createGain() {
+      const gain = super.createGain();
+      this.gains.push(gain);
+      return gain;
+    }
+  }
+  box.Spy = Spy;
+  return box;
+};
+
+describe("AUD-C10 recorded engines off by default (SRS 3.3, 7.3; F1M24-CHINA §1.4 rule 6)", () => {
+  test("defaults: synthesised (recorded false, samples off) while any bank is riskRipped or has no licence", () => {
+    expect(audioData.mixer.defaults.recorded).toBe(false);
+    expect(audioData.samples.enabledByDefault).toBe(false);
+    expect(loadSettings(null).recorded).toBe(false);
+  });
+
+  test("a mix saved before settingsVersion keeps its volumes but not the old default recorded: true", () => {
+    const store = new Map();
+    const fake = { getItem: (key) => (store.has(key) ? store.get(key) : null), setItem: (key, value) => store.set(key, value) };
+    store.set(audioData.mixer.storageKey, JSON.stringify({ master: 0.4, engine: 0.5, ambience: 0.2, muted: false, recorded: true }));
+    expect(loadSettings(fake)).toMatchObject({ master: 0.4, engine: 0.5, recorded: false });
+    // The viewer's own choice, saved now, is kept.
+    saveSettings({ ...loadSettings(fake), recorded: true }, fake);
+    expect(settingsCurrent(JSON.parse(store.get(audioData.mixer.storageKey)))).toBe(true);
+    expect(loadSettings(fake).recorded).toBe(true);
+  });
+});
+
+describe("AUD-C1 fast forward (RF-CMD-04, RF-3D-04, RNF-02, RNF-07)", () => {
+  afterEach(() => {
+    delete window.AudioContext;
+  });
+
+  test("the view follows the speed at any camera; screen views and the pause come first; no speed is x1", () => {
+    expect(resolveView({ speed: 8 })).toBe("fastForward");
+    expect(resolveView({ speed: FF_CFG.minSpeed, mode: "tcam" })).toBe("fastForward");
+    expect(resolveView({ speed: 8, mode: "map" })).toBe("fastForward");
+    expect(resolveView({ speed: 2, mode: "tv" })).toBeNull();
+    expect(resolveView({ mode: "tv" })).toBeNull();
+    expect(resolveView({ speed: 16, playing: false })).toBe("paused");
+    expect(resolveView({ speed: 16, view: "replay" })).toBe("replay");
+    expect(fastForwardOn(undefined)).toBe(false);
+    expect(fastForwardOn(null)).toBe(false);
+  });
+
+  test("onboard is at least 15 dB over the fast-forward mix; the voices are silent and the bed takes their place", () => {
+    const cars = Array.from({ length: 20 }, (_, i) => ({ id: `c${i}`, x: -i * 45, y: (i % 2) * 3, heading: 0, v: 70, firingHz: 1000 }));
+    const onboard = mixLevels({ mode: "tcam", focusId: "c0", cars, kmh: 250 });
+    const ff = mixLevels({ mode: "tcam", focusId: "c0", cars, kmh: 250, speed: 8 });
+    expect(ff.view).toBe("fastForward");
+    expect(onboard.totalDb - ff.totalDb).toBeGreaterThanOrEqual(15);
+    const mix = viewMix("tcam", "fastForward");
+    expect(mix.focus).toBe(0);
+    expect(mix.field).toBe(0);
+    expect(fastForwardBedLevel(mix)).toBeGreaterThan(0);
+    expect(fastForwardBedLevel(viewMix("tcam"))).toBe(0);
+  });
+
+  test("asymmetric fades: -18 dB within 60 ms going in; at least 600 ms to come back", () => {
+    const onboard = viewMix("tcam");
+    const ff = viewMix("tcam", "fastForward");
+    const into = trimTrace(onboard, ff, viewTransition(null, "fastForward"));
+    const down = into.find((point) => point.db <= -18);
+    expect(down).toBeDefined();
+    expect(down.ms).toBeLessThanOrEqual(60);
+    const back = viewTransition("fastForward", null);
+    expect(back).toMatchObject({ holdMs: FF_CFG.holdMs, ms: FF_CFG.releaseMs });
+    const out = trimTrace(ff, onboard, back);
+    const up = out.find((point) => point.db >= -3);
+    expect(up).toBeDefined();
+    expect(up.ms).toBeGreaterThanOrEqual(600);
+    // Flat during the hold.
+    out.filter((point) => point.ms <= FF_CFG.holdMs).forEach((point) => expect(point.db).toBeLessThanOrEqual(ff.engineDb + 0.5));
+  });
+
+  test("the ui bus (radio, alerts, clicks) is untouched by the view: no trim on it, only the engine, ambience and bed", () => {
+    const ctx = new FakeContext();
+    const mixer = createMixer(ctx);
+    const before = mixer.ui.gain.setTargetAtTime.mock.calls.length;
+    mixer.applyView(viewMix("tcam", "fastForward"), 0, viewTransition(null, "fastForward"));
+    mixer.applyView(viewMix("tv"), 1, { extraDb: CUT_CFG.gapDb });
+    expect(mixer.ui.gain.setTargetAtTime.mock.calls.length).toBe(before);
+    expect(mixer.fastForward.gain.setTargetAtTime).toHaveBeenCalledWith(1, 0, FF_CFG.attackTauMs / 1000);
+    expect(Object.keys(viewMix("tv", "fastForward"))).not.toContain("ui");
+  });
+
+  test("the bed: two reads of the seeded noise, decorrelated in time, to the left and the right; fixed pitch", () => {
+    const ctx = new FakeContext();
+    const sources = [];
+    const make = ctx.createBufferSource.bind(ctx);
+    ctx.createBufferSource = () => {
+      const src = make();
+      sources.push(src);
+      return src;
+    };
+    const noise = { duration: 2 };
+    const bus = node();
+    const bed = createFastForwardBed(ctx, bus, noise);
+    expect(sources).toHaveLength(2);
+    expect(sources[0].start).toHaveBeenCalledWith(0, 0);
+    expect(sources[1].start).toHaveBeenCalledWith(0, FF_CFG.bed.decorrelateSec);
+    expect(createFastForwardBed(ctx, bus, noise, null)).toBeNull();
+    expect(() => bed.stop()).not.toThrow();
+  });
+
+  test("controller: x8 frames raise the bed; the same frames at x1 never do", () => {
+    const spy = gainSpy();
+    window.AudioContext = spy.Spy;
+    const cars = Array.from({ length: 6 }, (_, i) => ({ id: `c${i}`, teamId: "t", pose: { x: -i * 12, y: 0, heading: 0, v: 70 } }));
+    const run = (speed) => {
+      const audio = createRaceAudio({ seed: "ff", year: 2013 });
+      audio.start();
+      for (let f = 0; f < 60; f += 1) {
+        spy.made.currentTime = f / 60;
+        audio.frame({ tau: f / 60, mode: "tcam", focusId: "c0", cars, speed: f < 10 ? 1 : speed });
+      }
+      const raised = spy.made.gains.some((gain) => gain.gain.setTargetAtTime.mock.calls.some(([value, , tau]) => value === 1 && tau === FF_CFG.attackTauMs / 1000));
+      audio.dispose();
+      return raised;
+    };
+    expect(run(8)).toBe(true);
+    expect(run(1)).toBe(false);
+  });
+});
+
+describe("AUD-C2 camera cuts (RF-3D-04, RNF-07)", () => {
+  afterEach(() => {
+    delete window.AudioContext;
+  });
+
+  test("cutEnvelope dips to gapDb and back: 0 at the cut, the gap held, 0 after", () => {
+    const samples = Array.from({ length: 1201 }, (_, ms) => cutEnvelope(ms));
+    expect(Math.min(...samples)).toBeLessThanOrEqual(CUT_CFG.gapDb);
+    expect(cutEnvelope(0)).toBe(0);
+    expect(cutEnvelope(CUT_CFG.outMs + CUT_CFG.gapMs / 2)).toBe(CUT_CFG.gapDb);
+    expect(cutEnvelope(CUT_CFG.outMs + CUT_CFG.gapMs + CUT_CFG.inMs + 1)).toBe(0);
+    // Quick to go, slow to come back.
+    expect(CUT_CFG.outMs).toBeLessThan(CUT_CFG.inMs);
+  });
+
+  test("a cut in the same view dips (the new mix enters at the bottom); fast forward, pause and menus crossfade; views keep their fades", () => {
+    const cut = viewTransition(null, null, { cut: true });
+    expect(cut.kind).toBe("cut");
+    expect(transitionAt(cut, CUT_CFG.outMs - 1).k).toBe(0);
+    expect(transitionAt(cut, CUT_CFG.outMs).k).toBe(1);
+    expect(transitionAt(cut, CUT_CFG.outMs + CUT_CFG.gapMs + CUT_CFG.inMs).done).toBe(true);
+    expect(viewTransition("fastForward", "fastForward", { cut: true }).kind).toBe("crossfade");
+    expect(viewTransition("menu", "menu", { cut: true }).kind).toBe("crossfade");
+    expect(viewTransition(null, "replay", { cut: true })).toMatchObject({ kind: "view", ms: VIEWS_CFG.snapshotFadeMs });
+    // Without a cut block, the old crossfade.
+    const noCut = { ...VIEWS_CFG, cut: undefined };
+    expect(viewTransition(null, null, { cut: true }, noCut)).toMatchObject({ kind: "crossfade", ms: VIEWS_CFG.crossfadeMs });
+  });
+
+  test("controller: another focus car in the same camera dips the buses to the gap; the first frame does not", () => {
+    const spy = gainSpy();
+    window.AudioContext = spy.Spy;
+    const gap = dbToGain(CUT_CFG.gapDb);
+    const dipped = () => spy.made.gains.some((gain) => gain.gain.setTargetAtTime.mock.calls.some(([value]) => Math.abs(value - gap) < 1e-6));
+    const cars = Array.from({ length: 4 }, (_, i) => ({ id: `c${i}`, teamId: "t", pose: { x: -i * 12, y: 0, heading: 0, v: 70 } }));
+    const audio = createRaceAudio({ seed: "cut", year: 2013 });
+    audio.start();
+    for (let f = 0; f < 30; f += 1) {
+      spy.made.currentTime = f / 60;
+      audio.frame({ tau: f / 60, mode: "tcam", focusId: "c0", cars });
+    }
+    expect(dipped()).toBe(false);
+    for (let f = 30; f < 60; f += 1) {
+      spy.made.currentTime = f / 60;
+      audio.frame({ tau: f / 60, mode: "tcam", focusId: "c1", cars });
+    }
+    expect(dipped()).toBe(true);
+    audio.dispose();
   });
 });

@@ -7,8 +7,10 @@
  * while a bank is loading or failed, keeps the synthesised voice (engineSynth.js).
  *
  * Every bank is riskRipped (its source declares no licence): public builds
- * (REACT_APP_PUBLIC_BUILD=true) never load them (SRS 3.3, 7.3), and the viewer can turn
- * them off (mixer setting `recorded`).
+ * (PUBLIC_BUILD=1, or REACT_APP_PUBLIC_BUILD=true in the browser bundle) never load them
+ * and scripts/prunePublicSounds.js removes their files from the build (SRS 3.3, 7.3;
+ * F1M24-CHINA §1.4 rule 6, AUD-C10). They never sound by default either: the mixer setting
+ * `recorded` starts false and only the viewer turns it on, in a local build.
  *
  * The maths, pure and tested (engineSamples.test.js):
  *   bank speed   a bank loop is one four-stroke cycle repeated, so its pitch is rpm / 120,
@@ -30,13 +32,28 @@ const SAMPLES = audioData.samples;
 const VOICING = audioData.voicing;
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 
-const publicBuild = () => process.env.REACT_APP_PUBLIC_BUILD === "true";
+const truthy = (value) => value === "1" || value === "true";
+
+/** Is this a public build? `PUBLIC_BUILD=1` (scripts, tests) or `REACT_APP_PUBLIC_BUILD=true` (the bundle). */
+export const publicBuild = (env = process.env) => truthy(env.PUBLIC_BUILD) || truthy(env.REACT_APP_PUBLIC_BUILD);
 
 /** The manifest entry of a bank, or null. */
 export const bankEntry = (id, manifest = soundManifest) => (manifest.banks || []).find((bank) => bank.id === id) || null;
 
-/** May this bank sound in this build? (riskRipped or unverified: never in a public build.) */
-export const bankAllowed = (entry, { isPublic = publicBuild() } = {}) => Boolean(entry) && (!isPublic || entry.riskRipped === false);
+/** Is a bank known to be safe to ship: not riskRipped and with a declared licence? */
+export const bankLicensed = (entry) => Boolean(entry) && entry.riskRipped === false && typeof entry.license === "string" && entry.license.length > 0;
+
+/** May this bank sound in this build? (riskRipped, unverified or without a licence: never in a public build.) */
+export const bankAllowed = (entry, { isPublic = publicBuild() } = {}) => Boolean(entry) && (!isPublic || bankLicensed(entry));
+
+/**
+ * Could recorded engines sound by default (F1M24-CHINA §1.4 rule 6)? Only when every bank of
+ * the manifest is licensed: one riskRipped or unlicensed bank keeps the default synthesised.
+ */
+export const recordedDefaultAllowed = (manifest = soundManifest) => (manifest.banks || []).every(bankLicensed);
+
+/** The files of the banks a public build must not ship (relative to the manifest's baseUrl). */
+export const publicExcludedFiles = (manifest = soundManifest) => (manifest.banks || []).filter((bank) => !bankLicensed(bank)).map((bank) => bank.file);
 
 /** Does this build have any recorded bank at all (the sound panel only offers the switch then)? */
 export const recordedAvailable = (options = {}, manifest = soundManifest) => (manifest.banks || []).some((bank) => bankAllowed(bank, options));
