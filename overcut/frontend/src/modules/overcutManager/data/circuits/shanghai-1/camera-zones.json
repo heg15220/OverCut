@@ -3,7 +3,7 @@
  "splineId": "shanghai-1",
  "lengthM": 5419,
  "year": 2026,
- "source": "buildCameraZones (three/cameraZones.js) + broadcast.json zonesPolicy",
+ "source": "buildCameraZones (three/cameraZones.js) + broadcast.json zonesPolicy + zonesPolicy.circuits.shanghai-1",
  "zones": [
   {
    "fromM": 60,
@@ -24,13 +24,52 @@
   },
   {
    "fromM": 364.6,
-   "toM": 1042.8,
+   "toM": 630.7,
    "kind": "corner",
    "corners": [
-    1,
-    2,
-    3,
-    4
+    1
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 627.7,
+     "side": -1,
+     "cornerKind": "medium"
+    },
+    {
+     "type": "highWide",
+     "atM": 627.7,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 630.7,
+   "toM": 748.8,
+   "kind": "corner",
+   "corners": [
+    2
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 710.6,
+     "side": -1,
+     "cornerKind": "slow"
+    },
+    {
+     "type": "highWide",
+     "atM": 710.6,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 748.8,
+   "toM": 830.7,
+   "kind": "corner",
+   "corners": [
+    3
    ],
    "cams": [
     {
@@ -47,35 +86,83 @@
    ]
   },
   {
+   "fromM": 830.7,
+   "toM": 1042.8,
+   "kind": "corner",
+   "corners": [
+    4
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 911.1,
+     "side": 1,
+     "cornerKind": "slow"
+    },
+    {
+     "type": "highWide",
+     "atM": 911.1,
+     "side": 1
+    }
+   ]
+  },
+  {
    "fromM": 1042.8,
-   "toM": 1383.7,
+   "toM": 1213.2,
    "kind": "straight",
    "cams": [
     {
      "type": "straight",
-     "atM": 1213.2,
+     "atM": 1128,
      "side": -1
     },
     {
      "type": "passPan",
-     "atM": 1213.2,
+     "atM": 1128,
      "side": -1
     },
     {
      "type": "lateralTrack",
-     "atM": 1213.2,
+     "atM": 1128,
      "side": -1
     }
    ]
   },
   {
+   "fromM": 1213.2,
+   "toM": 1383.7,
+   "kind": "straight",
+   "cams": [
+    {
+     "type": "straight",
+     "atM": 1298.4,
+     "side": 1
+    },
+    {
+     "type": "passPan",
+     "atM": 1298.4,
+     "side": 1
+    },
+    {
+     "type": "lateralTrack",
+     "atM": 1298.4,
+     "side": 1
+    }
+   ]
+  },
+  {
    "fromM": 1383.7,
-   "toM": 1704.6,
+   "toM": 1782.6,
    "kind": "corner",
    "corners": [
     5
    ],
    "cams": [
+    {
+     "type": "longLens",
+     "atM": 1496,
+     "side": -1
+    },
     {
      "type": "corner",
      "atM": 1496,
@@ -86,28 +173,6 @@
      "type": "highWide",
      "atM": 1496,
      "side": -1
-    }
-   ]
-  },
-  {
-   "fromM": 1704.6,
-   "toM": 1782.6,
-   "kind": "straight",
-   "cams": [
-    {
-     "type": "straight",
-     "atM": 1743.6,
-     "side": 1
-    },
-    {
-     "type": "passPan",
-     "atM": 1743.6,
-     "side": 1
-    },
-    {
-     "type": "lateralTrack",
-     "atM": 1743.6,
-     "side": 1
     }
    ]
   },
@@ -155,11 +220,10 @@
   },
   {
    "fromM": 2384.4,
-   "toM": 2666.9,
+   "toM": 2508.8,
    "kind": "corner",
    "corners": [
-    8,
-    9
+    8
    ],
    "cams": [
     {
@@ -171,6 +235,27 @@
     {
      "type": "highWide",
      "atM": 2452.6,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 2508.8,
+   "toM": 2666.9,
+   "kind": "corner",
+   "corners": [
+    9
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 2559.5,
+     "side": 1,
+     "cornerKind": "medium"
+    },
+    {
+     "type": "highWide",
+     "atM": 2559.5,
      "side": 1
     }
    ]
@@ -194,12 +279,10 @@
   },
   {
    "fromM": 2966.9,
-   "toM": 3544.1,
+   "toM": 3075.5,
    "kind": "corner",
    "corners": [
-    10,
-    11,
-    12
+    10
    ],
    "cams": [
     {
@@ -216,51 +299,142 @@
    ]
   },
   {
+   "fromM": 3075.5,
+   "toM": 3229.9,
+   "kind": "corner",
+   "corners": [
+    11
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 3119.6,
+     "side": -1,
+     "cornerKind": "slow"
+    },
+    {
+     "type": "highWide",
+     "atM": 3119.6,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 3229.9,
+   "toM": 3362.6,
+   "kind": "corner",
+   "corners": [
+    12
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 3292.6,
+     "side": -1,
+     "cornerKind": "medium"
+    },
+    {
+     "type": "highWide",
+     "atM": 3292.6,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 3362.6,
+   "toM": 3544.1,
+   "kind": "corner",
+   "corners": [
+    12
+   ],
+   "cams": [
+    {
+     "type": "highWide",
+     "atM": 3484.1,
+     "side": -1
+    },
+    {
+     "type": "lateralTrack",
+     "atM": 3484.1,
+     "side": -1
+    }
+   ]
+  },
+  {
    "fromM": 3544.1,
-   "toM": 3861.4,
+   "toM": 3748.7,
+   "kind": "straight",
+   "cams": [
+    {
+     "type": "headOn",
+     "atM": 3748.7,
+     "side": 1
+    },
+    {
+     "type": "straight",
+     "atM": 3646.4,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 3748.7,
+   "toM": 3953.2,
+   "kind": "straight",
+   "cams": [
+    {
+     "type": "lateralTrack",
+     "atM": 3850.9,
+     "side": 1
+    },
+    {
+     "type": "passPan",
+     "atM": 3850.9,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 3953.2,
+   "toM": 4157.7,
    "kind": "straight",
    "cams": [
     {
      "type": "straight",
-     "atM": 3702.8,
+     "atM": 4055.4,
+     "side": 1
+    },
+    {
+     "type": "headOn",
+     "atM": 4157.7,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 4157.7,
+   "toM": 4362.2,
+   "kind": "straight",
+   "cams": [
+    {
+     "type": "lateralTrack",
+     "atM": 4260,
      "side": -1
     },
     {
      "type": "passPan",
-     "atM": 3702.8,
+     "atM": 4260,
      "side": -1
     },
     {
-     "type": "lateralTrack",
-     "atM": 3702.8,
+     "type": "straight",
+     "atM": 4260,
      "side": -1
     }
    ]
   },
   {
-   "fromM": 3861.4,
-   "toM": 4178.7,
-   "kind": "straight",
-   "cams": [
-    {
-     "type": "straight",
-     "atM": 4020,
-     "side": -1
-    },
-    {
-     "type": "passPan",
-     "atM": 4020,
-     "side": -1
-    },
-    {
-     "type": "lateralTrack",
-     "atM": 4020,
-     "side": -1
-    }
-   ]
-  },
-  {
-   "fromM": 4178.7,
+   "fromM": 4362.2,
    "toM": 4612.2,
    "kind": "braking",
    "cams": [
@@ -278,7 +452,7 @@
   },
   {
    "fromM": 4612.2,
-   "toM": 4859.1,
+   "toM": 4731.9,
    "kind": "corner",
    "corners": [
     13
@@ -293,6 +467,27 @@
     {
      "type": "highWide",
      "atM": 4686.9,
+     "side": -1
+    }
+   ]
+  },
+  {
+   "fromM": 4731.9,
+   "toM": 4859.1,
+   "kind": "corner",
+   "corners": [
+    13
+   ],
+   "cams": [
+    {
+     "type": "corner",
+     "atM": 4799.1,
+     "side": -1,
+     "cornerKind": "slow"
+    },
+    {
+     "type": "highWide",
+     "atM": 4799.1,
      "side": -1
     }
    ]
@@ -316,7 +511,7 @@
   },
   {
    "fromM": 4985.2,
-   "toM": 5151.6,
+   "toM": 5081.8,
    "kind": "corner",
    "corners": [
     14
@@ -331,6 +526,26 @@
     {
      "type": "highWide",
      "atM": 5061.8,
+     "side": 1
+    }
+   ]
+  },
+  {
+   "fromM": 5081.8,
+   "toM": 5151.6,
+   "kind": "corner",
+   "corners": [
+    14
+   ],
+   "cams": [
+    {
+     "type": "highWide",
+     "atM": 5091.6,
+     "side": 1
+    },
+    {
+     "type": "passPan",
+     "atM": 5091.6,
      "side": 1
     }
    ]

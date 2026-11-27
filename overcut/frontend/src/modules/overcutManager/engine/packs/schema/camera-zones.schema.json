@@ -5,7 +5,7 @@
   "additionalProperties": false,
   "required": ["splineId", "lengthM", "source", "zones"],
   "definitions": {
-    "camType": {"enum": ["braking", "corner", "straight", "headOn", "passPan", "lateralTrack", "highWide", "grandstand", "cable"]},
+    "camType": {"enum": ["braking", "corner", "straight", "headOn", "passPan", "lateralTrack", "highWide", "grandstand", "cable", "longLens"]},
     "cam": {
       "type": "object",
       "additionalProperties": false,

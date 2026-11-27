@@ -3,7 +3,7 @@
   "$comment": "RNF-07: esquema completo de data/balance/broadcast.json (realización de TV, RF-3D-04, RNF-09). Lo crea CAM-1 con todas las claves que leerán CAM-2..5 y HUD; CAM-3 añade pitRig, las secuencias de boxes y garaje, el bloque replay completo y viewSafety. Lo comprueba components/director/directorState.test.js.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "sources", "director", "views", "cycleOrder", "defaultView", "rigTemplate", "framing", "zonesPolicy", "pitRig", "scriptRig", "sequences", "replay", "viewSafety", "inserts", "scLights", "scView"],
+  "required": ["version", "sources", "director", "views", "cycleOrder", "defaultView", "rigTemplate", "framing", "directorPriorities", "zonesPolicy", "pitRig", "scriptRig", "sequences", "replay", "viewSafety", "inserts", "scLights", "scView"],
   "definitions": {
     "text": {"type": "string", "minLength": 1},
     "status": {"enum": ["current", "pending", "sourced"]},
@@ -55,6 +55,8 @@
         "skippable": {"type": "boolean"},
         "loop": {"type": "boolean"},
         "lateSec": {"type": "number", "minimum": 0, "maximum": 60},
+        "holdShotSec": {"$ref": "#/definitions/secOrNull"},
+        "holdShotNote": {"type": "string"},
         "shots": {"type": "array", "items": {"$ref": "#/definitions/shot"}}
       }
     },
@@ -63,7 +65,7 @@
       "additionalProperties": false,
       "required": ["type", "dist", "height", "width", "priority", "weight", "status"],
       "properties": {
-        "type": {"enum": ["braking", "corner", "straight", "headOn", "passPan", "lateralTrack", "highWide", "grandstand", "cable"]},
+        "type": {"enum": ["braking", "corner", "straight", "headOn", "passPan", "lateralTrack", "highWide", "grandstand", "cable", "longLens"]},
         "dist": {"type": "number", "minimum": 0, "maximum": 500},
         "height": {"type": "number", "minimum": 0, "maximum": 200},
         "width": {"type": "number", "exclusiveMinimum": 0, "maximum": 500},
@@ -127,7 +129,56 @@
         "label": {"type": "array", "items": {"$ref": "#/definitions/text"}, "minItems": 2, "maxItems": 2}
       }
     },
-    "rigTypeName": {"enum": ["braking", "corner", "straight", "headOn", "passPan", "lateralTrack", "highWide", "grandstand", "cable"]},
+    "rigTypeName": {"enum": ["braking", "corner", "straight", "headOn", "passPan", "lateralTrack", "highWide", "grandstand", "cable", "longLens"]},
+    "priority": {"enum": ["finish", "ownIncident", "userLock", "pitSeq", "zones"]},
+    "rigTypes3": {"type": "array", "items": {"$ref": "#/definitions/rigTypeName"}, "minItems": 1, "maxItems": 3, "uniqueItems": true},
+    "zonePlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "note"],
+      "properties": {
+        "label": {"$ref": "#/definitions/text"},
+        "layout": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "cornerEntryM": {"type": "number", "minimum": 0, "maximum": 300},
+            "cornerExitM": {"type": "number", "minimum": 0, "maximum": 300},
+            "chicaneGapM": {"type": "number", "minimum": 0, "maximum": 300},
+            "straightMaxM": {"type": "number", "exclusiveMinimum": 0, "maximum": 3000},
+            "minZoneM": {"type": "number", "minimum": 0, "maximum": 500}
+          }
+        },
+        "splitGroupsOverM": {"type": "number", "exclusiveMinimum": 0, "maximum": 3000},
+        "corners": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["corner"],
+            "properties": {
+              "corner": {"type": "integer", "minimum": 1},
+              "turn": {"$ref": "#/definitions/text"},
+              "cams": {"$ref": "#/definitions/rigTypes3"},
+              "splitExitM": {"type": "number", "minimum": 0, "maximum": 500},
+              "exitCams": {"$ref": "#/definitions/rigTypes3"}
+            }
+          }
+        },
+        "straights": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["toCorner"],
+            "properties": {
+              "toCorner": {"type": "integer", "minimum": 1},
+              "label": {"$ref": "#/definitions/text"},
+              "pieces": {"type": "integer", "minimum": 1, "maximum": 12},
+              "brakingM": {"type": "number", "minimum": 0, "maximum": 1500},
+              "cams": {"type": "array", "items": {"$ref": "#/definitions/rigTypes3"}, "minItems": 1}
+            }
+          }
+        },
+        "status": {"$ref": "#/definitions/status"},
+        "note": {"$ref": "#/definitions/text"}
+      }
+    },
     "framingType": {
       "type": "object",
       "additionalProperties": false,
@@ -209,9 +260,22 @@
       "properties": {
         "status": {"$ref": "#/definitions/status"},
         "note": {"type": "string"},
+        "shareOf": {"enum": ["width", "height"]},
+        "shareNote": {"type": "string"},
         "fovDeg": {
           "type": "object", "additionalProperties": false, "required": ["min", "max"],
           "properties": {"min": {"type": "number", "exclusiveMinimum": 0, "maximum": 120}, "max": {"type": "number", "exclusiveMinimum": 0, "maximum": 120}}
+        },
+        "train": {
+          "type": "object", "additionalProperties": false, "required": ["phases", "maxCars", "maxGapM", "trainShare", "status", "note"],
+          "properties": {
+            "phases": {"type": "array", "items": {"$ref": "#/definitions/scPhase"}, "minItems": 1, "uniqueItems": true},
+            "maxCars": {"oneOf": [{"type": "null"}, {"type": "integer", "minimum": 2, "maximum": 22}]},
+            "maxGapM": {"oneOf": [{"type": "null"}, {"type": "number", "exclusiveMinimum": 0, "maximum": 1000}]},
+            "trainShare": {"oneOf": [{"type": "null"}, {"type": "number", "exclusiveMinimum": 0, "maximum": 1}]},
+            "status": {"$ref": "#/definitions/status"},
+            "note": {"$ref": "#/definitions/text"}
+          }
         },
         "lookAhead": {
           "type": "object", "additionalProperties": false, "required": ["perSpeed", "maxM"],
@@ -259,7 +323,30 @@
           }
         },
         "looseRadiusM": {"type": "number", "exclusiveMinimum": 0, "maximum": 2000},
-        "nearRadiusM": {"type": "number", "exclusiveMinimum": 0, "maximum": 5000}
+        "nearRadiusM": {"type": "number", "exclusiveMinimum": 0, "maximum": 5000},
+        "circuits": {
+          "type": "object",
+          "propertyNames": {"pattern": "^[a-z0-9-]+$"},
+          "additionalProperties": {"$ref": "#/definitions/zonePlan"}
+        }
+      }
+    },
+    "directorPriorities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["order", "override", "restore", "status", "note"],
+      "properties": {
+        "order": {"type": "array", "items": {"$ref": "#/definitions/priority"}, "minItems": 5, "maxItems": 5, "uniqueItems": true},
+        "override": {
+          "type": "object", "additionalProperties": false, "required": ["finish", "ownIncident", "userLock", "pitSeq", "zones"],
+          "properties": {
+            "finish": {"type": "boolean"}, "ownIncident": {"type": "boolean"}, "userLock": {"type": "boolean"},
+            "pitSeq": {"type": "boolean"}, "zones": {"type": "boolean"}
+          }
+        },
+        "restore": {"enum": ["userState", "zones"]},
+        "status": {"$ref": "#/definitions/status"},
+        "note": {"$ref": "#/definitions/text"}
       }
     },
     "pitRig": {
@@ -322,14 +409,15 @@
     "sequences": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["pitStop", "garageExit", "preRace", "start", "finish", "scDeploy"],
+      "required": ["pitStop", "garageExit", "preRace", "start", "finish", "scDeploy", "scRestart"],
       "properties": {
         "pitStop": {"$ref": "#/definitions/sequence"},
         "garageExit": {"$ref": "#/definitions/sequence"},
         "preRace": {"$ref": "#/definitions/sequence"},
         "start": {"$ref": "#/definitions/sequence"},
         "finish": {"$ref": "#/definitions/sequence"},
-        "scDeploy": {"$ref": "#/definitions/sequence"}
+        "scDeploy": {"$ref": "#/definitions/sequence"},
+        "scRestart": {"$ref": "#/definitions/sequence"}
       }
     },
     "replay": {
