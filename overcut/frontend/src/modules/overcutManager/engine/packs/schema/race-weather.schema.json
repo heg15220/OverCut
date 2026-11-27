@@ -77,19 +77,54 @@
     },
     "temperature": {
       "allOf": [{ "$ref": "#/definitions/block" }],
-      "required": ["trackOverAirDry", "trackOverAirRain", "raceSd", "airSdDefault", "relaxPerLap", "fallbackAirC", "minC", "maxC"],
-      "properties": { "relaxPerLap": { "$ref": "#/definitions/share" } }
+      "required": ["trackOverAirDry", "trackOverAirRain", "raceSd", "airSdDefault", "relaxPerLap", "relaxTauMin", "fallbackAirC", "minC", "maxC"],
+      "properties": { "relaxPerLap": { "$ref": "#/definitions/share" }, "relaxTauMin": { "$ref": "#/definitions/positive" } }
     },
     "grip": {
       "allOf": [{ "$ref": "#/definitions/block" }],
-      "required": ["slickInterRatio", "interWetRatio", "interDryRatio", "wetDryRatio", "wetSlopePerInterCap", "slickExponent", "slickMax", "aquaplane", "aquaplaneExponent", "tyreWidthM", "topSpeedKmh", "evacuationLitresPerSec", "dryBelowMm", "dryOverheat", "ageWear", "fallbackBaseLap"],
+      "required": ["slickInterRatio", "interWetRatio", "interDryRatio", "wetDryRatio", "wetSlopePerInterCap", "slickExponent", "slickMax", "aquaplane", "aquaplaneExponent", "tyreWidthM", "evacuation", "dryBelowMm", "dryOverheat", "ageWear", "fallbackBaseLap"],
       "properties": {
         "slickInterRatio": { "$ref": "#/definitions/ratio" },
         "interWetRatio": { "$ref": "#/definitions/ratio" },
         "interDryRatio": { "$ref": "#/definitions/ratio" },
         "wetDryRatio": { "$ref": "#/definitions/ratio" },
         "slickMax": { "$ref": "#/definitions/ratio" },
-        "evacuationLitresPerSec": { "type": "object", "required": ["inter", "wet"], "additionalProperties": false, "properties": { "inter": { "$ref": "#/definitions/positive" }, "wet": { "$ref": "#/definitions/positive" } } }
+        "evacuation": {
+          "$comment": "GS-13: evacuación de agua por generación de neumático (litros por segundo a atKmh), eras contiguas y ordenadas.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "calibrationYear", "fit", "eras"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "calibrationYear": { "type": "integer", "minimum": 1950, "maximum": 2100 },
+            "fit": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["inter", "wet", "atKmh"],
+              "properties": { "inter": { "$ref": "#/definitions/positive" }, "wet": { "$ref": "#/definitions/positive" }, "atKmh": { "$ref": "#/definitions/positive" } }
+            },
+            "eras": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["from", "to", "inter", "wet", "atKmh", "status", "source", "note"],
+                "properties": {
+                  "from": { "type": "integer", "minimum": 1950, "maximum": 2100 },
+                  "to": { "type": "integer", "minimum": 1950, "maximum": 2100 },
+                  "inter": { "$ref": "#/definitions/positive" },
+                  "wet": { "$ref": "#/definitions/positive" },
+                  "atKmh": { "$ref": "#/definitions/positive" },
+                  "status": { "enum": ["NV", "measured", "pending"] },
+                  "source": { "type": ["string", "null"] },
+                  "note": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "wetness": {

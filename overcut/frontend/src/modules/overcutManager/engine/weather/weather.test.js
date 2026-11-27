@@ -12,6 +12,10 @@
  *   - climate: the share of 2023-2025 races that need wet tyres sits in the 95 % interval of the
  *     real count (8 of 70, OpenF1); Bahrain is drier than Spa;
  *   - the forecast's error shrinks with the weather centre's accuracy;
+ *   - GS-13 (F1M24-CHINA §2.10): the evacuation by tyre generation covers every playable year, the
+ *     crossovers keep 1.10-1.12 and 1.27 in every era, the capacity of 2024 beats 2014's, the
+ *     inter/dry ratio of the Chinese SQ 2024 (OpenF1 9668) sits in the inter's window, and the
+ *     track cools 6-7 °C in 30 min under rain;
  *   - the same seed gives the same afternoon; the quick and step races share the water and the
  *     step race exposes it for the view.
  */
@@ -21,9 +25,10 @@ import W from "../../data/balance/race-weather.json";
 import CLIMATE from "../../data/weather/climate.json";
 import schema from "../packs/schema/race-weather.schema.json";
 import climateSchema from "../packs/schema/weather-climate.schema.json";
+import SQ_CHINA_2024 from "./__fixtures__/openf1-9668.json";
 import {
-  INTER_CAPACITY_MM, SLICK_INTER_MM, STATES, WET_CAPACITY_MM, aquaplaningOf, climateFor, depthOfWetness, forecastOf, gripRatio, rainChanceOf, tyreForWetness, waterStep,
-  weatherTimeline, wetnessOfDepth,
+  INTER_CAPACITY_MM, SLICK_INTER_MM, STATES, WET_CAPACITY_MM, aquaplaningOf, capacityFor, climateFor, depthOfWetness, evacuationFor, forecastOf, gripRatio, rainChanceOf,
+  rainTrackTargetOf, relaxTrackTemp, sprayLevelOf, tyreForDepth, tyreForWetness, waterStep, weatherTimeline, wetnessOfDepth,
 } from "./index";
 import { createRace, tyreTime } from "../race";
 import { fromQuickRace, runStepToFinish, weatherNow } from "../sim";
@@ -70,7 +75,7 @@ describe("RF-SIM-03 / RF-SIM-11 · grip by compound against water (OpenF1, Pirel
     W.measured.openf1.interWetCrossovers.forEach((row) => expect(Math.abs((row.inter + row.wet) / 2 / W.grip.interWetRatio - 1)).toBeLessThan(0.03));
   });
 
-  it("the water capacity of inter and wet comes from Pirelli's litres per second (~0.95 and ~2.5 mm)", () => {
+  it("the water capacity of inter and wet comes from Pirelli's litres per second (~0.95 and ~2.5 mm on the fit's scale)", () => {
     expect(INTER_CAPACITY_MM).toBeGreaterThan(0.9);
     expect(INTER_CAPACITY_MM).toBeLessThan(1);
     expect(WET_CAPACITY_MM).toBeGreaterThan(2.4);
@@ -212,5 +217,97 @@ describe("RF-SIM-11 · both race modes in the rain (SRS 4.2)", () => {
     expect(now.sectorsMm).toHaveLength(3);
     // The line is never wetter than the rest of the track (the cars dry it).
     step.weather.water.forEach((h, lap) => expect(h).toBeLessThanOrEqual(step.weather.offLine[lap] + 1e-9));
+  });
+});
+
+describe("GS-13 · water evacuation by tyre generation (RF-SIM-03, RF-SIM-11, SRS §6; Pirelli, OpenF1 9668)", () => {
+  const EV = W.grip.evacuation;
+  const PLAYABLE = [1976, 1986, 1988, ...Array.from({ length: 25 }, (_, k) => 1990 + k), 2016, ...Array.from({ length: 9 }, (_, k) => 2018 + k)];
+
+  it("the eras are ordered, contiguous, cover every playable season and cite a source when measured", () => {
+    EV.eras.forEach((era, k) => {
+      expect(era.to).toBeGreaterThanOrEqual(era.from);
+      if (k > 0) expect(era.from).toBe(EV.eras[k - 1].to + 1);
+      if (era.status === "measured") expect(era.source).toMatch(/^https:\/\//);
+      if (era.status !== "measured") expect(era.note.length).toBeGreaterThan(20);
+    });
+    PLAYABLE.forEach((year) => expect(EV.eras.some((era) => year >= era.from && year <= era.to)).toBe(true));
+    // Pirelli's 2014 figure for the Pirelli years before the wider tyres; nothing published before 2011.
+    expect(evacuationFor(2014)).toEqual(expect.objectContaining({ inter: 25, wet: 65, status: "measured" }));
+    expect(evacuationFor(2005).status).toBe("NV");
+    expect(evacuationFor(null)).toBe(evacuationFor(EV.calibrationYear));
+  });
+
+  it("capacity 2024 > 2014 for the inter and the wet, by Pirelli's litres per second of each generation", () => {
+    const y2014 = capacityFor(2014);
+    const y2024 = capacityFor(2024);
+    expect(y2024.interMm).toBeGreaterThan(y2014.interMm);
+    expect(y2024.wetMm).toBeGreaterThan(y2014.wetMm);
+    // 25 l/s at 316 km/h against 37.5 l/s at 300 km/h; 65 at 316 against 85 at 300.
+    expect(y2014.interMm / y2024.interMm).toBeCloseTo((25 / 316) / (37.5 / 300), 9);
+    expect(y2014.wetMm / y2024.wetMm).toBeCloseTo((65 / 316) / (85 / 300), 9);
+    // The calibration era is exactly the fitted model (what the engine reads without a year).
+    expect(y2024.interMm).toBe(INTER_CAPACITY_MM);
+    expect(y2024.wetMm).toBe(WET_CAPACITY_MM);
+    // The same water costs the 2014 inter more than the 2024 one.
+    expect(gripRatio("inter", 0.5, 2014)).toBeGreaterThan(gripRatio("inter", 0.5, 2024));
+    expect(aquaplaningOf("inter", 0.8, 2014)).toBeGreaterThan(0);
+    expect(aquaplaningOf("inter", 0.8, 2024)).toBe(0);
+    expect(sprayLevelOf(0.6, 2014)).toBeGreaterThan(sprayLevelOf(0.6, 2024));
+  });
+
+  it("in every playable year slick/inter cross at 1.10-1.12 and inter/wet at 1.27, and tyreForDepth is the quickest", () => {
+    PLAYABLE.forEach((year) => {
+      const cap = capacityFor(year);
+      const slickInter = gripRatio("soft", cap.slickInterMm, year);
+      expect(slickInter).toBeGreaterThanOrEqual(1.1);
+      expect(slickInter).toBeLessThanOrEqual(1.12);
+      expect(gripRatio("inter", cap.slickInterMm, year)).toBeCloseTo(slickInter, 6);
+      expect(gripRatio("inter", cap.interMm, year)).toBeCloseTo(W.grip.interWetRatio, 6);
+      expect(gripRatio("wet", cap.interMm, year)).toBeCloseTo(W.grip.interWetRatio, 6);
+      for (let h = 0.01; h < cap.wetMm; h += 0.05) {
+        if (Math.abs(h - cap.slickInterMm) < 0.01 || Math.abs(h - cap.interMm) < 0.01) continue;
+        const times = ["soft", "inter", "wet"].map((compound) => [compound, gripRatio(compound, h, year)]);
+        const best = times.reduce((a, b) => (b[1] < a[1] ? b : a))[0];
+        expect([year, h, tyreForDepth(h, year) || "soft"]).toEqual([year, h, best]);
+      }
+    });
+  });
+
+  it("without a year the engine keeps the calibration era (what race.js and stepRace.js read today)", () => {
+    [0, 0.1, 0.5, 1.2, 2.5].forEach((h) => ["soft", "inter", "wet"].forEach((compound) => expect(gripRatio(compound, h)).toBe(gripRatio(compound, h, EV.calibrationYear))));
+    [0.2, 0.5, 0.8].forEach((w) => expect(tyreForDepth(depthOfWetness(w))).toBe(tyreForWetness(w)));
+    const t = weatherTimeline({ race: { packCircuitId: "shanghai", date: "2014-04-20", laps: 54 }, laps: 54, seed: "gs13" });
+    expect(t.year).toBe(2014);
+    expect(t.capacity.interMm).toBeCloseTo(capacityFor(2014).interMm, 9);
+  });
+
+  it("Chinese SQ 2024 (OpenF1 9668): inter/dry 1.23-1.27 lies in the 2024 inter's window, inter the quickest there", () => {
+    const ratio = SQ_CHINA_2024.laps.interOverDry;
+    expect(ratio).toBeGreaterThanOrEqual(1.23);
+    expect(ratio).toBeLessThanOrEqual(1.27);
+    // The depth at which the 2024 inter laps at that ratio sits between the two crossovers: the
+    // inter the teams ran is the model's choice too.
+    const cap = capacityFor(2024);
+    const h = ((ratio - W.grip.interDryRatio) / (W.grip.interWetRatio - W.grip.interDryRatio)) * cap.interMm;
+    expect(gripRatio("inter", h, 2024)).toBeCloseTo(ratio, 6);
+    expect(tyreForDepth(h, 2024)).toBe("inter");
+    expect(gripRatio("inter", h, 2024)).toBeLessThan(gripRatio("wet", h, 2024));
+    expect(gripRatio("inter", h, 2024)).toBeLessThan(gripRatio("soft", h, 2024));
+    // With the 2014 inter the same water already calls for the full wet.
+    expect(tyreForDepth(h, 2014)).toBe("wet");
+    // The race-control sequence of the spec: wet track before DRS disabled.
+    expect(SQ_CHINA_2024.messages.wetTrack[0].min).toBeLessThan(SQ_CHINA_2024.messages.drsDisabled[0].min);
+  });
+
+  it("the track cools 6-7 °C in 30 min under rain towards air + trackOverAirRain (OpenF1 9668)", () => {
+    const c = SQ_CHINA_2024.cooling;
+    const target = rainTrackTargetOf(c.airAtEndC);
+    const drop30 = c.fromC - relaxTrackTemp(c.fromC, target, 30);
+    expect(drop30).toBeGreaterThanOrEqual(6);
+    expect(drop30).toBeLessThanOrEqual(7);
+    expect(Math.abs(relaxTrackTemp(c.fromC, target, c.minutes) - c.toC)).toBeLessThan(0.5);
+    // The per-lap relaxation race.js applies is the same constant at a 2-minute wet lap.
+    expect(1 - Math.exp(-2 / W.temperature.relaxTauMin)).toBeCloseTo(W.temperature.relaxPerLap, 2);
   });
 });
