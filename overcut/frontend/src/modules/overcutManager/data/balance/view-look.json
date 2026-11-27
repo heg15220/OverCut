@@ -1,0 +1,147 @@
+{
+  "$comment": "RNF-07: aspecto de la vista 3D (cielo, sol, sombra, niebla, grading, exposición, desenfoque, mojado, lluvia y efectos; RF-3D-04, RF-SIM-11, RNF-02). Única fuente de estos parámetros (F1M24-CHINA §1.5): race-weather.json se queda con lo físico (agua, spray, evacuación) y su bloque display (bandas del HUD). Lo leen three/sky.js y three/post/* (LOOK-C1, sin enganchar a Race3D.js hasta LOOK-C3); los bloques wet, rain y fx los rellenan LOOK-C2 y LOOK-C3. Lo comprueba three/sky.test.js contra engine/packs/schema/view-look.schema.json. De F1 Manager 24 solo la idea (luz que sigue al sol, negros levantados, autoexposición asimétrica, desenfoque con el coche propio nítido); ningún valor suyo se copia. status: sourced = fórmula o cifra con fuente citada; current = valor que OverCut ya usaba (Race3D.js, studio.js), trasladado sin cambios; design = diseño propio de OverCut, sin fuente que lo fije; pending = por calibrar o verificar (no es un hecho).",
+  "version": 1,
+  "sky": {
+    "$comment": "Sol y nubes. Posición solar: algoritmo de la NOAA Solar Calculator (NOAA Global Monitoring Laboratory, gml.noaa.gov/grad/solcalc, hoja 'NOAA_Solar_Calculations_day', basada en Meeus, Astronomical Algorithms, 1991) con su refracción atmosférica; las constantes astronómicas van en three/sky.js porque no son balance. Hora: la local de la sesión; el huso sale de la hora UTC del pack cuando la haya (f1db da 'time' en UTC desde 2024) y, si no, de la hora solar media lon/15 (timezone.fallback; error de unos minutos frente al huso civil y de 1 h con horario de verano: pending hasta que el pack lleve el huso). northDegByLayout: ángulo del norte geográfico en el plano xz de la escena de cada trazado (0 = norte hacia −Z, este hacia +X); pending: las splines salen de los GLB sin orientación geográfica. Nubosidad: fracción de cielo cubierto por estado del motor (race-weather.json states.list, 7 estados), centro de las clases en octas de WMO-No. 8 (despejado ≤ 3/8, nuboso 4–7/8, cubierto 8/8) que ya usa race-weather.json; los estados con lluvia, cubiertos. Irradiancia directa con cielo despejado: modelo de Meinel (Meinel y Meinel, Applied Solar Energy, 1976) I = 1,353·0,7^(AM^0,678) kW/m², con la masa de aire de Kasten y Young (Applied Optics 28, 1989); global con nubes: Kasten y Czeplak (Solar Energy 24, 1980) 1 − 0,75·N^3,4. sunIntensityMax y hemi son los de Race3D.js (current); el reparto de luz difusa con nubes y la dureza de sombra son diseño propio (VIEW-06: dureza y opacidad de sombra = 1 − nubes).",
+    "status": "sourced",
+    "timezone": { "fallback": "solarMean", "status": "pending" },
+    "refraction": true,
+    "northDegByLayout": { "$comment": "pending: orientación geográfica de cada spline por medir (OSM o mapa oficial del circuito).", "status": "pending", "default": 0, "layouts": {} },
+    "cloudByState": {
+      "status": "sourced",
+      "values": { "sunny": 0.19, "cloudy": 0.69, "overcast": 1, "drizzle": 1, "light": 1, "moderate": 1, "heavy": 1 }
+    },
+    "sun": {
+      "status": "current",
+      "intensityMax": 2.6,
+      "colour": "#fff3dd",
+      "meinel": { "solarConstantKw": 1.353, "base": 0.7, "exponent": 0.678, "status": "sourced" },
+      "airMass": { "model": "kastenYoung1989", "status": "sourced" },
+      "cloudGlobal": { "a": 0.75, "b": 3.4, "status": "sourced" },
+      "lowSun": {
+        "$comment": "Color del sol por altura: más cálido cerca del horizonte (dispersión de Rayleigh). Diseño propio, pending de calibrar con fotogramas FOM de tarde.",
+        "status": "design",
+        "stops": [
+          { "elevationDeg": 0, "colour": "#ffb36b" },
+          { "elevationDeg": 10, "colour": "#ffd6a3" },
+          { "elevationDeg": 30, "colour": "#fff3dd" },
+          { "elevationDeg": 90, "colour": "#fff8ee" }
+        ]
+      },
+      "minElevationDeg": -0.833
+    },
+    "hemi": {
+      "status": "current",
+      "sky": "#cfe4ff",
+      "ground": "#4b5a3a",
+      "intensity": 1.1,
+      "cloudGain": { "value": 0.35, "status": "design" },
+      "overcastSky": { "value": "#d3d8dc", "status": "design" }
+    },
+    "shadow": {
+      "$comment": "opacidad = 1 − nubes·opacityPerCloud (diseño: VIEW-06); radio del PCF suave de radiusMin (sol limpio) a radiusMax (cubierto), monótono con la nubosidad.",
+      "status": "design",
+      "opacityPerCloud": 1,
+      "minOpacity": 0,
+      "radiusMin": 1,
+      "radiusMax": 8
+    },
+    "dome": {
+      "$comment": "Parámetros del shader Sky de three/examples (Preetham et al., 'A Practical Analytic Model for Daylight', SIGGRAPH 1999). Diseño propio; con nubes sube la turbidez y baja Rayleigh (cielo blanco lechoso).",
+      "status": "design",
+      "scale": 4000,
+      "clear": { "turbidity": 4, "rayleigh": 1.6, "mieCoefficient": 0.005, "mieDirectionalG": 0.8 },
+      "overcast": { "turbidity": 14, "rayleigh": 0.4, "mieCoefficient": 0.02, "mieDirectionalG": 0.6 }
+    }
+  },
+  "fog": {
+    "$comment": "FogExp2: densidad = 3,912 / visibilidad (Koschmieder, contraste umbral 2 %). Visibilidad frente a humedad relativa del aire (OpenF1 weather humidity): curva de calima diseño propio, pending de calibrar con METAR del aeropuerto cercano (p. ej. Shanghái Hongqiao) en días de GP. La lluvia añade su niebla en LOOK-C2 (rain.fog). Por debajo de la humedad mínima, la visibilidad de la tabla en su extremo.",
+    "status": "pending",
+    "koschmieder": 3.912,
+    "visibilityKmByHumidity": [
+      { "humidity": 20, "km": 30 },
+      { "humidity": 50, "km": 16 },
+      { "humidity": 70, "km": 9 },
+      { "humidity": 85, "km": 4 },
+      { "humidity": 95, "km": 1.5 }
+    ],
+    "minDensity": 0.00012,
+    "maxDensity": 0.004,
+    "colourFromSky": 0.85
+  },
+  "grade": {
+    "$comment": "Grading de retransmisión de día tras el tone mapping (sRGB): out = lift + (1 − lift)·in^gamma, y saturación por luma Rec. 709. Diseño propio dentro de la aceptación de VIEW-06 (p2 de luminancia 0,05–0,12: negros levantados). Con nubes baja algo la saturación (cielo cubierto, luz difusa).",
+    "status": "design",
+    "lift": 0.06,
+    "gamma": 1.02,
+    "gain": 1,
+    "saturation": 0.85,
+    "cloudSaturation": -0.08,
+    "lumaWeights": [0.2126, 0.7152, 0.0722]
+  },
+  "exposure": {
+    "$comment": "studio.js: exposición base del tone mapping (current, la de antes de LOOK-C1). Autoexposición asimétrica en EV (log2): el objetivo compensa solo 'completeness' de la desviación de la luminancia media respecto a 'key' (nunca completa); una parte rápida (fastShare, τ rápido) y una cola lenta; al aclararse la escena la cámara cierra antes que abre. Cada corte de cámara conserva la exposición del plano anterior. Diseño propio, pending de calibrar con planos FOM de contraluz.",
+    "status": "design",
+    "baseAces": 1.05,
+    "baseNeutral": 1,
+    "key": 0.18,
+    "completeness": 0.7,
+    "fastShare": 0.7,
+    "tauSec": { "brightenFast": 0.25, "brightenSlow": 1.6, "darkenFast": 0.6, "darkenSlow": 2.4 },
+    "minEv": -2,
+    "maxEv": 1.5,
+    "meter": { "sizePx": 32, "lowClip": 0.0001 }
+  },
+  "blur": {
+    "$comment": "VIEW-05: desenfoque de movimiento de la cámara a bordo en pantalla. Flujo radial desde el centro de expansión (avance) más un término horizontal por la guiñada; peso nulo dentro de centreRadius (lo que se mira queda nítido) y pleno desde edgeRadius; el coche propio (capa maskLayer) se pinta en una máscara y no se desenfoca. Taps fijos y simétricos (sin ruido), así el pase es determinista. Diseño propio.",
+    "status": "design",
+    "maskLayer": 1,
+    "centreRadius": 0.18,
+    "edgeRadius": 0.62,
+    "radialPerMps": 0.00045,
+    "yawPerRadPerSec": 0.018,
+    "maxOffset": 0.05,
+    "minSpeedMps": 12
+  },
+  "quality": {
+    "$comment": "Post-proceso por nivel de calidad (RNF-02; enmienda propuesta 10 de F1M24-CHINA §4: el desenfoque se apaga en LOD bajo o móvil).",
+    "status": "design",
+    "levels": {
+      "low": { "post": false, "motionBlur": false, "blurTaps": 0, "grade": false, "autoExposure": false },
+      "medium": { "post": true, "motionBlur": true, "blurTaps": 6, "grade": true, "autoExposure": true },
+      "high": { "post": true, "motionBlur": true, "blurTaps": 10, "grade": true, "autoExposure": true }
+    }
+  },
+  "wet": {
+    "$comment": "Contrato para LOOK-C2 (GS-10): asfalto con mojado continuo desde snapshot.weather.waterMm (motor); la trazada se seca antes (máscara de ~lineDryWidthM). Sin valores hasta LOOK-C2.",
+    "status": "pending",
+    "darkenAtSaturation": null,
+    "saturationMm": null,
+    "roughnessDry": null,
+    "roughnessWet": null,
+    "lineDryWidthM": null,
+    "puddleFromMm": null
+  },
+  "rain": {
+    "$comment": "Contrato para LOOK-C2 (VIEW-07): spray instanciado por coche desde snapshot.spray[i] (motor, 0..1), estela de 50–150 m (F1M24-CHINA §2.9), gotas en la lente solo en onboards, niebla por tasa de lluvia (snapshot.weather.rainRate). Todo con seedOf (RNF-05). Sin valores hasta LOOK-C2.",
+    "status": "pending",
+    "spray": { "trailM": null, "maxParticles": { "low": null, "medium": null, "high": null } },
+    "lens": { "onboardOnly": true, "dropsPerSecAtMmH": null },
+    "fog": { "visibilityKmByRainMmH": [] },
+    "streaks": { "fallMps": null }
+  },
+  "fx": {
+    "$comment": "Contrato para LOOK-C3 (VIEW-18). Chispas del suelo solo en eras con patines metálicos bajo el fondo: pending hasta leer el reglamento técnico FIA de cada año (patines de titanio obligatorios desde 2015 según la memoria; la tabla de madera de 1994 sin patines que chispeen hasta entonces). Nunca en 2013 (F1M24-CHINA §2.8). Humo solo con el evento lockup del motor (snapshot lon[i] = LOCKUP).",
+    "status": "pending",
+    "sparks": {
+      "eras": [
+        { "from": 1976, "to": 1993, "value": true, "source": "Memoria: chispas de patines bajo el fondo antes de la tabla de 1994; verificar en el reglamento técnico FIA", "status": "pending" },
+        { "from": 1994, "to": 2014, "value": false, "source": "Memoria: tabla de referencia de 1994 (FIA Technical Regulations art. 3.13) sin patines de titanio; verificar", "status": "pending" },
+        { "from": 2015, "to": 2026, "value": true, "source": "Memoria: patines de titanio en la tabla desde 2015 (FIA Technical Regulations 2015 art. 3.13); verificar", "status": "pending" }
+      ],
+      "minDecelG": null,
+      "flashFrames": null
+    },
+    "lockupSmoke": { "enabled": true, "status": "pending", "lifeSec": null }
+  }
+}

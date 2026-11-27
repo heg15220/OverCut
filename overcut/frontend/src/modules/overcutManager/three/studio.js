@@ -9,6 +9,7 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { gateRenderer } from "./assets/compileGate";
+import LOOK from "../data/balance/view-look.json";
 
 export { canRender3D } from "./support";
 
@@ -22,6 +23,12 @@ export const pixelRatioFor = ({ supersample = false } = {}, dpr = (typeof window
   Math.min(2, supersample ? Math.max(1.5, dpr) : dpr);
 
 /**
+ * Base tone-mapping exposure per tone (view-look.json exposure: baseAces, baseNeutral; RNF-07). The
+ * live auto exposure (three/post/exposure.js, LOOK-C1) multiplies this base once LOOK-C3 wires it.
+ */
+export const exposureFor = (tone = "aces") => (tone === "neutral" ? LOOK.exposure.baseNeutral : LOOK.exposure.baseAces);
+
+/**
  * A renderer with the colour pipeline and tone mapping the materials are tuned for.
  *   tone   "aces" (race: sun and sky) or "neutral" (Khronos PBR Neutral: close-ups,
  *          keeps livery colours as painted instead of pushing reds to orange and
@@ -32,7 +39,7 @@ export const createRenderer = (canvas, { shadows = true, alpha = false, tone = "
   renderer.setPixelRatio(pixelRatioFor({ supersample }));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = tone === "neutral" ? THREE.NeutralToneMapping : THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = exposure ?? (tone === "neutral" ? 1 : 1.05);
+  renderer.toneMappingExposure = exposure ?? exposureFor(tone);
   renderer.shadowMap.enabled = shadows;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   // Shaders link in the background instead of freezing the page on the first frame (RNF-02).
