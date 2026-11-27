@@ -18,7 +18,10 @@ import { createCareer, createContext, createWeekendRace, currentRace, entrantsFo
 import {
   applyGridPenalties, compoundsFor, createRace, energyEra, energyStep, redFlag, refuellingEra, rulesOf, runToFinish, setErs, stationaryTime, stepLap, suggestPlan,
 } from "./race";
-import { commandsFor, defaultRegulationsFor, drsOpen, gridPenaltyFor, penaltyFor, raceBalance, rulesFor } from "./rules";
+import {
+  DRS_CONTROL, DRS_REASONS, commandsFor, defaultRegulationsFor, drsControlEvent, drsOpen, drsStatus, drsTimeline, gridPenaltyFor, penaltyFor, raceBalance, rulesFor,
+} from "./rules";
+import eraDefaults from "../data/seasons/curated/era-defaults.json";
 import { eraWithRegulations } from "./packs/packWorld";
 import { loadSeasonPack, seasonPackYears } from "./packs/seasonPacks";
 import { eraRulesFor, satisfiesEraRule } from "./packs/validatePack";
@@ -218,6 +221,120 @@ describe("RF-SIM-08 · DRS", () => {
     expect(drsOpen(rules, { lap: 13, gapAhead: 0.5, zones: 1, restartLap: 10 })).toBe(true);
     expect(drsOpen(rulesFor(2008), { lap: 10, gapAhead: 0.5, zones: 2 })).toBe(false);
     expect(drsOpen(rulesFor(2026), { lap: 10, gapAhead: 0.5, zones: 2 })).toBe(false);
+  });
+});
+
+describe("SIM-C0 · GS-08 DRS by table, every year (RF-SIM-08, RF-SIM-10, SRS §6, criterio 7.2)", () => {
+  const YEARS = Array.from({ length: 2026 - 1950 + 1 }, (_, k) => 1950 + k);
+  const wet = raceBalance.drs.wetLimit;
+  // Every year, with its pack's regulations where one exists (the pack is the fixed anchor) and from era-defaults otherwise.
+  const rulesOfYear = (year) => (packs[year] ? rulesFor(eraWithRegulations(year, packs[year].regulations)) : rulesFor(eraProfileFor(year)));
+
+  it.each(YEARS)("%i: shut on laps 1-2, open on lap 3 within a second, shut 2 laps after the SC, with water, outside 2011-2025", (year) => {
+    const rules = rulesOfYear(year);
+    const era = year >= 2011 && year <= 2025;
+    const row = {
+      lap1: drsOpen(rules, { lap: 1, gapAhead: 0.5, zones: 2 }),
+      lap2: drsOpen(rules, { lap: 2, gapAhead: 0.5, zones: 2 }),
+      lap3: drsOpen(rules, { lap: 3, gapAhead: 0.5, zones: 2 }),
+      lap3Gap: drsOpen(rules, { lap: 3, gapAhead: 1.05, zones: 2 }),
+      lap3NoCar: drsOpen(rules, { lap: 3, gapAhead: null, zones: 2 }),
+      underSc: drsOpen(rules, { lap: 20, gapAhead: 0.5, zones: 2, neutralised: "safetyCar" }),
+      afterSc1: drsOpen(rules, { lap: 21, gapAhead: 0.5, zones: 2, restartLap: 20 }),
+      afterSc2: drsOpen(rules, { lap: 22, gapAhead: 0.5, zones: 2, restartLap: 20 }),
+      afterSc3: drsOpen(rules, { lap: 23, gapAhead: 0.5, zones: 2, restartLap: 20 }),
+      wet: drsOpen(rules, { lap: 10, gapAhead: 0.5, zones: 2, wetness: wet }),
+      noZones: drsOpen(rules, { lap: 10, gapAhead: 0.5, zones: 0 }),
+    };
+    expect(row).toEqual({
+      lap1: false, lap2: false, lap3: era, lap3Gap: false, lap3NoCar: false,
+      underSc: false, afterSc1: false, afterSc2: false, afterSc3: era, wet: false, noZones: false,
+    });
+    expect(drsStatus(rules, { lap: 10 }).reason).toBe(era ? null : "era");
+    expect(rules.drs.procedure !== null).toBe(era);
+  });
+
+  it("2008 and 2026 never open, whatever the lap, the gap or the track (no rule outside its era)", () => {
+    [2008, 2026].forEach((year) => {
+      for (let lap = 1; lap <= 70; lap += 1) expect(drsOpen(rulesOfYear(year), { lap, gapAhead: 0.1, zones: 3 })).toBe(false);
+    });
+  });
+
+  it("reads the FIA texts: two laps after the start and after a SC, one second, one lap in the 2024 sprint, yellow in the zone from 2018", () => {
+    const fields = eraDefaults.fields.drsProcedure;
+    const sourced = fields.filter((row) => row.status === "source" && row.value).map((row) => row.from);
+    expect(sourced).toEqual([2011, 2018, 2024]);
+    [2011, 2018, 2024].forEach((year) => {
+      const drs = rulesFor(year).drs;
+      expect({ fromLap: drs.fromLap, restartLaps: drs.restartLaps, detectionGap: drs.detectionGap }).toEqual({ fromLap: 3, restartLaps: 2, detectionGap: 1 });
+    });
+    expect(rulesFor(2024).drs.sprintFromLap).toBe(2);
+    expect(rulesFor(2018).drs.sprintFromLap).toBeNull();
+    const r24 = rulesFor(2024);
+    expect(drsOpen(r24, { lap: 2, gapAhead: 0.5, sprint: true })).toBe(true);
+    expect(drsOpen(r24, { lap: 2, gapAhead: 0.5 })).toBe(false);
+    expect(drsOpen(rulesFor(2018), { lap: 2, gapAhead: 0.5, sprint: true })).toBe(false); // no sprint value: the race rule
+    expect(drsStatus(rulesFor(2018), { lap: 10, yellowInZone: true })).toEqual({ enabled: false, reason: "yellow" });
+    expect(drsStatus(r24, { lap: 10, yellowInZone: true }).reason).toBe("yellow");
+  });
+
+  it("every drsProcedure row is closed-shape, sourced (url and quote) or pending with a note, and covers 1950-2026 once", () => {
+    const rows = eraDefaults.fields.drsProcedure;
+    const covered = [];
+    rows.forEach((row) => {
+      for (let year = row.from; year <= row.to; year += 1) covered.push(year);
+      expect(["source", "pending"]).toContain(row.status);
+      if (row.status === "pending") expect(typeof row.note).toBe("string");
+      if (row.status === "source" && row.value) expect([typeof row.url, typeof row.quote]).toEqual(["string", "string"]);
+      (row.pendingKeys || []).forEach((key) => expect(row.value).toHaveProperty(key));
+      if (row.value) {
+        expect(Object.keys(row.value).sort()).toEqual(["detectionGapSec", "disableVisibility", "disableYellowInZone", "raceAfterLaps", "restartAfterLaps", "sprintAfterLaps"]);
+      }
+    });
+    expect(covered).toEqual(YEARS);
+    // The procedure exists exactly where DRS does (criterio 7.2).
+    YEARS.forEach((year) => expect(Boolean(defaultRegulationsFor(year).drsProcedure)).toBe(defaultRegulationsFor(year).drs));
+  });
+
+  it("emits control.drsEnabled on lap 3, drsDisabled under the SC and with water, enabled again 2 laps after the restart", () => {
+    const rules = rulesFor(2013);
+    const neutralised = [];
+    for (let lap = 20; lap <= 23; lap += 1) neutralised[lap] = "safetyCar";
+    const wetness = [];
+    for (let lap = 40; lap <= 44; lap += 1) wetness[lap] = wet + 0.1;
+    const events = drsTimeline(rules, { laps: 56, zones: 2, neutralised, restartLaps: [23], wetness });
+    expect(events).toEqual([
+      { type: "control", kind: DRS_CONTROL.ENABLED, lap: 3 },
+      { type: "control", kind: DRS_CONTROL.DISABLED, reason: "safetyCar", lap: 20 },
+      { type: "control", kind: DRS_CONTROL.ENABLED, lap: 26 },
+      { type: "control", kind: DRS_CONTROL.DISABLED, reason: "wet", lap: 40 },
+      { type: "control", kind: DRS_CONTROL.ENABLED, lap: 45 },
+    ]);
+    events.filter((event) => event.reason).forEach((event) => expect(DRS_REASONS).toContain(event.reason));
+    // No events at all in an era without DRS, and none when nothing changes.
+    [2008, 2010, 2026].forEach((year) => expect(drsTimeline(rulesFor(year), { laps: 60, zones: 2, neutralised, restartLaps: [23], wetness })).toEqual([]));
+    expect(drsControlEvent({ enabled: true }, { enabled: true, reason: null }, 7)).toBeNull();
+    expect(drsControlEvent({ enabled: false }, { enabled: false, reason: "wet" }, 7)).toBeNull();
+    expect(drsControlEvent(null, { enabled: false, reason: "start" }, 1)).toBeNull();
+  });
+
+  it("drsOpen keeps the behaviour the engine had: same answers as the old inline rule for 2011-2025 (equivalence SRS 4.2)", () => {
+    const old = (rules, { lap, wetness = 0, zones = 1, restartLap = 0, gapAhead }) => {
+      const d = raceBalance.drs;
+      if (!rules.drs.enabled || !(zones > 0) || lap < d.fromLap) return false;
+      if (restartLap && lap <= restartLap + d.restartLaps) return false;
+      if (wetness >= d.wetLimit) return false;
+      return gapAhead === undefined ? true : gapAhead !== null && gapAhead < d.detectionGap;
+    };
+    for (let year = 2008; year <= 2026; year += 1) {
+      const rules = rulesOfYear(year);
+      [1, 2, 3, 12, 13, 14, 40].forEach((lap) =>
+        [undefined, null, 0.4, 0.99, 1.0, 1.4].forEach((gapAhead) =>
+          [0, 0.29, 0.3, 0.7].forEach((wetness) => {
+            const ctx = { lap, gapAhead, wetness, zones: 2, restartLap: lap > 12 ? 11 : 0 };
+            expect({ year, ...ctx, open: drsOpen(rules, ctx) }).toEqual({ year, ...ctx, open: old(rules, ctx) });
+          })));
+    }
   });
 });
 
