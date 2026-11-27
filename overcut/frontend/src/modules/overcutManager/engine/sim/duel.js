@@ -435,7 +435,8 @@ const beginStraight = (state, a, b, z, event) => {
  * tow) closing on the defender at a speed that brings it alongside `alongsideTargetSec` before the end of the
  * straight pass, at most `maxClosingKmh` faster; alongside, the defender's speed plus what crosses (1 +
  * confirmLengths) car lengths in the time left, held between `minAlongsideSec` and `maxAlongsideSec` for the two
- * car lengths of the overlap. Returns the new multiplier of its step (no draw).
+ * car lengths of the overlap; never above its own speed plus duel.straight.attackerBoost nor above what it would reach
+ * itself at the braking point. Returns the new multiplier of its step (no draw).
  */
 export const straightMult = (sim, i, tau0, rate, mult) => {
   const b = sim.spOther[i];
@@ -467,7 +468,16 @@ export const straightMult = (sim, i, tau0, rate, mult) => {
     const want = Math.max((confirm + L) / aim, (confirm - d) / Math.max(dt, tLeft - aim));
     v = vb + (want < lo ? lo : want > hi ? hi : want);
   }
-  return mult * (v / vNat);
+  // At most the duel's edge on a straight above its own speed with the flap and the tow (race-sim.json
+  // duel.straight.attackerBoost), and never above the speed it would reach itself at the braking point (its trace
+  // there, scaled as here): the move is made with the speed carried out of the tow, the field's top speed stays
+  // under the DRS-and-tow ceiling (speeds.test.js). Without a trace, never above its own speed.
+  const { vRef, M } = tables;
+  const here = vRef ? vRef[Math.min(M - 1, (fracOf(tau0) * M) | 0)] : 0;
+  const atBrake = vRef ? vRef[Math.min(M - 1, (fracOf(tables.tauAt(sim.spBrakeD[sim.spZ[i]])) * M) | 0)] : 0;
+  const top = here > 0 && atBrake > 0 ? vNat * Math.max(1, atBrake / here) : vNat;
+  const most = Math.min(vNat * (1 + sim.balance.duel.straight.attackerBoost), Math.max(vNat, top));
+  return mult * (Math.min(v, most) / vNat);
 };
 
 /** SIM-C2: tell the pass of a straight pass (its event, kept back since the attempt) and log how it went. */
@@ -481,7 +491,8 @@ const finishStraight = (state, a, completed) => {
     const zone = sim.tables.attacks[z];
     pushEvent(state, sim.laps[a] + 1, {
       ...event,
-      ...(completed ? { straight: true } : {}),
+      // straight: made on the straight (true) or carried on into the braking zone (false).
+      straight: completed,
       // SIM-4 (§1.7): the timing line after the move confirms it - from here if it is done, else after the corner.
       ...(sim.timingTau ? { confirmedAt: confirmTimeOf(sim, a, completed ? sim.tau[a] : zone.exitTau) } : {}),
     });
@@ -497,6 +508,7 @@ const finishStraight = (state, a, completed) => {
       aheadBeforeBrakeM: completed ? Math.round(fracOf(sim.spBrakeD[z] - fracOf(sim.P[a])) * len * 10) / 10 : null,
       t: r3(sim.clock),
     };
+    logDuel(state, entry);
     sim.spEntry[a] = null;
   }
   sim.spPhase[a] = completed && b >= 0 ? SP.AHEAD : SP.NONE;
@@ -590,14 +602,19 @@ export const straightAtAttack = (state, i, z) => {
   const plan = sim.spPlan[i];
   sim.spZone[i] = 0;
   sim.spPlan[i] = null;
-  if (!mine) return false;
+  if (!mine) {
+    // A plan left from an earlier lap (a neutralisation in between) ends without a fight: told resolved.
+    if (plan && sim.duelLive && plan.ahead >= 0 && pairOpen(sim, i, plan.ahead)) duelEvent(state, i, plan.ahead, "resolved", { result: "defended" });
+    return false;
+  }
   if (plan) {
     const b = plan.ahead;
     // The pair cooled down meanwhile (the attacker was the third car of another claim at this corner) ends it too.
     const fit = sim.active[b] && sim.inPit[b] === 0 && sim.ahead[i] === b && sim.lapDiff[i] === 0 && sim.duelRole[i] === ROLE.NONE && sim.duelRole[b] !== ROLE.PASSING && sim.duelRole[b] !== ROLE.YIELDING && sim.cooldownUntil[i] <= sim.clock && pairOpen(sim, i, b);
     // The car ahead gone before the corner (the pit lane, an error, a car in between): the attempt ends there.
     if (fit) settleDuel(state, i, plan);
-    else if (sim.duelLive) duelEvent(state, i, b, "resolved", { result: "defended" });
+    // (Cooled down as a third car, its attempt on this car was already told resolved there.)
+    else if (sim.duelLive && pairOpen(sim, i, b)) duelEvent(state, i, b, "resolved", { result: "defended" });
   }
   return true;
 };
@@ -1094,7 +1111,8 @@ const settleDuel = (state, i, plan, straight) => {
     entry.lap = lap;
   }
   // A third car left for the corner joins only if it is still the one right behind.
-  const third = plan.third >= 0 && (!plan.deferred || (sim.behind[i] === plan.third && sim.active[plan.third] && sim.inPit[plan.third] === 0)) ? plan.third : -1;
+  // SIM-C2: nor a third car with an attempt of its own already made on this straight (settled at its own attack point).
+  const third = plan.third >= 0 && !(sim.spPlan && sim.spPlan[plan.third]) && (!plan.deferred || (sim.behind[i] === plan.third && sim.active[plan.third] && sim.inPit[plan.third] === 0 && sim.duelRole[plan.third] === ROLE.NONE && sim.spZone[plan.third] === 0)) ? plan.third : -1;
   if (roll < contactChance) {
     if (side === zone.sign || !sim.claimTau) {
       contact(state, i, ahead, zone.corner, stream, lap, "entryInside");
@@ -1112,9 +1130,10 @@ const settleDuel = (state, i, plan, straight) => {
   if (success) {
     startPass(state, i, ahead, side, { corner: zone.corner, drs, alongside, inside: zone.sign, duel: true, exitTau: zone.exitTau, ...(straight ? { straight: z } : {}) });
     const logged = { ...entry, outcome: "pass", ...(squeeze ? { squeeze: true } : {}), ...(straight ? { straight: true } : {}) };
-    logDuel(state, logged);
-    // SIM-C2: the log's entry of a straight pass gets how it went when it is told (finishStraight).
+    // SIM-C2: a straight pass is logged when it is told, with how it went (finishStraight): rows already logged are
+    // never changed afterwards (the race worker streams the log, engine/worker).
     if (straight && sim.spEntry) sim.spEntry[i] = logged;
+    else logDuel(state, logged);
     // The one who lost the corner may come back at its exit (SIM-8: SWITCHBACK, while it has some left).
     if (switchbackLeft(sim, ahead, i)) {
       sim.switchTarget[ahead] = i;

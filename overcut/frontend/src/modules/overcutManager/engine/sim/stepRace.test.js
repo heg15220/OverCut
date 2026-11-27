@@ -538,7 +538,9 @@ describe("SIM-4 battles, duel events and sector yellows (F1M24-GAMEPLAY §1.7; R
         const budget = state.race.baseLap * 1.6;
         state.events.forEach((event, k) => {
           if (event.type !== "pass") return;
-          const start = state.events[k - 1];
+          // SIM-C2 (F1M24-CHINA §2.2 GS-04): a pass made on a DRS straight is told when it is made, after the cars have
+          // moved on the straight: its start is the pair's last one before it, not the event just before.
+          const start = event.straight !== undefined ? state.events.slice(0, k).reverse().find((row) => row.type === "duel" && row.phase === "start" && row.carId === event.carId && row.otherId === event.otherId) : state.events[k - 1];
           expect(start).toMatchObject({ type: "duel", phase: "start", carId: event.carId, otherId: event.otherId });
           expect(event.confirmedAt).toBeGreaterThanOrEqual(start.t);
           expect(event.confirmedAt - start.t).toBeLessThan(budget);

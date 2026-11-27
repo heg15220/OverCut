@@ -336,9 +336,12 @@ describe("SIM-C2 GS-04 / VIEW-09: the pass with DRS on the straight, 8 races of 
     expect(early.length / drsPasses.length).toBeGreaterThanOrEqual(0.5);
   });
 
-  it("keeps the two alongside for at least minAlongsideSec in ≥ 80 % of the DRS passes", () => {
-    const along = drsPasses.filter((duel) => duel.sp && duel.sp.alongsideSec >= cfg.minAlongsideSec);
-    expect(along.length / drsPasses.length).toBeGreaterThanOrEqual(0.8);
+  it("keeps the two alongside for at least minAlongsideSec in ≥ 80 % of the DRS passes made on the straight", () => {
+    // The passes carried on into the braking zone are told there (a pass under braking), not as a straight pass.
+    const made = drsPasses.filter((duel) => duel.sp && duel.sp.completed);
+    const along = made.filter((duel) => duel.sp.alongsideSec >= cfg.minAlongsideSec);
+    expect(made.length).toBeGreaterThan(40);
+    expect(along.length / made.length).toBeGreaterThanOrEqual(0.8);
   });
 
   it("changes lane (a car's width across) in 0.8–1.8 s", () => {
