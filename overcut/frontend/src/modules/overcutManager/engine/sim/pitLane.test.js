@@ -43,6 +43,10 @@ import {
   pitLossFor,
   previewPit,
   timingLinesFor,
+  boxQueue,
+  scTrainSpacingSec,
+  pitExitLineEvents,
+  DOUBLE_STACK_WAIT,
 } from "./pitLane";
 import { expectedStationary, stopEraFor } from "./pitStop";
 import { fromQuickRace, runStepToFinish, snapshot, stepOnce, toRaceState } from "./index";
@@ -340,7 +344,7 @@ describe("PIT-1 · previewPit: what a stop costs now (RF-CMD-02, RF-SIM-12)", ()
     });
   });
 
-  it("double stack: the team-mate ahead stopping on the same lap makes this car wait for its stop", () => {
+  it("double stack: the team-mate ahead stopping on the same lap makes this car wait while the box is busy (PIT-C2)", () => {
     const { state } = quickRace(2024, "preview-stack");
     stepLap(state);
     const order = [...state.cars].sort((a, b) => a.time - b.time);
@@ -353,8 +357,11 @@ describe("PIT-1 · previewPit: what a stop costs now (RF-CMD-02, RF-SIM-12)", ()
     const stacked = previewPit(state, car.id, { lap });
     expect(alone.teamMateSameLap).toBe(false);
     expect(stacked.teamMateSameLap).toBe(true);
-    expect(stacked.queueSec).toBeCloseTo(expectedStationary({ rules: rulesFor(state.era), crew: mate.crew, errors: false }), 12);
-    expect(stacked.lossGreen).toBeCloseTo(alone.lossGreen + stacked.queueSec, 12);
+    // PIT-C2: the box is busy for the mate's stop; this car gets there `gap` seconds later.
+    const mateStop = expectedStationary({ rules: rulesFor(state.era), crew: mate.crew, errors: false });
+    expect(stacked.queueSec).toBeCloseTo(boxQueue({ freeAt: mateStop, arrival: car.time - mate.time }), 12);
+    expect(stacked.queueGreen).toBe(stacked.queueSec);
+    expect(stacked.lossGreen).toBeCloseTo(alone.lossGreen + stacked.queueGreen, 12);
     // The team-mate itself does not queue behind a car that is behind it.
     const front = previewPit(state, mate.id, { lap });
     expect(front.queueSec).toBe(0);
@@ -962,5 +969,212 @@ describe("PIT-C1 · GS-15 the estimate is the stopwatch (RF-SIM-12, RF-CMD-02, R
     }
     expect(JSON.stringify(toRaceState(a))).toBe(JSON.stringify(toRaceState(b)));
     expect(Array.from(a._sim.tau)).toEqual(Array.from(b._sim.tau));
+  });
+});
+
+/**
+ * PIT-C2 (docs/manager/F1M24-CHINA.md §3.3; GS-09 the queue, prerequisite of AUD-C7): RF-SIM-12,
+ * RF-SIM-10, RF-SIM-15, RNF-05, RNF-07.
+ *
+ *   - a queue only with the box occupied: 0 with the team-mate gone (boxQueue, previewPit), in
+ *     both conditions, and in step races with a forced SC (every team called in at once);
+ *   - the loss behind a SC: the train closes the gap between team-mates, so the queue can only grow;
+ *   - the `pitExitLine` events: one limiter cut per pass, at the end of the limited zone.
+ */
+describe("PIT-C2 · the queue only with the box occupied, and the exit line (GS-09, RF-SIM-12)", () => {
+  it("boxQueue: the wait while the box is busy plus the crew's reset; 0 with the box free (single source of the wait)", () => {
+    expect(DOUBLE_STACK_WAIT).toBe(raceErasBalance.pit.doubleStackWait);
+    expect(pitBalance.pitLane.queue.waitFrom).toBe("race-eras.json pit.doubleStackWait");
+    expect(boxQueue({ freeAt: 10, arrival: 7.5 })).toBeCloseTo(2.5 + DOUBLE_STACK_WAIT, 12);
+    expect(boxQueue({ freeAt: 10, arrival: 7.5, wait: 0 })).toBeCloseTo(2.5, 12);
+    // The team-mate already gone: no queue, however short the miss.
+    expect(boxQueue({ freeAt: 10, arrival: 10 })).toBe(0);
+    expect(boxQueue({ freeAt: 10, arrival: 20.5 })).toBe(0);
+    // Defensive: no box time, no queue (no invented wait).
+    expect(boxQueue({ freeAt: -Infinity, arrival: 3 })).toBe(0);
+    expect(boxQueue({ freeAt: NaN, arrival: 3 })).toBe(0);
+    expect(boxQueue()).toBe(0);
+  });
+
+  it("previewPit: queue 0 with the team-mate out of the box; behind a SC the gap closes to the train's spacing (lossSc)", () => {
+    const { race, state } = quickRace(2024, "pitc2-preview");
+    const circuit = circuitFor(race, 2024);
+    stepLap(state);
+    const rules = rulesFor(state.era);
+    const order = [...state.cars].filter((car) => car.status === "running").sort((a, b) => a.time - b.time);
+    const car = order.find((entry) => order.some((other) => other.teamId === entry.teamId && other.time < entry.time));
+    const mate = order.find((other) => other.teamId === car.teamId && other.id !== car.id);
+    let lap = state.lap + 5;
+    while (mate.plan.stops.includes(lap) || car.plan.stops.includes(lap)) lap += 1;
+    mate.plan = { ...mate.plan, stops: [...mate.plan.stops, lap].sort((a, b) => a - b) };
+    const mateStop = expectedStationary({ rules, crew: mate.crew, errors: false });
+    const alone = { ...previewPit({ ...state, cars: state.cars.filter((other) => other !== mate) }, car.id, { lap, circuit }) };
+
+    // 1. The team-mate well up the road (10.5 s, the McLaren case of China 2024): green queue 0.
+    const saved = car.time;
+    car.time = mate.time + 10.5;
+    const gone = previewPit(state, car.id, { lap, circuit });
+    expect(gone.teamMateSameLap).toBe(true);
+    expect(10.5).toBeGreaterThan(mateStop + DOUBLE_STACK_WAIT);
+    expect(gone.queueGreen).toBe(0);
+    expect(gone.queueSec).toBe(0);
+    expect(gone.lossGreen).toBeCloseTo(alone.lossGreen, 9);
+    // A VSC keeps the time gap: still no queue.
+    expect(gone.lossVsc).toBeCloseTo(alone.lossVsc, 9);
+    // Behind a SC the train closes 10.5 s to its spacing: the box is busy again, the queue is the rest.
+    const between = state.cars.filter((other) => other !== car && other !== mate && other.status === "running" && other.time > mate.time && other.time < car.time).length;
+    const spacing = scTrainSpacingSec(circuit.length > 0 ? circuit.length : circuit.km * 1000, state.race.baseLap, between + 1);
+    expect(spacing).toBeGreaterThan(0);
+    expect(gone.queueSc).toBeCloseTo(boxQueue({ freeAt: mateStop, arrival: Math.min(10.5, spacing) }), 12);
+    expect(gone.lossSc).toBeCloseTo(alone.lossSc + gone.queueSc, 9);
+
+    // 2. Right behind (0.4 s): busy box in every condition, never a longer wait behind the SC than its spacing allows.
+    car.time = mate.time + 0.4;
+    const close = previewPit(state, car.id, { lap, circuit });
+    expect(close.queueGreen).toBeCloseTo(mateStop - 0.4 + DOUBLE_STACK_WAIT, 12);
+    expect(close.queueSc).toBeGreaterThanOrEqual(close.queueGreen - 1e-12);
+    expect(close.queueSc).toBeLessThanOrEqual(mateStop + DOUBLE_STACK_WAIT + 1e-12);
+    // The car ahead never queues behind the one behind it.
+    expect(previewPit(state, mate.id, { lap, circuit }).queueSec).toBe(0);
+    car.time = saved;
+    // Without a lap length or pace the SC gap is the green one (no invented spacing).
+    expect(scTrainSpacingSec(0, 90)).toBeNull();
+    expect(scTrainSpacingSec(5000, 0)).toBeNull();
+  });
+
+  /**
+   * GS-09 acceptance (the queue part, F1M24-CHINA §3.1): 32 seeds, a SC forced after three laps and
+   * every running car called in at once (both cars of every team), so the field produces both cases
+   * - the team-mate still in the box, and already gone. At the step each car reaches its box, a queue
+   * means the mate is still in the box; with the mate out of the box, the queue is 0.
+   */
+  it("32 step races with a forced SC: queue 0 with the team-mate out, a queue only with the box busy", () => {
+    const SEEDS = Array.from({ length: 32 }, (_, k) => `pitc2-sc-${k}`);
+    const tally = { stops: 0, queued: 0, mateOut: 0, queuedWithMateOut: 0, busyWithoutQueue: 0 };
+    SEEDS.forEach((seed) => {
+      const w = weekend({ year: 2024, circuit: "shanghai", context, seed });
+      const state = fromQuickRace(w.make(), { race: w.race });
+      const sim = state._sim;
+      const lapSec = state.race.baseLap;
+      const until = (seconds) => {
+        const end = sim.clock + seconds;
+        while (!state.finished && sim.clock < end) stepOnce(state);
+      };
+      until(lapSec * 3);
+      deployNeutralisation(state, { virtual: false, reason: "accident", share: 0.4, corner: 4, rules: sim.rules, lap: sim.leaderLap });
+      stepOnce(state);
+      if (sim.neutral && !sim.neutral.virtual) sim.neutral.cleanupUntil = sim.clock + lapSec * 4;
+      until(lapSec * 0.5);
+      state.cars.forEach((car, i) => {
+        if (car.status === "running" && sim.inPit[i] === 0) requestPit(state, car.id, null);
+      });
+      const lane = sim.lane.cars;
+      const stoppedAt = (j) => sim.inPit[j] !== 0 && Boolean(lane.prof[j]) && (lane.phase[j] === PHASE.STATIONARY || lane.phase[j] === PHASE.QUEUE);
+      const seen = new Set();
+      const end = sim.clock + lapSec * 2.5;
+      while (!state.finished && sim.clock < end) {
+        const before = state.cars.map((_, j) => stoppedAt(j));
+        stepOnce(state);
+        for (let i = 0; i < sim.n; i += 1) {
+          if (!stoppedAt(i) || before[i]) continue;
+          const key = `${i}@${lane.enteredAt[i]}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          if (lane.prof[i].tStop < 0) continue;
+          const car = state.cars[i];
+          const j = state.cars.findIndex((other, k) => k !== i && other.teamId === car.teamId);
+          // The mate in its box at the step this car got to it (before or after the step: it may leave within it).
+          const mateIn = j >= 0 && (before[j] || stoppedAt(j));
+          const queued = lane.queue[i] > 0;
+          tally.stops += 1;
+          if (queued) tally.queued += 1;
+          if (!mateIn) tally.mateOut += 1;
+          if (queued && !mateIn) tally.queuedWithMateOut += 1;
+          // The other direction (a busy box without a queue) is logged, not asserted: it comes from
+          // stepRace.js (SIM lane) not carrying the release holds (unsafeRelease.holdSeconds) into
+          // sim.boxFree - a 0.1-0.5 s overlap - and is handed to SIM (PIT-C2 pending).
+          if (!queued && mateIn) tally.busyWithoutQueue += 1;
+        }
+      }
+    });
+    // eslint-disable-next-line no-console
+    console.log(`PIT-C2 queue, 32 seeds Shanghai 2024 with a forced SC: ${JSON.stringify(tally)}`);
+    // Both cases happen, so the test can see the difference.
+    expect(tally.queued).toBeGreaterThan(0);
+    expect(tally.mateOut).toBeGreaterThan(tally.queued);
+    // The acceptance: queue 0 with the team-mate out of the box.
+    expect(tally.queuedWithMateOut).toBe(0);
+  });
+
+  it("pitExitLine: one limiter cut per pass at the end of the limited zone, one end-of-line on the track; pure", () => {
+    const w = weekend({ year: 2024, circuit: "shanghai", context, seed: "pitc2-exit" });
+    const state = fromQuickRace(w.make(), { race: w.race });
+    const sim = state._sim;
+    const circuit = sim.lane.circuit;
+    const geo = laneGeometry(circuit);
+    const lines = pitLinesFor(circuit);
+    const lane = sim.lane.cars;
+    const events = [];
+    const passes = [];
+    const onTrackAfter = {};
+    const until = sim.clock + state.race.baseLap * 30;
+    while (!state.finished && sim.clock < until && passes.length < 6) {
+      const s0 = state.cars.map((_, i) => (sim.inPit[i] !== 0 && lane.prof[i] ? lane.s[i] : null));
+      const P0 = Float64Array.from(sim.P);
+      const t0 = sim.clock;
+      stepOnce(state);
+      for (let i = 0; i < sim.n; i += 1) {
+        const id = state.cars[i].id;
+        if (s0[i] !== null) {
+          const inLane = sim.inPit[i] !== 0 && lane.prof[i];
+          const s1 = inLane ? lane.s[i] : geo.total;
+          events.push(...pitExitLineEvents(circuit, { carId: id, t0, t1: sim.clock, s0: s0[i], s1 }));
+          if (!inLane) {
+            passes.push({ id, left: sim.clock });
+            onTrackAfter[id] = sim.clock;
+          }
+        } else if (onTrackAfter[id] !== undefined && sim.inPit[i] === 0) {
+          events.push(...pitExitLineEvents(circuit, { carId: id, t0, t1: sim.clock, share0: P0[i] - Math.floor(P0[i]), share1: sim.P[i] - Math.floor(sim.P[i]) }));
+          if (sim.clock - onTrackAfter[id] > 30) delete onTrackAfter[id];
+        }
+      }
+    }
+    expect(passes.length).toBeGreaterThan(0);
+    passes.forEach((pass) => {
+      const mine = events.filter((event) => event.carId === pass.id && event.t <= pass.left + 1e-9);
+      const limits = mine.filter((event) => event.line === "limit");
+      expect(limits.length).toBeGreaterThanOrEqual(1);
+      limits.forEach((event) => expect(event.type).toBe("pitExitLine"));
+    });
+    // Each pass has exactly one cut, before it leaves the lane, and an end-of-line after it.
+    const byCar = {};
+    events.forEach((event) => {
+      (byCar[event.carId] = byCar[event.carId] || []).push(event);
+    });
+    Object.entries(byCar).forEach(([id, list]) => {
+      const mine = passes.filter((pass) => pass.id === id);
+      const lastLeft = mine.length ? Math.max(...mine.map((pass) => pass.left)) : -Infinity;
+      const cuts = list.filter((event) => event.line === "limit" && event.t <= lastLeft + 1e-9).length;
+      expect(cuts).toBe(mine.length);
+      list.filter((event) => event.line === "white").forEach((white) => {
+        expect(list.some((cut) => cut.line === "limit" && cut.t < white.t)).toBe(true);
+      });
+    });
+    expect(events.some((event) => event.line === "white")).toBe(lines.exit.pastLaneEnd > 0);
+    // Pure and defensive.
+    const a = pitExitLineEvents(circuit, { carId: "x", t0: 1, t1: 1.25, s0: geo.limitToS - 2, s1: geo.limitToS + 2 });
+    expect(a).toEqual(pitExitLineEvents(circuit, { carId: "x", t0: 1, t1: 1.25, s0: geo.limitToS - 2, s1: geo.limitToS + 2 }));
+    expect(a).toHaveLength(1);
+    expect(a[0].t).toBeCloseTo(1.125, 9);
+    expect(pitExitLineEvents(circuit, { t0: 1, t1: 2, s0: 0, s1: 1 })).toEqual([]);
+    expect(pitExitLineEvents({ pit: null }, { t0: 1, t1: 2, s0: 0, s1: 1e6 })).toEqual([]);
+    expect(pitExitLineEvents(circuit, { s0: 0, s1: 1e6 })).toEqual([]);
+  });
+
+  it("race-pit.json: the queue and event blocks validate and name their sources (RNF-07)", () => {
+    const ajv = new Ajv({ allErrors: true, strict: false });
+    expect(ajv.validate(pitSchema, pitBalance)).toBe(true);
+    expect(pitBalance.pitLane.queue.scSpacingFrom).toBe("race-sim.json safetyCar.trainGapMetres");
+    expect(pitBalance.pitStop.events.wheelOrder).toEqual(["fl", "fr", "rl", "rr"]);
   });
 });

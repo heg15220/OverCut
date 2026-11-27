@@ -8,7 +8,8 @@
  *   ENTRY_ROAD    off the track at its speed, braking to reach vLimit at the limit line (limitFrom)
  *   LIMITER       at vLimit
  *   BOX_APPROACH  braking to 0 at its own box (team slots between the first and last garage)
- *   QUEUE         a team-mate is still in the box: stopped behind it (double stack)
+ *   QUEUE         a team-mate is still in the box: stopped behind it (double stack; only with the
+ *                 box occupied when the car gets there - boxQueue, PIT-C2)
  *   STATIONARY    v = 0, the stop's stages (pitStop.js)
  *   RELEASE       away from the box up to vLimit (an unsafe release is a car coming down the fast lane)
  *   LIMITER       at vLimit to the end of the zone (limitTo)
@@ -47,6 +48,13 @@
  * the lane ends, where `pose.inPit` starts and stops the HUD's pit clock), and previewPit times a
  * stop between them on the clock it will really run on - the step simulator's own box and pace,
  * or the quick mode's charge - so `lineToLine` is the stopwatch and `loss* = lineToLine* − track*`.
+ *
+ * The queue and the exit line (PIT-C2, GS-09 and the prerequisite of AUD-C7; F1M24-CHINA.md §3.3):
+ * `boxQueue` - a car queues only while its team-mate is still in the box when it gets there, never
+ * with the box free - with previewPit's `queueGreen` / `queueSc` (a SC closes the gap to the train's
+ * spacing); `pitExitLineEvents` - the `pitExitLine` events (limiter off at the end of the limited
+ * zone, end of the painted line) of one step. The pose's `pitStage {name, t}` is pitStop.js
+ * stageInfoAt and the stop's one-shots pitStop.js stopEvents.
  *
  * Only + − × ÷ and Math.sqrt in the tables (RNF-05: bit-identical across JS engines).
  */
@@ -614,6 +622,94 @@ const stopClockOf = (state, circuit, index, car, queued) => {
   return { mode: "quick", drive: lane.lane, extra, track: { green: lane.track, sc: lane.track * sc.lapFactor, vsc: lane.track * sc.virtualLapFactor }, lines: timingLinesFor(circuit) };
 };
 
+// ------------------------------------------------------------ the queue at the box (PIT-C2, GS-09)
+
+/** race-eras.json pit.doubleStackWait: the crew's reset between two stops of one team (single source). */
+export const DOUBLE_STACK_WAIT = raceBalance.pit.doubleStackWait;
+
+/**
+ * RF-SIM-12 (PIT-C2, GS-09; docs/manager/F1M24-CHINA.md §2.2, §3.3): the seconds a car waits
+ * behind its team-mate at the box. A queue only with the box occupied: the car arriving at race
+ * time `arrival` waits until the box is free (`freeAt`, the mate's release) plus the crew's reset
+ * `wait` (race-eras.json pit.doubleStackWait, the number race.js and stepRace.js add), and not at
+ * all when the mate has already gone (freeAt <= arrival) - the McLaren double stop of the Chinese
+ * GP 2024 under the SC, with Hamilton out 10.5 s before (§2.2): no queue. Pure; both simulators and
+ * previewPit can share it, so "a queue" means one thing everywhere.
+ */
+export const boxQueue = ({ freeAt, arrival, wait = DOUBLE_STACK_WAIT } = {}) => {
+  if (!Number.isFinite(freeAt) || !Number.isFinite(arrival) || !(freeAt > arrival)) return 0;
+  return freeAt - arrival + Math.max(0, Number.isFinite(wait) ? wait : 0);
+};
+
+/**
+ * Seconds between two cars a train behind the safety car holds them apart: `places` gaps of
+ * race-sim.json safetyCar.trainGapMetres at the train's speed (the lap at baseLap × lapFactor).
+ * null without a lap length or pace (then the green gap stands: no invented spacing).
+ */
+export const scTrainSpacingSec = (lapMetres, baseLap, places = 1) => {
+  const sc = simBalance.safetyCar;
+  if (!(lapMetres > 0) || !(baseLap > 0)) return null;
+  const vTrain = lapMetres / (baseLap * sc.lapFactor);
+  return (Math.max(1, places) * sc.trainGapMetres) / vTrain;
+};
+
+/**
+ * The double-stack queue car `car` would meet behind `mate` (ahead on the road, stopping on the same
+ * lap, `mateStop` seconds in the box): `{ green, sc }`. Both use the same lane to the same box, so the
+ * gap at the box is their gap at the entry - in green the race-time gap (car.time − mate.time), behind
+ * a SC that gap closed to the train's spacing for the cars between them (scTrainSpacingSec), never
+ * opened. Pure.
+ */
+const teamQueueOf = (state, circuit, car, mate, mateStop) => {
+  const gap = car.time - mate.time;
+  const green = boxQueue({ freeAt: mateStop, arrival: gap });
+  const lapMetres = (circuit && lapMetresOf(circuit)) || (state.track?.km || 0) * 1000;
+  const between = state.cars.filter((other) => other !== car && other !== mate && isRunning(other) && Number.isFinite(other.time) && other.time > mate.time && other.time < car.time).length;
+  const spacing = scTrainSpacingSec(lapMetres, state.race?.baseLap, between + 1);
+  const scGap = spacing === null ? gap : Math.min(gap, spacing);
+  return { green, sc: boxQueue({ freeAt: mateStop, arrival: scGap }) };
+};
+
+// ------------------------------------------------------------ the exit line event (PIT-C2, for AUD-C7)
+
+/**
+ * RF-SIM-12, RF-3D-04 (PIT-C2; F1M24-CHINA.md §3.3, prerequisite of AUD-C7): the `pitExitLine`
+ * events of one step of a car leaving the lane, with the time each line is crossed (linear in
+ * the step):
+ *
+ *   line "limit"  the end of the limited zone (laneGeometry limitToS, metres along the lane): the
+ *                 driver switches the limiter off - the sound's cut (AUD-C7)
+ *   line "white"  the end of the painted exit line on the track (pitLinesFor exit.toShare, lap
+ *                 share): from here the car may take the racing line (PIT-2)
+ *
+ * `step` = { carId, t0, t1 } plus `s0`/`s1` (lane metres, while in the lane) and/or `share0`/
+ * `share1` (lap distance share, once on the track). Returns 0-2 events
+ * `{ type: "pitExitLine", carId, line, t }`. Pure: no stream, no state (RF-SIM-15, RNF-05).
+ * The step simulator (SIM lane) pushes them; absent, nobody listens differently.
+ */
+export const pitExitLineEvents = (circuit, step = {}) => {
+  if (!circuit || !circuit.pit || !circuit.pit.path) return [];
+  const { carId = null, t0, t1 } = step;
+  if (!Number.isFinite(t0) || !Number.isFinite(t1)) return [];
+  const at = (k) => t0 + (t1 - t0) * clamp(k, 0, 1);
+  const out = [];
+  const geo = laneGeometry(circuit);
+  const { s0, s1 } = step;
+  if (Number.isFinite(s0) && Number.isFinite(s1) && s0 < geo.limitToS && s1 >= geo.limitToS) {
+    out.push({ type: "pitExitLine", carId, line: "limit", t: at((geo.limitToS - s0) / Math.max(1e-9, s1 - s0)) });
+  }
+  const lines = pitLinesFor(circuit);
+  const { share0, share1 } = step;
+  if (lines && Number.isFinite(share0) && Number.isFinite(share1)) {
+    const lap = lines.lapMetres;
+    const from = frac(share0 - lines.exit.laneEndShare) * lap;
+    const to = from + frac(share1 - share0) * lap;
+    const mark = lines.exit.pastLaneEnd;
+    if (from < lap / 2 && from < mark && to >= mark) out.push({ type: "pitExitLine", carId, line: "white", t: at((mark - from) / Math.max(1e-9, to - from)) });
+  }
+  return out;
+};
+
 /** Distance share of the lap car `index` has covered: given, the step simulator's (its time share on the trace), or the line. */
 const shareOfCar = (state, circuit, index, given) => {
   if (Number.isFinite(given)) return frac(given);
@@ -660,8 +756,12 @@ const shareOfCar = (state, circuit, index, given) => {
  *               at all is `scAllowed` / `vscAllowed` (rules.raceControl)
  *   stopMedian  the typical stationary time for this car's crew and era (pitStop.js
  *               expectedStationary without the rare error), with the fuel of a refuelling era
- *   queueSec    a double stack: the team-mate stops on the same lap and is ahead on the road,
- *               so this car waits for its stop (0 otherwise)
+ *   queueSec    a double stack: the team-mate stops on the same lap, is ahead on the road and is
+ *               still in the box when this car gets there (boxQueue: the mate's stop less the gap
+ *               between them, plus race-eras.json pit.doubleStackWait; 0 with the box free - the
+ *               mate already gone, PIT-C2). `queueGreen` / `queueSc` the same in green (and VSC,
+ *               which keeps the gap) and behind a SC (the gap closed to the train's spacing);
+ *               `queueSec` is the one for the condition on track now
  *   exitPos     the race position the car would rejoin in: rivals whose race time stays below
  *               this car's time + the loss (green, or SC/VSC while one is out); a rival that
  *               stops on the same lap is charged its own loss too
@@ -689,11 +789,16 @@ export const previewPit = (state, carId, opts = {}) => {
   const stopOf = (who, laps) => expectedStationary({ rules, crew: (who === car ? opts.crew : undefined) ?? who.crew ?? undefined, tyres, refuelLaps: laps, kgPerLap, errors: false });
   const stopMedian = stopOf(car, refuelLaps);
 
-  // The double stack: the team-mate in the box first makes this car wait for its whole stop.
+  // The double stack (PIT-C2, GS-09): this car waits only while the team-mate is still in the box
+  // when it gets there (boxQueue) - the gap between them at the entry against the mate's stop.
+  // Under a safety car the train closes that gap up to its spacing (teamQueueOf), so the same pair
+  // that would not queue in green can queue behind the SC.
   const mate = state.cars.find((other) => other.id !== car.id && other.teamId === car.teamId && isRunning(other));
   const teamMateSameLap = Boolean(mate && stopsOn(mate, lap));
   const mateFirst = teamMateSameLap && Number.isFinite(mate.time) && Number.isFinite(car.time) && mate.time < car.time;
-  const queueSec = mateFirst ? stopOf(mate, fuelFor(mate)) : 0;
+  const queues = mateFirst ? teamQueueOf(state, circuit, car, mate, stopOf(mate, fuelFor(mate))) : { green: 0, sc: 0 };
+  const neutralNow = state.safetyCar;
+  const queueSec = neutralNow && !neutralNow.virtual ? queues.sc : queues.green;
 
   // GS-15: the clock the stop will be timed on - the step simulator's own lane and box, or the
   // quick mode's charge - so the estimate is what the stopwatch will show (one definition).
@@ -701,10 +806,12 @@ export const previewPit = (state, carId, opts = {}) => {
   const lane = clock && clock.mode === "step"
     ? { green: clock.drive - clock.track.green, sc: Math.max(0, clock.drive - clock.track.sc), vsc: Math.max(0, clock.drive - clock.track.vsc) }
     : laneLossesOf(state, circuit);
-  const total = (laneLoss) => (laneLoss === null || laneLoss === undefined ? null : laneLoss + stopMedian + queueSec);
-  const lossGreen = lane ? total(lane.green) : null;
-  const lossSc = lane ? total(lane.sc) : null;
-  const lossVsc = lane ? total(lane.vsc) : null;
+  const total = (laneLoss, queue) => (laneLoss === null || laneLoss === undefined ? null : laneLoss + stopMedian + queue);
+  // A VSC slows every car by the same factor: the time gap to the mate does not close, so its
+  // queue is the green one.
+  const lossGreen = lane ? total(lane.green, queues.green) : null;
+  const lossSc = lane ? total(lane.sc, queues.sc) : null;
+  const lossVsc = lane ? total(lane.vsc, queues.green) : null;
   // Line to line = the net loss + the same stretch of track (the definition, both ways round).
   const lineOf = (loss, track) => (loss === null || !clock ? null : loss + track);
   const lineToLine = clock ? lineOf(lossGreen, clock.track.green) : null;
@@ -736,6 +843,8 @@ export const previewPit = (state, carId, opts = {}) => {
     lossVsc,
     stopMedian,
     queueSec,
+    queueGreen: queues.green,
+    queueSc: queues.sc,
     exitPos,
     teamMateSameLap,
     distanceToPitEntry,

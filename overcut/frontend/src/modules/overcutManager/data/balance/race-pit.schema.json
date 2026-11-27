@@ -8,7 +8,7 @@
     "version": {"type": "integer", "minimum": 1},
     "pitLane": {
       "type": "object",
-      "required": ["gridMetres", "curvatureSpanMetres", "lateralAccel", "roadMaxKmh", "brakeDecel", "boxDecel", "accel", "limitMarginMetres", "entryRoadMinMetres", "exitRoadMinMetres", "noLimitMarginKmh", "queueOffsetMetres", "boxSlotMarginMetres", "speeding", "unsafeRelease", "exitLine", "circuitAliases", "extraLoss", "calibration"],
+      "required": ["gridMetres", "curvatureSpanMetres", "lateralAccel", "roadMaxKmh", "brakeDecel", "boxDecel", "accel", "limitMarginMetres", "entryRoadMinMetres", "exitRoadMinMetres", "noLimitMarginKmh", "queueOffsetMetres", "queue", "boxSlotMarginMetres", "speeding", "unsafeRelease", "exitLine", "circuitAliases", "extraLoss", "calibration"],
       "properties": {
         "gridMetres": {"type": "number", "exclusiveMinimum": 0, "maximum": 5},
         "curvatureSpanMetres": {"type": "number", "exclusiveMinimum": 0},
@@ -26,6 +26,17 @@
         "exitRoadMinMetres": {"type": "number", "minimum": 0},
         "noLimitMarginKmh": {"type": "number", "minimum": 0},
         "queueOffsetMetres": {"type": "number", "minimum": 0},
+        "queue": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["waitFrom", "scSpacingFrom", "status"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "waitFrom": {"const": "race-eras.json pit.doubleStackWait"},
+            "scSpacingFrom": {"const": "race-sim.json safetyCar.trainGapMetres"},
+            "status": {"enum": ["V", "S", "M", "NV", "pending"]}
+          }
+        },
         "boxSlotMarginMetres": {"type": "number", "minimum": 0},
         "speeding": {
           "type": "object",
@@ -88,12 +99,21 @@
     },
     "pitStop": {
       "type": "object",
-      "required": ["crew", "litresPerFuelLap", "eras"],
+      "required": ["crew", "events", "litresPerFuelLap", "eras"],
       "properties": {
         "crew": {
           "type": "object",
           "required": ["base", "divisor", "errorBase", "errorDivisor"],
           "properties": {"base": {"type": "number"}, "divisor": {"type": "number", "exclusiveMinimum": 0}, "errorBase": {"type": "number"}, "errorDivisor": {"type": "number", "exclusiveMinimum": 0}}
+        },
+        "events": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["wheelOrder"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "wheelOrder": {"type": "array", "minItems": 4, "maxItems": 4, "uniqueItems": true, "items": {"enum": ["fl", "fr", "rl", "rr"]}}
+          }
         },
         "litresPerFuelLap": {"type": "number", "exclusiveMinimum": 0},
         "eras": {
