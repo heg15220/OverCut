@@ -20,6 +20,12 @@
  * by zones (three/cameraZones.js) with one to three alternative cameras each - long lens,
  * head-on, pass-and-pan, tracking, high and wide - drawn per lap with the race seed; the TV
  * lens keeps the car within its framing share and opens for two when a rival is close.
+ *
+ * CAM-C1 (F1M24-CHINA §2.3-§2.4: VIEW-02, VIEW-03, VIEW-12): every lens is horizontal and made
+ * vertical for the canvas (state.aspect, set by Race3D; cameras.json refAspect otherwise), so a
+ * shot frames the same width at 16:9 and 21:9 - the TV framing shares are of the frame's width
+ * (broadcast.json framing.shareOf), the onboards carry hfovDeg by era and may aim by the height of
+ * the horizon, and the helicopter flies by elevation and framing share on a damped bearing.
  */
 
 import * as THREE from "three";
@@ -46,7 +52,37 @@ const DIRECTOR = broadcast.director;
 export const ONBOARDS = cameraData.onboard;
 const ONBOARD_BY_ID = new Map(ONBOARDS.map((entry) => [entry.id, entry]));
 const FOLLOW = cameraData.follow;
-export const onboardFor = (id) => ONBOARD_BY_ID.get(id) || null;
+/** The aspect the lenses are drawn for when the view gives none (cameras.json refAspect, 16:9). */
+export const REF_ASPECT = cameraData.refAspect;
+const RAD = Math.PI / 180;
+const AIM_REACH_M = cameraData.horizonReachM;
+
+/**
+ * The vertical field of view three.js wants from a horizontal one (CAM-C1, VIEW-03): every lens of
+ * cameras.json is horizontal, so the same lens frames the same width at 16:9 and at 21:9.
+ */
+export const vfovOf = (hfovDeg, aspect = REF_ASPECT) => (2 * Math.atan(Math.tan((hfovDeg * RAD) / 2) / (aspect > 0 ? aspect : REF_ASPECT))) / RAD;
+/** The horizontal field of view of a vertical one at an aspect (the inverse of vfovOf). */
+export const hfovOf = (vfovDeg, aspect = REF_ASPECT) => (2 * Math.atan(Math.tan((vfovDeg * RAD) / 2) * (aspect > 0 ? aspect : REF_ASPECT))) / RAD;
+
+/** An onboard's horizontal lens in `year`: its number, or the entry of its eras list that holds the year (the last one when the year is unknown or outside them). */
+export const onboardHfov = (entry, year = null) => {
+  const lens = entry?.hfovDeg;
+  if (!Array.isArray(lens)) return lens;
+  const hit = Number.isFinite(year) ? lens.find((item) => year >= item.from && year <= item.to) : null;
+  return (hit || lens[lens.length - 1]).deg;
+};
+
+/**
+ * The onboard camera `id` of cameras.json (null if none). With `{ year, aspect }` the entry comes
+ * with its lens for that year and canvas: `hfov` and the vertical `vfovDeg` three.js uses.
+ */
+export const onboardFor = (id, lens = null) => {
+  const entry = ONBOARD_BY_ID.get(id) || null;
+  if (!entry || !lens) return entry;
+  const hfov = onboardHfov(entry, lens.year ?? null);
+  return { ...entry, hfov, vfovDeg: vfovOf(hfov, lens.aspect ?? REF_ASPECT) };
+};
 export const isOnboard = (mode) => ONBOARD_BY_ID.has(mode);
 const inEras = (entry, year) => entry.eras.some((era) => year >= era.from && year <= era.to);
 /** Onboards the cars of `year` carry (nothing before the first onboard cameras); `{ replay: true }` adds the replay-only ones. */
@@ -267,13 +303,58 @@ const v3 = (x, y, z) => new THREE.Vector3(x, y, z);
 /** Frames between two line-of-sight checks of the TV camera on a real circuit (RNF-02). */
 export const SIGHT_EVERY = 6;
 
-/** Helicam: high and wide, panning slowly over long stretches of track; at least 40 m above what is under it. */
-const heliShot = (car, dir, side, y0, field, abs) => {
+/**
+ * Where the helicopter flies (CAM-C1, VIEW-12; cameras.json follow.heli): looking down at the car
+ * at `elevationDeg` from the distance at which the car fills `shareTarget` of the frame's width
+ * with an `hfovDeg` lens. The height follows (distance · sin elevation), kept within heightM; when
+ * it is clamped the distance comes from the height and the lens closes or opens to keep the share.
+ * Returns { distance, height, ground (horizontal distance), hfov, vfov } for the canvas aspect.
+ */
+export const heliGeometry = (aspect = REF_ASPECT) => {
   const heli = FOLLOW.heli;
-  const pos = car.clone().add(side.clone().multiplyScalar(heli.offset.side)).add(dir.clone().multiplyScalar(-heli.offset.back)).setY(y0 + heli.heightM);
+  const car = TEMPLATE.carLengthM;
+  const e = heli.elevationDeg * RAD;
+  let distance = car / (2 * heli.shareTarget * Math.tan((heli.hfovDeg * RAD) / 2));
+  let height = distance * Math.sin(e);
+  let hfov = heli.hfovDeg;
+  if (height < heli.heightM.min || height > heli.heightM.max) {
+    height = Math.min(heli.heightM.max, Math.max(heli.heightM.min, height));
+    distance = height / Math.sin(e);
+    hfov = (2 * Math.atan(car / (2 * heli.shareTarget * distance))) / RAD;
+  }
+  return { distance, height, ground: distance * Math.cos(e), hfov, vfov: vfovOf(hfov, aspect) };
+};
+
+const wrapPi = (a) => a - 2 * Math.PI * Math.floor((a + Math.PI) / (2 * Math.PI));
+
+/**
+ * Helicam: high and wide, the car small in the frame, at least clearanceM above what is under it.
+ * Its bearing round the car (azimuthDeg from behind) follows the car's heading on a critically
+ * damped spring in race time (bearingDamp; state.simDt from Race3D, else dt), so in a hairpin it
+ * swings round slowly instead of flying over the car; the shot comes back already smoothed
+ * (`held`: Race3D takes it as it is). `key` tells the helicopter of the heli mode from the one the
+ * TV falls back on: a new key, or a frame missed, starts it afresh (and cuts).
+ */
+const heliShot = (car, dir, y0, field, abs, focus, state, dt, key) => {
+  const heli = FOLLOW.heli;
+  const geo = heliGeometry(state.aspect || REF_ASPECT);
+  const target = (focus.heading || 0) + Math.PI - heli.azimuthDeg * RAD;
+  const last = state.heli;
+  const fresh = !last || last.key !== key || last.tick !== state.frameNo - 1;
+  let bearing = target;
+  let rate = 0;
+  if (!fresh) {
+    const step = Math.max(0, state.simDt ?? dt ?? 0);
+    const next = critDampStep(last.bearing, last.rate, last.bearing + wrapPi(target - last.bearing), heli.bearingDamp, step);
+    bearing = next.x;
+    rate = next.v;
+  }
+  state.heli = { key, tick: state.frameNo, bearing, rate };
+  const pos = car.clone().add(v3(Math.cos(bearing), 0, Math.sin(bearing)).multiplyScalar(geo.ground)).setY(y0 + geo.height);
   const below = field ? field.topNear(pos.x, pos.z, 2) : null;
   if (below !== null && below + heli.clearanceM > pos.y) pos.y = below + heli.clearanceM;
-  return { pos, look: car.clone().add(dir.clone().multiplyScalar(heli.lookAhead)).setY(y0), fov: heli.fovDeg, lag: heli.lag, abs };
+  const lead = Math.min(heli.lookAhead.maxM, Math.max(0, focus.speed || 0) * heli.lookAhead.perSpeed);
+  return { pos, look: car.clone().add(dir.clone().multiplyScalar(lead)).setY(y0), fov: geo.vfov, held: true, snap: fresh, abs };
 };
 
 /** The garage shot: a fixed camera in front of the car in its box. */
@@ -301,8 +382,15 @@ export const garageShot = (focus) => {
  * part of `focus.share`), `focus.rival` { x, z } to frame a pair. `state.lockCam` (CAM-3, a
  * replay angle) holds that rig camera whatever the car does. The TV shot also returns
  * `cameraId`, `camType`, `critDamp` (the look's spring, 1/s) and `pair`.
+ *
+ * Lenses (CAM-C1): `state.aspect` the canvas aspect, `state.year` the season (an onboard's lens by
+ * era), `state.simDt` the race-time step the helicopter's bearing moves by. The helicopter's shot
+ * comes back `held` (already smoothed: take it as it is).
  */
 export const frame = (mode, focus, circuit, rig, state, dt, world = null) => {
+  // Frames filmed with this state (the helicopter tells a continuous shot from a new one by it).
+  state.frameNo = (state.frameNo || 0) + 1;
+  const aspect = state.aspect > 0 ? state.aspect : REF_ASPECT;
   const dir = v3(Math.cos(focus.heading), 0, Math.sin(focus.heading));
   const side = v3(-Math.sin(focus.heading), 0, Math.cos(focus.heading));
   const car = v3(focus.x, 0, focus.z);
@@ -332,9 +420,18 @@ export const frame = (mode, focus, circuit, rig, state, dt, world = null) => {
       return at.setY(road(ahead) + up);
     };
     const pos = point(onboard.mount);
-    const look = point(onboard.aim);
+    // CAM-C1 (VIEW-03): a horizontal lens for the season, made vertical for this canvas.
+    const fov = vfovOf(onboardHfov(onboard, state.year ?? null), aspect);
+    let look;
+    if (Number.isFinite(onboard.aim.horizonShare)) {
+      // Tilted down until the horizon sits horizonShare of the frame from its top, on the slope of the road ahead.
+      const reach = AIM_REACH_M;
+      const tilt = Math.atan((0.5 - onboard.aim.horizonShare) * 2 * Math.tan((fov * RAD) / 2));
+      look = pos.clone().add(dir.clone().multiplyScalar(reach));
+      look.y = pos.y + (road(reach) - road(0)) - Math.tan(tilt) * reach;
+    } else look = point(onboard.aim);
     if (onboard.mount.pitchDeg) look.y -= Math.tan((onboard.mount.pitchDeg * Math.PI) / 180) * pos.distanceTo(look);
-    return { pos, look, fov: onboard.fovDeg, near: onboard.near, snap: true, abs };
+    return { pos, look, fov, near: onboard.near, snap: true, abs };
   }
   if (mode === "drone") {
     // A drone flying low behind and to one side, swinging round in the corners.
@@ -354,7 +451,7 @@ export const frame = (mode, focus, circuit, rig, state, dt, world = null) => {
   }
   // The helicopter cannot see a car under cover: the chase camera follows it in.
   if (mode === "heli") {
-    const shot = covered ? chaseShot() : heliShot(car, dir, side, y0, field, abs);
+    const shot = covered ? chaseShot() : heliShot(car, dir, y0, field, abs, focus, state, dt, "heli");
     if (state.heliCovered !== undefined && state.heliCovered !== covered) shot.snap = true;
     state.heliCovered = covered;
     return shot;
@@ -431,7 +528,7 @@ export const frame = (mode, focus, circuit, rig, state, dt, world = null) => {
     }
     if (!current) {
       // No tower sees the car: the helicopter takes the shot until one does (the chase camera under cover).
-      const shot = covered ? chaseShot() : heliShot(car, dir, side, y0, field, abs);
+      const shot = covered ? chaseShot() : heliShot(car, dir, y0, field, abs, focus, state, dt, "tv");
       shot.snap = !state.fallback || state.fallbackCovered !== covered;
       state.fallbackCovered = covered;
       state.fallback = true;
@@ -471,7 +568,10 @@ export const frame = (mode, focus, circuit, rig, state, dt, world = null) => {
   }
   const distance = pos.distanceTo(subject.clone().setY(aimY));
   const width = frameWidth(current, pairGap);
-  const fov = THREE.MathUtils.clamp((2 * Math.atan(width / 2 / Math.max(5, distance)) * 180) / Math.PI, FRAMING.fovDeg.min, FRAMING.fovDeg.max);
+  // CAM-C1 (VIEW-02): with framing.shareOf "width" the metres framed span the frame's width (a
+  // horizontal angle, made vertical for this canvas); "height", the vertical field as before.
+  const across = (2 * Math.atan(width / 2 / Math.max(5, distance))) / RAD;
+  const fov = THREE.MathUtils.clamp(FRAMING.shareOf === "width" ? vfovOf(across, aspect) : across, FRAMING.fovDeg.min, FRAMING.fovDeg.max);
   const snap = state.cut;
   state.cut = false;
   const { critDamp } = framingFor(current.type);

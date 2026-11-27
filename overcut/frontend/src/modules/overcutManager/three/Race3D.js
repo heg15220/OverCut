@@ -586,6 +586,11 @@ function step(state, props, dt) {
     // CAM-2: the zone cameras are drawn with the race seed (the circuit and year when the live view
     // gives none), and the TV frame opens for two when the focused car is racing a rival.
     state.camState.seed = seed ?? seedOf(`${circuit.splineId ?? circuit.id ?? ""}|${year ?? ""}`);
+    // CAM-C1 (VIEW-03, VIEW-12): the lenses are horizontal (made vertical for this canvas), the
+    // onboard lens is the season's, and the helicopter swings round on the race clock.
+    state.camState.aspect = camera.aspect;
+    state.camState.year = Number.isFinite(year) ? year : null;
+    state.camState.simDt = Math.max(dt, Math.min(simDt, 0.5));
     if (mode === "tv") {
       const rival = tvRival(ordered, focus.item?.car?.id, state.carObjects);
       focus.rival = rival ? { x: rival.object.position.x, z: rival.object.position.z } : null;
@@ -678,7 +683,8 @@ function step(state, props, dt) {
       shot.pos.y += focus.y;
       shot.look.y += focus.y;
     }
-    if (shot.snap || cam.pos.distanceTo(shot.pos) > 120) {
+    // A shot that comes already smoothed (`held`: the helicopter's damped bearing, CAM-C1) is taken as it is.
+    if (shot.snap || shot.held || cam.pos.distanceTo(shot.pos) > 120) {
       cam.pos.copy(shot.pos);
       cam.look.copy(shot.look);
       cam.lookVel = null;

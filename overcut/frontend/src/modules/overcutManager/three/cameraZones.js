@@ -92,30 +92,63 @@ export const pickVariant = (cams, { seed = 0, zoneIndex = 0, lap = 0 } = {}, pol
 const camsOf = (kind, policy, anchor) => policy.cams[kind].map((type) => ({ type, ...anchor(type) }));
 
 /**
+ * The circuit's own plan in broadcast.json zonesPolicy.circuits (by splineId; CAM-C1, VIEW-02):
+ * how this circuit's broadcast is cut beyond the generic layout. Null for a circuit without one,
+ * which is then cut exactly as before.
+ */
+export const zonePlanFor = (circuit, policy = broadcast.zonesPolicy) => (circuit?.splineId && policy.circuits?.[circuit.splineId]) || null;
+
+/**
  * The zones of a circuit, from its geometry: corners closer than chicaneGapM are one zone
  * (cornerEntryM before the first, cornerExitM after the last; two zones that would overlap meet
  * half way); the braking area (rigTemplate braking.approach) before the corners that end the
  * long straights (circuit.brakingZones); what is left of each straight in pieces of at most
  * straightMaxM; a piece shorter than minZoneM joins its neighbour. The piece of straight across
  * the line is the `line` zone.
+ *
+ * A circuit plan (zonePlanFor, CAM-C1) can also: override `layout` keys; split a group of
+ * corners longer than `splitGroupsOverM` into one zone per corner (they meet half way between
+ * the end of one and the start of the next); give a corner its own `cams` and split its zone
+ * `splitExitM` past the apex into an apex and an exit zone (`exitCams`, at the corner's end);
+ * cut the straight up to a corner (`straights[].toCorner`) into `pieces` with a list of camera
+ * types per piece (`cams`, taken in turn; a head-on camera stands at the end of its piece) and
+ * a braking zone of `brakingM`.
  */
 export const buildCameraZones = (circuit, policy = broadcast.zonesPolicy) => {
   const L = circuit.length;
-  const { cornerEntryM, cornerExitM, chicaneGapM, straightMaxM, minZoneM } = policy.layout;
+  const plan = zonePlanFor(circuit, policy);
+  const { cornerEntryM, cornerExitM, chicaneGapM, straightMaxM, minZoneM } = { ...policy.layout, ...(plan?.layout || {}) };
+  const cornerPlan = new Map((plan?.corners || []).map((entry) => [entry.corner, entry]));
+  const straightPlan = new Map((plan?.straights || []).map((entry) => [entry.toCorner, entry]));
   const braking = rigType("braking");
   const sideOf = (corner) => -(corner?.sign || 1);
   const straightSide = (m) => (Math.round((mod(m, L) / L) * 97) % 2 ? 1 : -1);
   const raw = [];
-  const straightPieces = (from, to) => {
+  const straightPieces = (from, to, chain = null) => {
     const length = to - from;
     if (length <= 0) return;
-    const count = Math.max(1, Math.ceil(length / straightMaxM));
+    const count = chain?.pieces ? chain.pieces : Math.max(1, Math.ceil(length / straightMaxM));
     for (let k = 0; k < count; k += 1) {
       const a = from + (length * k) / count;
       const b = from + (length * (k + 1)) / count;
       const mid = (a + b) / 2;
-      raw.push({ from: a, to: b, kind: "straight", cams: camsOf("straight", policy, () => ({ atM: mid, side: straightSide(mid) })) });
+      const cams = chain?.cams?.length
+        ? chain.cams[k % chain.cams.length].map((type) => ({ type, atM: type === "headOn" ? b : mid, side: straightSide(mid) }))
+        : camsOf("straight", policy, () => ({ atM: mid, side: straightSide(mid) }));
+      raw.push({ from: a, to: b, kind: "straight", cams });
     }
+  };
+  // The cameras of a corner: its plan's types or the policy's, at its apex on the outside.
+  const cornerCams = (corner, types = cornerPlan.get(corner.number)?.cams || policy.cams.corner, atM = corner.apex * L) => types.map((type) => ({ type, atM, side: sideOf(corner), cornerKind: corner.kind }));
+  // A corner zone split into apex and exit (plan corners[].splitExitM).
+  const withExit = (zone, corner) => {
+    const entry = cornerPlan.get(corner.number);
+    const cut = entry?.splitExitM ? corner.apex * L + entry.splitExitM : null;
+    if (cut === null || cut - zone.from < minZoneM / 2 || zone.to - cut < minZoneM / 2) return [zone];
+    return [
+      { ...zone, to: cut },
+      { from: cut, to: zone.to, kind: "corner", corners: [corner.number], cams: cornerCams(corner, entry.exitCams || policy.cams.corner, corner.to * L) },
+    ];
   };
 
   const corners = (circuit.corners || []).slice().sort((a, b) => a.from - b.from);
@@ -155,24 +188,34 @@ export const buildCameraZones = (circuit, policy = broadcast.zonesPolicy) => {
   groups.forEach((group, i) => {
     const next = groups[(i + 1) % n];
     const shift = i === n - 1 ? L : 0;
-    const apex = group.corners.reduce((best, corner) => (corner.kmh < best.kmh ? corner : best), group.corners[0]);
-    const zone = {
-      from: group.from,
-      to: group.to,
-      kind: "corner",
-      corners: group.corners.map((corner) => corner.number),
-      cams: camsOf("corner", policy, () => ({ atM: apex.apex * L, side: sideOf(apex), cornerKind: apex.kind })),
-    };
-    raw.push(zone);
+    let parts;
+    if (plan?.splitGroupsOverM && group.corners.length > 1 && group.to - group.from > plan.splitGroupsOverM) {
+      // One zone per corner of a long group, meeting half way between them (CAM-C1 plan).
+      parts = group.corners.flatMap((corner, k) => {
+        const prev = group.corners[k - 1];
+        const after = group.corners[k + 1];
+        const unwrap = (m, ref) => (m < ref - L / 2 ? m + L : m);
+        const from = prev ? (unwrap(prev.to * L, group.startM) + unwrap(corner.from * L, group.startM)) / 2 : group.from;
+        const to = after ? (unwrap(corner.to * L, group.startM) + unwrap(after.from * L, group.startM)) / 2 : group.to;
+        return withExit({ from, to, kind: "corner", corners: [corner.number], cams: cornerCams(corner) }, corner);
+      });
+    } else {
+      const apex = group.corners.reduce((best, corner) => (corner.kmh < best.kmh ? corner : best), group.corners[0]);
+      parts = [{ from: group.from, to: group.to, kind: "corner", corners: group.corners.map((corner) => corner.number), cams: cornerCams(apex) }];
+      if (group.corners.length === 1) parts = withExit(parts[0], apex);
+    }
+    raw.push(...parts);
+    const zone = parts[parts.length - 1];
     // The straight up to the next group: braking area at its end when a long straight ends there.
     const gapFrom = group.to;
     const gapTo = next.from + shift;
     if (gapTo - gapFrom <= 0) return;
     const target = next.corners[0];
+    const chain = straightPlan.get(target.number) || null;
     const brake = (circuit.brakingZones || []).find((item) => next.corners.some((corner) => corner.number === item.corner));
     let straightTo = gapTo;
     if (brake && braking) {
-      const approach = Math.min(braking.approach.maxShare * L, braking.approach.ofStraight * brake.metres);
+      const approach = chain?.brakingM ?? Math.min(braking.approach.maxShare * L, braking.approach.ofStraight * brake.metres);
       let from = Math.max(gapFrom, gapTo - approach);
       if (from - gapFrom < minZoneM) from = gapFrom;
       raw.push({ from, to: gapTo, kind: "braking", cams: camsOf("braking", policy, () => ({ atM: gapTo, side: sideOf(target) })) });
@@ -184,7 +227,7 @@ export const buildCameraZones = (circuit, policy = broadcast.zonesPolicy) => {
       zone.to = straightTo;
       return;
     }
-    straightPieces(gapFrom, straightTo);
+    straightPieces(gapFrom, straightTo, chain);
   });
 
   // The start line: the stretch the grandstand camera covers (rigTemplate grandstand.spanM) is

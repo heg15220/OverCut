@@ -6,7 +6,9 @@
 // Para cada spline de overcut/frontend/src/modules/overcutManager/data/splines.json construye el circuito del
 // motor (engine/venue.js circuitFor, en el último año de validez de la spline) y sus zonas con
 // three/cameraZones.js buildCameraZones (parámetros en data/balance/broadcast.json zonesPolicy y rigTemplate:
-// nada de números aquí). Escribe data/circuits/<splineId>/camera-zones.json y el índice
+// nada de números aquí). Un circuito con plan propio en zonesPolicy.circuits.<splineId> (CAM-C1, F1M24-CHINA
+// §2.3 VIEW-02: Shanghái) se corta con él: grupos de curvas partidos, salida de curva aparte, cadena de cámaras
+// en una recta y tipos propios por curva (p. ej. el teleobjetivo largo `longLens`). Escribe data/circuits/<splineId>/camera-zones.json y el índice
 // data/circuits/cameraZones.js que lee la vista.
 //
 // Los ficheros se pueden editar a mano (mover límites, quitar o añadir cámaras de los tipos de rigTemplate);
@@ -22,7 +24,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const manager = resolve(here, "../../overcut/frontend/src/modules/overcutManager");
 const load = (path) => import(pathToFileURL(resolve(manager, path)).href);
 const { circuitFor } = await load("engine/venue.js");
-const { buildCameraZones } = await load("three/cameraZones.js");
+const { buildCameraZones, zonePlanFor } = await load("three/cameraZones.js");
 
 const args = process.argv.slice(2);
 const only = args.includes("--only") ? args[args.indexOf("--only") + 1] : null;
@@ -44,7 +46,10 @@ for (const [id, spline] of Object.entries(splines)) {
   }
   const { lengthM, zones } = buildCameraZones(circuit);
   const file = join(outDir, id, "camera-zones.json");
-  const body = { $comment: SCHEMA_NOTE, splineId: id, lengthM, year, source: "buildCameraZones (three/cameraZones.js) + broadcast.json zonesPolicy", zones };
+  // A circuit with its own plan (broadcast.json zonesPolicy.circuits, CAM-C1) says so in `source`.
+  const planned = Boolean(zonePlanFor(circuit));
+  const source = `buildCameraZones (three/cameraZones.js) + broadcast.json zonesPolicy${planned ? ` + zonesPolicy.circuits.${id}` : ""}`;
+  const body = { $comment: SCHEMA_NOTE, splineId: id, lengthM, year, source, zones };
   const text = `${JSON.stringify(body, null, 1)}\n`;
   const old = existsSync(file) ? readFileSync(file, "utf8") : null;
   if (old && JSON.parse(old).edited && !force) {

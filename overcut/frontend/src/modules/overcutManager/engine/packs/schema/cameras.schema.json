@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$comment": "RNF-07: esquema de data/balance/cameras.json (cámaras que viajan con el coche, RF-3D-04, RF-3D-05, SRS 6.2). Lo comprueba three/cameras.test.js.",
+  "$comment": "RNF-07: esquema de data/balance/cameras.json (cámaras que viajan con el coche, RF-3D-04, RF-3D-05, SRS 6.2). Lo comprueba three/cameras.test.js. CAM-C1 (F1M24-CHINA §3.2): campos de visión horizontales (hfovDeg, número o por eras), aim por horizonShare, refAspect, helicóptero por elevación y cuota de cuadro, y los contratos de la ola 1 shake.hf/bob/head y wheelDisplay.byEra.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "sources", "onboard", "follow", "wheelDisplay"],
+  "required": ["version", "refAspect", "horizonReachM", "sources", "onboard", "follow", "wheelDisplay"],
   "definitions": {
     "num": {"type": "number"},
     "positive": {"type": "number", "exclusiveMinimum": 0},
@@ -23,6 +23,11 @@
         "pitchDeg": {"type": "number", "minimum": -45, "maximum": 45}
       }
     },
+    "numOrNull": {"oneOf": [{"type": "null"}, {"type": "number", "minimum": 0}]},
+    "wobble": {
+      "type": "object", "additionalProperties": false, "required": ["deg", "hz"],
+      "properties": {"deg": {"$ref": "#/definitions/numOrNull"}, "hz": {"$ref": "#/definitions/numOrNull"}}
+    },
     "shake": {
       "type": "object",
       "additionalProperties": false,
@@ -31,19 +36,44 @@
         "perMs": {"type": "number", "minimum": 5, "maximum": 1000},
         "perSpeed": {"type": "number", "minimum": 0, "maximum": 0.01},
         "max": {"type": "number", "minimum": 0, "maximum": 0.1},
-        "minSpeed": {"type": "number", "minimum": 0}
+        "minSpeed": {"type": "number", "minimum": 0},
+        "hf": {"$ref": "#/definitions/wobble"},
+        "bob": {"$ref": "#/definitions/wobble"},
+        "head": {
+          "type": "object", "additionalProperties": false, "required": ["deg", "hz", "driftDeg"],
+          "properties": {"deg": {"$ref": "#/definitions/numOrNull"}, "hz": {"$ref": "#/definitions/numOrNull"}, "driftDeg": {"$ref": "#/definitions/numOrNull"}}
+        },
+        "status": {"$ref": "#/definitions/status"},
+        "note": {"type": "string"}
       }
+    },
+    "horizonAim": {
+      "type": "object", "additionalProperties": false, "required": ["horizonShare"],
+      "properties": {"horizonShare": {"type": "number", "minimum": 0.05, "maximum": 0.95}}
+    },
+    "hfov": {"type": "number", "minimum": 10, "maximum": 160},
+    "hfovDeg": {
+      "oneOf": [
+        {"$ref": "#/definitions/hfov"},
+        {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["from", "to", "deg"],
+            "properties": {"from": {"$ref": "#/definitions/year"}, "to": {"$ref": "#/definitions/year"}, "deg": {"$ref": "#/definitions/hfov"}}
+          }
+        }
+      ]
     },
     "onboard": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "label", "mount", "aim", "fovDeg", "near", "eras", "status", "source"],
+      "required": ["id", "label", "mount", "aim", "hfovDeg", "near", "eras", "status", "source"],
       "properties": {
         "id": {"type": "string", "pattern": "^[a-zA-Z]+$"},
         "label": {"$ref": "#/definitions/label"},
         "mount": {"$ref": "#/definitions/point"},
-        "aim": {"$ref": "#/definitions/point"},
-        "fovDeg": {"type": "number", "minimum": 10, "maximum": 130},
+        "aim": {"oneOf": [{"$ref": "#/definitions/point"}, {"$ref": "#/definitions/horizonAim"}]},
+        "hfovDeg": {"$ref": "#/definitions/hfovDeg"},
         "near": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
         "shake": {"$ref": "#/definitions/shake"},
         "eras": {
@@ -65,6 +95,10 @@
   "properties": {
     "$comment": {"type": "string"},
     "version": {"type": "integer", "minimum": 1},
+    "refAspect": {"type": "number", "minimum": 0.5, "maximum": 4},
+    "refAspectNote": {"type": "string"},
+    "horizonReachM": {"type": "number", "exclusiveMinimum": 0, "maximum": 500},
+    "horizonReachNote": {"type": "string"},
     "sources": {"type": "object", "additionalProperties": {"$ref": "#/definitions/text"}},
     "onboard": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/onboard"}},
     "follow": {
@@ -98,15 +132,22 @@
         "heli": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["heightM", "offset", "lookAhead", "clearanceM", "fovDeg", "lag", "status", "source"],
+          "required": ["elevationDeg", "shareTarget", "hfovDeg", "heightM", "azimuthDeg", "lookAhead", "bearingDamp", "clearanceM", "status", "source"],
           "properties": {
-            "heightM": {"$ref": "#/definitions/positive"},
-            "offset": {
-              "type": "object", "additionalProperties": false, "required": ["side", "back"],
-              "properties": {"side": {"$ref": "#/definitions/num"}, "back": {"$ref": "#/definitions/num"}}
+            "elevationDeg": {"type": "number", "minimum": 5, "maximum": 85},
+            "shareTarget": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.5},
+            "hfovDeg": {"$ref": "#/definitions/hfov"},
+            "heightM": {
+              "type": "object", "additionalProperties": false, "required": ["min", "max"],
+              "properties": {"min": {"$ref": "#/definitions/positive"}, "max": {"$ref": "#/definitions/positive"}}
             },
-            "lookAhead": {"$ref": "#/definitions/num"}, "clearanceM": {"$ref": "#/definitions/positive"},
-            "fovDeg": {"$ref": "#/definitions/positive"}, "lag": {"$ref": "#/definitions/positive"},
+            "azimuthDeg": {"type": "number", "minimum": -180, "maximum": 180},
+            "lookAhead": {
+              "type": "object", "additionalProperties": false, "required": ["perSpeed", "maxM"],
+              "properties": {"perSpeed": {"type": "number", "minimum": 0, "maximum": 5}, "maxM": {"type": "number", "minimum": 0, "maximum": 300}}
+            },
+            "bearingDamp": {"$ref": "#/definitions/positive"},
+            "clearanceM": {"$ref": "#/definitions/positive"},
             "status": {"$ref": "#/definitions/status"}, "source": {"$ref": "#/definitions/text"}
           }
         },
@@ -139,7 +180,36 @@
           "properties": {"fg": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"}, "bg": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"}}
         },
         "status": {"$ref": "#/definitions/status"},
-        "source": {"$ref": "#/definitions/text"}
+        "source": {"$ref": "#/definitions/text"},
+        "byEra": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from", "to", "fields", "leds", "status", "source"],
+            "properties": {
+              "from": {"$ref": "#/definitions/year"},
+              "to": {"$ref": "#/definitions/year"},
+              "fields": {"type": "array", "items": {"enum": ["gear", "speed", "kers", "ers", "tyres", "delta"]}, "minItems": 1, "uniqueItems": true},
+              "leds": {
+                "oneOf": [
+                  {"type": "null"},
+                  {
+                    "type": "object", "additionalProperties": false, "required": ["count", "colors"],
+                    "properties": {
+                      "count": {"type": "integer", "minimum": 1, "maximum": 30},
+                      "colors": {"type": "array", "items": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"}, "minItems": 1}
+                    }
+                  }
+                ]
+              },
+              "status": {"$ref": "#/definitions/status"},
+              "source": {"$ref": "#/definitions/text"}
+            }
+          }
+        },
+        "byEraNote": {"type": "string"}
       }
     }
   }

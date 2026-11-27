@@ -16,7 +16,10 @@ import zoneFiles from "../data/circuits/cameraZones";
 import {
   CAMERA_LABELS, CAMERA_MODES, ONBOARDS, SIGHT_EVERY, buildCameraZones, buildPitRig, buildRig, buildZoneRig, critDampStep, fitRig, frame, frameWidth, framingFor,
   laneBoxOf, lanePoseAt, modeForYear, onboardsFor, pickVariant, pitShot, seedOf, shakeOffset, tvRival, zonesFor,
+  heliGeometry, hfovOf, onboardFor, vfovOf, REF_ASPECT,
 } from "./cameras";
+import { zonePlanFor } from "./cameraZones";
+import { carSpec } from "./carBody";
 import { cameraFor } from "../components/director/directorState";
 import { buildHeightField } from "./assets/assetCircuit";
 import { circuitFor } from "../engine/venue";
@@ -70,7 +73,8 @@ describe("cameras on a procedural circuit (no world)", () => {
     const at = coveredShare(rig);
     const focus = focusAt(at);
     expect(frame("chase", focus, circuit, [], {}, 0.016).pos.y).toBeCloseTo(2.5, 6);
-    expect(frame("heli", focus, circuit, [], {}, 0.016).pos.y).toBeCloseTo(130, 6);
+    // CAM-C1 (VIEW-12): the helicopter's height comes from its elevation and framing share.
+    expect(frame("heli", focus, circuit, [], {}, 0.016).pos.y).toBeCloseTo(heliGeometry().height, 6);
     expect(frame("nose", focus, circuit, [], {}, 0.016).pos.y).toBeCloseTo(0.42, 6);
     const shot = frame("tv", focus, circuit, rig, {}, 0.016);
     const cam = rig.filter((item) => item.from <= at && item.to >= at).sort((a, b) => b.priority - a.priority)[0];
@@ -144,7 +148,7 @@ describe("cameras on a real circuit (RF-3D-03, RF-3D-04)", () => {
     let shot = null;
     for (let i = 0; i < SIGHT_EVERY * 3; i += 1) shot = frame("tv", focus, circuit, rig, state, 0.016, { heightAt, field: live });
     expect(state.fallback).toBe(true);
-    expect(shot.fov).toBe(30);
+    expect(shot.fov).toBeCloseTo(heliGeometry().vfov, 9);
     open = true;
     for (let i = 0; i < SIGHT_EVERY; i += 1) shot = frame("tv", focus, circuit, rig, state, 0.016, { heightAt, field: live });
     expect(state.fallback).toBe(false);
@@ -178,6 +182,12 @@ describe("cameras.json (RNF-07, F1M24-GAMEPLAY §2.5 onboard-mounts)", () => {
     expect(ids(2005)).toContain("tcam");
     expect(ids(2017)).not.toContain("halo");
     expect(ids(2018)).toContain("halo");
+    // CAM-C1 (VIEW-03): the high cockpit camera before the halo, not with it.
+    expect(ids(1992)).not.toContain("cockpitHigh");
+    expect(ids(2013)).toContain("cockpitHigh");
+    expect(ids(2017)).toContain("cockpitHigh");
+    expect(ids(2018)).not.toContain("cockpitHigh");
+    expect(modeForYear("cockpitHigh", 2024)).toBe("chase");
     expect(modeForYear("halo", 2012)).toBe("chase");
     expect(modeForYear("halo", 2024)).toBe("halo");
     // The close-up is for replays only.
@@ -197,20 +207,22 @@ describe("cameras.json (RNF-07, F1M24-GAMEPLAY §2.5 onboard-mounts)", () => {
     expect(tcam.pos.y).toBeCloseTo(0.7 + 0.52, 6);
     expect(along(tcam.pos)).toBeCloseTo(0.15 - 0.35, 6);
     expect(tcam.look.y).toBeLessThan(tcam.pos.y);
-    expect(along(tcam.look)).toBeCloseTo(12, 6);
-    expect(tcam.fov).toBe(68);
+    // CAM-C1 (VIEW-03): tilted by its horizon share, with the 100° horizontal lens (~68° vertical at 16:9).
+    expect(tcam.fov).toBeCloseTo(vfovOf(100, REF_ASPECT), 9);
+    expect(Math.abs(tcam.fov - 68)).toBeLessThan(0.5);
     expect(tcam.near).toBe(0.05);
+    // The others keep their look at 16:9: their horizontal lens is the old vertical one there.
     const rear = frame("tcamRear", focus, circuit, [], {}, 0.016);
     expect(rear.pos.y).toBeCloseTo(0.7 + 0.4, 6);
     expect(along(rear.look)).toBeCloseTo(-40, 6);
-    expect(rear.fov).toBe(64);
+    expect(rear.fov).toBeCloseTo(64, 1);
     const visor = frame("visor", focus, circuit, [], {}, 0.016);
     expect(visor.pos.y).toBeCloseTo(0.72, 6);
-    expect(visor.fov).toBe(82);
+    expect(visor.fov).toBeCloseTo(82, 1);
     const nose = frame("nose", focus, circuit, [], {}, 0.016);
     expect(along(nose.pos)).toBeCloseTo(1.95, 6);
     expect(Math.hypot(nose.pos.x - focus.x, nose.pos.z - focus.z)).toBeCloseTo(Math.hypot(1.95, 0.22), 6);
-    expect(nose.fov).toBe(74);
+    expect(nose.fov).toBeCloseTo(74, 1);
     // The new ones sit where their data says: the sidepod camera ~0.6 m up.
     expect(frame("sidepod", focus, circuit, [], {}, 0.016).pos.y).toBeCloseTo(0.6, 6);
     expect(frame("halo", focus, circuit, [], {}, 0.016).pos.y).toBeCloseTo(0.7 + 0.3, 6);
@@ -559,5 +571,272 @@ describe("pit-lane cameras (F1M24-GAMEPLAY §2.5 pit-sequence, CAM-3; RF-3D-04, 
     const shot = frame("tv", far, circuit, rig, state, 0.016);
     expect(shot.cameraId).toBe(lock.id);
     expect(state.tvCam).toBe(lock);
+  });
+});
+
+// ---------------------------------------------------------------- CAM-C1 (F1M24-CHINA §2.3-§2.4, §3.1)
+
+// The horizontal share of the frame a box of world points covers, seen through a shot on a canvas of `aspect`.
+const widthShare = (shot, aspect, points) => {
+  const cam = new THREE.PerspectiveCamera(shot.fov, aspect, 0.05, 5000);
+  cam.position.copy(shot.pos);
+  cam.lookAt(shot.look);
+  cam.updateMatrixWorld();
+  const xs = points.map((p) => p.clone().project(cam)).filter((p) => p.z < 1).map((p) => p.x);
+  if (!xs.length) return 0;
+  return Math.max(0, Math.min(1, Math.max(...xs)) - Math.max(-1, Math.min(...xs))) / 2;
+};
+// The eight corners of a box `length` × `width` × `height` on the ground at (x, z), along `heading`.
+const boxAt = (x, z, heading, length, width, height, y = 0) => {
+  const dir = new THREE.Vector3(Math.cos(heading), 0, Math.sin(heading));
+  const side = new THREE.Vector3(-Math.sin(heading), 0, Math.cos(heading));
+  const out = [];
+  [-0.5, 0.5].forEach((a) => [-0.5, 0.5].forEach((b) => [0, 1].forEach((c) => {
+    out.push(new THREE.Vector3(x, y + c * height, z).add(dir.clone().multiplyScalar(a * length)).add(side.clone().multiplyScalar(b * width)));
+  })));
+  return out;
+};
+const CAR_LENGTH = broadcastData.rigTemplate.carLengthM;
+const median = (values) => {
+  const sorted = values.slice().sort((a, b) => a - b);
+  return sorted[Math.floor(sorted.length / 2)];
+};
+
+describe("Shanghai's broadcast (CAM-C1 VIEW-02; RF-3D-04, RNF-05, RNF-07)", () => {
+  const china = circuitFor({ name: "Chinese Grand Prix", circuit: "shanghai" }, 2013);
+  const zones = zonesFor(china);
+  const byCorner = (n) => zones.zones.filter((zone) => zone.corners?.length === 1 && zone.corners[0] === n);
+  const indexOf = (zone) => zones.zones.indexOf(zone);
+
+  // One lap at 1x on the circuit's own speed trace, 60 frames a second: every shot with its start (s).
+  const filmLap = (c, rig, lap, state, onFrame = null) => {
+    const frames = Math.round(c.simulatedLap * 60);
+    const shots = [];
+    for (let i = 0; i <= frames; i += 1) {
+      const d = distanceAtTimeShare(c, i / frames);
+      const pose = poseAt(c, d);
+      const focus = { x: pose.x, y: 0, z: pose.y, heading: pose.heading, speed: 60, share: lap + d, spec: {} };
+      const shot = frame("tv", focus, c, rig, state, 1 / 60);
+      if (onFrame) onFrame(shot, focus, i);
+      const id = state.tvCam?.id;
+      if (!shots.length || shots[shots.length - 1].id !== id) shots.push({ id, from: i / 60, type: state.tvCam?.type });
+    }
+    return shots;
+  };
+
+  it("has its own plan: ~30 zones, T1-T4 in five, T6 on the long lens, five in a chain on the back straight, T14 in three", () => {
+    expect(zonePlanFor(china)).not.toBeNull();
+    expect(zonePlanFor(circuitFor({ name: "Bahrain Grand Prix", circuit: "bahrain" }, 2024))).toBeNull();
+    expect(zones.source).toBe("file");
+    expect(zones.zones.length).toBeGreaterThanOrEqual(26);
+    expect(zones.zones.length).toBeLessThanOrEqual(32);
+    // T1-T4 (engine corners 1-4): the braking zone and one zone per corner.
+    const snail = [1, 2, 3, 4].map((n) => byCorner(n));
+    snail.forEach((list) => expect(list).toHaveLength(1));
+    const first = indexOf(snail[0][0]);
+    expect(zones.zones[(first - 1 + zones.zones.length) % zones.zones.length].kind).toBe("braking");
+    snail.forEach((list, k) => expect(indexOf(list[0])).toBe(first + k));
+    // T6 (engine corner 5): the long lens first, on a zone of 300-500 m.
+    const t6 = byCorner(5);
+    expect(t6).toHaveLength(1);
+    expect(t6[0].cams[0].type).toBe("longLens");
+    expect(t6[0].toM - t6[0].fromM).toBeGreaterThanOrEqual(300);
+    expect(t6[0].toM - t6[0].fromM).toBeLessThanOrEqual(500);
+    // The back straight, from T13 (engine 12) to T14 (engine 13): a chain of five, the braking zone last.
+    const t13 = byCorner(12);
+    const t14 = byCorner(13);
+    const chain = zones.zones.slice(indexOf(t13[t13.length - 1]) + 1, indexOf(t14[0]));
+    expect(chain).toHaveLength(5);
+    expect(chain.slice(0, 4).every((zone) => zone.kind === "straight")).toBe(true);
+    expect(chain[4].kind).toBe("braking");
+    expect(new Set(chain.flatMap((zone) => zone.cams.map((cam) => cam.type)))).toEqual(new Set(["headOn", "straight", "lateralTrack", "passPan", "braking"]));
+    // T14: braking (the end of the chain), apex and exit.
+    expect(t14).toHaveLength(2);
+    expect(indexOf(t14[1])).toBe(indexOf(t14[0]) + 1);
+  });
+
+  it("films a lap at 1x in 22-32 shots with a median of 2-4 s, cut by position", () => {
+    const rig = buildZoneRig(china);
+    expect(rig.some((cam) => cam.type === "longLens")).toBe(true);
+    const state = { seed: 2013 };
+    filmLap(china, rig, 0, state);
+    [1, 2, 3].forEach((lap) => {
+      const shots = filmLap(china, rig, lap, state);
+      const cuts = shots.length - 1;
+      expect(cuts).toBeGreaterThanOrEqual(22);
+      expect(cuts).toBeLessThanOrEqual(32);
+      // Whole shots only (the first is still on air from the line, the last runs into the next lap).
+      const lengths = shots.slice(1, -1).map((shot, k) => shots[k + 2].from - shot.from);
+      expect(median(lengths)).toBeGreaterThanOrEqual(2);
+      expect(median(lengths)).toBeLessThanOrEqual(4);
+    });
+  });
+
+  it("keeps the car at 10 % of the frame's width or more (median of the lap), at 16:9 and at 21:9", () => {
+    const rig = buildZoneRig(china);
+    [16 / 9, 21 / 9].forEach((aspect) => {
+      const shares = [];
+      const state = { seed: 2013, aspect };
+      filmLap(china, rig, 4, state, (shot, focus, i) => {
+        if (i % 6) return;
+        shares.push(widthShare(shot, aspect, boxAt(focus.x, focus.z, focus.heading, CAR_LENGTH, 2, 1)));
+      });
+      expect(median(shares)).toBeGreaterThanOrEqual(0.1);
+    });
+    // The wide shot and the long lens frame the car at 10 % of the width or more.
+    ["highWide", "longLens"].forEach((type) => expect(framingFor(type).minShare).toBeGreaterThanOrEqual(0.1));
+    expect(broadcastData.framing.shareOf).toBe("width");
+  });
+});
+
+describe("the helicopter (CAM-C1 VIEW-12; RF-3D-04, RNF-05)", () => {
+  it("derives its height from the elevation and the framing share, within heightM", () => {
+    const heli = cameraData.follow.heli;
+    const geo = heliGeometry();
+    expect(geo.height).toBeGreaterThanOrEqual(heli.heightM.min);
+    expect(geo.height).toBeLessThanOrEqual(heli.heightM.max);
+    expect((Math.atan2(geo.height, geo.ground) * 180) / Math.PI).toBeCloseTo(heli.elevationDeg, 9);
+    expect(CAR_LENGTH / (2 * geo.distance * Math.tan((geo.hfov * Math.PI) / 360))).toBeCloseTo(heli.shareTarget, 9);
+    expect(hfovOf(heliGeometry(21 / 9).vfov, 21 / 9)).toBeCloseTo(geo.hfov, 9);
+  });
+
+  it("at 300 km/h holds 35-50° of elevation and the car at 2-5 % of the width for 20 s without a cut", () => {
+    const v = 300 / 3.6;
+    const radius = 800;
+    const state = { simDt: 1 / 60 };
+    let x = 0;
+    let z = 0;
+    let heading = 0.4;
+    for (let i = 0; i <= 20 * 60; i += 1) {
+      // Ten seconds of straight, then ten on a fast curve of 800 m (0.9 g at 300 km/h).
+      if (i > 0) {
+        if (i > 600) heading += v / radius / 60;
+        x += Math.cos(heading) * (v / 60);
+        z += Math.sin(heading) * (v / 60);
+      }
+      const focus = { x, y: 0, z, heading, speed: v, share: 0.5, spec: {} };
+      const shot = frame("heli", focus, circuit, [], state, 1 / 60);
+      if (i > 0) expect(shot.snap).toBe(false);
+      expect(shot.held).toBe(true);
+      const elevation = (Math.atan2(shot.pos.y, Math.hypot(shot.pos.x - x, shot.pos.z - z)) * 180) / Math.PI;
+      expect(elevation).toBeGreaterThanOrEqual(35);
+      expect(elevation).toBeLessThanOrEqual(50);
+      const share = widthShare(shot, REF_ASPECT, boxAt(x, z, heading, CAR_LENGTH, 2, 1));
+      expect(share).toBeGreaterThanOrEqual(0.02);
+      expect(share).toBeLessThanOrEqual(0.05);
+    }
+  });
+
+  it("swings round on a critically damped bearing, the same for the same race times (RNF-05)", () => {
+    const still = (heading) => ({ x: 0, y: 0, z: 0, heading, speed: 0, share: 0.5, spec: {} });
+    const run = () => {
+      const state = { simDt: 1 / 30 };
+      return Array.from({ length: 90 }, (_, i) => frame("heli", still(i < 30 ? 0 : Math.PI / 2), circuit, [], state, 1 / 30).pos);
+    };
+    const a = run();
+    expect(run()).toEqual(a);
+    // After the turn the bearing moves steadily to its new place, without overshoot.
+    const target = Math.PI / 2 + Math.PI - (cameraData.follow.heli.azimuthDeg * Math.PI) / 180;
+    const off = (p) => {
+      const b = Math.atan2(p.z, p.x);
+      return Math.abs(target - (b + 2 * Math.PI * Math.round((target - b) / (2 * Math.PI))));
+    };
+    for (let i = 31; i < a.length; i += 1) expect(off(a[i])).toBeLessThanOrEqual(off(a[i - 1]) + 1e-9);
+    expect(off(a[a.length - 1])).toBeLessThan(off(a[30]));
+    // A new shot (another mode in between) starts in place, with a cut.
+    const state = { simDt: 1 / 30 };
+    frame("heli", still(0), circuit, [], state, 1 / 30);
+    frame("chase", still(0), circuit, [], state, 1 / 30);
+    expect(frame("heli", still(1), circuit, [], state, 1 / 30).snap).toBe(true);
+  });
+});
+
+describe("onboard lenses (CAM-C1 VIEW-03; RF-3D-04, RF-3D-05, SRS 6.2)", () => {
+  const mono = (year, aspect, id = "tcam") => {
+    const spec = carSpec(year);
+    const focus = { ...focusAt(0.3), spec };
+    const shot = frame(id, focus, circuit, [], { aspect, year }, 0.016);
+    const cam = new THREE.PerspectiveCamera(shot.fov, aspect, 0.05, 5000);
+    cam.position.copy(shot.pos);
+    cam.lookAt(shot.look);
+    cam.updateMatrixWorld();
+    const dir = new THREE.Vector3(Math.cos(focus.heading), 0, Math.sin(focus.heading));
+    const far = shot.pos.clone().add(dir.clone().multiplyScalar(1e5)).project(cam);
+    return { spec, focus, shot, horizon: (1 - far.y) / 2 };
+  };
+
+  it("are horizontal: the same width at 16:9 and 21:9, the vertical lens made for the canvas", () => {
+    const at169 = onboardFor("tcam", { year: 2013, aspect: 16 / 9 });
+    const at219 = onboardFor("tcam", { year: 2013, aspect: 21 / 9 });
+    expect(at169.hfov).toBe(100);
+    expect(at219.hfov).toBe(100);
+    expect(hfovOf(at169.vfovDeg, 16 / 9)).toBeCloseTo(100, 9);
+    expect(hfovOf(at219.vfovDeg, 21 / 9)).toBeCloseTo(100, 9);
+    expect(at219.vfovDeg).toBeLessThan(at169.vfovDeg);
+    expect(vfovOf(hfovOf(50, 1.5), 1.5)).toBeCloseTo(50, 9);
+    expect(mono(2013, 21 / 9).shot.fov).toBeCloseTo(at219.vfovDeg, 9);
+    // By era: wider in the years of the wide tyres; the bare entry without a lens request.
+    expect(onboardFor("tcam", { year: 1995 }).hfov).toBe(105);
+    expect(onboardFor("tcam")).toBe(ONBOARDS.find((entry) => entry.id === "tcam"));
+    ONBOARDS.forEach((entry) => {
+      expect(entry.hfovDeg).toBeDefined();
+      expect(entry.fovDeg).toBeUndefined();
+    });
+  });
+
+  it("frames the T-cam with the horizon at 30-40 % from the top and the front wheels in ≤ 30 % of the width", () => {
+    [2005, 2013, 2024].forEach((year) => {
+      [16 / 9, 21 / 9].forEach((aspect) => {
+        const { spec, focus, shot, horizon } = mono(year, aspect);
+        expect(horizon).toBeGreaterThanOrEqual(0.3);
+        expect(horizon).toBeLessThanOrEqual(0.4);
+        const dir = new THREE.Vector3(Math.cos(focus.heading), 0, Math.sin(focus.heading));
+        const side = new THREE.Vector3(-Math.sin(focus.heading), 0, Math.cos(focus.heading));
+        const wheels = [-1, 1].reduce((sum, s) => {
+          const hub = new THREE.Vector3(focus.x, 0, focus.z).add(dir.clone().multiplyScalar(spec.front)).add(side.clone().multiplyScalar((s * spec.ft) / 2));
+          return sum + widthShare(shot, aspect, boxAt(hub.x, hub.z, focus.heading, 2 * spec.tf.r, spec.tf.w, 2 * spec.tf.r));
+        }, 0);
+        expect(wheels).toBeLessThanOrEqual(0.3);
+      });
+    });
+  });
+
+  it("puts the high cockpit camera's horizon a third of the way down, at any aspect", () => {
+    [16 / 9, 21 / 9, 4 / 3].forEach((aspect) => expect(mono(2013, aspect, "cockpitHigh").horizon).toBeCloseTo(0.33, 3));
+  });
+});
+
+describe("contracts of wave 1 (CAM-C1, F1M24-CHINA §3.2)", () => {
+  it("cameras.json: angular shake per camera and the wheel display by era, nothing of energy before 2009 (SRS §6)", () => {
+    ["tcam", "cockpitHigh", "halo", "visor"].forEach((id) => {
+      const { shake } = ONBOARDS.find((entry) => entry.id === id);
+      ["hf", "bob"].forEach((key) => {
+        expect(shake[key]).toHaveProperty("deg");
+        expect(shake[key]).toHaveProperty("hz");
+      });
+      expect(shake.status).toBe("pending");
+    });
+    expect(ONBOARDS.find((entry) => entry.id === "visor").shake.head).toHaveProperty("driftDeg");
+    const eras = cameraData.wheelDisplay.byEra;
+    expect(eras[0].from).toBe(cameraData.wheelDisplay.from);
+    for (let i = 1; i < eras.length; i += 1) expect(eras[i].from).toBe(eras[i - 1].to + 1);
+    expect(eras[eras.length - 1].to).toBe(cameraData.wheelDisplay.to);
+    const energy = (era) => era.fields.some((field) => field === "kers" || field === "ers");
+    eras.forEach((era) => {
+      expect(era.status).toBe("pending");
+      if (era.to < 2009) expect(energy(era)).toBe(false);
+      if (era.from <= 2010 && era.to >= 2010) expect(energy(era)).toBe(false);
+      if (era.to <= 2013) expect(era.fields).not.toContain("ers");
+    });
+  });
+
+  it("broadcast.json: director priorities, the safety-car restart, the train and the low start-lights shot", () => {
+    expect(broadcastData.directorPriorities.order).toEqual(["finish", "ownIncident", "userLock", "pitSeq", "zones"]);
+    expect(broadcastData.directorPriorities.override.userLock).toBe(false);
+    expect(broadcastData.directorPriorities.status).toBe("pending");
+    expect(broadcastData.sequences.scRestart.shots.every((shot) => shot.requires === "safetyCar")).toBe(true);
+    expect(broadcastData.framing.train.phases).toEqual(["TRAIN"]);
+    expect(broadcastData.scriptRig.cams.some((cam) => cam.id === "startLightsLow")).toBe(true);
+    expect(broadcastData.sequences.start.holdShotSec).toBeNull();
   });
 });
