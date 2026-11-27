@@ -4,7 +4,9 @@
  * the pit lane (air guns while the wheels are changed); tyre squeal on a lock-up or a
  * spin (engine `incident`); a thump on contact; the field bed of the cars without a voice
  * and the kerb rumble under the focus car (AUD-2), both on the engine bus; a thump and a tone
- * per start light and the revs on the grid, read from the engine's `snapshot.start` (AUD-3). Synthesised from one shared noise
+ * per start light and the revs on the grid, read from the engine's `snapshot.start` (AUD-3); the crowd
+ * decorrelated left and right and a continuous stereo track bed under TV, helicopter and chase
+ * (AUD-C4, F1M24-CHINA §2.7), so the TV is wide and never silent between passes. Synthesised from one shared noise
  * buffer, no recordings. Numbers in data/balance/audio.json `ambience` (RNF-07); the
  * envelopes and curves are pure and tested (audio.test.js).
  */
@@ -46,6 +48,21 @@ export const swellFor = (event, metres = 0, crowd = AMB.crowd) => {
 export const windOf = (kmh, share, wind = AMB.wind) => {
   const x = clamp(kmh / wind.fullKmh, 0, 1);
   return { gain: wind.gain * share * x * x, hz: wind.lowHz + (wind.highHz - wind.lowHz) * x };
+};
+
+/**
+ * The track bed's level for a mix (AUD-C4, F1M24-CHINA §2.7): its gain times the camera's
+ * `bed` share (TV, helicopter and chase; none on board or on the map). 0 without the block.
+ */
+export const trackBedOf = (mix, bed = AMB.trackBed) => (bed && mix && Number.isFinite(mix.bed) ? bed.gain * clamp(mix.bed, 0, 1) : 0);
+
+/**
+ * First-order low-pass coefficients for an IIRFilterNode (the -6 dB/octave slope of the
+ * track bed): y[n] = b0·x[n] − a1·y[n−1], with a1 = −e^(−2π·fc/fs) and b0 = 1 + a1.
+ */
+export const onePoleLowpass = (hz, sampleRate) => {
+  const a1 = -Math.exp((-2 * Math.PI * hz) / sampleRate);
+  return { feedforward: [1 + a1], feedback: [1, a1] };
 };
 
 /** Rain gain from the track's wetness 0..1 (nothing under the threshold). */
@@ -160,7 +177,54 @@ export const createAmbience = (ctx, bus, noise, engineBus = bus) => {
     src.start();
     return { src, filter, gain };
   };
-  const crowd = loop("bandpass", AMB.crowd.bandHz, AMB.crowd.q);
+  /**
+   * A stereo bed (AUD-C4): the shared noise read at two offsets `decorrelateSec` apart, each
+   * through its own filters (`chain()` builds them), into the left and the right channel of a
+   * merger. Without a merger (an old browser, a mock) both reads sum on one gain: mono.
+   */
+  const duration = Number.isFinite(noise && noise.duration) && noise.duration > 0 ? noise.duration : 2;
+  const stereoLoop = (chain, decorrelateSec) => {
+    const merger = typeof ctx.createChannelMerger === "function" ? ctx.createChannelMerger(2) : null;
+    const gain = ctx.createGain();
+    gain.gain.value = 0;
+    const sources = [0, 1].map((channel) => {
+      const src = ctx.createBufferSource();
+      src.buffer = noise;
+      src.loop = true;
+      const last = chain().reduce((from, node) => from.connect(node), src);
+      if (merger) last.connect(merger, 0, channel);
+      else last.connect(gain);
+      src.start(0, (channel * (decorrelateSec || 0)) % duration);
+      return src;
+    });
+    if (merger) merger.connect(gain);
+    gain.connect(bus);
+    return { sources, gain };
+  };
+  const biquad = (type, hz, q) => {
+    const filter = ctx.createBiquadFilter();
+    filter.type = type;
+    filter.frequency.value = hz;
+    filter.Q.value = q;
+    return filter;
+  };
+  // The crowd, decorrelated left and right (AUD-C4): before, a mono band-pass.
+  const crowd = stereoLoop(() => [biquad("bandpass", AMB.crowd.bandHz, AMB.crowd.q)], AMB.crowd.decorrelateSec);
+  // The track bed (AUD-C4): always there in TV, helicopter and chase, -6 dB/octave over lowpassHz.
+  const TRACK = AMB.trackBed;
+  const trackBed = TRACK
+    ? stereoLoop(() => {
+        const high = biquad("highpass", TRACK.highpassHz, 0.7);
+        let low;
+        try {
+          const { feedforward, feedback } = onePoleLowpass(TRACK.lowpassHz, ctx.sampleRate);
+          low = typeof ctx.createIIRFilter === "function" ? ctx.createIIRFilter(feedforward, feedback) : null;
+        } catch (error) {
+          low = null;
+        }
+        return [high, low || biquad("lowpass", TRACK.lowpassHz, 0.5)];
+      }, TRACK.decorrelateSec)
+    : null;
   // A slow LFO keeps the crowd breathing.
   const lfo = ctx.createOscillator();
   lfo.frequency.value = AMB.crowd.lfoHz;
@@ -303,7 +367,8 @@ export const createAmbience = (ctx, bus, noise, engineBus = bus) => {
   return {
     /**
      * `frame`: { time, crowd (0..1), crowdShare, wind {gain, hz}, rain, guns (0..1) } and,
-     * optional, bed { level, hz } (the field bed) and kerb { gain, hz } (the rumble).
+     * optional, bed { level, hz } (the field bed), kerb { gain, hz } (the rumble) and
+     * trackBed (the stereo track bed's level, trackBedOf; absent, silent).
      */
     update(frame) {
       const at = frame.time;
@@ -316,6 +381,7 @@ export const createAmbience = (ctx, bus, noise, engineBus = bus) => {
       const level = frame.crowd * frame.crowdShare;
       set(crowd.gain.gain, level, at, 0.15);
       set(lfoDepth.gain, level * AMB.crowd.lfoDepth, at, 0.3);
+      if (trackBed) set(trackBed.gain.gain, Number.isFinite(frame.trackBed) ? frame.trackBed : 0, at, 0.3);
       set(wind.gain.gain, frame.wind.gain, at);
       set(wind.filter.frequency, frame.wind.hz, at);
       set(rain.gain.gain, frame.rain, at, 0.5);
@@ -327,7 +393,7 @@ export const createAmbience = (ctx, bus, noise, engineBus = bus) => {
     impact,
     startLight,
     stop() {
-      [crowd.src, wind.src, rain.src, guns.src, lfo, rattle, bedSrc, kerbOsc].forEach((node) => {
+      [...crowd.sources, ...(trackBed ? trackBed.sources : []), wind.src, rain.src, guns.src, lfo, rattle, bedSrc, kerbOsc].forEach((node) => {
         try {
           node.stop();
         } catch (error) {

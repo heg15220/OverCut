@@ -47,6 +47,13 @@
  * or another focus car in the same camera, dips the engine and ambience buses (views.cut)
  * instead of crossfading. The ui bus (radio, alerts, clicks) never follows either.
  *
+ * Radio, loudness and beds (AUD-C3, AUD-C4, F1M24-CHINA §2.7): the radio plays its own
+ * sequence (whoosh, motif, gap, static, tail) in a wide band, panned to the side of its
+ * driver's card (the frame's optional `panels`), the same in a race and in a playable session
+ * (its `radio[]`, SES-C1, which HUD-C2 hands over). A makeup gain before the limiter brings the
+ * onboard mix to its target loudness; a stereo track bed sits under TV, helicopter and chase
+ * and the crowd is decorrelated left and right.
+ *
  * Recorded engines (AUD-C10): off by default (mixer.defaults.recorded false); every bank is
  * riskRipped or without a licence, so it only sounds when the viewer turns it on in a local
  * build, never in a public one (engineSamples.bankAllowed).
@@ -58,7 +65,7 @@ import { loadSeasonPack } from "../../engine/packs/seasonPacks";
 import audioData from "../../data/balance/audio.json";
 import { createEngineVoice, driveStep, engineSpecFor, safetyCarSpecFor } from "./engineSynth";
 import { assignVoices, blendMix, busGains, cameraListener, cameraUsable, createMixer, distanceGain, dopplerFactor, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, transitionAt, viewMix, viewTransition } from "./mixer";
-import { airGunsOn, createAmbience, crowdLevel, fieldBedOf, gridRevsOf, kerbRumble, makeNoiseBuffer, rainOf, squeals, startLightsStep, swellFor, windOf } from "./ambience";
+import { airGunsOn, createAmbience, crowdLevel, fieldBedOf, trackBedOf, gridRevsOf, kerbRumble, makeNoiseBuffer, rainOf, squeals, startLightsStep, swellFor, windOf } from "./ambience";
 import { firingFrequency } from "./engineSynth";
 import { kerbZonesFor, onKerb } from "./kerbs";
 import { clickCueFor, createUiCueState, gateCue, isUiCue, playCue, uiCuesStep } from "./uiSounds";
@@ -70,7 +77,7 @@ export { engineSpecFor, eraFor, firingFrequency, nextGear, parseFormula } from "
 export { gridRevsOf, startLightsStep } from "./ambience";
 export { blendMix, cameraMix, cutEnvelope, distanceGain, dopplerFactor, fastForwardOn, loadSettings, resolveView, saveSettings, sliderToGain, transitionAt, viewMix, viewTransition } from "./mixer";
 export { mixLevels } from "./levels";
-export { clickCueFor, cueShots, uiCuesStep } from "./uiSounds";
+export { clickCueFor, cueShots, panFromDb, panGains, radioPanOf, radioSideOf, radioTimeline, uiCuesStep } from "./uiSounds";
 export { SAFETY_CAR_ID, scCarOf, scCuesStep, scPoseOf } from "./safetyCarSound";
 export { safetyCarSpecFor } from "./engineSynth";
 export { binWeights, layerWeights, recordedAvailable, sampleBankFor, sampleTargets } from "./engineSamples";
@@ -265,9 +272,11 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
      * One view frame: { tau, playing, mode, focusId, cars: [{ id, teamId, pose }],
      * wetness, events, started } and, optional, start (the engine's snapshot.start), sc and
      * vsc (snapshot.sc / snapshot.vsc) with scPose (where the view draws the safety car), and
-     * speed (the simulation speed, AUD-C1; x1 when absent).
+     * speed (the simulation speed, AUD-C1; x1 when absent), and panels (AUD-C3: the player's
+     * driver cards' carIds in screen order, left to right, so each radio message sounds on
+     * its driver's side; absent, the radio is centred).
      */
-    frame({ tau = 0, playing = true, mode = "tv", focusId = null, cars = [], wetness = 0, events = [], started: startedFlag = false, view = null, camera, circuit: frameCircuit, start: frameStart = null, radio, sc = null, vsc = null, scPose = null, speed = 1 }) {
+    frame({ tau = 0, playing = true, mode = "tv", focusId = null, cars = [], wetness = 0, events = [], started: startedFlag = false, view = null, camera, circuit: frameCircuit, start: frameStart = null, radio, panels = null, sc = null, vsc = null, scPose = null, speed = 1 }) {
       if (!ctx || ctx.state === "closed") return;
       const now = ctx.currentTime;
       const dt = lastTime === null ? 0 : Math.max(0, now - lastTime);
@@ -298,7 +307,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       // Interface cues (AUD-4): new alert events and radio messages, the replay, a skip.
       // AUD-5: deploying and withdrawing the SC/VSC; the log's own sc/vsc alert shares the cooldown.
       const scCues = scCuesStep(scState, { sc, vsc, year }).filter((cue) => gateCue(uiState, cue.kind, now));
-      const uiCues = [...uiCuesStep(uiState, { events, radio, view: viewName, skipped: skippedAhead }, now), ...scCues].slice(0, audioData.ui.maxPerFrame);
+      const uiCues = [...uiCuesStep(uiState, { events, radio, panels, view: viewName, skipped: skippedAhead }, now), ...scCues].slice(0, audioData.ui.maxPerFrame);
       const uiGains = busGains(settings);
       if (uiGains.master > 0 && uiGains.ui > 0) uiCues.forEach((cue, k) => playCue(ctx, mixer.ui, noiseBuffer, cue.kind, cue.opts, now + k * audioData.ui.cueSpacingSec));
       const target = viewMix(mode, viewName);
@@ -449,6 +458,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         time: now,
         crowd: crowdLevel(swells, now),
         crowdShare: mix.crowd,
+        trackBed: trackBedOf(mix),
         wind: windOf(playing ? focusKmh : 0, mix.wind),
         rain: rainOf(wetness),
         guns: playing ? guns : 0,

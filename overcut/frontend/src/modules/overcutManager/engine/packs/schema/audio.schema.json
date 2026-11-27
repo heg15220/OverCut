@@ -139,6 +139,7 @@
         "interior": {"$ref": "#/definitions/share"},
         "crowd": {"$ref": "#/definitions/share"},
         "wind": {"$ref": "#/definitions/share"},
+        "bed": {"$ref": "#/definitions/share"},
         "lowpassHz": {"$ref": "#/definitions/positive"}
       }
     },
@@ -152,6 +153,7 @@
         "interior": {"$ref": "#/definitions/share"},
         "crowd": {"$ref": "#/definitions/share"},
         "wind": {"$ref": "#/definitions/share"},
+        "bed": {"$ref": "#/definitions/share"},
         "lowpassHz": {"$ref": "#/definitions/positive"},
         "ffBed": {"$ref": "#/definitions/share"},
         "engineDb": {"type": "number", "minimum": -60, "maximum": 6},
@@ -233,7 +235,7 @@
       }
     },
     "ui": {
-      "$comment": "Sonidos de interfaz y «radio» sin voz (radio-ui-sounds, AUD-4; RF-CMD-03, RNF-07). Los rangos de duración son los de F1M24-GAMEPLAY §2.1 (clic 5-30 ms, whoosh 0,4-0,7 s) y la banda de la radio cabe en la telefónica (300-3.400 Hz).",
+      "$comment": "Sonidos de interfaz y «radio» sin voz (radio-ui-sounds, AUD-4; RF-CMD-03, RNF-07). Los rangos de duración son los de F1M24-GAMEPLAY §2.1 (clic 5-30 ms, whoosh 0,4-0,7 s); la radio, desde AUD-C3, en banda ancha (F1M24-CHINA §2.7).",
       "type": "object",
       "additionalProperties": false,
       "required": ["maxPerFrame", "cueSpacingSec", "click", "whoosh", "alert", "radio"],
@@ -307,23 +309,52 @@
           }
         },
         "radio": {
+          "$comment": "AUD-C3: secuencia whoosh → motivo → hueco → estática → cierre, banda ancha (≥ 4 kHz de ancho, nunca la telefónica) y paneo hacia el panel del piloto.",
           "type": "object",
           "additionalProperties": false,
-          "required": ["band", "open", "close", "alertGapSec", "staticSec", "staticGain", "toneGain", "attackSec", "cooldownSec"],
+          "required": ["status", "band", "sequence", "pan", "attackSec", "cooldownSec"],
           "properties": {
             "$comment": {"type": "string"},
+            "status": {"enum": ["NV", "pending", "sourced", "measured"]},
             "band": {
               "type": "object",
               "additionalProperties": false,
               "required": ["lowHz", "highHz"],
-              "properties": {"lowHz": {"type": "number", "minimum": 300}, "highHz": {"type": "number", "maximum": 3400}}
+              "properties": {"lowHz": {"type": "number", "minimum": 80, "maximum": 400}, "highHz": {"type": "number", "minimum": 4500, "maximum": 8000}}
             },
-            "open": {"$ref": "#/definitions/uiTone"},
-            "close": {"$ref": "#/definitions/uiTone"},
-            "alertGapSec": {"$ref": "#/definitions/positive"},
-            "staticSec": {"$ref": "#/definitions/positive"},
-            "staticGain": {"$ref": "#/definitions/share"},
-            "toneGain": {"$ref": "#/definitions/share"},
+            "sequence": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["whoosh", "motif", "gapSec", "static", "tail"],
+              "properties": {
+                "whoosh": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["durationSec", "fromHz", "toHz", "q", "attackShare", "gain"],
+                  "properties": {"durationSec": {"type": "number", "minimum": 0.1, "maximum": 0.8}, "fromHz": {"$ref": "#/definitions/positive"}, "toHz": {"$ref": "#/definitions/positive"}, "q": {"$ref": "#/definitions/positive"}, "attackShare": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1}, "gain": {"$ref": "#/definitions/share"}}
+                },
+                "motif": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["notes", "noteSec", "spacingSec", "gain"],
+                  "properties": {
+                    "notes": {"type": "array", "minItems": 2, "maxItems": 6, "items": {"type": "object", "additionalProperties": false, "required": ["hz"], "properties": {"hz": {"$ref": "#/definitions/positive"}}}},
+                    "noteSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.3},
+                    "spacingSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.3},
+                    "gain": {"$ref": "#/definitions/share"}
+                  }
+                },
+                "gapSec": {"type": "number", "minimum": 0, "maximum": 1.5},
+                "static": {"type": "object", "additionalProperties": false, "required": ["durationSec", "gain"], "properties": {"durationSec": {"type": "number", "minimum": 0.1, "maximum": 1.5}, "gain": {"$ref": "#/definitions/share"}}},
+                "tail": {"$ref": "#/definitions/uiTone"}
+              }
+            },
+            "pan": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["byPanelSide", "db"],
+              "properties": {"byPanelSide": {"type": "boolean"}, "db": {"type": "number", "minimum": 0, "maximum": 20}}
+            },
             "attackSec": {"$ref": "#/definitions/positive"},
             "cooldownSec": {"$ref": "#/definitions/nonNegative"}
           }
@@ -368,7 +399,7 @@
     "mixer": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["storageKey", "defaults", "volumeCurve", "maxVoices", "panningModel", "distance", "doppler", "masterLimiter", "cameras", "views"],
+      "required": ["storageKey", "defaults", "volumeCurve", "maxVoices", "panningModel", "distance", "doppler", "masterLimiter", "loudness", "cameras", "views"],
       "properties": {
         "storageKey": {"$ref": "#/definitions/text"},
         "settingsVersion": {"type": "integer", "minimum": 1},
@@ -404,6 +435,20 @@
           "additionalProperties": false,
           "required": ["threshold", "knee", "ratio"],
           "properties": {"threshold": {"type": "number", "maximum": 0}, "knee": {"$ref": "#/definitions/nonNegative"}, "ratio": {"type": "number", "minimum": 1}}
+        },
+        "loudness": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "onboardTargetDbfs", "tolerance", "measuredOnboardDbfs", "source", "makeupDb"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "status": {"enum": ["NV", "pending", "sourced", "measured"]},
+            "onboardTargetDbfs": {"type": "number", "minimum": -40, "maximum": -6},
+            "tolerance": {"type": "number", "exclusiveMinimum": 0, "maximum": 6},
+            "measuredOnboardDbfs": {"type": "number", "minimum": -80, "maximum": 0},
+            "source": {"$ref": "#/definitions/text"},
+            "makeupDb": {"type": "number", "minimum": -12, "maximum": 20}
+          }
         },
         "cameras": {
           "type": "object",
@@ -481,7 +526,7 @@
     "ambience": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["crowd", "wind", "fieldBed", "kerb", "rain", "pit", "squeal", "impact", "startLights", "gridRevs"],
+      "required": ["crowd", "trackBed", "wind", "fieldBed", "kerb", "rain", "pit", "squeal", "impact", "startLights", "gridRevs"],
       "properties": {
         "$comment": {"type": "string"},
         "crowd": {
@@ -502,7 +547,21 @@
             },
             "attackSec": {"$ref": "#/definitions/positive"},
             "decaySec": {"$ref": "#/definitions/positive"},
-            "nearbyMetres": {"$ref": "#/definitions/positive"}
+            "nearbyMetres": {"$ref": "#/definitions/positive"},
+            "decorrelateSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 2}
+          }
+        },
+        "trackBed": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "gain", "highpassHz", "lowpassHz", "decorrelateSec"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "status": {"enum": ["NV", "pending", "sourced", "measured"]},
+            "gain": {"$ref": "#/definitions/share"},
+            "highpassHz": {"$ref": "#/definitions/positive"},
+            "lowpassHz": {"$ref": "#/definitions/positive"},
+            "decorrelateSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 2}
           }
         },
         "wind": {

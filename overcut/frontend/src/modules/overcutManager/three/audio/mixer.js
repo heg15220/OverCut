@@ -9,6 +9,10 @@
  *        ambience -----> ambience bus > view trim -+> master > compressor > destination
  *        clicks, whoosh, alerts, radio > ui bus ---+
  *
+ * Loudness (AUD-C4, F1M24-CHINA §2.7): a fixed makeup gain (`loudness.makeupDb`) sits
+ * between master and the limiter, so the onboard mix reaches `onboardTargetDbfs` with the
+ * default volumes; it moves every bus alike and keeps every relation between views.
+ *
  * The ui bus (AUD-4, radio-ui-sounds) has its own level and mute and no view trim, so the
  * interface still clicks in a pause or a menu; the master mute silences it too.
  *
@@ -139,7 +143,7 @@ export const listenerFor = (mix, focus, post = null) => {
 
 const VIEWS = MIXER.views;
 /** The fields a snapshot or a crossfade moves (lowpassHz in log, the rest linearly). */
-const BLENDED = ["focus", "field", "interior", "crowd", "wind", "lowpassHz", "engineDb", "bedDb", "ffBed"];
+const BLENDED = ["focus", "field", "interior", "crowd", "wind", "bed", "lowpassHz", "engineDb", "bedDb", "ffBed"];
 
 /** Is the simulation speed fast enough for the fast-forward mix (AUD-C1)? Without a speed, no. */
 export const fastForwardOn = (speed, views = VIEWS) => {
@@ -331,14 +335,32 @@ export const assignVoices = (previous, wanted, size) => {
 
 // ------------------------------------------------------------------ Web Audio buses
 
-/** Master, engine, ambience and ui buses with a gentle compressor at the end. */
+/**
+ * The makeup gain of AUD-C4 in dB (mixer.loudness.makeupDb): what lifts the measured onboard
+ * level to its target. 0 without the block.
+ */
+export const makeupDb = (loudness = MIXER.loudness) => (loudness && Number.isFinite(loudness.makeupDb) ? loudness.makeupDb : 0);
+
+/**
+ * Where the onboard mix lands with the makeup (dBFS), from the last measurement, and whether
+ * that is inside the target's tolerance: { dbfs, target, inside }.
+ */
+export const onboardLoudness = (loudness = MIXER.loudness) => {
+  if (!loudness) return { dbfs: null, target: null, inside: false };
+  const dbfs = loudness.measuredOnboardDbfs + makeupDb(loudness);
+  return { dbfs, target: loudness.onboardTargetDbfs, inside: Math.abs(dbfs - loudness.onboardTargetDbfs) <= loudness.tolerance };
+};
+
+/** Master, engine, ambience and ui buses, the makeup (AUD-C4) and a gentle compressor at the end. */
 export const createMixer = (ctx) => {
   const master = ctx.createGain();
+  const makeup = ctx.createGain();
+  makeup.gain.value = dbToGain(makeupDb());
   const comp = ctx.createDynamicsCompressor();
   comp.threshold.value = MIXER.masterLimiter.threshold;
   comp.knee.value = MIXER.masterLimiter.knee;
   comp.ratio.value = MIXER.masterLimiter.ratio;
-  master.connect(comp).connect(ctx.destination);
+  master.connect(makeup).connect(comp).connect(ctx.destination);
   const engine = ctx.createGain();
   const ambience = ctx.createGain();
   // The view snapshot's trims (engineDb, bedDb) sit after the viewer's own bus volumes.
