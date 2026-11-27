@@ -17,7 +17,11 @@
  *     inter/dry ratio of the Chinese SQ 2024 (OpenF1 9668) sits in the inter's window, and the
  *     track cools 6-7 °C in 30 min under rain;
  *   - the same seed gives the same afternoon; the quick and step races share the water and the
- *     step race exposes it for the view.
+ *     step race exposes it for the view;
+ *   - WX-C2 / GS-11 (F1M24-CHINA §2.9, §3.1): the spray loss is within ±30 % of what OpenF1's wet
+ *     races 2023-2025 measure (__fixtures__/openf1-wet-spray.json, spray_from_openf1.py) and 0 in
+ *     the dry; `sprayAt` is pure, 0 in the dry, monotone in water and speed and in 0..1; the
+ *     snapshot's spray is the same with the same seed.
  */
 
 import Ajv from "ajv";
@@ -26,9 +30,10 @@ import CLIMATE from "../../data/weather/climate.json";
 import schema from "../packs/schema/race-weather.schema.json";
 import climateSchema from "../packs/schema/weather-climate.schema.json";
 import SQ_CHINA_2024 from "./__fixtures__/openf1-9668.json";
+import WET_SPRAY from "./__fixtures__/openf1-wet-spray.json";
 import {
   INTER_CAPACITY_MM, SLICK_INTER_MM, STATES, WET_CAPACITY_MM, aquaplaningOf, capacityFor, climateFor, depthOfWetness, evacuationFor, forecastOf, gripRatio, rainChanceOf,
-  rainTrackTargetOf, relaxTrackTemp, sprayLevelOf, tyreForDepth, tyreForWetness, waterStep, weatherTimeline, wetnessOfDepth,
+  rainTrackTargetOf, relaxTrackTemp, sprayAt, sprayLevelOf, sprayLossOf, sprayRiskOf, tyreForDepth, tyreForWetness, waterStep, weatherSnapshot, weatherTimeline, wetnessOfDepth,
 } from "./index";
 import { createRace, tyreTime } from "../race";
 import { fromQuickRace, runStepToFinish, weatherNow } from "../sim";
@@ -309,5 +314,90 @@ describe("GS-13 · water evacuation by tyre generation (RF-SIM-03, RF-SIM-11, SR
     expect(Math.abs(relaxTrackTemp(c.fromC, target, c.minutes) - c.toC)).toBeLessThan(0.5);
     // The per-lap relaxation race.js applies is the same constant at a 2-minute wet lap.
     expect(1 - Math.exp(-2 / W.temperature.relaxTauMin)).toBeCloseTo(W.temperature.relaxPerLap, 2);
+  });
+});
+
+
+describe("WX-C2 · GS-11 spray calibrated with OpenF1 (F1M24-CHINA §2.9; RF-SIM-11, RF-SIM-06, RNF-05, RNF-07)", () => {
+  const samples = WET_SPRAY.races.flatMap((race) => race.samples);
+  const wet = samples.filter((sample) => sample[3] === "wet");
+  const dry = samples.filter((sample) => sample[3] === "dry");
+  const mean = (values) => values.reduce((a, b) => a + b, 0) / values.length;
+  const window = WET_SPRAY.method.windowSec;
+
+  it("the fixture is real data with enough laps from several wet races, and the engine reads the measurement's window", () => {
+    expect(WET_SPRAY.status).toBe("measured");
+    expect(WET_SPRAY.races.length).toBeGreaterThanOrEqual(5);
+    expect(wet.length).toBeGreaterThanOrEqual(100);
+    expect(dry.length).toBeGreaterThanOrEqual(100);
+    const outside = samples.filter(([gap, level]) => !(gap >= 0 && gap < window && level >= 0 && level <= 1));
+    expect(outside).toEqual([]);
+    expect(W.spray.windowSec).toBe(window);
+    expect(W.spray.status).toBe("measured");
+    expect(W.spray.nvKeys).toContain("incident");
+  });
+
+  it("the engine's spray loss on the measured wet laps is within ±30 % of what they really lost over the dry laps", () => {
+    // Measured: following within the window costs more on a wet track than on a dry one (where
+    // only the dirty air, charged apart by the engine, costs).
+    const measured = mean(wet.map((s) => s[2])) - mean(dry.map((s) => s[2]));
+    expect(measured).toBeGreaterThan(0);
+    expect(measured).toBeCloseTo(WET_SPRAY.result.extraSec, 3);
+    expect(W.spray.calibration.extraSec).toBeCloseTo(WET_SPRAY.result.extraSec, 3);
+    // The engine on the same laps: the water whose spray level is the lap's, at the lap's gap.
+    const engine = mean(wet.map(([gap, level]) => sprayLossOf(level * INTER_CAPACITY_MM, gap)));
+    expect(W.spray.calibration.tolerance).toBe(0.3);
+    expect(Math.abs(engine - measured) / measured).toBeLessThanOrEqual(W.spray.calibration.tolerance);
+    // The figure sits inside the bootstrap interval of the measurement.
+    expect(W.spray.lossSec).toBeGreaterThanOrEqual(WET_SPRAY.result.ci95[0]);
+    expect(W.spray.lossSec).toBeLessThanOrEqual(WET_SPRAY.result.ci95[1]);
+  });
+
+  it("no spray loss, no spray risk and no spray in the dry; none beyond the window", () => {
+    [0, 0.3, 1, 1.49].forEach((gap) => {
+      expect(sprayLossOf(0, gap)).toBe(0);
+      expect(sprayRiskOf(0, gap)).toBe(1);
+    });
+    expect(sprayLossOf(0.8, window)).toBe(0);
+    expect(sprayLossOf(0.8, 3)).toBe(0);
+    expect(sprayLossOf(0.8, null)).toBe(0);
+    expect(sprayLossOf(0.8, 0)).toBeCloseTo(W.spray.lossSec * sprayLevelOf(0.8), 9);
+    [undefined, 0, 120, 300].forEach((kmh) => expect(sprayAt(0, { kmh })).toBe(0));
+    expect(sprayAt(-0.2)).toBe(0);
+  });
+
+  it("sprayAt is pure, in 0..1, monotone in water and in speed, the water level without a speed", () => {
+    let last = -1;
+    const broken = [];
+    for (let h = 0; h <= 3; h += 0.05) {
+      const value = sprayAt(h, { kmh: 250 });
+      if (!(value >= last && value >= 0 && value <= 1) || sprayAt(h, { kmh: 250 }) !== value || sprayAt(h) !== sprayLevelOf(h)) broken.push(h);
+      last = value;
+    }
+    last = -1;
+    for (let kmh = 0; kmh <= 360; kmh += 10) {
+      const value = sprayAt(0.5, { kmh });
+      if (!(value >= last)) broken.push(kmh);
+      last = value;
+    }
+    expect(broken).toEqual([]);
+    expect(sprayAt(0.5, { kmh: 0 })).toBe(0);
+    // At the inter's capacity and the speed the evacuation was fitted at, the full spray.
+    expect(sprayAt(INTER_CAPACITY_MM, { kmh: W.grip.evacuation.fit.atKmh })).toBeCloseTo(1, 9);
+    // The tyre generation: the 2014 inter clears less water, the same water throws more spray level.
+    expect(sprayAt(0.6, { year: 2014 })).toBeGreaterThan(sprayAt(0.6, { year: 2024 }));
+  });
+
+  it("the snapshot's spray is the timeline's water through sprayAt and the same with the same seed (RNF-05)", () => {
+    const race = { packCircuitId: "spa", date: "2025-07-27", laps: 44 };
+    const shots = (seed) => {
+      const weather = weatherTimeline({ race, laps: 44, seed, cars: 20 });
+      return Array.from({ length: 45 }, (_, lap) => weatherSnapshot({ weather, lap: 0, evolution: 0 }, lap));
+    };
+    const a = shots("wx-c2");
+    expect(shots("wx-c2")).toEqual(a);
+    const wrong = a.filter((shot) => shot.spray !== Math.round(sprayAt(shot.waterMm) * 1000) / 1000 && Math.abs(shot.spray - sprayAt(shot.waterMm)) > 1e-3);
+    expect(wrong).toEqual([]);
+    expect(a.filter((shot) => !(shot.spray >= 0 && shot.spray <= 1))).toEqual([]);
   });
 });
