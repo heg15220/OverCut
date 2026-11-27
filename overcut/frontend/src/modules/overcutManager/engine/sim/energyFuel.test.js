@@ -240,12 +240,19 @@ describe("SIM-C5 / GS-09 · strategy under the safety car and at the flag (RF-SI
 
   it("fuelSpendMixOf: lean when short, standard outside the window, the mix closest to the reserve inside it", () => {
     const mixes = { lean: { burn: 0.93 }, standard: { burn: 1 }, rich: { burn: 1.07 } };
-    const cfg = { laps: 15, windowShare: 0.5 };
+    const cfg = { laps: 15, windowShare: 0.5, holdLaps: 10 };
     expect(fuelSpendMixOf({ fuel: 29.5, remaining: 30, reserve: 0.5, mixes, cfg }).mix).toBe("lean");
     // 40 laps to go and half a lap over: the window burns it later.
     expect(fuelSpendMixOf({ fuel: 41, remaining: 40, reserve: 0.5, mixes, cfg }).mix).toBe("standard");
-    // More than the window can burn (2 laps over > 15 x 0.07): it starts now.
+    // More than the window can burn (2 laps over > 15 x 0.07 x 0.5 + one lap's extra): it starts now.
     expect(fuelSpendMixOf({ fuel: 42.5, remaining: 40, reserve: 0.5, mixes, cfg }).mix).toBe("rich");
+    // The opening holdLaps keep the start's margin (fuel.margin 1.2 laps over a 0.3-lap reserve), the
+    // same car after them burns it down to the window's line; on a push lap it is not short (lean).
+    expect(fuelSpendMixOf({ fuel: 57.2, remaining: 56, reserve: 0.3, lapsRun: 0, mixes, cfg }).mix).toBe("standard");
+    expect(fuelSpendMixOf({ fuel: 47.2, remaining: 46, reserve: 0.3, lapsRun: 10, mixes, cfg }).mix).toBe("rich");
+    expect(fuelSpendMixOf({ fuel: 57.2, remaining: 56, reserve: 0.3, lapsRun: 3, lapBurn: 1.02, mixes, cfg }).mix).toBe("standard");
+    // Within one lap of the rich mix's extra over the line: standard (no flicker).
+    expect(fuelSpendMixOf({ fuel: 41.07, remaining: 40, reserve: 0.5, mixes, cfg }).mix).toBe("standard");
     expect(fuelSpendMixOf({ fuel: 11, remaining: 10, reserve: 0.5, mixes, cfg }).mix).toBe("rich");
     // The last lap: rich only if it lands closer to the reserve.
     expect(fuelSpendMixOf({ fuel: 1.53, remaining: 1, reserve: 0.5, mixes, cfg }).mix).toBe("standard");
@@ -306,8 +313,7 @@ describe("SIM-C5 / GS-09 · strategy under the safety car and at the flag (RF-SI
       const run = forcedScRace({ year: 2024, seed });
       if (otherNeutralisation(run)) return;
       clean += 1;
-      deltas.push(...flagDeltas(run.state));
-    });
+      deltas.push(...flagDeltas(run.state));    });
     expect(clean).toBeGreaterThanOrEqual(8);
     expect(deltas.length).toBeGreaterThan(clean * 10);
     const worst = Math.max(...deltas.map(Math.abs));

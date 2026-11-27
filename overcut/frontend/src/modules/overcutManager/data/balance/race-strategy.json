@@ -16,6 +16,9 @@
     "earlyLapCostSec": 0.4,
     "earlyLapStatus": "pending",
     "earlyLapNote": "NV: lo que cuesta cada vuelta que se adelanta la parada (el último juego hace esas vueltas de más); del orden de la degradación por vuelta de Pirelli 2013-2024 (0,03-0,1 s por vuelta de edad) sumada en el tramo. Pendiente de medir con OpenF1 laps",
+    "minTyreAge": 5,
+    "minTyreAgeStatus": "pending",
+    "minTyreAgeNote": "NV: vueltas que debe llevar el juego montado para adelantar la parada bajo el SC (un SC en las primeras vueltas no se aprovecha para la parada del plan; las paradas de la vuelta 1-3 por daños van por otra rama). La medida de OpenF1 apunta en esa dirección (con el neumático de 15 vueltas o más paran 0,84; el resto, 61 de 100) pero no fija la cota; pendiente de medir con stints por edad",
     "virtual": true,
     "virtualStatus": "pending",
     "virtualNote": "Bajo VSC se aplica la misma regla con lossVsc (el ahorro es menor y la puerta de ahorro corta antes). La cuota medida es solo de SC completo; la del VSC queda pendiente de medir"

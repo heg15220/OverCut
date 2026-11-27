@@ -149,6 +149,9 @@
       ],
       "laps": 15,
       "windowShare": 0.5,
+      "holdLaps": 10,
+      "holdStatus": "pending",
+      "holdNote": "NV: vueltas del principio en que el coche guarda el margen con que salió (fuel.margin) con la mezcla estándar: el muro lee primero el consumo real de la carrera antes de quemar nada (y la vuelta de salida y las primeras van con el depósito lleno). Sin fuente pública; antes de SIM-C5 los rivales nunca iban con la mezcla rica fuera de las 15 últimas vueltas. Con 0 el margen se quemaba desde la vuelta 1 y las vueltas de banco de PT-2/PT-C1 (vueltas 2-8, speeds.test.js) salían con la mezcla rica",
       "lapsStatus": "pending",
       "lapsNote": "NV: diseño del plan (F1M24-CHINA §2.2 GS-09, 'el delta se gasta en las últimas N vueltas'); sin fuente pública del reparto real del gasto. 15 vueltas con la mezcla rica (race-eras.json fuel.mixes.rich.burn 1,07) queman ~1 vuelta de combustible, lo que deja de quemar un SC de 3 vueltas (scBurn 0,62). windowShare (NV): antes de la ventana solo se quema lo que ella no podría, contando la mitad del extra de la mezcla rica (un ritmo que cuida neumáticos, save 0,97, quema menos). Límite físico: lo que la mezcla rica no alcanza a quemar en las vueltas que quedan (un SC tardío o dos SC) llega a la bandera; ver F1M24-CHINA §3.3 SIM-C5"
     },

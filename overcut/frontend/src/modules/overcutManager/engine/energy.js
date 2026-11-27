@@ -319,16 +319,20 @@ export const fuelReserveKgOf = (year = 2020, cfg = data.tactics.fuelSpendToTarge
  * reaches the flag within half the difference between two mixes. Pure (no draws, RF-SIM-15).
  * Returns { mix, delta } (delta before the lap, laps of fuel).
  */
-export const fuelSpendMixOf = ({ fuel, remaining, reserve, lapBurn = 1, paceBurn = 1, mixes, cfg = data.tactics.fuelSpendToTarget }) => {
+export const fuelSpendMixOf = ({ fuel, remaining, reserve, lapBurn = 1, paceBurn = 1, lapsRun = Infinity, mixes, cfg = data.tactics.fuelSpendToTarget }) => {
   // The laps after this one at the pace the car runs now (`paceBurn`, its pace mode; no safety car).
   const delta = fuel - lapBurn - (remaining - 1) * paceBurn - reserve;
   if (delta < 0) return { mix: "lean", delta };
   const richExtra = (mixes.rich.burn - 1) * lapBurn;
+  if (remaining <= cfg.laps) return { mix: Math.abs(delta - richExtra) < Math.abs(delta) ? "rich" : "standard", delta };
+  // The opening `holdLaps` laps keep what the car started with (the wall reads the race's real burn
+  // first): the standard mix.
+  if (lapsRun < cfg.holdLaps) return { mix: "standard", delta };
   // Before the window, only what the window could not burn (at `windowShare` of the rich mix's extra:
-  // a pace that saves its tyres burns less of it).
-  const spendNow = remaining <= cfg.laps || delta > (mixes.rich.burn - 1) * paceBurn * cfg.laps * cfg.windowShare;
-  if (!spendNow) return { mix: "standard", delta };
-  return { mix: Math.abs(delta - richExtra) < Math.abs(delta) ? "rich" : "standard", delta };
+  // a pace that saves its tyres burns less of it), once it is a whole lap of the rich mix's extra
+  // over that line (no flicker between mixes).
+  const line = (mixes.rich.burn - 1) * paceBurn * cfg.laps * cfg.windowShare;
+  return { mix: delta - line >= richExtra ? "rich" : "standard", delta };
 };
 
 /**

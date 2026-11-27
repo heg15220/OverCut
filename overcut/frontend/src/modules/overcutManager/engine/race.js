@@ -67,7 +67,7 @@ import { circuitFor } from "./venue";
 import { commandsFor, drsOpen, penaltyFor, pitLaneSpeedFor, raceBalance as BALANCE, rulesFor } from "./rules";
 import { circuitIdOf, pitLaneFor, previewPit } from "./sim/pitLane";
 import { expectedStationary, planStop } from "./sim/pitStop";
-import { battleAssistModeOf, ersEndgameModeOf, fuelReserveKgOf, fuelSpecOf, fuelSpendMixOf } from "./energy";
+import { TACTICS_ENERGY, battleAssistModeOf, ersEndgameModeOf, fuelReserveKgOf, fuelSpecOf, fuelSpendMixOf } from "./energy";
 import strategyBalance from "../data/balance/race-strategy.json";
 import {
   RELIABILITY as REL, calibrationFor, contactOutcome, debrisLapsOf, debrisPunctureChanceOf, floorDamageChancesOf, floorLossOf, leavesDebris, pickGroup, raceHazards, turnOnePlan,
@@ -1161,7 +1161,13 @@ export const rivalCalls = (state, car, lap = state.lap) => {
     const reserve = fuelReserveKgOf(rules.year ?? state.year) / (fuelSpec.kgPerLap > 0 ? fuelSpec.kgPerLap : 1);
     const paceBurn = MODES[car.mode]?.burn ?? MODE_BURN[car.mode] ?? 1;
     const lapBurn = paceBurn * (state.safetyCar ? SC_BURN : 1);
-    const spend = fuelSpendMixOf({ fuel: car.fuel, remaining, reserve, lapBurn, paceBurn, mixes: MIXES });
+    // A push lap (an out lap, an attack) is not the pace to the flag: before the window the laps after
+    // it are projected on the standard burn at most, or one push lap 50 laps from the flag would read
+    // as a race short of fuel (lean, the slow mix). A saving pace is projected as it runs (it does burn
+    // less, and fuelSpendMixOf puts the rich laps that leaves just before the window). Inside the
+    // window the pace it runs is the one to the flag.
+    const projected = remaining <= TACTICS_ENERGY.fuelSpendToTarget.laps ? paceBurn : Math.min(paceBurn, 1);
+    const spend = fuelSpendMixOf({ fuel: car.fuel, remaining, reserve, lapBurn, paceBurn: projected, lapsRun: lap - 1, mixes: MIXES });
     car.fuelMode = spend.mix;
     car.fuelDelta = Math.round(spend.delta * fuelSpec.kgPerLap * 100) / 100;
     // RF-SIM-04: started short of the race (the era's limit, engine/energy.js) by more than the lean
@@ -2222,6 +2228,8 @@ export const scStopCall = (state, car, stream, { lap = state.lap, remaining = st
   memo.seen = lap;
   car.scSpell = memo;
   if (memo.decided) return null;
+  // A set fitted a few laps ago is not given up for the plan's next stop (race-strategy.json minTyreAge).
+  if ((car.tyreAge ?? Infinity) < SC_STOP.minTyreAge) return null;
   const soon = car.plan.stops.find((stop) => stop > lap && stop - lap <= SC_STOP.windowLaps);
   if (soon === undefined) return null;
   const preview = previewPit(state, car.id, { lap, sc: true });
