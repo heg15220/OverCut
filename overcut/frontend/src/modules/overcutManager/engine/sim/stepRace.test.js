@@ -41,6 +41,8 @@ const KNOWN_EVENTS = new Set([
   "track-limits", "black-white", "damage", "puncture",
   // SIM-C3 (PIT-C2 handover, F1M24-CHINA §3.3, prerequisite of AUD-C7): the limiter off and the end of the exit line.
   "pitExitLine",
+  // SIM-C4 (F1M24-CHINA §1.5, GS-12): race control's messages (DRS, wet chain, wet start) and a penalty carried to the grid.
+  "control", "penalty-carried",
 ]);
 
 describe("RF-SIM-01 a race in fixed steps on the circuit", () => {

@@ -243,6 +243,22 @@
       "vscPerRace": 0.386,
       "scLapFactor": { "n": 40, "p10": 1.359, "median": 1.521, "p90": 1.671 },
       "vscLapFactor": { "n": 8, "p10": 1.346, "median": 1.391, "p90": 1.421 }
+    },
+    "weave": {
+      "$comment": "SIM-C4 (F1M24-CHINA AUD-C9, §2.6 «nunca un estado largo congelado»; RF-SIM-10, RNF-07): detrás del coche de seguridad (fases START_BEHIND_SC, TRAIN, UNLAPPING e IN_THIS_LAP; no con el SC en el pit lane o recogiendo al líder, ni en RESTART, ni con VSC, ni el doblado que pasa al SC) cada coche zigzaguea para calentar neumáticos y frenos: la instantánea publica weave = amplitudeM × sin(2π t / periodSec + fase) (m, con fundido de un periodo desde el despliegue) para que la vista lo sume a lateral, con la fase de cada coche tirada una vez en su propio flujo seed::weave (RNF-05). Solo vista: metido en la línea o en el ritmo del simulador rompía el controlador de combustible (SIM-C5, |Δfuel| > 0,5 kg) y la holgura entre cajas, así que el motor no se mueve (SRS 4.2). speedShare NO se aplica: el tono del motor detrás del SC ya varía ≥ 2 % con cambios de marcha por las curvas del tren (test AUD-C9 de safetyCar.test.js); se guarda pending para un golpe de gas en powertrain. amplitudeM y periodSec MEDIDOS en OpenF1 location bajo SC (sesiones 9480 Yeda 2024 y 9655 Lusail 2024, 16 coches-ventana de 30 s desde 30 s tras SAFETY CAR DEPLOYED hasta SAFETY CAR IN THIS LAP): desviación lateral frente a la media móvil de ±3 s en tramos rectos, |dev| p90 mediana 2,02 m (p10 1,74, p90 4,96; rms 1,18 m) y periodo por cruces por cero 3,79 s (p10 1,72, p90 4,68; OpenF1 location va a ~3,7 Hz, los zigzags cortos quedan sin resolver). speedShare pending: el residuo de velocidad frente a su media de 3 s es 0,058 rms (car_data, 17 coches) pero incluye las curvas, que el tren ya hace por la traza; se toma 0,04 (rms 0,028, la mitad). Medido con overcut/src/main/resources/scripts/sc_weave_from_openf1.py. Antes de 2022 sin telemetría: la misma cifra (NV). Del juego de referencia solo el defecto observado (tono congelado 30 s), ningún valor.",
+      "amplitudeM": 2,
+      "periodSec": 3.8,
+      "speedShare": 0.04,
+      "measured": {
+        "source": "OpenF1 car_data y location (api.openf1.org), sesiones 9480 y 9655 (2024), ventanas de 30 s bajo SC.",
+        "lateralP90AbsM": { "n": 16, "p10": 1.74, "median": 2.02, "p90": 4.96 },
+        "lateralRmsM": 1.18,
+        "periodSec": { "n": 16, "p10": 1.72, "median": 3.79, "p90": 4.68 },
+        "rpmRangeShare": { "n": 172, "p10": 0.325, "median": 0.486, "p90": 0.7 },
+        "gearChangesPer30s": { "p10": 8, "median": 12, "p90": 18 },
+        "speedResidualRms": 0.058
+      },
+      "pending": ["speedShare", "años antes de 2022"]
     }
   },
   "vsc": {
@@ -309,6 +325,29 @@
       },
       "pending": ["slowFactor (doble)", "holdSec antes de 2023"],
       "pendingNote": "Sin race_control de OpenF1 antes de 2023: las demás eras usan las duraciones de 2023-2024 (FastF1 track_status desde 2018 podría medirlas). La velocidad bajo doble amarilla no está medida: se deja la de la sencilla."
+    },
+    "wet": {
+      "$comment": "SIM-C4 (F1M24-CHINA GS-12, §1.5 «Mensajes de mojado», §2.9; RF-SIM-10, RF-SIM-08, RF-SIM-11): la cadena de Dirección de Carrera en mojado, en los dos modos al empezar cada vuelta del líder (race.js beginLapWorld), como eventos {type: 'control', kind, lap, sector?}. climaticChange: el estado del tiempo pasa a lluvia (race-weather.json states.rainFrom). wetTrack: el agua en la trazada llega a wetTrackMm. slippery: por sector de cronometraje (1-3) cuando su agua llega a slipperyMm (OpenF1 los da por sector de comisarios; el motor solo tiene tres). lowGrip: el agua en la trazada llega a lowGripMm. Cada mensaje se da una vez por episodio: se olvida cuando el agua baja de su umbral × clearShare. DRS: con WET TRACK declarado drsAfterWetTrackMin minutos de carrera (desde la salida si se declara ya en la parrilla, vuelta 0: lleva horas lloviendo; diseño propio, NV), el DRS se cierra con razón 'wet' (engine/rules.js drsStatus wetTrack), además del índice de humedad de siempre (race-eras.json drs.wetLimit). Umbrales DERIVADOS de OpenF1 9668 (SQ de China 2024, engine/weather/__fixtures__/openf1-9668.json): las cuatro primeras llegan 9 min después de la primera fila con lluvia y DRS DISABLED 17 min después; con lluvia ligera (1,5 mm/h, la intensidad no está en OpenF1, que solo da rainfall sí/no) y 15 coches el modelo de agua (engine/weather waterStep) deja 0,068 mm a los 9 min: wetTrackMm = slipperyMm = lowGripMm = 0,07 y drsAfterWetTrackMin = 17 − 9. Una sola sesión: status derived. clearShare NV.",
+      "status": "derived",
+      "wetTrackMm": 0.07,
+      "slipperyMm": 0.07,
+      "lowGripMm": 0.07,
+      "clearShare": 0.5,
+      "drsAfterWetTrackMin": 8,
+      "startBehindSc": {
+        "$comment": "SIM-C4 (GS-12; era-defaults.json wetStart, FIA 2024 arts. 49, 51 y 52): con wetStart.behindSc en la era y el agua de la salida (vuelta 0) en la trazada al menos interCapacityShare × la capacidad del intermedio del año (engine/weather capacityFor, race-weather.json grip.evacuation), la carrera sale detrás del SC (fase START_BEHIND_SC) con todos en neumáticos de lluvia (extremos si wetTyresMandatory). El SC se queda hasta la primera vuelta con el agua por debajo de endShare × esa capacidad, al menos minLaps y como mucho maxLaps (el modo rápido las cuenta del agua prevista, sin tirada). Al entrar: salida parada desde la parrilla si la era tiene standingAfter y el agua está por debajo de rollingAboveShare × la capacidad ; si no, lanzada (art. 52: 'if the track is unsuitable for a standing start'). rollingAboveShare 2,5 ≈ la capacidad del neumático de lluvia extrema frente a la del intermedio (race-weather.json grip.evacuation, 2,47 mm frente a 0,95 en 2024): por debajo la pista vale para salir parado con extremos. De memoria, desde 2017 las salidas en mojado tras el SC fueron paradas o acabaron en bandera roja (Spa 2021, Suzuka 2022), sin salidas lanzadas: NV. La regla de la capacidad del intermedio es la del criterio de aceptación de GS-12 (spec), no un texto de la FIA (el art. 49.1 deja la decisión al director: 'track conditions are considered unsuitable'). minLaps, maxLaps y rollingAboveShare NV (de memoria: China 2009 8 vueltas detrás del SC, Fuji 2007 19, Mónaco 2016 7).",
+        "status": "NV",
+        "interCapacityShare": 1,
+        "endShare": 1,
+        "minLaps": 2,
+        "maxLaps": 10,
+        "rollingAboveShare": 2.5
+      },
+      "measured": {
+        "source": "OpenF1 race_control 9668 (engine/weather/__fixtures__/openf1-9668.json, transcrito de la spec, pending de regenerar con wet_session_from_openf1.py).",
+        "minutesFromFirstRain": { "climaticChange": 9, "wetTrack": 9, "slippery": 9, "lowGrip": 9, "drsDisabled": 17 }
+      },
+      "pending": ["clearShare", "startBehindSc.minLaps", "startBehindSc.maxLaps", "startBehindSc.rollingAboveShare", "intensidad de la lluvia de 9668"]
     }
   },
   "mistake": {
@@ -360,14 +399,44 @@
     "enabled": true,
     "gaining": { "withinSec": 3, "minGainSecPerLap": 0.3 },
     "closing": { "withinSec": 1.5, "minGainSecPerLap": 0.3 },
-    "quietSec": { "gaining": 90, "closing": 90, "attack-failed": 30, "passed": 0, "defended": 30, "lost": 0 }
+    "quietSec": { "gaining": 90, "closing": 90, "attack-failed": 30, "passed": 0, "defended": 30, "lost": 0 },
+    "spray": {
+      "$comment": "SIM-C4 (F1M24-CHINA GS-11 radio; RF-CMD-03, RF-SIM-11): en los dos modos (race.js radioFor, por vuelta) el ingeniero avisa al piloto del jugador cuando el spray del de delante le cuesta al menos minLossSecPerLap por vuelta (race-weather.json spray, engine/weather sprayLossOf) y, si no la lleva, le propone la orden de aire limpio; no se repite antes de cooldownLaps vueltas. minLossSecPerLap = la pérdida media que añade el spray en la medida de OpenF1 2023-2025 (0,295 s, race-weather.json spray.measured): derived. cooldownLaps NV.",
+      "minLossSecPerLap": 0.3,
+      "cooldownLaps": 5,
+      "status": "derived",
+      "pending": ["cooldownLaps"]
+    }
+  },
+  "penalties": {
+    "$comment": "SIM-C4 (F1M24-CHINA §1.6: el juego pone +5 s a un coche ya retirado; RF-SIM-10, enmienda 3 de la §4). retiredToGrid: una sanción de carrera (time5, time10, driveThrough, stopGo) que el coche no puede cumplir porque se ha retirado - sin cumplir al retirarse, o decidida por los comisarios después - pasa a ser una sanción de parrilla en su siguiente carrera, en las eras en que el reglamento lo dice (eras[].value true; null o false: se queda sin efecto, como hasta ahora). places: puestos por tipo; el reglamento deja el número a los comisarios ('the stewards may impose a grid place penalty'), así que son de diseño propio (NV, pending). Sin tirada: el 'may' de los comisarios se lee como siempre (pending). Se decide al final de la carrera (race.js carryRetiredPenalties, los dos modos): toda sanción de carrera sin cumplir de un coche retirado. El motor solo anota el evento 'penalty-carried' y state.carriedGridPenalties {carId: puestos}; aplicarlo en la carrera siguiente es de career.js (pendiente: race.js createRace ya acepta gridPenalties).",
+    "retiredToGrid": {
+      "eras": [
+        { "from": 1950, "to": 2013, "value": null, "status": "pending", "note": "De memoria: sin regla escrita conocida antes de las sanciones de 5/10 s; por leer en cada reglamento." },
+        { "from": 2014, "to": 2023, "value": true, "status": "pending", "note": "De memoria, como 2024 (los +5/+10 s llegan en 2014); por leer en cada reglamento." },
+        { "from": 2024, "to": 2024, "value": true, "status": "source", "url": "https://www.fia.com/sites/default/files/fia_2024_formula_1_sporting_regulations_-_issue_1_-_2023-09-26.pdf", "quote": "Art. 54.3 'If any of the four (4) penalties above are imposed upon a driver, and that driver is unable to serve the penalty due to retirement from the sprint session or the race, the stewards may impose a grid place penalty on the driver at his next race.'" },
+        { "from": 2025, "to": 2026, "value": true, "status": "pending", "note": "Como 2024; reglamentos 2025 y 2026 sin leer." }
+      ],
+      "places": { "time5": 3, "time10": 5, "driveThrough": 5, "stopGo": 10 },
+      "status": "NV",
+      "pending": ["places", "eras antes de 2024"]
+    }
   },
   "tactics": {
     "$comment": "SIM-7 tacticas (RF-CMD-01, RF-SIM-05, RF-SIM-09, F1M24-GAMEPLAY §2.8): las tácticas que el muro da a un piloto en los dos modos (race.js y engine/sim/stepRace.js setTactics). defaults: lo que lleva cada coche al salir (los rivales no las cambian: su IA ya busca aire limpio con su modo, driver-attributes.json effects.ai). avoidKerbs: no pisar los pianos de riesgo; cuesta lapLossShare de la vuelta base en las curvas y multiplica los errores (mistakeFactor), los límites de pista (trackLimitsFactor) y el daño de suelo por pianos (floorDamageFactor, race-reliability.json damage.floor). cleanAir: con el de delante a menos de targetGapSec el piloto no ataca y levanta hasta abrir ese hueco, a lo sumo maxDropSecPerLap por vuelta (modo rápido: en el tráfico al final de la vuelta; por pasos: ritmo reducido en proporción mientras dure). battleAssist: solo en eras con KERS/ERS (engine/rules.js commandsFor); con un rival a menos de withinSec delante o detrás en la línea y al menos minBatteryPct de batería, la vuelta se corre con el modo deploy (overtake en 2026 si ataca) dentro de los límites de energía de la era (engine/energy.js battleAssistModeOf); fuera de pelea vuelve el modo elegido. Todo es comportamiento de diseño propio sin fuente pública: NV (del juego de referencia solo se toma la idea de las tres casillas, ningún valor).",
     "status": "NV",
     "defaults": { "avoidKerbs": false, "cleanAir": false, "battleAssist": false },
     "avoidKerbs": { "lapLossShare": 0.001, "mistakeFactor": 0.8, "trackLimitsFactor": 0.4, "floorDamageFactor": 0.3 },
-    "cleanAir": { "targetGapSec": 1.5, "maxDropSecPerLap": 0.6 },
+    "cleanAir": {
+      "targetGapSec": 1.5,
+      "maxDropSecPerLap": 0.6,
+      "spray": {
+        "$comment": "SIM-C4 (F1M24-CHINA GS-11 «la orden de aire limpio gana peso con el spray»; RF-CMD-01, RF-SIM-11): con agua, el hueco objetivo crece extraGapSec × el nivel de spray de la vuelta (engine/weather sprayLevelOf, 0..1) y lo que el piloto puede ceder por vuelta maxDropSecPerLap × (1 + dropGain × nivel); en seco nivel 0 y todo queda como antes. Diseño propio: NV.",
+        "extraGapSec": 1,
+        "dropGain": 1,
+        "status": "NV"
+      }
+    },
     "battleAssist": { "withinSec": 1, "minBatteryPct": 20 }
   }
 }

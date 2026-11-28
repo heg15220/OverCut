@@ -112,6 +112,18 @@ const drsProcedureOf = (value) => {
   return Object.fromEntries(Object.entries(out).filter(([, v]) => v !== undefined));
 };
 
+/** SIM-C4 (GS-12): the era's wet-start procedure in a closed shape, or null (no safety car, or no procedure). */
+const wetStartOf = (regs) => {
+  const value = regs.safetyCar ? regs.wetStart : null;
+  if (!value || !value.behindSc) return null;
+  return {
+    behindSc: true,
+    standingAfter: Boolean(value.standingAfter),
+    wetTyresMandatory: Boolean(value.wetTyresMandatory),
+    intersAllowed: Boolean(value.intersAllowed),
+  };
+};
+
 const resolve = (eraOrYear) => {
   const year = yearOf(eraOrYear);
   // A bare year reads as its era profile (no pack).
@@ -193,6 +205,10 @@ const resolve = (eraOrYear) => {
           }
         : null,
       vscEndingWarn: regs.vsc && regs.vscEndingWarn ? { minSec: regs.vscEndingWarn.minSec, maxSec: regs.vscEndingWarn.maxSec } : null,
+      // SIM-C4 (F1M24-CHINA GS-12, RF-SIM-10): the wet start of the era (era-defaults.json wetStart) - behind the
+      // safety car, a standing start from the grid when it comes in, wet-weather tyres compulsory behind it, inters
+      // allowed instead. Null without a safety car or without the procedure (criterio 7.2): a standing start as ever.
+      wetStart: wetStartOf(regs),
       // SIM-7 errores-visibles (F1M24-GAMEPLAY §2.10, RF-SIM-10): track limits as a general procedure - each offence
       // deletes the lap, the black-and-white flag at `blackWhiteAt`, then the penalties of the ladder - and the lap
       // deleted in qualifying. Null in an era without it (era-defaults.json trackLimits): nobody is judged.
@@ -283,7 +299,7 @@ const NEUTRAL_REASONS = new Set(["safetyCar", "vsc", "redFlag"]);
  * (`wetness` below `wetLimit`, the race director's visibility call) and no yellow in the activation zone
  * (`yellowInZone`, where the era lets the race director close it). Pure.
  */
-export const drsStatus = (rules, { lap, wetness = 0, zones = 1, restartLap = 0, sprint = false, neutralised = null, yellowInZone = false } = {}) => {
+export const drsStatus = (rules, { lap, wetness = 0, zones = 1, restartLap = 0, sprint = false, neutralised = null, yellowInZone = false, wetTrack = false } = {}) => {
   const drs = rules.drs;
   if (!drs.enabled) return { enabled: false, reason: "era" };
   if (!(zones > 0)) return { enabled: false, reason: "noZones" };
@@ -291,7 +307,9 @@ export const drsStatus = (rules, { lap, wetness = 0, zones = 1, restartLap = 0, 
   const fromLap = sprint && drs.sprintFromLap ? drs.sprintFromLap : drs.fromLap;
   if (lap < fromLap) return { enabled: false, reason: "start" };
   if (restartLap && lap <= restartLap + drs.restartLaps) return { enabled: false, reason: "restart" };
-  if (drs.disableVisibility !== false && wetness >= drs.wetLimit) return { enabled: false, reason: "wet" };
+  // SIM-C4 (GS-12): the race director's call - the index of water, or a WET TRACK declared long enough
+  // (race-sim.json raceControl.wet.drsAfterWetTrackMin; `wetTrack` from wetDrsClosed).
+  if (drs.disableVisibility !== false && (wetness >= drs.wetLimit || wetTrack)) return { enabled: false, reason: "wet" };
   if (yellowInZone && drs.disableYellowInZone) return { enabled: false, reason: "yellow" };
   return { enabled: true, reason: null };
 };
@@ -315,6 +333,28 @@ export const drsControlEvent = (previous, status, lap) => {
   if (status.enabled && !before) return { type: CONTROL_EVENT, kind: DRS_CONTROL.ENABLED, lap };
   if (!status.enabled && before) return { type: CONTROL_EVENT, kind: DRS_CONTROL.DISABLED, reason: status.reason, lap };
   return null;
+};
+
+/**
+ * SIM-C4 (F1M24-CHINA §1.5 «Mensajes de mojado», GS-12): the wet race-control messages the engine emits as
+ * `{type: "control", kind, lap, sector?}` (race.js wetControlStep, thresholds in race-sim.json raceControl.wet),
+ * and the wet start's: "startBehindSc" (FIA 2024 art. 49.1), then "standingStart" (art. 51) or "rollingStart"
+ * (art. 52) as the safety car comes in.
+ */
+export const WET_CONTROL = Object.freeze({
+  CLIMATIC: "climaticChange",
+  WET_TRACK: "wetTrack",
+  SLIPPERY: "slippery",
+  LOW_GRIP: "lowGrip",
+  START_BEHIND_SC: "startBehindSc",
+  STANDING_START: "standingStart",
+  ROLLING_START: "rollingStart",
+});
+
+/** SIM-C4 (GS-12): has race control's WET TRACK closed DRS for lap `lap`? (state.raceControlWet.drsFromLap). */
+export const wetDrsClosed = (state, lap) => {
+  const wet = state && state.raceControlWet;
+  return Boolean(wet && Number.isFinite(wet.drsFromLap) && lap >= wet.drsFromLap);
 };
 
 /**

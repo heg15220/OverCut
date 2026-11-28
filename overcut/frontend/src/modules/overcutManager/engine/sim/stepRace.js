@@ -69,6 +69,7 @@ import {
   rainRedFlagCheck, redFlagRestart, redFlagTyres, requestPit as quickRequestPit, restartProcedureOf, setErs as quickSetErs, setMix as quickSetMix,
   setMode as quickSetMode, setTeamOrder as quickSetTeamOrder, showRedFlag, spotOn, stateRules, waveYellow,
   activeDebris, applyDebrisPuncture, debrisPass, judgeTrackLimits, rollFloorDamage, rollTrackLimits, setTactics as quickSetTactics, tacticTime,
+  cleanAirOf, launchLapOf,
 } from "../race";
 import { byYear, raceBalance } from "../rules";
 import { calibrationFor, damageOf } from "../incidents";
@@ -85,13 +86,12 @@ import { stageAt, stageInfoAt } from "./pitStop";
 import { WEATHER_BALANCE, gripRatio, sprayLevelOf, sprayLossOf, weatherSnapshot } from "../weather";
 import { POWERTRAIN, coastDecel, coastPlan, createDrive, curvatureBins, driveSnapshot, launchAccel, powertrainFor, updateDrive } from "./powertrain";
 import { ENERGY, cellsFor, energyPlanOf, ersSpecOf, fuelEraOf, fuelFlowOf, lapDeployOf, referenceDeployOf, storeKwAt, traceDriveOf } from "../energy";
-import { SC_BALANCE, neutralAfter, neutralLeader, neutralLine, neutralStep, pitClosedFor, scLimit, scRateCap, scSnapshot, unlapExempt, vscDeltaStep, vscRate, vscSnapshot } from "./safetyCar";
+import { SC_BALANCE, neutralAfter, neutralLeader, neutralLine, neutralStep, pitClosedFor, scLimit, scRateCap, scSnapshot, unlapExempt, vscDeltaStep, vscRate, vscSnapshot, weaveOf } from "./safetyCar";
 import { TYRE_THERMAL, heatStep, legacyIndexOf, loadOf, windowFor } from "../tyres/thermal";
 
 export const SIM_BALANCE = balanceData;
 
-/** SIM-7 tacticas (race-sim.json tactics) and the error's trip off the road (race-physics.json mistake.recovery). */
-const TACTICS = balanceData.tactics;
+/** The error's trip off the road (race-physics.json mistake.recovery); the tactics are race.js's (cleanAirOf). */
 const RECOVERY = physicsData.mistake.recovery;
 
 const frac = (value) => value - Math.floor(value);
@@ -682,8 +682,9 @@ const start = (state) => {
     sim.drive.gear[i] = 1;
     beginLap(state, i, 1, 0);
   });
-  // RF-SIM-10: race control watches the lights (the quick mode's check and stream).
-  jumpStartChecks(state, state.cars.filter((car) => car.status === "running"), 1);
+  // RF-SIM-10: race control watches the lights (the quick mode's check and stream); not after a wet start behind
+  // the safety car (SIM-C4, GS-12: race.js launchLapOf).
+  if (launchLapOf(state) === 1) jumpStartChecks(state, state.cars.filter((car) => car.status === "running"), 1);
 };
 
 // ------------------------------------------------------------------ laps
@@ -782,7 +783,7 @@ const beginLap = (state, i, lap, t) => {
   // KERS: the 400 kJ come back at the line; ERS: the store holds what the ledger says.
   if (sim.ers && batteryBefore !== null && batteryBefore !== undefined) en.soc[i] = sim.ers.kers ? sim.ers.spec.storeMJ : (batteryBefore / 100) * sim.ers.spec.storeMJ;
   planEnergy(state, i, batteryBefore, lapOut.energyTime);
-  const t1 = lap === 1 && state.turnOne ? state.turnOne : null;
+  const t1 = lap === 1 && launchLapOf(state) === 1 && state.turnOne ? state.turnOne : null;
   if (lap === 1) {
     // The quick mode staggers the start by START_SPACING a slot; here the slot is physical.
     // RF-SIM-09: the launch against the median (state.turnOne), as the quick mode adds it to lap 1.
@@ -1203,7 +1204,11 @@ const advance = (state, i) => {
     if (sim.sprayH[i] > 0) mult -= sprayLossOf(sim.sprayH[i], gapS) / sim.budget[i];
     if (sim.drsOpen[i] > 0) mult += balance.drs.speedGain;
     // SIM-7 tacticas: in clean-air mode the driver lifts within the target gap, maxDropSecPerLap a lap (as the quick mode).
-    if (car.tactics && car.tactics.cleanAir && sim.lapDiff[i] === 0 && gapS < TACTICS.cleanAir.targetGapSec) mult -= TACTICS.cleanAir.maxDropSecPerLap / sim.budget[i];
+    // SIM-C4 (GS-11): with spray the gap and the lift grow (race.js cleanAirOf, the quick mode's rule).
+    if (car.tactics && car.tactics.cleanAir && sim.lapDiff[i] === 0) {
+      const air = cleanAirOf(sprayLevelOf(sim.sprayH[i], sim.rules.year ?? state.year));
+      if (gapS < air.targetGapSec) mult -= air.maxDropSecPerLap / sim.budget[i];
+    }
     // Blue flags: a car about to be lapped moves over, once per car lapping it; both
     // lose the quick mode's time for it (race.js blueFlags).
     if (sim.lapDiff[i] < 0 && gapM < balance.blueFlags.windowMetres && !(sim.blueBy[a] === i && sim.blueUntil[a] > sim.clock)) {
@@ -1495,7 +1500,7 @@ const mayAttack = (state, i) => {
   const sim = state._sim;
   const car = state.cars[i];
   const recovering = sim.incident[i] !== null || sim.recoverUntil[i] > sim.clock || sim.offM[i] > 0;
-  const holding = car.tactics && car.tactics.cleanAir && sim.gapS[i] < TACTICS.cleanAir.targetGapSec;
+  const holding = car.tactics && car.tactics.cleanAir && sim.gapS[i] < cleanAirOf(sprayLevelOf(sim.sprayH[i], sim.rules.year ?? state.year)).targetGapSec;
   return !recovering && !holding;
 };
 
@@ -2106,7 +2111,9 @@ const finishRed = (state) => {
   const { tables } = sim;
   const lap = sim.red.lineUpLap;
   const running = runningCars(state);
-  redFlagTyres(state, running, wetnessAt(state, lap), lap);
+  const wetGrid = Boolean(sim.red.wetStart);
+  // SIM-C4 (GS-12): the grid after a wet start behind the SC keeps its tyres (no red flag was shown).
+  if (!wetGrid) redFlagTyres(state, running, wetnessAt(state, lap), lap);
   // Anyone the wait ran out on takes its slot now (lineUpTimeoutLaps).
   for (let i = 0; i < sim.n; i += 1) {
     const slot = sim.red.slot[i];
@@ -2116,6 +2123,17 @@ const finishRed = (state) => {
   }
   sim.red = null;
   state.safetyCar = null;
+  if (wetGrid) {
+    // FIA 2024 art. 51: a standing start from the grid slots - every car launched from rest, DRS waiting after it.
+    state.restartLap = lap;
+    for (let i = 0; i < sim.n; i += 1) {
+      if (!sim.active[i] || state.cars[i].status !== "running") continue;
+      sim.drive.launching[i] = 1;
+      sim.drive.vLaunch[i] = 0;
+      sim.drive.gear[i] = 1;
+    }
+    return;
+  }
   redFlagRestart(state, lap);
   if (state.safetyCar) state.safetyCar.since = lap;
 };
@@ -2695,6 +2713,10 @@ export const snapshot = (state) => {
     tyreC: { surface: Math.round(sim.heat.s[i] * 10) / 10, carcass: Math.round(sim.heat.c[i] * 10) / 10 },
     // SIM-3: on its cooldown lap after the flag (a ghost: no duels, no pit lane).
     cooldown: sim.cool[i] === 1,
+    // SIM-C4 (F1M24-CHINA AUD-C9, §1.6; RF-SIM-10): the weave behind the safety car (m, + right), for the view to add to
+    // `lateral` (safetyCar.js weaveOf; 0 elsewhere). The view only: the simulation's line, boxes and fuel stay as
+    // they were (SRS 4.2, RNF-05); the engine tone behind the SC already moves through the corners (AUD-C9 test).
+    weave: weaveLatOf(state, i),
   }));
   // SIM-3 / F1M24-GAMEPLAY §1.7 `snapshot.start` (on the array, so `snapshot(state)[i]` stays per car).
   cars.start = startOf(state);
@@ -2707,6 +2729,12 @@ export const snapshot = (state) => {
   cars.weather = weatherOf(state);
   cars.spray = state.cars.map((car, i) => sprayOf(state, i));
   return cars;
+};
+
+/** SIM-C4 (AUD-C9): car `i`'s weave offset now (m, 3 decimals), 0 when nobody weaves. */
+const weaveLatOf = (state, i) => {
+  const weave = state._sim.active[i] ? weaveOf(state, i) : null;
+  return weave ? Math.round(weave.lat * 1000) / 1000 : 0;
 };
 
 /** GS-07: `lineOffset` and `axisOffset` of car `i` for the snapshot (null in the pit lane). */
@@ -2748,10 +2776,12 @@ const sprayOf = (state, i) => {
  * F1M24-CHINA §1.5 (contracts of wave 1, SIM-C1 declares them): the race-control messages the engine emits as
  * events `{type: "control", kind, lap, t, sector?, reason?}`. "drsEnabled" `{lap}` and "drsDisabled" `{reason}`
  * (GS-08, engine/rules.js drsOpen); the wet chain "climaticChange", "wetTrack", "slippery" (by sector) and
- * "lowGrip", with the thresholds of race-sim.json raceControl.wet (GS-12, SIM-C4). Declared here so the HUD and
- * the sound can code against them; the engine emits each kind from the package that owns it (none yet).
+ * "lowGrip", with the thresholds of race-sim.json raceControl.wet (GS-12, SIM-C4), and the wet start's
+ * "startBehindSc", "standingStart" and "rollingStart" (FIA 2024 arts. 49, 51, 52; engine/rules.js WET_CONTROL).
+ * SIM-C4 emits them in both modes (race.js wetControlStep / drsControlStep at the start of each leader's lap,
+ * createRace for the grid, safetyCar.js / race.js for the release); the HUD and the sound only read them.
  */
-export const CONTROL_KINDS = Object.freeze(["drsEnabled", "drsDisabled", "climaticChange", "wetTrack", "slippery", "lowGrip"]);
+export const CONTROL_KINDS = Object.freeze(["drsEnabled", "drsDisabled", "climaticChange", "wetTrack", "slippery", "lowGrip", "startBehindSc", "standingStart", "rollingStart"]);
 
 /** SIM-7: the longitudinal state of car `i` for the view (F1M24-GAMEPLAY §1.7 `lon[i]`). */
 const lonOf = (sim, i) => {

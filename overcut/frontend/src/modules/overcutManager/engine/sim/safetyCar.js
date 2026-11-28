@@ -25,7 +25,14 @@
  *               (FIA art. 56.5); each driver keeps vsc.marginSec over it by his precision; «VSC ENDING» and the green
  *               anywhere on the lap between the era's minSec and maxSec later (art. 56.7).
  *
- * Nothing here draws on a race stream: the cleanup and the VSC warning are on `seed::neutral` (RF-SIM-15).
+ *   wet start   SIM-C4 (F1M24-CHINA GS-12, FIA 2024 arts. 49, 51, 52): with the era's procedure and the line above
+ *               the intermediate's capacity at the start, the SC leads from the grid (START_BEHIND_SC) for the laps
+ *               wetStartOf counts from the forecast water, then goes in with a "standing" or "rolling" release.
+ *   weave       SIM-C4 (AUD-C9): behind the SC every car zigzags and breathes on the throttle (weaveOf), measured
+ *               in OpenF1 location/car_data, so nothing stays frozen for 30 s.
+ *
+ * Nothing here draws on a race stream: the cleanup and the VSC warning are on `seed::neutral`, the weave's phases on
+ * `seed::weave` (RF-SIM-15).
  */
 
 import balance from "../../data/balance/race-sim.json";
@@ -38,8 +45,11 @@ export const SC_BALANCE = balance.safetyCar;
 export const VSC_BALANCE = balance.vsc;
 export const NEUTRAL_BALANCE = balance.neutralisation;
 
-export const SC_PHASE = { DEPLOYED: 0, PICKUP: 1, TRAIN: 2, UNLAPPING: 3, IN_THIS_LAP: 4, RESTART: 5 };
-export const SC_PHASES = ["DEPLOYED", "PICKUP", "TRAIN", "UNLAPPING", "IN_THIS_LAP", "RESTART"];
+// SIM-C4 (GS-12): START_BEHIND_SC - the race starts behind the safety car in the wet (FIA 2024 art. 49): it leads the
+// field away from the grid as a TRAIN would, for the laps race.js wetStartOf counted from the water.
+export const SC_PHASE = { DEPLOYED: 0, PICKUP: 1, TRAIN: 2, UNLAPPING: 3, IN_THIS_LAP: 4, RESTART: 5, START_BEHIND_SC: 6 };
+export const SC_PHASES = ["DEPLOYED", "PICKUP", "TRAIN", "UNLAPPING", "IN_THIS_LAP", "RESTART", "START_BEHIND_SC"];
+export const WEAVE_BALANCE = SC_BALANCE.weave;
 
 const frac = (value) => value - Math.floor(value);
 const round = (value, digits = 3) => Math.round(value * 10 ** digits) / 10 ** digits;
@@ -115,6 +125,49 @@ export const pitClosedFor = (state, car, rules, lap) => {
   if (N && N.ref === sc) return !N.groupedOnce;
   return sc.deployedLap === lap;
 };
+
+// ------------------------------------------------------------------ wet start (SIM-C4, GS-12), both modes
+
+const WET = balance.raceControl.wet;
+
+/**
+ * RF-SIM-10 / F1M24-CHINA GS-12 (FIA 2024 arts. 49, 51 and 52; era-defaults.json wetStart, race-sim.json
+ * raceControl.wet.startBehindSc): does this race start behind the safety car? Null unless the era has the procedure
+ * (`rules.raceControl.wetStart`) and the water on the racing line at the start (`weather.water[0]`) reaches
+ * interCapacityShare × the year's intermediate capacity (`capacityMm`, engine/weather capacityFor). Otherwise
+ * `{ laps, standingAfter, tyre, mandatory, capacityMm }`: the safety car leads `laps` laps - up to the first lap whose
+ * forecast water is below endShare × that capacity, within [minLaps, maxLaps]; no draw, so both modes and every
+ * replay count the same - and every car starts on `tyre`: the full wet where the era makes it compulsory, otherwise
+ * the tyre for the water (`tyreFor`, an inter only where the era allows it). Pure.
+ */
+export const wetStartOf = ({ rules, weather, laps, capacityMm, tyreFor = () => "wet" }) => {
+  const procedure = rules && rules.raceControl && rules.raceControl.wetStart;
+  const water = weather && Array.isArray(weather.water) ? weather.water : null;
+  if (!procedure || !water || !(capacityMm > 0)) return null;
+  const cfg = WET.startBehindSc;
+  const h0 = water[0] ?? 0;
+  if (!(h0 >= cfg.interCapacityShare * capacityMm)) return null;
+  const last = Math.max(1, Math.min(cfg.maxLaps, laps - 1));
+  let count = Math.min(cfg.minLaps, last);
+  while (count < last && (water[count] ?? 0) >= cfg.endShare * capacityMm) count += 1;
+  const own = tyreFor(h0);
+  const tyre = procedure.wetTyresMandatory ? "wet" : own === "inter" && !procedure.intersAllowed ? "wet" : own || "wet";
+  return { laps: count, standingAfter: procedure.standingAfter, tyre, mandatory: procedure.wetTyresMandatory, capacityMm };
+};
+
+/**
+ * SIM-C4 (FIA 2024 art. 51 / 52): how the race starts as the wet-start safety car comes in on lap `lap`: "standing"
+ * (back to the grid) where the era has it and the water is below rollingAboveShare × the capacity, else "rolling".
+ */
+export const wetReleaseOf = (state, lap) => {
+  const wet = state.wetStart;
+  if (!wet) return null;
+  const water = state.weather && state.weather.water ? state.weather.water[Math.min(Math.max(0, lap), state.weather.water.length - 1)] ?? 0 : 0;
+  return wet.standingAfter && water < WET.startBehindSc.rollingAboveShare * wet.capacityMm ? "standing" : "rolling";
+};
+
+/** The control event of the wet start's release (`{type: "control", kind: "standingStart"|"rollingStart", lap}`). */
+export const wetReleaseEvent = (release, lap) => ({ type: "control", kind: release === "standing" ? "standingStart" : "rollingStart", lap });
 
 // ------------------------------------------------------------------ step mode
 
@@ -214,11 +267,16 @@ const spawn = (state) => {
   const leader = leaderOf(state);
   const profile = profileOf(sim, state);
   // A rolling restart after a red flag: the SC already leads the field, for its laps from race.js.
-  const rolling = !Number.isFinite(sc.cleanupSec);
+  // SIM-C4 (GS-12): a wet start - the SC leads the field away from the grid (START_BEHIND_SC) for sc.laps laps.
+  const wetStart = Boolean(sc.wetStart);
+  const rolling = wetStart || !Number.isFinite(sc.cleanupSec);
   const N = {
     ref: sc,
     virtual: false,
-    phase: rolling ? SC_PHASE.TRAIN : SC_PHASE.DEPLOYED,
+    wetStart,
+    wetLaps: wetStart ? Math.max(1, sc.laps || 1) : 0,
+    dueAt: null,
+    phase: wetStart ? SC_PHASE.START_BEHIND_SC : rolling ? SC_PHASE.TRAIN : SC_PHASE.DEPLOYED,
     since: sim.clock,
     cleanupUntil: sim.clock + (rolling ? Math.max(0, (sc.laps || 1) - 1) * lapSec : sc.cleanupSec),
     P: 0,
@@ -258,6 +316,12 @@ const endNeutral = (state, push) => {
   sim.neutral = null;
   if (sim.unlapSide) sim.unlapSide.fill(0);
   push(state, sim.leaderLap, { type: "sc-in", virtual: N.virtual, t: round(sim.clock) });
+  // SIM-C4 (GS-12, FIA 2024 art. 51.1): after a wet start behind the SC with a standing start, the field goes back to
+  // its grid slots at this line - lined up as stepRace.js lines up a red flag (formGrid), without its tyres or restart.
+  if (N.wetStart && state.wetStart && state.wetStart.release === "standing") {
+    sim.red = { reason: "wetStart", wetStart: true, lineUpLap: lap };
+    state.safetyCar = { laps: 0, virtual: false, red: true, wetGrid: true, since: lap };
+  }
 };
 
 const setPhase = (state, N, phase, push, extra = {}) => {
@@ -318,7 +382,8 @@ export const neutralStep = (state, push) => {
     if (crossed(frac(N.prevP), frac(N.P), entry) && N.P - N.offAt >= SC_BALANCE.sc.inThisLapMinShare) {
       N.gone = true;
       N.v = 0;
-      if (sim.rules.raceControl.sc && sim.rules.raceControl.sc.restartLine === "sc1") {
+      const wetGrid = N.wetStart && state.wetStart && state.wetStart.release === "standing";
+      if (!wetGrid && sim.rules.raceControl.sc && sim.rules.raceControl.sc.restartLine === "sc1") {
         setPhase(state, N, SC_PHASE.RESTART, push);
         endNeutral(state, push);
       } else setPhase(state, N, SC_PHASE.RESTART, push);
@@ -372,6 +437,31 @@ export const scRateCap = (state, i, rate) => {
   const gap = i === leader ? gapToSc(sim, N, i) : sim.ahead[i] >= 0 ? sim.gapM[i] : Infinity;
   if (gap > SC_BALANCE.trainGapMetres) return Math.min(rate, scRate * SC_BALANCE.catchUp);
   return Math.min(rate, scRate);
+};
+
+const WEAVING = new Set([SC_PHASE.START_BEHIND_SC, SC_PHASE.TRAIN, SC_PHASE.UNLAPPING, SC_PHASE.IN_THIS_LAP]);
+
+/**
+ * SIM-C4 (F1M24-CHINA AUD-C9, race-sim.json safetyCar.weave, OpenF1 9480/9655): car `i`'s weave behind the safety car
+ * now - `lat` the offset (m, + right) the view adds to the car's line (stepRace snapshot `weave`) - or null where
+ * nobody weaves (no SC, the VSC, the SC still in the pit lane or picking up the leader, the restart, a lapped car
+ * going by, the pit lane). A sine of the race clock faded in over one period; each car's phase is drawn once on its
+ * own `seed::weave` stream, so no other draw moves (RNF-05, RF-SIM-15). The simulation itself does not move:
+ * fed into the line it broke the fuel controller and the boxes' clearance (SRS 4.2).
+ */
+export const weaveOf = (state, i) => {
+  const sim = state._sim;
+  const N = sim && sim.neutral;
+  const W = WEAVE_BALANCE;
+  if (!W || !N || N.virtual || !WEAVING.has(N.phase) || N.unlap[i] === 1 || sim.inPit[i] !== 0) return null;
+  if (!sim.weavePhase) {
+    const stream = createStream(`${state.seed}::weave`);
+    sim.weavePhase = Float64Array.from({ length: sim.n }, () => stream.range(0, 2 * Math.PI));
+  }
+  const x = (2 * Math.PI * sim.clock) / W.periodSec + sim.weavePhase[i];
+  // Faded in over one period from the safety car's deployment, so no car jumps sideways when it starts.
+  const env = clamp((sim.clock - N.since) / W.periodSec, 0, 1);
+  return { lat: env * W.amplitudeM * Math.sin(x) };
 };
 
 /** May car `i` pass car `a` ahead of it under the safety car? Only a lapped car let through, past a car a lap ahead. */
@@ -431,7 +521,25 @@ export const neutralAfter = (state, push) => {
   const most = (SC_BALANCE.sc.trainMaxLengths + 1) * sim.side.spec.carLength;
   if (N.phase === SC_PHASE.PICKUP && leader >= 0 && gapToSc(sim, N, leader) <= most) setPhase(state, N, SC_PHASE.TRAIN, push);
   const lastLap = sim.leaderLap >= state.laps;
-  if (N.phase === SC_PHASE.TRAIN) {
+  if (N.phase === SC_PHASE.START_BEHIND_SC) {
+    // SIM-C4 (GS-12, FIA 2024 arts. 49.2, 51.1, 52.1): the SC leads its laps; on the last of them, with the field in
+    // line, its lights go out and the release ("standing" or "rolling") is told - it comes in at the end of the lap.
+    const grouped = trainGrouped(state);
+    if (grouped) N.groupedOnce = true;
+    const due = sim.leaderLap >= N.wetLaps;
+    if (due && N.dueAt === null) N.dueAt = sim.clock;
+    const forced = due && sim.clock - N.dueAt > SC_BALANCE.sc.maxWaitSec;
+    if ((due && grouped) || forced || lastLap) {
+      N.groupedOnce = true;
+      const release = wetReleaseOf(state, sim.leaderLap);
+      if (state.wetStart && !state.wetStart.release) {
+        state.wetStart.release = release;
+        state.wetStart.greenLap = sim.leaderLap + 1;
+        push(state, sim.leaderLap, { ...wetReleaseEvent(release, sim.leaderLap), t: round(sim.clock) });
+      }
+      lightsOff(state, N, push, { grouped, forced: forced && !grouped, wetStart: true, release });
+    }
+  } else if (N.phase === SC_PHASE.TRAIN) {
     const grouped = trainGrouped(state);
     if (grouped) N.groupedOnce = true;
     const due = sim.clock >= N.cleanupUntil;
