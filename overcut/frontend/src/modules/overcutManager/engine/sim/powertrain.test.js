@@ -94,7 +94,10 @@ const greenLapTrace = (state, lap) => {
     }
     if (now === target) {
       const sim = state._sim;
-      if (state.safetyCar || sim.inPit[0] !== 0 || sim.duelOther[0] >= 0 || sim.duelOther.some((other) => other === 0)) clean = false;
+      // A clean lap in clean air: not held up in traffic (lapFlags 8|16, the lap history's `held`), no driver mistake
+      // (lapFlags 2) and no time still being paid for a mistake or a contact (delay): the real laps it is compared
+      // with are the pole sitter's clean laps.
+      if (state.safetyCar || sim.inPit[0] !== 0 || sim.duelOther[0] >= 0 || sim.duelOther.some((other) => other === 0) || (sim.lapFlags[0] & 26) || sim.delay[0] > 0) clean = false;
       else trace.push(snapshot(state)[0]);
     }
   }
