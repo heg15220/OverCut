@@ -236,7 +236,7 @@
       "$comment": "HUD-4 status-strip-data: umbrales de las palabras de la franja de condiciones (components/hudConditions.js).",
       "type": "object",
       "additionalProperties": false,
-      "required": ["$comment", "status", "waterShownAbove", "sky", "rubberBands", "gripBands"],
+      "required": ["$comment", "status", "waterShownAbove", "sky", "gripBands"],
       "properties": {
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
@@ -246,16 +246,6 @@
           "additionalProperties": false,
           "required": ["rainAbove", "cloudAbovePct"],
           "properties": { "rainAbove": { "$ref": "#/definitions/share" }, "cloudAbovePct": { "type": "number", "minimum": 0, "maximum": 100 } }
-        },
-        "rubberBands": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["id", "below"],
-            "properties": { "id": { "enum": ["veryLow", "low", "medium", "high"] }, "below": { "type": ["number", "null"] } }
-          }
         },
         "gripBands": {
           "type": "object",
