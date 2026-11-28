@@ -271,8 +271,8 @@
       "to": 2030,
       "match": {},
       "glideMs": 35,
-      "transient": {"kind": "cut", "db": -7},
-      "source": "NV: cajas sin interrupción de par (seamless) generalizadas hacia 2008, pending por verificar el año; forma NV, diseño propio"
+      "transient": {"kind": "cut", "db": -7, "rebound": {"db": 1.0, "ms": 45}},
+      "source": "NV: cajas sin interrupción de par (seamless) generalizadas hacia 2008, pending por verificar el año; forma NV, diseño propio. rebound (AUD-C12, F1M24-CHINA §2.6): tras la muesca la ganancia pasa un poco por encima (db) y vuelve, en ms; la referencia de vídeo solo da la idea (muesca, deslizamiento y rebote), sus cifras no se copian: 1,0 dB y 45 ms son diseño propio, NV, sin grabación CC0/CC BY medida"
     }
   ],
   "voicing": {
@@ -285,6 +285,49 @@
       "10": {"overtones": [1, 0.7, 0.42, 0.24], "halfOrder": 0.22, "roughness": 0.06, "brightness": 0.95},
       "12": {"overtones": [1, 0.72, 0.46, 0.28], "halfOrder": 0.18, "roughness": 0.05, "brightness": 1.0}
     },
+    "byManufacturer": [
+      {
+        "$comment": "AUD-C6 (F1M24-CHINA §2.6; RF-3D-04, RNF-07, SRS §6.2): timbre por fabricante encima del perfil de cilindros. Gana la primera fila cuyos años contienen la temporada y cuyo match encaja con el motor del pack (f1db engines: manufacturer, engineId, cylinders, layout); sin fila, el perfil de cilindros tal cual. overtoneTrim: dB sobre cada entrada de byCylinders[c].overtones (el armónico c del ciclo y sus múltiplos); halfOrderTrim: dB sobre el orden de media encendido (c/2). Solo cambia el reparto de armónicos: nunca añade turbo ni MGU-H (eso es de eras[], SRS §6.2: sin turbo ni MGU-H antes de 2014 salvo 1977-1988). Todas las cifras NV, diseño propio: no hay grabación CC0/CC BY medida por unidad de potencia; la referencia de vídeo solo muestra que el segundo orden cambia por coche, ninguna cifra suya se copia. V8 de 2,4 l homologados (2006-2013).",
+        "id": "renault-v8",
+        "from": 2006,
+        "to": 2013,
+        "match": {"manufacturer": "renault", "cylinders": 8},
+        "overtoneTrim": [0, -1.5, -2, -2],
+        "halfOrderTrim": 4,
+        "status": "NV",
+        "source": "NV, diseño propio: más media encendido (más áspero), armónicos altos algo apagados"
+      },
+      {
+        "id": "ferrari-v8",
+        "from": 2006,
+        "to": 2013,
+        "match": {"manufacturer": "ferrari", "cylinders": 8},
+        "overtoneTrim": [0, 2, 2.5, 3],
+        "halfOrderTrim": -4,
+        "status": "NV",
+        "source": "NV, diseño propio: más brillante (armónicos altos arriba) y más liso (menos media encendido)"
+      },
+      {
+        "id": "mercedes-v8",
+        "from": 2006,
+        "to": 2013,
+        "match": {"manufacturer": "mercedes", "cylinders": 8},
+        "overtoneTrim": [0, 0.5, -1, -3],
+        "halfOrderTrim": 0,
+        "status": "NV",
+        "source": "NV, diseño propio: perfil de cilindros con los armónicos más altos apagados (más oscuro)"
+      },
+      {
+        "id": "cosworth-v8",
+        "from": 2006,
+        "to": 2013,
+        "match": {"manufacturer": "cosworth", "cylinders": 8},
+        "overtoneTrim": [0, -1, 0, 1],
+        "halfOrderTrim": 1.5,
+        "status": "NV",
+        "source": "NV, diseño propio"
+      }
+    ],
     "layoutHalfOrder": {"$comment": "NV: un bóxer (F) suena más parejo; un W tres bancadas", "V": 1, "F": 0.6, "W": 1.2, "L": 1.3},
     "turboMuffle": 0.75,
     "noise": {"intakeGain": 0.18, "exhaustGain": 0.22, "bandQ": 1.4, "exhaustOrder": 1, "intakeOrder": 2},
@@ -357,7 +400,7 @@
   },
   "mixer": {
     "storageKey": "overcut.manager.audio.v1",
-    "defaults": {"master": 0.7, "engine": 0.8, "ambience": 0.6, "muted": false, "ui": 0.6, "uiMuted": false, "recorded": false},
+    "defaults": {"master": 0.7, "engine": 0.8, "ambience": 0.6, "muted": false, "ui": 0.6, "uiMuted": false, "recorded": false, "music": 0.5},
     "settingsVersion": 2,
     "settingsVersionNote": "AUD-C10: una mezcla guardada antes de la versión 2 traía recorded true por defecto sin que el espectador lo eligiera; al leerla se conservan volúmenes y silencios y recorded vuelve al valor por defecto.",
     "volumeCurve": {"$comment": "NV: posición del mando a dB lineal, 0 es silencio", "minDb": -42},
@@ -419,7 +462,7 @@
         "map": {"focus": 0.3, "field": 0.25, "crowd": 0.5, "wind": 0, "engineDb": -6, "bedDb": -10},
         "paused": {"focus": 0, "field": 0, "crowd": 0.35, "wind": 0, "bed": 0.2, "lowpassHz": 3000, "engineDb": -60, "bedDb": -16},
         "replay": {"engineDb": -3, "bedDb": -3},
-        "menu": {"focus": 0, "field": 0, "crowd": 0.3, "wind": 0, "bed": 0.2, "lowpassHz": 3000, "engineDb": -60, "bedDb": -14},
+        "menu": {"focus": 0, "field": 0, "crowd": 0.3, "wind": 0, "bed": 0.2, "lowpassHz": 3000, "engineDb": -60, "bedDb": -14, "music": 1},
         "fastForward": {"focus": 0, "field": 0, "crowd": 0.4, "wind": 0, "lowpassHz": 4000, "engineDb": -30, "bedDb": -8, "ffBed": 1}
       }
     }
@@ -586,7 +629,41 @@
       "pan": {"byPanelSide": true, "db": 7.7},
       "attackSec": 0.004,
       "cooldownSec": 1.8
+    },
+    "pause": {
+      "$comment": "AUD-C12 (F1M24-CHINA §2.7; RF-3D-04, RNF-07): al pasar la vista de directo a pausa o a un menú (vista resuelta en views) suena un golpe grave propio: un tono que cae de fromHz a toHz más un cuerpo de ruido paso bajo, durationSec en total, y la mezcla queda en el lecho de la snapshot (paused/menu). Al salir no suena nada. Va por el bus ui. La referencia de vídeo solo da la idea y el orden de magnitud (golpe grave de ~0,25 s); duración, tonos y ganancias NV, diseño propio.",
+      "status": "NV",
+      "views": ["paused", "menu"],
+      "durationSec": 0.24,
+      "attackSec": 0.004,
+      "thump": {"fromHz": 96, "toHz": 44, "gain": 0.3},
+      "body": {"lowpassHz": 380, "q": 0.7, "gain": 0.1, "durationShare": 0.6},
+      "cooldownSec": 0.6
+    },
+    "sting": {
+      "$comment": "AUD-C12 (F1M24-CHINA §2.7, §1.5 «Cortinilla»; RF-3D-04, RNF-07): sonido de la cortinilla propia de la repetición en tres capas (barrido de ruido, golpe grave y brillo de dos tonos). La duración NO vive aquí: es broadcast.json replay.stingSec (única fuente, VIEW-13); cada capa se coloca con startShare y lengthShare de esa duración, así que la última acaba justo al final de la cortinilla. fallbackSec solo si broadcast.json no la trae. Suena al entrar en la cortinilla de entrada y en la de salida (frame.replayPhase stingIn/stingOut cuando la vista lo pasa; sin él, al entrar y salir de la vista replay) y sustituye allí al whoosh. Notas, ganancias y reparto NV, diseño propio; nada del juego de referencia.",
+      "status": "NV",
+      "fallbackSec": 1.7,
+      "cooldownSec": 0.8,
+      "on": {"replay": true},
+      "sweep": {"startShare": 0, "lengthShare": 0.55, "attackShare": 0.7, "fromHz": 450, "toHz": 5200, "q": 1.2, "gain": 0.16},
+      "hit": {"startShare": 0.4, "lengthShare": 0.32, "attackSec": 0.006, "fromHz": 120, "toHz": 52, "gain": 0.22},
+      "shimmer": {"startShare": 0.44, "lengthShare": 0.56, "spacingShare": 0.07, "attackSec": 0.012, "notes": [{"hz": 1568}, {"hz": 2349}], "gain": 0.045}
     }
+  },
+  "music": {
+    "$comment": "AUD-C12 (F1M24-CHINA §2.7; RF-3D-04, RNF-07, RNF-05): música generativa propia solo en menús. Su bus (mixer 'music') sigue la cuota 'music' de la snapshot de la vista (solo menu la trae: en directo, pausa, repetición y avance rápido es 0) y el volumen 'music' del espectador (SoundControl). Cada compás sale de una semilla fija (seed + número de compás, overcutTrayectoria/engine/rng): mismo compás, mismas notas; nunca Math.random ni el reloj de pared. Armonía en modo dórico sobre rootHz, una progresión de cuatro acordes (grados de la escala, 0 = tónica), pad de tres voces, bajo en la fundamental y arpegio con densidad sembrada. Tempo, escala, progresión y ganancias NV, diseño propio; ninguna música ni motivo de ningún juego.",
+    "status": "NV",
+    "seed": "overcut-menu-music",
+    "bpm": 76,
+    "beatsPerBar": 4,
+    "rootHz": 110,
+    "scale": [0, 2, 3, 5, 7, 9, 10],
+    "progression": [[0, 2, 4], [5, 0, 2], [3, 5, 0], [4, 6, 1]],
+    "pad": {"octave": 1, "gain": 0.05, "attackSec": 1.2, "releaseSec": 1.4, "lowpassHz": 1400},
+    "bass": {"octave": 0, "gain": 0.06, "noteBeats": 2},
+    "arp": {"octave": 2, "gain": 0.022, "stepsPerBar": 8, "noteSec": 0.18, "density": 0.6},
+    "lookaheadSec": 0.6
   },
   "safetyCar": {
     "$comment": "Sonido del coche de seguridad y del VSC (sc-vsc-sound, AUD-5; RF-SIM-10, RNF-07, F1M24-GAMEPLAY §2.11). Los F1 bajan solos bajo neutralización: el motor da pose.rpm/gear (race-powertrain.json shift.underSc, PT-1) o la velocidad baja de la pose. Aquí solo lo que el sintetizador no tenía: (1) la voz del coche de seguridad, un coche de calle por temporada (cars[], su fórmula se lee como las de f1db: cilindros, disposición, turbo), que suena con las voces de la piscina (mixer.maxVoices) cuando el motor publica snapshot.sc en una fase de voicePhases (contrato §1.7, SIM-5) con posición (x, y del snapshot, una pose que entregue la vista, o s sobre la trazada del circuito del fotograma); sin snapshot.sc no suena nada (no se coloca a 90 m del líder); (2) el aviso de interfaz y la «radio» sin voz al desplegar y al retirar el SC o el VSC (cues: nivel de aviso de ui.alert.levels y si abre la radio). Coherencia por era (SRS 6.2): sin voz ni aviso de SC antes de 1993 y sin aviso de VSC antes de 2015 (rules.js safetyCar/vsc de era-defaults.json o del pack); cars[] empieza en 1993. Todos los coches y cifras de cars[] son de memoria (fuente scCars), pending hasta verificarlos: en 1993-1995 el coche cambió según el GP; las vueltas y relaciones son de un coche de calle típico de su motor, diseño propio. Del juego de referencia solo la idea (el SC tiene sonido propio y hay aviso al desplegar): ninguna cifra ni sonido suyo. Nada toca la carrera ni el flujo con semilla del audio (RF-SIM-15, RNF-05): el SC no tira números.",

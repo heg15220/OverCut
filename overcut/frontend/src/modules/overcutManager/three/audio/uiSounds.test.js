@@ -106,13 +106,18 @@ describe("which frames call for a cue", () => {
     for (let f = 0; f < 5; f += 1) expect(uiCuesStep(none, { events: [] }, f)).toEqual([]);
   });
 
-  test("whoosh into and out of the replay and on a skip forward; never more than maxPerFrame", () => {
+  test("sting into and out of the replay (AUD-C12; whoosh without ui.sting), whoosh on a skip forward, thump into a pause; never more than maxPerFrame", () => {
     const state = createUiCueState();
     expect(uiCuesStep(state, { events: [], view: null }, 0)).toEqual([]);
-    expect(uiCuesStep(state, { events: [], view: "replay" }, 1)).toEqual([{ kind: "whoosh", opts: { direction: "in" } }]);
-    expect(uiCuesStep(state, { events: [], view: null }, 5)).toEqual([{ kind: "whoosh", opts: { direction: "out" } }]);
-    expect(uiCuesStep(state, { events: [], view: "paused" }, 9)).toEqual([]);
+    expect(uiCuesStep(state, { events: [], view: "replay" }, 1)).toEqual([{ kind: "sting", opts: { direction: "in" } }]);
+    expect(uiCuesStep(state, { events: [], view: null }, 5)).toEqual([{ kind: "sting", opts: { direction: "out" } }]);
+    expect(uiCuesStep(state, { events: [], view: "paused" }, 9)).toEqual([{ kind: "pause", opts: {} }]);
     expect(uiCuesStep(state, { events: [], view: null, skipped: true }, 12)).toEqual([{ kind: "whoosh", opts: { direction: "in" } }]);
+    // Without a sting block the replay keeps its whoosh (AUD-4).
+    const noSting = { ...UI, sting: undefined };
+    const old = createUiCueState();
+    uiCuesStep(old, { events: [], view: null }, 0, noSting);
+    expect(uiCuesStep(old, { events: [], view: "replay" }, 1, noSting)).toEqual([{ kind: "whoosh", opts: { direction: "in" } }]);
     const busy = createUiCueState();
     const log = [];
     uiCuesStep(busy, { events: log, radio: [], view: null }, 0);
@@ -278,9 +283,10 @@ describe("controller with the interface cues (mocked Web Audio)", () => {
     const cued = race(true);
     expect(voicesOf(cued)).toBe(voicesOf(plain));
     // Both runs alert on the SC; on top: radio (AUD-C3: motif notes and tail; whoosh and static),
-    // click (tone and noise), two whooshes (noise).
+    // click (tone and noise), two stings (AUD-C12: sweep noise, hit tone, shimmer tones).
     const radioTones = UI.radio.sequence.motif.notes.length + 1;
-    expect(cued.extraOscs - plain.extraOscs).toBe(radioTones + 1);
+    const stingTones = 1 + UI.sting.shimmer.notes.length;
+    expect(cued.extraOscs - plain.extraOscs).toBe(radioTones + 1 + 2 * stingTones);
     expect(cued.extraSources - plain.extraSources).toBe(2 + 1 + 2);
   });
 

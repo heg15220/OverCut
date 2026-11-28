@@ -231,7 +231,8 @@ describe("mixer", () => {
     const fake = { getItem: (key) => (store.has(key) ? store.get(key) : null), setItem: (key, value) => store.set(key, value) };
     saveSettings({ master: 0.3, engine: 2, ambience: -1, muted: true }, fake);
     // AUD-4 adds the ui bus to the saved mix: an old save without it gets its defaults.
-    expect(loadSettings(fake)).toEqual({ master: 0.3, engine: 1, ambience: 0, muted: true, ui: audioData.mixer.defaults.ui, uiMuted: audioData.mixer.defaults.uiMuted, recorded: audioData.mixer.defaults.recorded });
+    // AUD-C12 adds the menu music level the same way.
+    expect(loadSettings(fake)).toEqual({ master: 0.3, engine: 1, ambience: 0, muted: true, ui: audioData.mixer.defaults.ui, uiMuted: audioData.mixer.defaults.uiMuted, recorded: audioData.mixer.defaults.recorded, music: audioData.mixer.defaults.music });
     const broken = {
       getItem: () => {
         throw new Error("blocked");
@@ -512,8 +513,11 @@ describe("shift shape per era and maker (shift-shape-per-pu, RF-3D-04, RNF-07, S
     const env = shiftEnvelope(spec, { fromHz: 100, toHz: 88 }, at);
     expect(env.frequency).toEqual([[at, 100], [at + spec.shift.glideMs / 1000, 88]]);
     expect(env.gain[0][1]).toBeCloseTo(10 ** (spec.shift.transient.db / 20), 9);
-    expect(env.gain[env.gain.length - 1]).toEqual([at + spec.shift.transient.ms / 1000, 1]);
-    expect(env.until).toBeCloseTo(at + Math.max(spec.shift.glideMs, spec.shift.transient.ms) / 1000, 9);
+    expect(env.gain[1]).toEqual([at + spec.shift.transient.ms / 1000, 1]);
+    // AUD-C12: the seamless profile then rebounds (transient.rebound) and ends at 1.
+    const reboundMs = spec.shift.transient.rebound ? spec.shift.transient.rebound.ms : 0;
+    expect(env.gain[env.gain.length - 1]).toEqual([at + (spec.shift.transient.ms + reboundMs) / 1000, 1]);
+    expect(env.until).toBeCloseTo(at + Math.max(spec.shift.glideMs, spec.shift.transient.ms + reboundMs) / 1000, 9);
     // No previous pitch (a voice just re-pointed): it starts at the target, no swoop from another car.
     expect(shiftEnvelope(spec, { fromHz: null, toHz: 88 }, at).frequency[0]).toEqual([at, 88]);
     const pop = { ...spec, shift: { id: "p", glideMs: 40, transient: { kind: "pop", db: 3, ms: 30 } } };

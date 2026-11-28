@@ -27,6 +27,11 @@
  * ambience buses to `views.cut.gapDb` and back (`cutEnvelope`) instead of a crossfade. The
  * ui bus never moves with either.
  *
+ * Music (AUD-C12, F1M24-CHINA §2.7): a `music` bus for the menus' own generative music
+ * (music.js) with the viewer's music volume, straight to master like the ui bus, at the share
+ * of the view snapshot's `music` (only `menu` has one): 0 live, in a pause, a replay and fast
+ * forward. It fades with the view's transition; a camera cut never touches it.
+ *
  * Recorded engines (AUD-C10): `defaults.recorded` is false; a mix saved before
  * `settingsVersion` keeps its volumes but not its `recorded`, which was the old default and
  * never the viewer's choice.
@@ -46,11 +51,12 @@ export const sliderToGain = (value, minDb = MIXER.volumeCurve.minDb) => {
   return 10 ** ((minDb * (1 - v)) / 20);
 };
 
-/** Bus gains from the settings: engine, ambience and ui each through master, and mute (ui also its own). */
+/** Bus gains from the settings: engine, ambience, ui and music each through master, and mute (ui also its own). */
 export const busGains = (settings) => {
   const master = settings.muted ? 0 : sliderToGain(settings.master);
   const ui = settings.uiMuted ? 0 : sliderToGain(Number.isFinite(settings.ui) ? settings.ui : MIXER.defaults.ui);
-  return { master, engine: sliderToGain(settings.engine), ambience: sliderToGain(settings.ambience), ui };
+  const music = sliderToGain(Number.isFinite(settings.music) ? settings.music : MIXER.defaults.music ?? 0);
+  return { master, engine: sliderToGain(settings.engine), ambience: sliderToGain(settings.ambience), ui, music };
 };
 
 /** The saved mix's version: older saves carried `recorded: true` as a default, not a choice (AUD-C10). */
@@ -60,7 +66,7 @@ const sanitize = (raw, { trusted = true } = {}) => {
   const base = MIXER.defaults;
   const out = { ...base };
   if (raw && typeof raw === "object") {
-    ["master", "engine", "ambience", "ui"].forEach((key) => {
+    ["master", "engine", "ambience", "ui", "music"].forEach((key) => {
       if (Number.isFinite(raw[key])) out[key] = clamp(raw[key], 0, 1);
     });
     ["muted", "uiMuted"].forEach((key) => {
@@ -143,7 +149,7 @@ export const listenerFor = (mix, focus, post = null) => {
 
 const VIEWS = MIXER.views;
 /** The fields a snapshot or a crossfade moves (lowpassHz in log, the rest linearly). */
-const BLENDED = ["focus", "field", "interior", "crowd", "wind", "bed", "lowpassHz", "engineDb", "bedDb", "ffBed"];
+const BLENDED = ["focus", "field", "interior", "crowd", "wind", "bed", "lowpassHz", "engineDb", "bedDb", "ffBed", "music"];
 
 /** Is the simulation speed fast enough for the fast-forward mix (AUD-C1)? Without a speed, no. */
 export const fastForwardOn = (speed, views = VIEWS) => {
@@ -165,10 +171,13 @@ export const resolveView = ({ view = null, playing = true, mode = "tv", speed = 
   return views.byGroup[cameraMix(mode).group] || null;
 };
 
-/** The camera's mix with the view snapshot on top: { ...cameraMix, engineDb, bedDb, ffBed, view }. */
+/**
+ * The camera's mix with the view snapshot on top: { ...cameraMix, engineDb, bedDb, ffBed, music,
+ * view }. `music` (AUD-C12) is 0 unless the snapshot names it: no music live.
+ */
 export const viewMix = (mode, view = null, views = VIEWS) => {
   const snapshot = view ? views.snapshots[view] : null;
-  return { ...cameraMix(mode), engineDb: 0, bedDb: 0, ffBed: 0, ...(snapshot || {}), view: snapshot ? view : null };
+  return { ...cameraMix(mode), engineDb: 0, bedDb: 0, ffBed: 0, music: 0, ...(snapshot || {}), view: snapshot ? view : null };
 };
 
 /** The bus trims' time constant in seconds outside the timed transitions. */
@@ -377,6 +386,11 @@ export const createMixer = (ctx) => {
   fastForward.gain.value = 0;
   const fastForwardVolume = ctx.createGain();
   fastForward.connect(fastForwardVolume).connect(master);
+  // Menu music (AUD-C12): the snapshot's music share under the viewer's music volume, no view trim.
+  const music = ctx.createGain();
+  music.gain.value = 0;
+  const musicVolume = ctx.createGain();
+  music.connect(musicVolume).connect(master);
 
   const panner = () => {
     const node = ctx.createPanner();
@@ -398,6 +412,7 @@ export const createMixer = (ctx) => {
     ambience,
     ui,
     fastForward,
+    music,
     panner,
     /** Scene metres (x, y on the ground, z up) to Web Audio (x right, y up, z towards the viewer). */
     setPosition(node, x, y, z, at) {
@@ -433,6 +448,7 @@ export const createMixer = (ctx) => {
       ambience.gain.setTargetAtTime(gains.ambience, at, 0.05);
       fastForwardVolume.gain.setTargetAtTime(gains.engine, at, 0.05);
       ui.gain.setTargetAtTime(gains.ui, at, 0.05);
+      musicVolume.gain.setTargetAtTime(gains.music, at, 0.05);
     },
     /**
      * The view snapshot's bus trims (already blended by the caller), plus a cut's dip
@@ -444,6 +460,8 @@ export const createMixer = (ctx) => {
       engineView.gain.setTargetAtTime(dbToGain(mix.engineDb + dip), at, tau);
       ambienceView.gain.setTargetAtTime(dbToGain(mix.bedDb + dip), at, tau);
       fastForward.gain.setTargetAtTime(clamp(Number.isFinite(mix.ffBed) ? mix.ffBed : 0, 0, 1) * dbToGain(dip), at, tau);
+      // AUD-C12: the music share, with the view's own fade and never the cut's dip.
+      music.gain.setTargetAtTime(clamp(Number.isFinite(mix.music) ? mix.music : 0, 0, 1), at, tau);
     },
     disconnect() {
       master.disconnect();
