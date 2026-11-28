@@ -259,8 +259,8 @@
     "target": { "freeFolded": 0.65, "freeOneCard": 0.5, "grid": [32, 18], "viewports": [[1280, 720], [1920, 1080]] }
   },
   "tags": {
-    "$comment": "VIEW-11 (F1M24-CHINA §2.3; RF-3D-04, RNF-09, RNF-07): etiquetas de nombre sobre los coches en 3D. HUD-C1 crea la clave (contrato de la ola 1); la aplica CAM-C4 en three/Race3D.js (repulsión 1D y ocultación). policy: focus (solo el coche que sigues), focus+rival (y su rival en lucha; por defecto), all, none. maxVisible y hideBelowWidthShare (un coche más estrecho que esa parte del ancho no lleva etiqueta) son los de la aceptación de VIEW-11 y de la §2.3; decisión de presentación de OverCut. pending hasta que CAM-C4 la enganche: mientras, Race3D etiqueta como hoy.",
-    "status": "pending",
+    "$comment": "VIEW-11 (F1M24-CHINA §2.3; RF-3D-04, RNF-09, RNF-07): etiquetas de nombre sobre los coches en 3D. HUD-C1 crea la clave (contrato de la ola 1); la aplica CAM-C4 en three/Race3D.js (repulsión 1D y ocultación). policy: focus (solo el coche que sigues), focus+rival (y su rival en lucha; por defecto), all, none. maxVisible y hideBelowWidthShare (un coche más estrecho que esa parte del ancho no lleva etiqueta) son los de la aceptación de VIEW-11 y de la §2.3; decisión de presentación de OverCut. Enganchada por CAM-C4 en three/Race3D.js (repulsión 1D, maxVisible y ocultación por ancho): status behaviour.",
+    "status": "behaviour",
     "policy": "focus+rival",
     "policies": ["focus", "focus+rival", "all", "none"],
     "maxVisible": 2,
