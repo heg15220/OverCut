@@ -1,10 +1,10 @@
 {
- "generated": "2026-11-28T08:38:33.305Z",
+ "generated": "2026-11-28T10:27:15.178Z",
  "mode": "strict",
  "runsPerSeason": 1000,
  "sets": [],
  "timing": {
-  "seconds": 2370.326,
+  "seconds": 2031.383,
   "runs": 38000,
   "workers": 15
  },
@@ -12,7 +12,7 @@
   "seasons": 38,
   "championHits": 35,
   "championShare": 0.9210526315789473,
-  "meanSpearman": 0.9184559392362059,
+  "meanSpearman": 0.9184559392362057,
   "pass": true
  },
  "seasons": [
@@ -46,28 +46,28 @@
      "share": 0.001
     }
    ],
-   "meanSpearman": 0.7848241758241753,
-   "sdSpearman": 0.07577358201013534,
+   "meanSpearman": 0.784824175824175,
+   "sdSpearman": 0.07577358201013527,
    "meanPosition": {
-    "tyrrell": 2.249,
-    "ferrari": 2.051,
     "mclaren": 1.906,
-    "brabham": 7.766,
-    "penske": 6.706,
+    "ferrari": 2.051,
+    "tyrrell": 2.249,
     "shadow": 4.676,
-    "ligier": 9.776,
-    "lotus": 7.152,
     "surtees": 7.547,
+    "penske": 6.706,
+    "lotus": 7.152,
     "march": 7.276,
+    "brabham": 7.766,
     "wolf-williams": 12.662,
+    "ligier": 9.776,
     "parnelli": 15.453,
-    "brm": 17.699,
+    "fittipaldi": 12.58,
     "ensign": 11.841,
     "hesketh": 13.249,
-    "fittipaldi": 12.58,
     "boro": 15.302,
-    "maki": 18.283,
-    "kojima": 15.826
+    "kojima": 15.826,
+    "brm": 17.699,
+    "maki": 18.283
    }
   },
   {
@@ -138,7 +138,7 @@
     }
    ],
    "meanSpearman": 0.9069212121212141,
-   "sdSpearman": 0.05376906936901363,
+   "sdSpearman": 0.05376906936901364,
    "meanPosition": {
     "mclaren": 1.011,
     "ferrari": 2.205,
@@ -190,28 +190,28 @@
      "share": 0.011
     }
    ],
-   "meanSpearman": 0.8415030303030293,
-   "sdSpearman": 0.06934875539114171,
+   "meanSpearman": 0.8415030303030299,
+   "sdSpearman": 0.06934875539114169,
    "meanPosition": {
     "mclaren": 1.179,
-    "ferrari": 2.82,
-    "benetton": 3.548,
     "tyrrell": 3.874,
     "williams": 3.751,
-    "lola": 9.339,
+    "benetton": 3.548,
+    "ferrari": 2.82,
     "minardi": 7.414,
-    "arrows": 10.819,
     "ligier": 7.625,
+    "lola": 9.339,
     "lotus": 9.17,
-    "brabham": 9.857,
+    "arrows": 10.819,
     "leyton-house": 11.417,
     "dallara": 12.114,
     "onyx": 15.036,
-    "osella": 14.676,
     "ags": 15.145,
-    "life": 18.501,
+    "brabham": 9.857,
+    "osella": 14.676,
+    "coloni": 17.765,
     "eurobrun": 15.95,
-    "coloni": 17.765
+    "life": 18.501
    }
   },
   {
@@ -233,7 +233,7 @@
     }
    ],
    "meanSpearman": 0.8115804195804197,
-   "sdSpearman": 0.08842677687355734,
+   "sdSpearman": 0.08842677687355739,
    "meanPosition": {
     "mclaren": 1.308,
     "williams": 1.692,
@@ -277,8 +277,8 @@
      "share": 0.008
     }
    ],
-   "meanSpearman": 0.7702692307692306,
-   "sdSpearman": 0.08970490385141568,
+   "meanSpearman": 0.7702692307692305,
+   "sdSpearman": 0.08970490385141575,
    "meanPosition": {
     "williams": 1.074,
     "mclaren": 2.717,
@@ -312,8 +312,8 @@
      "share": 1
     }
    ],
-   "meanSpearman": 0.8093727272727269,
-   "sdSpearman": 0.09872659340841836,
+   "meanSpearman": 0.8093727272727261,
+   "sdSpearman": 0.09872659340841854,
    "meanPosition": {
     "williams": 1,
     "benetton": 2.535,
@@ -352,7 +352,7 @@
      "share": 0.019
     }
    ],
-   "meanSpearman": 0.9133363636363622,
+   "meanSpearman": 0.9133363636363617,
    "sdSpearman": 0.04837288379143343,
    "meanPosition": {
     "williams": 1.588,
@@ -389,8 +389,8 @@
      "share": 0.098
     }
    ],
-   "meanSpearman": 0.873563636363638,
-   "sdSpearman": 0.05511342395932048,
+   "meanSpearman": 0.8735636363636377,
+   "sdSpearman": 0.05511342395932055,
    "meanPosition": {
     "benetton": 1.098,
     "williams": 1.941,
@@ -426,7 +426,7 @@
     }
    ],
    "meanSpearman": 0.928099999999998,
-   "sdSpearman": 0.04741512152578402,
+   "sdSpearman": 0.047415121525784,
    "meanPosition": {
     "williams": 1.001,
     "ferrari": 2.75,
@@ -464,7 +464,7 @@
     }
    ],
    "meanSpearman": 0.8820121212121206,
-   "sdSpearman": 0.04219045428724064,
+   "sdSpearman": 0.042190454287240636,
    "meanPosition": {
     "williams": 1.27,
     "sauber": 4.35,
@@ -502,20 +502,20 @@
      "share": 0.001
     }
    ],
-   "meanSpearman": 0.9195499999999923,
-   "sdSpearman": 0.034878560951019835,
+   "meanSpearman": 0.919549999999992,
+   "sdSpearman": 0.034878560951019925,
    "meanPosition": {
-    "mclaren": 1.426,
     "ferrari": 1.594,
+    "mclaren": 1.426,
     "williams": 3.097,
     "benetton": 4.155,
     "sauber": 5.648,
     "jordan": 5.136,
-    "tyrrell": 8.336,
+    "prost": 8.523,
+    "arrows": 9.321,
     "stewart": 8.636,
     "minardi": 10.128,
-    "prost": 8.523,
-    "arrows": 9.321
+    "tyrrell": 8.336
    }
   },
   {
@@ -536,8 +536,8 @@
      "share": 0.194
     }
    ],
-   "meanSpearman": 0.9593090909090999,
-   "sdSpearman": 0.028336210558213643,
+   "meanSpearman": 0.9593090909090995,
+   "sdSpearman": 0.02833621055821378,
    "meanPosition": {
     "ferrari": 1.195,
     "mclaren": 1.82,
@@ -570,7 +570,7 @@
      "share": 0.485
     }
    ],
-   "meanSpearman": 0.8680272727272708,
+   "meanSpearman": 0.8680272727272706,
    "sdSpearman": 0.060852427861625355,
    "meanPosition": {
     "mclaren": 1.515,
@@ -600,19 +600,19 @@
      "share": 1
     }
    ],
-   "meanSpearman": 0.9267636363636362,
-   "sdSpearman": 0.04150645644261001,
+   "meanSpearman": 0.9267636363636371,
+   "sdSpearman": 0.04150645644261005,
    "meanPosition": {
     "ferrari": 1,
     "mclaren": 2.257,
-    "jordan": 4.799,
     "williams": 2.79,
+    "bar": 5.306,
+    "jordan": 4.799,
     "sauber": 5.409,
     "benetton": 8.157,
-    "bar": 5.306,
-    "prost": 7.401,
     "jaguar": 8.222,
     "arrows": 10.14,
+    "prost": 7.401,
     "minardi": 10.519
    }
   },
@@ -634,19 +634,19 @@
      "share": 0.003
     }
    ],
-   "meanSpearman": 0.8957181818181796,
-   "sdSpearman": 0.05429703417301988,
+   "meanSpearman": 0.8957181818181799,
+   "sdSpearman": 0.0542970341730199,
    "meanPosition": {
     "ferrari": 1.003,
     "williams": 1.998,
     "mclaren": 3.06,
-    "sauber": 4.973,
     "renault": 4.805,
     "jordan": 5.664,
+    "sauber": 4.973,
     "bar": 7.995,
+    "toyota": 7.915,
     "jaguar": 8.881,
     "minardi": 9.881,
-    "toyota": 7.915,
     "arrows": 9.825
    }
   },
@@ -673,18 +673,18 @@
     }
    ],
    "meanSpearman": 0.8842787878787868,
-   "sdSpearman": 0.05132545568794427,
+   "sdSpearman": 0.05132545568794429,
    "meanPosition": {
-    "williams": 1.927,
     "ferrari": 1.262,
+    "williams": 1.927,
     "mclaren": 2.882,
     "renault": 3.936,
-    "bar": 6.783,
-    "jaguar": 6.611,
-    "sauber": 7.594,
     "toyota": 5.781,
-    "minardi": 9.927,
-    "jordan": 8.297
+    "bar": 6.783,
+    "sauber": 7.594,
+    "jaguar": 6.611,
+    "jordan": 8.297,
+    "minardi": 9.927
    }
   },
   {
@@ -705,12 +705,12 @@
      "share": 0.001
     }
    ],
-   "meanSpearman": 0.9684121212121306,
-   "sdSpearman": 0.026577182012401977,
+   "meanSpearman": 0.9684121212121303,
+   "sdSpearman": 0.026577182012401966,
    "meanPosition": {
     "ferrari": 1.001,
-    "bar": 2.299,
     "renault": 3.133,
+    "bar": 2.299,
     "williams": 4.072,
     "mclaren": 4.799,
     "sauber": 6.188,
@@ -746,17 +746,17 @@
      "share": 0.006
     }
    ],
-   "meanSpearman": 0.9428727272727335,
-   "sdSpearman": 0.03589475566136424,
+   "meanSpearman": 0.9428727272727339,
+   "sdSpearman": 0.035894755661364304,
    "meanPosition": {
-    "renault": 1.205,
     "mclaren": 2.045,
+    "renault": 1.205,
     "ferrari": 3.18,
-    "toyota": 3.663,
     "williams": 5.502,
-    "red-bull": 7.138,
+    "toyota": 3.663,
     "sauber": 6.537,
     "bar": 6.779,
+    "red-bull": 7.138,
     "jordan": 9.156,
     "minardi": 9.795
    }
@@ -779,8 +779,8 @@
      "share": 0.119
     }
    ],
-   "meanSpearman": 0.9667636363636481,
-   "sdSpearman": 0.01756074556342699,
+   "meanSpearman": 0.9667636363636476,
+   "sdSpearman": 0.01756074556342702,
    "meanPosition": {
     "ferrari": 1.119,
     "renault": 1.883,
@@ -809,8 +809,8 @@
      "share": 1
     }
    ],
-   "meanSpearman": 0.9322666666666709,
-   "sdSpearman": 0.03837331158245235,
+   "meanSpearman": 0.9322666666666712,
+   "sdSpearman": 0.038373311582452344,
    "meanPosition": {
     "ferrari": 1,
     "bmw-sauber": 2.054,
@@ -847,20 +847,20 @@
      "share": 0.105
     }
    ],
-   "meanSpearman": 0.9518000000000033,
-   "sdSpearman": 0.028079486257008894,
+   "meanSpearman": 0.9518000000000032,
+   "sdSpearman": 0.028079486257008884,
    "meanPosition": {
-    "ferrari": 1.558,
     "mclaren": 1.93,
+    "ferrari": 1.558,
     "bmw-sauber": 2.512,
     "renault": 5.225,
-    "toyota": 4.815,
     "red-bull": 5.634,
+    "toyota": 4.815,
     "williams": 8.053,
     "toro-rosso": 6.435,
     "honda": 8.917,
-    "force-india": 10.087,
-    "super-aguri": 10.834
+    "super-aguri": 10.834,
+    "force-india": 10.087
    }
   },
   {
@@ -885,17 +885,17 @@
      "share": 0.001
     }
    ],
-   "meanSpearman": 0.9373454545454601,
-   "sdSpearman": 0.03241510058741579,
+   "meanSpearman": 0.9373454545454598,
+   "sdSpearman": 0.03241510058741588,
    "meanPosition": {
     "brawn": 1.107,
     "red-bull": 1.964,
     "ferrari": 3.561,
     "mclaren": 3.433,
     "toyota": 5.469,
+    "renault": 6.257,
     "bmw-sauber": 7.105,
     "williams": 7.107,
-    "renault": 6.257,
     "force-india": 9.497,
     "toro-rosso": 9.5
    }
@@ -922,8 +922,8 @@
      "share": 0.129
     }
    ],
-   "meanSpearman": 0.9701678321678304,
-   "sdSpearman": 0.01546725442719814,
+   "meanSpearman": 0.9701678321678311,
+   "sdSpearman": 0.015467254427198077,
    "meanPosition": {
     "red-bull": 1.622,
     "mclaren": 1.92,
@@ -958,7 +958,7 @@
     }
    ],
    "meanSpearman": 0.9790139860139871,
-   "sdSpearman": 0.012427415858905503,
+   "sdSpearman": 0.012427415858905512,
    "meanPosition": {
     "red-bull": 1.024,
     "mclaren": 2.205,
@@ -967,11 +967,11 @@
     "renault": 5.556,
     "force-india": 5.497,
     "sauber": 7.315,
-    "toro-rosso": 8.036,
     "williams": 8.603,
-    "virgin": 11.049,
+    "toro-rosso": 8.036,
     "lotus-racing": 10.306,
-    "hrt": 11.627
+    "hrt": 11.627,
+    "virgin": 11.049
    }
   },
   {
@@ -1000,8 +1000,8 @@
      "share": 0.001
     }
    ],
-   "meanSpearman": 0.941377622377621,
-   "sdSpearman": 0.02063709707153903,
+   "meanSpearman": 0.9413776223776205,
+   "sdSpearman": 0.020637097071538935,
    "meanPosition": {
     "red-bull": 1.317,
     "ferrari": 2.116,
@@ -1039,8 +1039,8 @@
      "share": 0.003
     }
    ],
-   "meanSpearman": 0.9793454545454654,
-   "sdSpearman": 0.012720693019916032,
+   "meanSpearman": 0.9793454545454651,
+   "sdSpearman": 0.012720693019915965,
    "meanPosition": {
     "mercedes": 1.836,
     "red-bull": 1.224,
@@ -1069,8 +1069,8 @@
      "share": 1
     }
    ],
-   "meanSpearman": 0.9595909090909154,
-   "sdSpearman": 0.023667379567653985,
+   "meanSpearman": 0.9595909090909157,
+   "sdSpearman": 0.023667379567653926,
    "meanPosition": {
     "mercedes": 1,
     "red-bull": 2.933,
@@ -1110,8 +1110,8 @@
     "mclaren": 6.415,
     "toro-rosso": 6.633,
     "haas": 8.109,
-    "sauber": 9.939,
     "renault": 9.562,
+    "sauber": 9.939,
     "manor": 10.333
    }
   },
@@ -1133,8 +1133,8 @@
      "share": 0.144
     }
    ],
-   "meanSpearman": 0.9190787878787878,
-   "sdSpearman": 0.03414431417499347,
+   "meanSpearman": 0.9190787878787869,
+   "sdSpearman": 0.03414431417499339,
    "meanPosition": {
     "mercedes": 1.144,
     "ferrari": 1.856,
@@ -1166,8 +1166,8 @@
      "share": 0.019
     }
    ],
-   "meanSpearman": 0.9728121212121291,
-   "sdSpearman": 0.025141665112489733,
+   "meanSpearman": 0.97281212121213,
+   "sdSpearman": 0.025141665112489726,
    "meanPosition": {
     "mercedes": 1.019,
     "red-bull": 2.789,
@@ -1195,8 +1195,8 @@
      "share": 1
     }
    ],
-   "meanSpearman": 0.9464363636363727,
-   "sdSpearman": 0.026406958999288677,
+   "meanSpearman": 0.9464363636363723,
+   "sdSpearman": 0.026406958999288608,
    "meanPosition": {
     "mercedes": 1,
     "red-bull": 2.011,
@@ -1228,15 +1228,15 @@
      "share": 0.14
     }
    ],
-   "meanSpearman": 0.9695151515151627,
-   "sdSpearman": 0.019417944769639792,
+   "meanSpearman": 0.9695151515151629,
+   "sdSpearman": 0.019417944769639855,
    "meanPosition": {
     "mercedes": 1.14,
     "red-bull": 1.86,
-    "mclaren": 3.66,
     "ferrari": 3.342,
-    "alphatauri": 5.042,
+    "mclaren": 3.66,
     "alpine": 6.048,
+    "alphatauri": 5.042,
     "aston-martin": 7.406,
     "williams": 7.878,
     "alfa-romeo": 8.639,
@@ -1261,8 +1261,8 @@
      "share": 0.027
     }
    ],
-   "meanSpearman": 0.9371757575757612,
-   "sdSpearman": 0.03722404693305275,
+   "meanSpearman": 0.9371757575757614,
+   "sdSpearman": 0.03722404693305277,
    "meanPosition": {
     "red-bull": 1.027,
     "ferrari": 1.998,
@@ -1290,8 +1290,8 @@
      "share": 1
     }
    ],
-   "meanSpearman": 0.9396606060606099,
-   "sdSpearman": 0.030587474425901956,
+   "meanSpearman": 0.9396606060606103,
+   "sdSpearman": 0.030587474425902043,
    "meanPosition": {
     "red-bull": 1,
     "ferrari": 2.017,
@@ -1328,7 +1328,7 @@
     }
    ],
    "meanSpearman": 0.934133333333337,
-   "sdSpearman": 0.029215524643818158,
+   "sdSpearman": 0.029215524643818155,
    "meanPosition": {
     "mclaren": 1.126,
     "ferrari": 2.647,
@@ -1356,19 +1356,19 @@
      "share": 1
     }
    ],
-   "meanSpearman": 0.9633333333333445,
-   "sdSpearman": 0.020922189500518145,
+   "meanSpearman": 0.963333333333344,
+   "sdSpearman": 0.020922189500518062,
    "meanPosition": {
     "mclaren": 1,
-    "mercedes": 3.016,
     "red-bull": 2.107,
+    "mercedes": 3.016,
     "ferrari": 3.877,
-    "williams": 5.473,
     "racing-bulls": 5.846,
+    "williams": 5.473,
     "aston-martin": 6.823,
     "haas": 8.121,
-    "kick-sauber": 9.426,
-    "alpine": 9.311
+    "alpine": 9.311,
+    "kick-sauber": 9.426
    }
   },
   {
@@ -1393,8 +1393,8 @@
      "share": 0.001
     }
    ],
-   "meanSpearman": 0.9758636363636474,
-   "sdSpearman": 0.014398357009930378,
+   "meanSpearman": 0.975863636363647,
+   "sdSpearman": 0.014398357009930382,
    "meanPosition": {
     "mercedes": 1.062,
     "ferrari": 2.029,

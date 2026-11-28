@@ -2,7 +2,7 @@
 
 Generado por `overcut/frontend/scripts/validateSeasons.js` el 2026-11-28.
 Modo strict, 1000 simulaciones por temporada sin intervención (carrera espectadora, modo rápido),
-15 hilos, 2370.3 s en total (62.4 ms por temporada simulada y hilo-equivalente 935.7 ms).
+15 hilos, 2031.4 s en total (53.5 ms por temporada simulada y hilo-equivalente 801.9 ms).
 
 **Veredicto: CUMPLE.** Campeón real como más probable en 35/38 temporadas (92.1 %; mínimo 70 %), Spearman medio 0.918 (mínimo 0,8).
 
