@@ -88,7 +88,7 @@
     "eras": [
       {
         "from": 1950, "to": 1981,
-        "target": { "median": 24, "ver": "NV", "note": "sin dato publicado (SIM-FISICA §4.5); mismo valor que tenía race-eras.json pit.stationary. Paradas raras (cambio de ruedas con tuerca central o reparación)." },
+        "target": { "median": 24, "ver": "NV", "measure": "stationary", "note": "sin dato publicado (SIM-FISICA §4.5); mismo valor que tenía race-eras.json pit.stationary. Paradas raras (cambio de ruedas con tuerca central o reparación)." },
         "marks": { "mean": 0, "sd": 0, "errorChance": 0.01, "delay": [0.5, 2] },
         "jackUp": { "mean": 2.0, "sd": 0.3, "errorChance": 0.004, "delay": [2, 5] },
         "wheel": { "mean": 18.0, "sd": 1.5, "errorChance": 0.005, "delay": [3, 10] },
@@ -99,7 +99,7 @@
       },
       {
         "from": 1982, "to": 1993,
-        "target": { "median": 8.5, "ver": "NV", "note": "sin dato publicado (§4.5); valor que tenía race-eras.json pit.stationary. Ruedas con pistola neumática, sin repostaje (1982-83 opcional: el modelo lo deja desactivado, era-defaults)." },
+        "target": { "median": 8.5, "ver": "NV", "measure": "stationary", "note": "sin dato publicado (§4.5); valor que tenía race-eras.json pit.stationary. Ruedas con pistola neumática, sin repostaje (1982-83 opcional: el modelo lo deja desactivado, era-defaults)." },
         "marks": { "mean": 0, "sd": 0, "errorChance": 0.008, "delay": [0.3, 1.2] },
         "jackUp": { "mean": 0.89, "sd": 0.12, "errorChance": 0.003, "delay": [1, 3] },
         "wheel": { "mean": 5.36, "sd": 0.5, "errorChance": 0.005, "delay": [1.5, 8] },
@@ -110,7 +110,7 @@
       },
       {
         "from": 1994, "to": 2009,
-        "target": { "median": 8.2, "ver": "S", "note": "Derivada de f1db v2026.20.0 (tiempo de pit lane, mismo límite de 100 km/h): mediana de 2004-2009 menos 2010 en 12 circuitos sin cambios ≈ +3,5 s sobre la parada de 2010 (4,6 s). Rango real 6-12 s según combustible (https://en.wikipedia.org/wiki/Pit_stop, V). El repostaje manda: corre en paralelo con las ruedas." },
+        "target": { "median": 8.2, "ver": "S", "measure": "lane", "note": "Derivada de f1db v2026.20.0 (tiempo de pit lane, mismo límite de 100 km/h): mediana de 2004-2009 menos 2010 en 12 circuitos sin cambios ≈ +3,5 s sobre la parada de 2010 (4,6 s). Rango real 6-12 s según combustible (https://en.wikipedia.org/wiki/Pit_stop, V). El repostaje manda: corre en paralelo con las ruedas." },
         "marks": { "mean": 0, "sd": 0, "errorChance": 0.006, "delay": [0.3, 1.0] },
         "jackUp": { "mean": 0.45, "sd": 0.06, "errorChance": 0.002, "delay": [1, 3] },
         "wheel": { "mean": 3.4, "sd": 0.3, "errorChance": 0.005, "delay": [1, 6] },
@@ -121,7 +121,7 @@
       },
       {
         "from": 2010, "to": 2010,
-        "target": { "median": 4.6, "ver": "S", "note": "Derivada de f1db: el tiempo de pit lane de 2010 es ~1,0 s más que el de 2012 y ~1,7 s más que el de 2013 antes de Hungría en los mismos circuitos y a 100 km/h; parada de 2013 ≈ 2014 (mismo tiempo de pit lane a 80 km/h, 2,9 s). Primer año sin repostaje: objetivo < 3 s solo para los mejores (https://www.motorsportmagazine.com/archive/article/april-2010/72/return-of-the-slick-pitstop/, V)." },
+        "target": { "median": 4.6, "ver": "S", "measure": "lane", "note": "Derivada de f1db: el tiempo de pit lane de 2010 es ~1,0 s más que el de 2012 y ~1,7 s más que el de 2013 antes de Hungría en los mismos circuitos y a 100 km/h; parada de 2013 ≈ 2014 (mismo tiempo de pit lane a 80 km/h, 2,9 s). Primer año sin repostaje: objetivo < 3 s solo para los mejores (https://www.motorsportmagazine.com/archive/article/april-2010/72/return-of-the-slick-pitstop/, V)." },
         "marks": { "mean": 0, "sd": 0, "errorChance": 0.006, "delay": [0.3, 1.0] },
         "jackUp": { "mean": 0.54, "sd": 0.06, "errorChance": 0.002, "delay": [1, 3] },
         "wheel": { "mean": 2.85, "sd": 0.25, "errorChance": 0.006, "delay": [1, 6] },
@@ -132,7 +132,7 @@
       },
       {
         "from": 2011, "to": 2012,
-        "target": { "median": 3.6, "ver": "S", "note": "Derivada de f1db: tiempo de pit lane 2011-2012 ≈ 0,7 s más que 2013 antes de Hungría (Baréin, Barcelona, Shanghái, Mónaco, Melbourne, Sepang, Montreal, Silverstone)." },
+        "target": { "median": 3.6, "ver": "S", "measure": "lane", "note": "Derivada de f1db: tiempo de pit lane 2011-2012 ≈ 0,7 s más que 2013 antes de Hungría (Baréin, Barcelona, Shanghái, Mónaco, Melbourne, Sepang, Montreal, Silverstone)." },
         "marks": { "mean": 0, "sd": 0, "errorChance": 0.006, "delay": [0.3, 1.0] },
         "jackUp": { "mean": 0.44, "sd": 0.05, "errorChance": 0.002, "delay": [1, 3] },
         "wheel": { "mean": 2.15, "sd": 0.2, "errorChance": 0.006, "delay": [1, 6] },
@@ -143,7 +143,7 @@
       },
       {
         "from": 2013, "to": 2018,
-        "target": { "median": 2.9, "ver": "S", "note": "Derivada de f1db: el tiempo de pit lane a 80 km/h de 2019-2024 es ~0,4 s menor que el de 2014 en los mismos circuitos (Monza, Barcelona, Baréin, Hungaroring, Spielberg); 2013 tras Hungría ≈ 2014." },
+        "target": { "median": 2.9, "ver": "S", "measure": "lane", "note": "Derivada de f1db: el tiempo de pit lane a 80 km/h de 2019-2024 es ~0,4 s menor que el de 2014 en los mismos circuitos (Monza, Barcelona, Baréin, Hungaroring, Spielberg); 2013 tras Hungría ≈ 2014." },
         "marks": { "mean": 0, "sd": 0, "errorChance": 0.006, "delay": [0.3, 1.0] },
         "jackUp": { "mean": 0.36, "sd": 0.04, "errorChance": 0.002, "delay": [1, 3] },
         "wheel": { "mean": 1.77, "sd": 0.16, "errorChance": 0.006, "delay": [1, 6] },
@@ -154,7 +154,7 @@
       },
       {
         "from": 2019, "to": 2026,
-        "target": { "median": 2.5, "ver": "S", "note": "Mejor parada por GP 1,90-2,52 s, media ~2,1 s en 2024 (https://www.formula1.com/en/results/2024/awards/fastest-pit-stops, V); récord 1,80 s en 2023 (Guinness, S). La mediana de todas las paradas (≈ mejor + 0,4 s) es inferencia: no hay serie publicada (NV)." },
+        "target": { "median": 2.5, "ver": "S", "measure": "stationary", "note": "Mejor parada por GP 1,90-2,52 s, media ~2,1 s en 2024 (https://www.formula1.com/en/results/2024/awards/fastest-pit-stops, V); récord 1,80 s en 2023 (Guinness, S). La mediana de todas las paradas (≈ mejor + 0,4 s) es inferencia: no hay serie publicada (NV)." },
         "marks": { "mean": 0, "sd": 0, "errorChance": 0.006, "delay": [0.3, 1.0] },
         "jackUp": { "mean": 0.30, "sd": 0.03, "errorChance": 0.002, "delay": [1, 3] },
         "wheel": { "mean": 1.55, "sd": 0.14, "errorChance": 0.006, "delay": [1, 6] },

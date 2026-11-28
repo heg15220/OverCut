@@ -3,7 +3,8 @@
  * RNF-05, RNF-07.
  *
  *   - the median stop of each era within 0.2 s of its real median (race-pit.json `target`),
- *     measured on full quick races with the engine's own fuel loads and crews;
+ *     measured on full quick races with the engine's own fuel loads and crews, counting the
+ *     stops the real one counts (`target.measure`: lane, with a double stack's wait; stationary, without);
  *   - an error (slow stop) in fewer than 5 % of stops;
  *   - stages in order with their roles; wheels, wing and fuel in parallel; fuel only in
  *     refuelling eras; a better crew stops faster (RF-STF-07);
@@ -70,11 +71,17 @@ describe("RF-SIM-12 · the stop against the real one, era by era", () => {
   beforeAll(() => {
     Object.entries(SAMPLES).forEach(([era, years]) => {
       const stops = [];
+      // What the real median counts (race-pit.json target.measure): the f1db-derived eras time every stop in the pit
+      // lane, so a double-stacked car's wait for its team-mate is inside it (the event's stationary carries it); a
+      // stationary-time target counts the car on its marks only. Until SIM-C4 every second car of a team stopping on
+      // the same lap was flagged stacked, so this filter also dropped the ones that met an empty box.
+      const { target } = stopEraFor(years[0]);
+      const counted = (event) => event.type === "pit" && !event.penalty && (target.measure === "lane" || !event.stacked);
       years.forEach((year) =>
         SEEDS.forEach((seed) => {
           const state = runToFinish(quickRace(year, seed));
           state.events
-            .filter((event) => event.type === "pit" && !event.stacked && !event.penalty)
+            .filter(counted)
             .forEach((event) => {
               stops.push(event.stationary);
               total += 1;
@@ -82,7 +89,7 @@ describe("RF-SIM-12 · the stop against the real one, era by era", () => {
             });
         }),
       );
-      rows.push({ era, years, n: stops.length, median: median(stops), target: stopEraFor(years[0]).target });
+      rows.push({ era, years, n: stops.length, median: median(stops), target });
     });
     // eslint-disable-next-line no-console
     console.log(rows.map((r) => `${r.era}: ${r.n} stops, median ${r.median.toFixed(2)} s, real ${r.target.median} s (${r.target.ver})`).join("\n") + `\nerrors ${errors}/${total} = ${((100 * errors) / total).toFixed(2)} %`);
@@ -156,6 +163,7 @@ describe("RF-SIM-12 / RF-STF-07 · stages, roles and the crew", () => {
   it("every era has its real median with a source note (RNF-07)", () => {
     pitBalance.pitStop.eras.forEach((era) => {
       expect(era.target.median).toBeGreaterThan(0);
+      expect(["lane", "stationary"]).toContain(era.target.measure);
       expect(["V", "S", "NV"]).toContain(era.target.ver);
       expect(era.target.note.length).toBeGreaterThan(10);
     });
