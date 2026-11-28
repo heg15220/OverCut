@@ -6,7 +6,7 @@
 
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
-import ReplayOverlay, { replayLabel } from "./ReplayOverlay";
+import ReplayOverlay, { replayLabel, stingMs } from "./ReplayOverlay";
 import { createReplayBuffer, planReplay, recordReplay } from "./replayBuffer";
 
 const buffer = createReplayBuffer();
@@ -37,6 +37,18 @@ describe("ReplayOverlay", () => {
   it("names every trigger in words", () => {
     ["pass", "mistake", "dnf", "pitOther", "finish", "other"].forEach((trigger) => expect(replayLabel(trigger).length).toBeGreaterThan(3));
     expect(new Set(["pass", "mistake", "dnf", "pitOther", "finish"].map(replayLabel)).size).toBe(5);
+  });
+
+  it("publishes the sting length (replay.stingSec, VIEW-13) and the phase for the acceptance check", () => {
+    const { rerender } = render(<ReplayOverlay plan={plan} elapsed={0} names={names} />);
+    const overlay = screen.getByTestId("replay-overlay");
+    expect(Number(overlay.dataset.stingMs)).toBe(stingMs(plan));
+    expect(stingMs(plan)).toBeGreaterThanOrEqual(1500);
+    expect(stingMs(plan)).toBeLessThanOrEqual(2100);
+    expect(overlay.dataset.phase).toBe("stingIn");
+    rerender(<ReplayOverlay plan={plan} elapsed={plan.totalSec - plan.stingSec / 2} names={names} />);
+    expect(screen.getByTestId("replay-overlay").dataset.phase).toBe("stingOut");
+    expect(stingMs(null)).toBe(0);
   });
 
   it("draws nothing without a plan", () => {

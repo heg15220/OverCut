@@ -36,6 +36,13 @@ export const replayLabel = (trigger) => {
   }
 };
 
+/**
+ * Milliseconds of each sting of a plan (CAM-C3, VIEW-13: broadcast.json replay.stingSec, the one
+ * source - audio.json ui.sting reads the same length). Published as data-sting-ms with data-phase so
+ * an acceptance check can time the sting (1,5-2,1 s) without reading the CSS.
+ */
+export const stingMs = (plan) => Math.round(Math.max(0, plan?.stingSec || 0) * 1000);
+
 export default function ReplayOverlay({ plan, elapsed = 0, names = {}, onSkip }) {
   const [reduced] = useState(prefersReducedMotion);
   const skip = useRef(onSkip);
@@ -59,7 +66,7 @@ export default function ReplayOverlay({ plan, elapsed = 0, names = {}, onSkip })
   const driver = plan.subjectId !== null ? names[plan.subjectId] : null;
   const other = plan.otherId !== null ? names[plan.otherId] : null;
   return (
-    <div className={`mn-replay is-${frame.phase}${reduced ? " is-still" : ""}`} data-testid="replay-overlay" style={{ "--mn-replay-sting": `${Math.round((plan.stingSec || 0) * 1000)}ms` }}>
+    <div className={`mn-replay is-${frame.phase}${reduced ? " is-still" : ""}`} data-testid="replay-overlay" data-phase={frame.phase} data-sting-ms={stingMs(plan)} style={{ "--mn-replay-sting": `${stingMs(plan)}ms` }}>
       {sting && (
         <div className="mn-replay__sting" aria-hidden="true" data-testid="replay-sting">
           <img src={logo} alt="" />

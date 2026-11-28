@@ -82,18 +82,18 @@ describe("pre-race and start scripts", () => {
     expect(a.map((cut) => cut.t)).not.toEqual(c.map((cut) => cut.t));
   });
 
-  test("grid shots before the lights, the high grid shot through the lights, head-on at lights out, then the TV", () => {
+  test("grid shots before the lights, the low lights shot until lights out plus holdShotSec, the high shot to T1, then the TV (CAM-C3, VIEW-10)", () => {
     const cuts = runStart({ seed: 3 });
     const before = cuts.filter((cut) => cut.t < 10);
     expect(before.length).toBeGreaterThan(1);
     before.forEach((cut) => expect(cut.key.startsWith("preRace:")).toBe(true));
     const lights = cuts.find((cut) => cut.t >= 10);
-    expect(lights).toMatchObject({ key: "start:gridHigh", t: 10 });
-    const out = cuts.find((cut) => cut.t >= 15.3);
-    expect(out).toMatchObject({ key: "start:startHeadOn" });
-    expect(out.t).toBeCloseTo(15.3, 6);
+    expect(lights).toMatchObject({ key: "start:startLightsLow", t: 10 });
+    const out = cuts.find((cut) => cut.t > 15.3);
+    expect(out).toMatchObject({ key: "start:startHigh" });
+    expect(out.t).toBeCloseTo(15.3 + SEQ.start.holdShotSec, 6);
     const after = cuts.filter((cut) => cut.t > 15.3).map((cut) => cut.key);
-    expect(after).toEqual(["start:rig:braking", "start:rig:corner", "start:rig:highWide", "tv"]);
+    expect(after).toEqual(["start:startHigh", "start:rig:corner", "start:rig:highWide", "tv"]);
   });
 
   test("the parked safety car only from 1993 (era-defaults.json safetyCar), the close-up only with its camera", () => {
@@ -113,12 +113,12 @@ describe("pre-race and start scripts", () => {
     formation.filter((cut) => cut.t < 6).forEach((cut) => expect(["preRace:heli", "preRace:chase"]).toContain(cut.key));
     const skipped = runStart({ skipAt: 2 });
     expect(skipped.filter((cut) => cut.t >= 2 && cut.t < 10).every((cut) => cut.key === "tv")).toBe(true);
-    expect(skipped.find((cut) => cut.t >= 10).key).toBe("start:gridHigh");
+    expect(skipped.find((cut) => cut.t >= 10).key).toBe("start:startLightsLow");
   });
 
   test("without PRE_START the start script still opens at lights out, and nothing happens without snapshot.start", () => {
     const noPre = stepScript(null, { start: { phase: "out", lights: 0, t: 0 }, tau: 0, seed: 1, year: 2024, subjectId: "c0", rows: rowsOf(4) });
-    expect(noPre).toMatchObject({ name: "start", cam: "startHeadOn", subjectId: "c0" });
+    expect(noPre).toMatchObject({ name: "start", cam: "startHigh", subjectId: "c0" });
     const late = stepScript(null, { start: { phase: "out", lights: 0, t: 0 }, tau: 30, seed: 1, year: 2024, subjectId: "c0", rows: rowsOf(4) });
     expect(late.active).toBe(false);
     const none = stepScript(null, { tau: 30, seed: 1, year: 2024, subjectId: "c0", rows: rowsOf(4) });
@@ -232,7 +232,7 @@ describe("the director with scripts and inserts (CAM-4)", () => {
   test("snapshot.start gives the script the shot; without it the director films as before", () => {
     const rows = rowsOf(20);
     const shot = directorState("c3", rows, [], [], { start: startAt(12), tau: 0, seed: 1, year: 2024 });
-    expect(shot).toMatchObject({ shotKind: "script", cameraId: "gridHigh", camType: "script", subjectIds: ["c3"], scParked: true });
+    expect(shot).toMatchObject({ shotKind: "script", cameraId: "startLightsLow", camType: "script", subjectIds: ["c3"], scParked: true });
     const plain = directorState("c3", rows, [], [], {});
     expect(plain.shotKind).toBe("zone");
     expect(plain.scParked).toBe(false);

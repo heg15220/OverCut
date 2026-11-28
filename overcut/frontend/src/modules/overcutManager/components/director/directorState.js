@@ -43,6 +43,22 @@
  * (`camType: "pit"`), "chase" or "heli", `scShot` { cam, subject: "safetyCar" } for the view, the
  * subject still the chosen car. `scDeploy` is the state to hand back as `prev`.
  *
+ * CAM-C3 (F1M24-CHINA §2.5 VIEW-13; RF-3D-04, RF-SIM-10, RNF-05, RNF-07), all optional in `clock`:
+ * - `userLock`: the camera the viewer locked ({ cameraId, camType, focusId, mode... }), `replay`: the
+ *   replay on air ({ trigger, subjectId, otherId }, components/replay/replayBuffer planReplay) and
+ *   `userIds` (the player's cars). broadcast.json directorPriorities ranks the interruptions - finish >
+ *   ownIncident > userLock > pitSeq > zones; `shotClass` puts every shot in one - and only those with
+ *   `override` interrupt a locked camera. The result carries `priority` { onAir, saved, restore,
+ *   dropLock } (arbitrate): while the flag or a replay of the player's own incident has the air the
+ *   viewer's state is `saved` as it was; the step it ends, `restore` hands it back exactly
+ *   (restore "userState"). With the lock on air `shotKind: "user"` (the viewer's camera); with the
+ *   own replay `shotKind: "replay"` (the view plays it). Neither given: nothing changes.
+ * - `sc` with phase IN_THIS_LAP / RESTART: sequences.scRestart (scSequence.stepScRestart) as a
+ *   `shotKind: "script"` shot (`scRestartOn`), subject the leader; with sc.phase in framing.train.phases
+ *   the result carries `framing` { kind: "train", ids, share } (scSequence.trainFraming; `lengthM` or
+ *   `zones.lengthM` for the gaps in metres) for the TV to open the frame on the train.
+ * - `zones` also ends the start's high shot when the leader brakes for the first corner (raceScripts).
+ *
  * `shotKind`: "zone" (one car in a trackside camera), "battle" (the subject and its
  * rival framed together), "pit" (the subject in the pit lane or leaving its garage: while
  * components/director/pitSequence.js runs the stop or the garage exit, its pit camera takes
@@ -56,7 +72,7 @@ import broadcast from "../../data/balance/broadcast.json";
 import { zoneChoice } from "../../three/cameraZones";
 import { etaToBox, stepSequence } from "./pitSequence";
 import { camKindOf, stepInsert, stepScript } from "./raceScripts";
-import { stepScDeploy } from "./scSequence";
+import { stepScDeploy, stepScRestart, trainFraming } from "./scSequence";
 
 const PIT_CAMS = new Set(broadcast.pitRig.cams.map((cam) => cam.id));
 /** The kind of a safety-car shot's camera: "pit" for a pitRig camera, else as a script shot's (chase, heli...). */
@@ -123,7 +139,77 @@ export const cameraFor = (rig, share, keepId = null, opts = {}) => {
   return covering.slice().sort((a, b) => b.priority - a.priority)[0] || null;
 };
 
+// ------------------------------------------------------------ priorities (CAM-C3, VIEW-13)
+
+const PRIORITIES = broadcast.directorPriorities;
+
+/** The class of interruption a shot belongs to (directorPriorities.shotClass; `script` by its name). */
+export const shotClassOf = (shot, cfg = PRIORITIES) => {
+  if (!shot) return "zones";
+  const key = shot.shotKind === "script" ? `script:${shot.scRestartOn ? "scRestart" : shot.script?.name || "start"}` : shot.shotKind;
+  return cfg.shotClass[key] || "zones";
+};
+
+/** Is a replay of `trigger` about a car of the player (`ownIncident`, directorPriorities.ownIncidentTriggers)? */
+export const isOwnIncident = ({ trigger, subjectId = null, otherId = null } = {}, userIds = [], cfg = PRIORITIES) => {
+  if (!cfg.ownIncidentTriggers.includes(trigger)) return false;
+  const users = userIds instanceof Set ? userIds : new Set(userIds || []);
+  return [subjectId, otherId].some((id) => id !== null && id !== undefined && users.has(id));
+};
+
+/**
+ * May an interruption of class `kind` take the air now? (directorPriorities.override.) Without a camera
+ * the viewer locked every class may (the director's own order decides); with one, only the classes
+ * above userLock in `order` with override true - the chequered flag and a replay of the player's own
+ * incident - interrupt it. For the view (LiveRace) to ask before it starts a replay.
+ */
+export const mayInterrupt = (kind, { userLocked = false } = {}, cfg = PRIORITIES) => {
+  if (!userLocked || kind === "userLock") return true;
+  const rank = cfg.order.indexOf(kind);
+  return rank >= 0 && rank < cfg.order.indexOf("userLock") && Boolean(cfg.override[kind]);
+};
+
+/**
+ * One step of the arbitration between interruptions: `active` the classes that want the air this
+ * step, `userLock` the viewer's locked state ({ cameraId, camType, focusId, mode... }) or null.
+ * → { onAir, saved, restore }: `onAir` the class on air (the strongest in `order` that may
+ * interrupt), `saved` the viewer's state as it was when an interruption took its camera (kept
+ * unchanged while it lasts), and, on the step the interruption ends, `restore`: that exact state
+ * (restore "userState") - or null with restore "zones", where the lock is dropped (`dropLock`).
+ */
+export const arbitrate = (prev, { active = [], userLock = null } = {}, cfg = PRIORITIES) => {
+  const set = new Set(active);
+  if (userLock) set.add("userLock");
+  set.add("zones");
+  const onAir = cfg.order.find((kind) => set.has(kind) && mayInterrupt(kind, { userLocked: Boolean(userLock) }, cfg)) || "zones";
+  const interrupted = Boolean(userLock) && onAir !== "userLock";
+  if (interrupted) return { onAir, saved: prev?.saved ?? userLock, restore: null, dropLock: false };
+  if (prev?.saved) {
+    if (cfg.restore === "userState") return { onAir, saved: null, restore: prev.saved, dropLock: false };
+    return { onAir, saved: null, restore: null, dropLock: true };
+  }
+  return { onAir, saved: null, restore: null, dropLock: false };
+};
+
 export const directorState = (focusId, rows = [], events = [], rig = [], clock = {}, config = broadcast.director) => {
+  const shot = filmed(focusId, rows, events, rig, clock, config);
+  // CAM-C3 (VIEW-13): the train behind the safety car, for the TV's wider frame (framing.train).
+  const train = clock.sc ? trainFraming(rows, shot.subjectIds[0] ?? null, { sc: clock.sc, lengthM: clock.lengthM ?? clock.zones?.lengthM ?? null }) : null;
+  const framed = train ? { ...shot, framing: train } : shot;
+  const userLock = clock.userLock || null;
+  const replay = clock.replay || null;
+  const prevArb = clock.prev?.priority || null;
+  if (!userLock && !replay && !prevArb?.saved) return { ...framed, priority: { onAir: shotClassOf(framed), saved: null, restore: null, dropLock: false } };
+  const own = replay && isOwnIncident(replay, clock.userIds);
+  const active = [shotClassOf(framed)];
+  if (own) active.push("ownIncident");
+  const priority = arbitrate(prevArb, { active, userLock });
+  if (priority.onAir === "ownIncident") return { ...framed, cameraId: null, camType: "replay", shotKind: "replay", replay, subjectIds: [replay.subjectId ?? framed.subjectIds[0]].filter((id) => id !== null && id !== undefined), priority };
+  if (priority.onAir === "userLock") return { ...framed, cameraId: userLock.cameraId ?? null, camType: userLock.camType ?? null, shotKind: "user", subjectIds: [userLock.focusId ?? framed.subjectIds[0]].filter((id) => id !== null && id !== undefined), priority };
+  return { ...framed, priority };
+};
+
+const filmed = (focusId, rows, events, rig, clock, config) => {
   const prev = clock.prev || null;
   const now = Number.isFinite(clock.now) ? clock.now : 0;
   const live = rows.filter(alive);
@@ -155,18 +241,26 @@ export const directorState = (focusId, rows = [], events = [], rig = [], clock =
   const tau = Number.isFinite(clock.tau) ? clock.tau : now;
   // CAM-4: the pre-race, the start and the finish scripts (snapshot.start and the `finished` events,
   // §1.7); with neither the script stays idle and the director films as before.
-  const script = stepScript(prev?.script ?? null, { start: clock.start ?? null, events, tau, viewSec: clock.viewSec, seed: clock.seed ?? 0, year: clock.year, subjectId, rows, skipPreRace: clock.skipPreRace });
+  const script = stepScript(prev?.script ?? null, { start: clock.start ?? null, events, tau, viewSec: clock.viewSec, seed: clock.seed ?? 0, year: clock.year, subjectId, rows, skipPreRace: clock.skipPreRace, zones: clock.zones });
   const sequence = stepSequence(prev?.sequence ?? null, { carId: subjectId, pose: subject.pose, tau, seed: clock.seed ?? 0, etaSec: etaToBox(subject.pose) });
   // CAM-5: the safety car leaving the pits (`clock.sc`, snapshot.sc of §1.7; absent = nothing) takes the
   // air over the pit sequence and the zones - the start and finish scripts keep theirs. The subject
   // stays the chosen car; the view frames the safety car (`scShot`). Stepped under a script too, so a
   // deployment seen then is not filmed late.
   const scDeploy = stepScDeploy(prev?.scDeploy ?? null, { sc: clock.sc ?? null, tau, seed: clock.seed ?? 0, year: clock.year });
+  // CAM-C3 (VIEW-13): the restart after the safety car (sequences.scRestart), told as a script shot so
+  // the view films it as one ("rig:<type>", "heli"); its subject is the leader of the train. Stepped
+  // under a script too, like the deployment.
+  const scRestart = stepScRestart(prev?.scRestart ?? null, { sc: clock.sc ?? null, tau, seed: clock.seed ?? 0, year: clock.year });
   if (script.active && script.cam && camKindOf(script.cam) !== "tv") {
     const scriptSubject = script.subjectId ?? subjectId;
-    return { cameraId: script.cam, camType: camKindOf(script.cam), reason: script.subject === "finisher" ? "finish" : reason, hold, sequence, script, scDeploy, insert: null, scParked: script.scParked, subjectIds: [scriptSubject], shotKind: "script" };
+    return { cameraId: script.cam, camType: camKindOf(script.cam), reason: script.subject === "finisher" ? "finish" : reason, hold, sequence, script, scDeploy, scRestart, insert: null, scParked: script.scParked, subjectIds: [scriptSubject], shotKind: "script" };
   }
-  const extra = { script, scParked: script.scParked, scDeploy };
+  const extra = { script, scParked: script.scParked, scDeploy, scRestart };
+  if (scRestart.active && !scDeploy.active) {
+    const leaderId = scRestart.subject === "leader" ? idOf(leader) : subjectId;
+    return { cameraId: scRestart.cam, camType: camKindOf(scRestart.cam), reason, hold, sequence, ...extra, insert: null, scRestartOn: true, subjectIds: [leaderId ?? subjectId], shotKind: "script" };
+  }
   if (scDeploy.active) return { cameraId: scDeploy.cam, camType: scCamKind(scDeploy.cam), reason, hold, sequence, ...extra, insert: null, scShot: { cam: scDeploy.cam, subject: scDeploy.subject }, subjectIds: [subjectId], shotKind: "sc" };
   if (sequence.active) return { cameraId: sequence.cam, camType: "pit", reason, hold, sequence, ...extra, insert: null, subjectIds: [subjectId], shotKind: "pit" };
   const cam = cameraFor(rig, share, prev?.camType === "pit" || prev?.shotKind === "script" || prev?.shotKind === "insert" || prev?.shotKind === "sc" ? null : prev?.cameraId ?? null, { seed: clock.seed });

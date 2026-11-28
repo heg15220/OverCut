@@ -57,6 +57,7 @@
         "lateSec": {"type": "number", "minimum": 0, "maximum": 60},
         "holdShotSec": {"$ref": "#/definitions/secOrNull"},
         "holdShotNote": {"type": "string"},
+        "guionNote": {"type": "string"},
         "shots": {"type": "array", "items": {"$ref": "#/definitions/shot"}}
       }
     },
@@ -334,7 +335,7 @@
     "directorPriorities": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["order", "override", "restore", "status", "note"],
+      "required": ["order", "override", "restore", "ownIncidentTriggers", "shotClass", "status", "note"],
       "properties": {
         "order": {"type": "array", "items": {"$ref": "#/definitions/priority"}, "minItems": 5, "maxItems": 5, "uniqueItems": true},
         "override": {
@@ -345,6 +346,17 @@
           }
         },
         "restore": {"enum": ["userState", "zones"]},
+        "ownIncidentTriggers": {"type": "array", "items": {"enum": ["pass", "mistake", "dnf", "pitOther", "finish"]}, "uniqueItems": true},
+        "shotClass": {
+          "type": "object", "additionalProperties": false,
+          "required": ["script:finish", "replay", "user", "script:preRace", "script:start", "script:scRestart", "sc", "pit", "insert", "battle", "zone", "none"],
+          "properties": {
+            "script:finish": {"$ref": "#/definitions/priority"}, "replay": {"$ref": "#/definitions/priority"}, "user": {"$ref": "#/definitions/priority"},
+            "script:preRace": {"$ref": "#/definitions/priority"}, "script:start": {"$ref": "#/definitions/priority"}, "script:scRestart": {"$ref": "#/definitions/priority"},
+            "sc": {"$ref": "#/definitions/priority"}, "pit": {"$ref": "#/definitions/priority"}, "insert": {"$ref": "#/definitions/priority"},
+            "battle": {"$ref": "#/definitions/priority"}, "zone": {"$ref": "#/definitions/priority"}, "none": {"$ref": "#/definitions/priority"}
+          }
+        },
         "status": {"$ref": "#/definitions/status"},
         "note": {"$ref": "#/definitions/text"}
       }
@@ -428,6 +440,7 @@
         "bufferSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 120},
         "sampleHz": {"type": "number", "exclusiveMinimum": 0, "maximum": 60},
         "stingSec": {"$ref": "#/definitions/secOrNull"},
+        "stingNote": {"type": "string"},
         "maxSec": {"$ref": "#/definitions/secOrNull"},
         "preSec": {"type": "number", "minimum": 0, "maximum": 120},
         "postSec": {"type": "number", "minimum": 0, "maximum": 60},

@@ -76,15 +76,30 @@
       "maxGapM": 120,
       "trainShare": 0.8,
       "status": "pending",
-      "note": "Contrato de la ola 1 (F1M24-CHINA §3.2) para VIEW-13 (CAM-C2/C3): con snapshot.sc.phase en 'phases' (SIM-5, F1M24-GAMEPLAY §1.7) el cuadro de TV se abre para el tren de detrás del coche de seguridad: hasta maxCars coches seguidos a menos de maxGapM uno de otro ocupan trainShare del ancho. Aún no lo lee nadie (sin cablear: la TV encuadra como hoy). Diseño propio; el vídeo de referencia solo da la idea (race-b: lateral del tren en el relanzamiento)."
+      "note": "Contrato de la ola 1 (F1M24-CHINA §3.2) para VIEW-13: con snapshot.sc.phase en 'phases' (SIM-5, F1M24-GAMEPLAY §1.7) el cuadro de TV se abre para el tren de detrás del coche de seguridad: hasta maxCars coches seguidos a menos de maxGapM uno de otro ocupan trainShare del ancho. CAM-C3 lo calcula en el realizador (components/director/scSequence.js trainFraming: el resultado de directorState lleva framing {kind 'train', ids, share}); falta que la vista lo encuadre (three/Race3D.js y cameras.js frame, CAM-C4 en la ola 5: hasta entonces la TV encuadra como hoy). Diseño propio; el vídeo de referencia solo da la idea (race-b: lateral del tren en el relanzamiento)."
     }
   },
   "directorPriorities": {
     "order": ["finish", "ownIncident", "userLock", "pitSeq", "zones"],
     "override": { "finish": true, "ownIncident": true, "userLock": false, "pitSeq": false, "zones": false },
     "restore": "userState",
+    "ownIncidentTriggers": ["mistake", "dnf"],
+    "shotClass": {
+      "script:finish": "finish",
+      "replay": "ownIncident",
+      "user": "userLock",
+      "script:preRace": "pitSeq",
+      "script:start": "pitSeq",
+      "script:scRestart": "pitSeq",
+      "sc": "pitSeq",
+      "pit": "pitSeq",
+      "insert": "zones",
+      "battle": "zones",
+      "zone": "zones",
+      "none": "zones"
+    },
     "status": "pending",
-    "note": "Contrato de la ola 1 (F1M24-CHINA §3.2) para VIEW-13 (CAM-C2/C3): jerarquía de interrupciones del realizador, de más a menos fuerte: bandera a cuadros (finish), repetición de un incidente propio (ownIncident), cámara bloqueada por el usuario (userLock), secuencia de boxes (pitSeq) y zonas de TV (zones). override: las que pueden interrumpir una cámara elegida por el usuario. restore 'userState': al acabar la interrupción se vuelve exactamente a la cámara, el coche y el modo que tenía el usuario. El orden sale de la estructura observada en el vídeo (F1M24-CHINA §2.5, inferido M-A); es una decisión de diseño, no un valor de ajuste. Aún no lo lee nadie: components/director sigue con su prioridad actual."
+    "note": "Contrato de la ola 1 (F1M24-CHINA §3.2) para VIEW-13, cableado por CAM-C3 en components/director/directorState.js (arbitrate, mayInterrupt, shotClassOf): jerarquía de interrupciones del realizador, de más a menos fuerte: bandera a cuadros (finish), repetición de un incidente propio (ownIncident), cámara bloqueada por el usuario (userLock), secuencia de boxes (pitSeq) y zonas de TV (zones). override: las que pueden interrumpir una cámara elegida por el usuario. restore 'userState': al acabar la interrupción se vuelve exactamente a la cámara, el coche y el modo que tenía el usuario ('zones': se suelta el bloqueo). ownIncidentTriggers: repeticiones (replay.triggers) que cuentan como incidente propio si implican un coche del jugador (error y abandono; el vídeo añade el garaje tras un abandono, sin cablear). shotClass: en qué clase cae cada plano del realizador (shotKind; los guiones por nombre): la previa, la salida, el relanzamiento y el despliegue del coche de seguridad quedan al nivel de la secuencia de boxes, por debajo del bloqueo del usuario; insertos y peleas, al de las zonas. El orden sale de la estructura observada en el vídeo (F1M24-CHINA §2.5, inferido M-A); todo es decisión de diseño propio, no un valor de ajuste. Pending: LiveRace (carril HUD) aún no pasa userLock, replay ni userIds al realizador (tvDirector.tvShotOf), ni pregunta mayInterrupt antes de una repetición en la vista cámara."
   },
   "zonesPolicy": {
     "avoidRepeat": true,
@@ -145,7 +160,8 @@
       { "id": "startHeadOn", "anchor": "pole", "alongM": 160, "sideM": 3, "height": 10, "width": 70, "aim": "subject", "label": ["Frontal de la salida", "Start head-on"] },
       { "id": "lineHigh", "anchor": "line", "alongM": 70, "sideM": 16, "height": 15, "width": 40, "aim": "subject", "label": ["Meta desde arriba", "Finish from above"] },
       { "id": "lineSide", "anchor": "line", "alongM": 45, "sideM": 9, "height": 1.8, "width": 16, "aim": "subject", "label": ["Meta a ras de pista", "Finish line, low"] },
-      { "id": "startLightsLow", "anchor": "pole", "alongM": -18, "sideM": 7, "height": 1.0, "width": 34, "aim": "anchor", "label": ["Luces de salida a ras de pista", "Start lights, low"] }
+      { "id": "startLightsLow", "anchor": "pole", "alongM": -18, "sideM": 7, "height": 1.0, "width": 34, "aim": "anchor", "label": ["Luces de salida a ras de pista", "Start lights, low"] },
+      { "id": "startHigh", "anchor": "line", "alongM": 40, "sideM": 30, "height": 32, "width": 150, "aim": "subject", "label": ["Salida desde lo alto", "Start from above"] }
     ],
     "fovDeg": { "min": 6, "max": 75 },
     "critDamp": 10
@@ -193,12 +209,12 @@
       "status": "pending",
       "note": "CAM-4: la salida. Empieza con la primera luz (start:lights) y aguanta el plano alto de la parrilla hasta el apagado (until: start:out, al menos minSec); luego el frontal alto de la salida y una ráfaga de cámaras de pista hacia la primera curva ('rig:<tipo>': la cámara de ese tipo del rig de zonas más cercana al coche, three/cameras.js rigCamOfType), y vuelve la TV por zonas. Sin PRE_START (la carrera empieza con las luces ya apagadas) el guion arranca en el plano de start:out si la vista llega antes de lateSec de carrera. Diseño propio; la referencia (cameras.md §7: parrilla alta durante el semáforo, frontal en la salida, 4 planos cortos en T1, alta de T2-T3) solo para la estructura.",
       "lateSec": 1,
-      "holdShotSec": null,
-      "holdShotNote": "Contrato de la ola 1 (F1M24-CHINA §3.2) para VIEW-10: segundos que se mantiene el plano bajo de las luces (scriptRig startLightsLow) después del apagado antes de cortar. null = pending (sin cablear; la salida sigue como hoy); el vídeo da ~0,9 s, solo referencia, no se copia.",
+      "holdShotSec": 1.0,
+      "holdShotNote": "Contrato de la ola 1 (F1M24-CHINA §3.2) para VIEW-10, cableado por CAM-C3 (components/director/raceScripts.js untilFires): segundos de carrera que se mantiene el plano bajo de las luces (scriptRig startLightsLow) después del apagado antes de cortar al plano alto (startHigh), para que el arranque se vea con el pórtico en cuadro. 1,0 s es diseño propio, igual o mayor que el +0,9 s en que la prueba de VIEW-10 pide el HUD aún apagado; el vídeo da ~0,9 s, solo referencia, no se copia. Pending: sin fuente de retransmisión FOM medida.",
+      "guionNote": "CAM-C3 (VIEW-10, guion): primera luz → startLightsLow (a ras de pista junto al poleman, el pórtico en cuadro; until start:out + holdShotSec) → startHigh (alto y abierto desde la línea, sigue al poleman; until zone:braking = el poleman entra en la frenada de la primera curva según three/cameraZones; maxSec tope si la vista no da las zonas) → ráfaga de cámaras de pista en la primera curva → TV por zonas. Sustituye al plano alto de la parrilla durante el semáforo y al frontal tras el apagado de CAM-4 (gridHigh sigue en la previa; startHeadOn queda en scriptRig sin uso). Orden de diseño propio (F1M24-CHINA §2.5 propuesta VIEW-10).",
       "shots": [
-        { "trigger": "start:lights", "cam": "gridHigh", "until": "start:out", "minSec": 1 },
-        { "trigger": "start:out", "cam": "startHeadOn", "subject": "pole", "minSec": 2, "maxSec": 3.5 },
-        { "trigger": "next", "cam": "rig:braking", "minSec": 1, "maxSec": 2.5 },
+        { "trigger": "start:lights", "cam": "startLightsLow", "until": "start:out", "minSec": 1 },
+        { "trigger": "start:out", "cam": "startHigh", "subject": "pole", "until": "zone:braking", "minSec": 3, "maxSec": 12 },
         { "trigger": "next", "cam": "rig:corner", "minSec": 0.8, "maxSec": 2 },
         { "trigger": "next", "cam": "rig:highWide", "minSec": 6, "maxSec": 10 }
       ]
@@ -223,7 +239,7 @@
     },
     "scRestart": {
       "status": "pending",
-      "note": "Contrato de la ola 1 (F1M24-CHINA §3.2) para VIEW-13 (CAM-C2/C3): el relanzamiento tras el coche de seguridad. Con 'safety car in this lap' (sc:IN_THIS_LAP, SIM-5) la TV toma el tren de lado (rig:lateralTrack, la cámara de seguimiento lateral más cercana; encuadre framing.train), luego desde el helicóptero y, con el relanzamiento (sc:RESTART), el frontal de la recta hasta la primera frenada; después vuelve la TV por zonas. Duraciones sacadas con la semilla entre minSec y maxSec (RNF-05). Aún no lo lee nadie (components/director lo cablea en la ola 2 o 3). Orden y duraciones de diseño propio: el vídeo de referencia (race-b, 45:10) solo da la estructura.",
+      "note": "Contrato de la ola 1 (F1M24-CHINA §3.2) para VIEW-13 (CAM-C2/C3): el relanzamiento tras el coche de seguridad. Con 'safety car in this lap' (sc:IN_THIS_LAP, SIM-5) la TV toma el tren de lado (rig:lateralTrack, la cámara de seguimiento lateral más cercana; encuadre framing.train), luego desde el helicóptero y, con el relanzamiento (sc:RESTART), el frontal de la recta hasta la primera frenada; después vuelve la TV por zonas. Duraciones sacadas con la semilla entre minSec y maxSec (RNF-05). Cableado por CAM-C3 (components/director/scSequence.js stepScRestart; directorState lo da como plano de guion con el líder de sujeto): el relanzamiento corta sobre el plano que haya de la secuencia; tiene prioridad sobre el despliegue solo cuando este no está en el aire, y los guiones de salida y meta van antes. Orden y duraciones de diseño propio: el vídeo de referencia (race-b, 45:10) solo da la estructura.",
       "shots": [
         { "trigger": "sc:IN_THIS_LAP", "cam": "rig:lateralTrack", "subject": "leader", "requires": "safetyCar", "minSec": 3, "maxSec": 5 },
         { "trigger": "next", "cam": "heli", "subject": "leader", "requires": "safetyCar", "minSec": 4, "maxSec": 7 },
@@ -234,7 +250,8 @@
   "replay": {
     "bufferSec": 25,
     "sampleHz": 10,
-    "stingSec": 0.8,
+    "stingSec": 1.7,
+    "stingNote": "CAM-C3 (VIEW-13, F1M24-CHINA §2.5 y §1.5 «Cortinilla»): duración de cada cortinilla propia (logotipo de OverCut) en segundos de la repetición; es la única fuente: el sonido de la cortinilla (audio.json ui.sting) lee esta duración. 1,7 s es diseño propio dentro del 1,6-1,8 s que propone la especificación como frontera de contexto constante (antes 0,8 s); la prueba Playwright pide 1,5-2,1 s. El juego de referencia (1,6-2,07 s, n = 21) solo da el orden de magnitud: no se copia su valor. Pending: sin retransmisión FOM medida.",
     "maxSec": 14,
     "preSec": 7,
     "postSec": 3,

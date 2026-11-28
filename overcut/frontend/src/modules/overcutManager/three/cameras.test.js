@@ -840,7 +840,8 @@ describe("contracts of wave 1 (CAM-C1, F1M24-CHINA §3.2)", () => {
     expect(broadcastData.sequences.scRestart.shots.every((shot) => shot.requires === "safetyCar")).toBe(true);
     expect(broadcastData.framing.train.phases).toEqual(["TRAIN"]);
     expect(broadcastData.scriptRig.cams.some((cam) => cam.id === "startLightsLow")).toBe(true);
-    expect(broadcastData.sequences.start.holdShotSec).toBeNull();
+    expect(broadcastData.sequences.start.holdShotSec).toBeGreaterThan(0);
+    expect(broadcastData.scriptRig.cams.some((cam) => cam.id === "startHigh")).toBe(true);
   });
 });
 
