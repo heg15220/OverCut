@@ -308,6 +308,8 @@ describe("SIM-C2 GS-04 / VIEW-09: the pass with DRS on the straight, 8 races of 
   let quickPer;
   let stepPer;
   let offPer;
+  let stepPer16;
+  let bahrainRatio;
   const cfg = raceSim.duel.straightPass;
   beforeAll(() => {
     runs = SP_SEEDS.map((seed) => watchPasses({ seed, circuit: "shanghai" }));
@@ -320,15 +322,25 @@ describe("SIM-C2 GS-04 / VIEW-09: the pass with DRS on the straight, 8 races of 
     stepPer = runs.reduce((sum, run) => sum + passes(run.state), 0) / runs.reduce((sum, run) => sum + laps(run.state), 0);
     // The same races with the attempt left at the attack point (straightPass.enabled false): only where the pass happens changes.
     const offBalance = { ...raceSim, duel: { ...raceSim.duel, straightPass: { ...raceSim.duel.straightPass, enabled: false } } };
-    const off = SP_SEEDS.map((seed) => {
-      const w = weekend({ seed, circuit: "shanghai" });
-      return runStepToFinish(fromQuickRace(w.make(), { race: w.race, balance: offBalance }));
-    });
-    offPer = off.reduce((sum, state) => sum + passes(state), 0) / off.reduce((sum, state) => sum + laps(state), 0);
+    // SIM-C3 (GS-05): 16 races per circuit, Shanghai and Baréin (8 left the ratio's own noise at ±7 %, as large as the
+    // tolerance): the 8 watched races plus 8 more, against the same 16 without STRAIGHT_PASS.
+    const per = (states) => states.reduce((sum, state) => sum + passes(state), 0) / states.reduce((sum, state) => sum + laps(state), 0);
+    const plain = (seed, circuit, balance) => {
+      const w = weekend({ seed, circuit });
+      return runStepToFinish(fromQuickRace(w.make(), balance ? { race: w.race, balance } : { race: w.race }));
+    };
+    const MORE = Array.from({ length: 8 }, (_, k) => `spc${k + 9}`);
+    const ALL = [...SP_SEEDS, ...MORE];
+    const off = ALL.map((seed) => plain(seed, "shanghai", offBalance));
+    offPer = per(off);
+    stepPer16 = per([...runs.map((run) => run.state), ...MORE.map((seed) => plain(seed, "shanghai"))]);
+    bahrainRatio = per(ALL.map((seed) => plain(seed, null))) / per(ALL.map((seed) => plain(seed, null, offBalance)));
+    // eslint-disable-next-line no-console
+    console.log(`SIM-C3 STRAIGHT_PASS on/off, 16 races: Shanghai ${(stepPer16 / offPer).toFixed(3)}, Bahrain ${bahrainRatio.toFixed(3)}`);
     const made = drsPasses.filter((duel) => duel.sp && duel.sp.completed);
     // eslint-disable-next-line no-console
     console.log(`SIM-C2 Shanghai 2024: ${drsPasses.length} DRS passes, ${made.length} made on the straight; passes per car-lap quick ${quickPer.toFixed(4)} / step ${stepPer.toFixed(4)} / step without STRAIGHT_PASS ${offPer.toFixed(4)}; confirmed ${total.confirmed} (inverted ${total.inverted}), straight ${total.straightConfirmed} (inverted ${total.straightInverted})`);
-  }, 600000);
+  }, 1800000);
 
   it("makes most DRS passes on the straight, ahead before the braking zone's board (≥ 50 %)", () => {
     expect(drsPasses.length).toBeGreaterThan(40);
@@ -361,8 +373,12 @@ describe("SIM-C2 GS-04 / VIEW-09: the pass with DRS on the straight, 8 races of 
   it("only moves where the pass happens: the passes per lap within ±10 % of the step mode without it (SRS 4.2)", () => {
     // Against the quick mode the range is equivalence.test.js's (Bahrain, 128 races); Shanghai's own step/quick
     // ratio is above it with or without STRAIGHT_PASS on these 8 seeds, so the check here is against the step mode.
-    expect(stepPer / offPer).toBeGreaterThan(0.9);
-    expect(stepPer / offPer).toBeLessThan(1.1);
+    // SIM-C3 (GS-05): Shanghai and Bahrain, 16 races each - the attempt moved to the straight adds none (duel.js
+    // straightPassSetup decides a straight that crosses the line on the attack point's lap; a claim's third car joins it).
+    expect(stepPer16 / offPer).toBeGreaterThan(0.9);
+    expect(stepPer16 / offPer).toBeLessThan(1.1);
+    expect(bahrainRatio).toBeGreaterThan(0.9);
+    expect(bahrainRatio).toBeLessThan(1.1);
   });
 
   it("is deterministic, and watching does not change the race (RF-SIM-15, RNF-05)", () => {

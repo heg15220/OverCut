@@ -109,6 +109,27 @@
     ],
     "repairAbove": 0.9,
     "passContact": 0.012,
+    "crowd": {
+      "$comment": "SIM-C3 (F1M24-CHINA §2.2 GS-05; RF-SIM-09). Toques del duelo del modo por pasos según cuántos coches llegan juntos a la frenada (engine/incidents.js crowdFactor, engine/sim/duel.js crowdOf): la pareja, el tercero del reclamo (o el de detrás del atacante) y el de delante del defensor, cada uno si está a menos de windowMetres. byCars: factor sobre duel.incident de race-sim.json para ese número de coches (la última fila vale para más). Sustituye a duel.incident.threeWide de race-sim.json (una sola fuente). La escala total la sigue fijando calibration.stepCollision contra measured (f1db).",
+      "status": "NV",
+      "windowMetres": 20,
+      "byCars": [
+        {
+          "cars": 2,
+          "factor": 1
+        },
+        {
+          "cars": 3,
+          "factor": 1.8
+        }
+      ],
+      "source": {
+        "windowMetres": "pending: diseño propio (unos cuatro largos: tres coches en la misma frenada, F1M24-CHINA §2.2 «tres coches en la frenada de T14», juego, M). Sin medida real.",
+        "byCars": "pending: 1,8 para tres es el antiguo duel.incident.threeWide de race-sim.json (diseño de SIM-8); sin cifra de f1db por número de coches (f1db solo da abandonos por choque)."
+      }
+    },
+    "confirmMetres": 0.5,
+    "confirmMetresNote": "SIM-C3 (F1M24-CHINA §3.3 contact {confirmed}, AUD-C11): metros como máximo entre las cajas de los dos coches, a lo largo y a lo ancho de la pista, para que un toque del duelo se dé por visto (evento contact con confirmed: true, engine/sim/duel.js contactConfirmed). pending: diseño propio; el contacto real es 0 m.",
     "debris": {
       "$comment": "RF-SIM-10: un toque sin abandono que deja restos (alerón o pinchazo) con probabilidad chance pone amarillas en la curva; con SC en la era sale el SC con sc y, con VSC (desde 2015), el VSC con vsc. status NV: no hay cifras públicas por era de coches de seguridad por restos.",
       "status": "NV",
@@ -186,7 +207,7 @@
     ]
   },
   "calibration": {
-    "$comment": "Escalas por era ajustadas con overcut/frontend/scripts/measureIncidents.js para que la simulación reproduzca measured: mechanical (averías por coche y carrera), accident (accidentes en solitario después de la apertura), collision (toque por adelantamiento logrado en el modo rápido, × contact.passContact), stepCollision (escala de duel.incident del modo de pasos, race-sim.json), turnOne (P de toque de una pareja que solapa del todo en la primera curva) y chain (P de arrastrar al siguiente, ajustada a los abandonos por carrera con abandono en la apertura: measured.openingIncidentRetirementsPerRace / racesWithOpeningIncidentRetirement). Reajuste del 23/11 (bloque de pilotos e IA, RF-STF-02): con la forma del domingo y los atributos hay más adelantamientos en las eras antiguas, así que turnOne y collision se dividieron por el cociente sim/real medido (measureIncidents.js, 3 temporadas por pack).",
+    "$comment": "Escalas por era ajustadas con overcut/frontend/scripts/measureIncidents.js para que la simulación reproduzca measured: mechanical (averías por coche y carrera), accident (accidentes en solitario después de la apertura), collision (toque por adelantamiento logrado en el modo rápido, × contact.passContact), stepCollision (escala de duel.incident del modo de pasos, race-sim.json), turnOne (P de toque de una pareja que solapa del todo en la primera curva) y chain (P de arrastrar al siguiente, ajustada a los abandonos por carrera con abandono en la apertura: measured.openingIncidentRetirementsPerRace / racesWithOpeningIncidentRetirement). Reajuste del 23/11 (bloque de pilotos e IA, RF-STF-02): con la forma del domingo y los atributos hay más adelantamientos en las eras antiguas, así que turnOne y collision se dividieron por el cociente sim/real medido (measureIncidents.js, 3 temporadas por pack). Reajuste del 28/11 (SIM-C3, F1M24-CHINA GS-05; cierra la parte de toques de SIM-8): stepCollision dividido por el cociente sim/real de los abandonos por choque después de la apertura del modo por pasos (measureIncidents.js --mode step --seasons 1, una temporada por era: 1976, 1986, 1991, 1997, 2003, 2010, 2018, 2023 y 2024), que salían entre 1,3 y 2,7 veces los de f1db en todas las eras.",
     "eras": [
       {
         "from": 1950,
@@ -194,7 +215,7 @@
         "mechanical": 0.9814,
         "accident": 1.49,
         "collision": 1.4455,
-        "stepCollision": 1.8265,
+        "stepCollision": 1.032,
         "turnOne": 0.0494,
         "chain": 0.465
       },
@@ -204,7 +225,7 @@
         "mechanical": 1.0835,
         "accident": 1.3509,
         "collision": 2.0771,
-        "stepCollision": 5.5273,
+        "stepCollision": 2.479,
         "turnOne": 0.0292,
         "chain": 0.482
       },
@@ -214,7 +235,7 @@
         "mechanical": 1.1027,
         "accident": 1.4595,
         "collision": 3.4316,
-        "stepCollision": 6.858,
+        "stepCollision": 2.588,
         "turnOne": 0.0253,
         "chain": 0.377
       },
@@ -224,7 +245,7 @@
         "mechanical": 1.1766,
         "accident": 1.4131,
         "collision": 4.7457,
-        "stepCollision": 7.8385,
+        "stepCollision": 4.638,
         "turnOne": 0.0592,
         "chain": 0.453
       },
@@ -234,7 +255,7 @@
         "mechanical": 1.1013,
         "accident": 1.1353,
         "collision": 2.9694,
-        "stepCollision": 3.5718,
+        "stepCollision": 1.89,
         "turnOne": 0.0333,
         "chain": 0.663
       },
@@ -244,7 +265,7 @@
         "mechanical": 1.2161,
         "accident": 0.9881,
         "collision": 2.3594,
-        "stepCollision": 3.0954,
+        "stepCollision": 2.363,
         "turnOne": 0.0484,
         "chain": 0.38
       },
@@ -254,7 +275,7 @@
         "mechanical": 1.106,
         "accident": 0.6018,
         "collision": 1.6319,
-        "stepCollision": 1.7947,
+        "stepCollision": 1.32,
         "turnOne": 0.0483,
         "chain": 0.373
       },
@@ -264,7 +285,7 @@
         "mechanical": 1.0565,
         "accident": 0.6323,
         "collision": 1.3952,
-        "stepCollision": 2.0562,
+        "stepCollision": 1.231,
         "turnOne": 0.0305,
         "chain": 0.314
       }

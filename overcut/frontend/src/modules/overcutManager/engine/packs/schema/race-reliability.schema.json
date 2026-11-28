@@ -104,6 +104,25 @@
         "wingLoss": {"$ref": "#/definitions/range"},
         "repairAbove": {"$ref": "#/definitions/positive"},
         "passContact": {"$ref": "#/definitions/share"},
+        "crowd": {
+          "$comment": "SIM-C3 (F1M24-CHINA GS-05): toques del duelo por número de coches en la frenada (engine/incidents.js crowdFactor). Opcional.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "windowMetres", "byCars", "source"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "status": {"$ref": "#/definitions/status"},
+            "windowMetres": {"type": "number", "minimum": 0, "maximum": 200},
+            "byCars": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "object", "additionalProperties": false, "required": ["cars", "factor"], "properties": {"cars": {"type": "integer", "minimum": 2, "maximum": 6}, "factor": {"$ref": "#/definitions/nonNegative"}}}
+            },
+            "source": {"type": "object", "additionalProperties": {"type": "string", "minLength": 7}}
+          }
+        },
+        "confirmMetres": {"$ref": "#/definitions/nonNegative"},
+        "confirmMetresNote": {"type": "string"},
         "debris": {
           "type": "object",
           "additionalProperties": false,

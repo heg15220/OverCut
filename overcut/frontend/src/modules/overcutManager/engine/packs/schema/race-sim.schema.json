@@ -388,6 +388,48 @@
         "passSettleSeconds": {
           "$ref": "#/definitions/nonNegative"
         },
+        "rePass": {
+          "$comment": "SIM-C3 (F1M24-CHINA §2.2 GS-05 / VIEW-09): la histéresis por pareja tras un pase (engine/sim/duel.js rePassHeld). Opcional: sin él no hay espera.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rePassLaps",
+            "rePassPaceSec",
+            "status",
+            "source"
+          ],
+          "properties": {
+            "$comment": {
+              "type": "string"
+            },
+            "rePassLaps": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "rePassPaceSec": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "measured": {
+              "type": "object"
+            },
+            "status": {
+              "enum": [
+                "M",
+                "pending"
+              ]
+            },
+            "source": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 7
+              }
+            }
+          }
+        },
         "straightPass": {
           "$comment": "SIM-C2 (F1M24-CHINA §2.2 GS-04): el pase con DRS en la recta (engine/sim/duel.js STRAIGHT_PASS). Opcional: sin él el intento sigue en el punto de ataque.",
           "type": "object",
@@ -402,7 +444,6 @@
             "maxClosingKmh",
             "completeBeforeBrakeM",
             "confirmLengths",
-            "chanceScale",
             "status",
             "source"
           ],
@@ -447,11 +488,6 @@
               "exclusiveMinimum": 0,
               "maximum": 3
             },
-            "chanceScale": {
-              "type": "number",
-              "exclusiveMinimum": 0,
-              "maximum": 2
-            },
             "status": {
               "enum": ["M", "pending"]
             },
@@ -470,7 +506,6 @@
           "required": [
             "base",
             "wet",
-            "threeWide",
             "onDefended",
             "retireShare",
             "damageMin",
@@ -483,9 +518,6 @@
               "$ref": "#/definitions/nonNegative"
             },
             "wet": {
-              "$ref": "#/definitions/nonNegative"
-            },
-            "threeWide": {
               "$ref": "#/definitions/nonNegative"
             },
             "onDefended": {
