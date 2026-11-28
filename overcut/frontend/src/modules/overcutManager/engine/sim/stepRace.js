@@ -73,15 +73,15 @@ import {
 import { byYear, raceBalance } from "../rules";
 import { calibrationFor, damageOf } from "../incidents";
 import { circuitFor } from "../venue";
-import { DUEL_GEOMETRY, LANE_NAMES, ROLE, SP, battleOf, battleSetup, battleStep, drsAllowed, duelGeometrySetup, duelWatch, endDuel, fightOf, lineRadio, openDuel, resolveClaim, straightAtAttack, straightGapOf, straightMult, straightPassOf, straightPassSetup, straightPassStep, trySwitchback } from "./duel";
+import { DUEL_GEOMETRY, LANE_NAMES, ROLE, SP, battleOf, battleSetup, battleStep, claimTouchStep, drsAllowed, duelGeometrySetup, duelWatch, endDuel, fightOf, lineRadio, openDuel, passTellStep, resolveClaim, straightAtAttack, straightGapOf, straightMult, straightPassOf, straightPassSetup, straightPassStep, trySwitchback } from "./duel";
 import { alongsideSetup, alongsideStep, bandEdgeCap, exitBlocked, gateBoxes, lateralSetup, rejoin, roomAt, stepLateral } from "./lateral";
 import { positionAt } from "../trackData";
 import { cornerNoiseSigmaOf, profileFactorsOf } from "../drivers/skills";
 import { beginLeaderLap, finishRace, pitDecision, planLap, pushEvent, radioFor, retire, rivalCalls, rollFailure, wetnessAt } from "./lapModel";
 import physicsData from "../../data/balance/race-physics.json";
 import { buildTrackTables, dAt, dirtyAt, inCorner, sensAt, tauAtD } from "./trackTables";
-import { PHASE, PHASE_NAMES, PIT_LANE_BALANCE, boxPosition, buildProfile, createLaneState, laneGeometry, limitSpeed, sampleProfile, timeAtS } from "./pitLane";
-import { stageAt } from "./pitStop";
+import { PHASE, PHASE_NAMES, PIT_LANE_BALANCE, boxPosition, buildProfile, createLaneState, laneGeometry, limitSpeed, pitExitLineEvents, pitLinesFor, sampleProfile, timeAtS } from "./pitLane";
+import { stageAt, stageInfoAt } from "./pitStop";
 import { WEATHER_BALANCE, gripRatio, sprayLevelOf, sprayLossOf, weatherSnapshot } from "../weather";
 import { POWERTRAIN, coastDecel, coastPlan, createDrive, curvatureBins, driveSnapshot, launchAccel, powertrainFor, updateDrive } from "./powertrain";
 import { ENERGY, cellsFor, energyPlanOf, ersSpecOf, fuelEraOf, fuelFlowOf, lapDeployOf, referenceDeployOf, storeKwAt, traceDriveOf } from "../energy";
@@ -1279,6 +1279,18 @@ const advance = (state, i) => {
       (sim.lapDiff[i] > 0 && !sc && gapM < balance.traffic.minGapMetres) ||
       // SIM-5 (art. 55.13): a lapped car let through passes the cars on the lead lap.
       unlapExempt(sim, i);
+    // SIM-C3 (GS-05, orderWatch.js): passing the car ahead lets it through that car only - not, in the same step,
+    // through the next one too (a second place gained with no duel of its own).
+    const a2 = sim.ahead[a];
+    if (exempt && sim.duelOther[i] === a && a2 >= 0 && a2 !== i && sim.duelOther[i] !== a2 && !unlapExempt(sim, i) && Math.abs(sim.P[a2] - sim.P0[i]) < 0.5) {
+      const limit2 = sim.P0[i] + frac(sim.P[a2] - sim.P0[i]) - balance.traffic.minGapMetres / tables.length;
+      if (P1 > limit2) {
+        P1 = Math.max(sim.P0[i], limit2);
+        tau1 = tauAtD(tables, P1 - laps);
+        if (tau1 < tau0) tau1 = tau0;
+        sim.lapFlags[i] |= 8;
+      }
+    }
     if (!exempt) {
       const limit = sim.P0[i] + frac(sim.P[a] - sim.P0[i]) - balance.traffic.minGapMetres / tables.length;
       if (P1 > limit) {
@@ -1660,6 +1672,10 @@ const laneSetup = (state, circuit, n) => {
     judgesSpeeding: kmh !== null && year >= offences.pitSpeeding.from,
     judgesRelease: year >= offences.unsafeRelease.from,
     cars: createLaneState(n),
+    // SIM-C3 (PIT-C2 handover, prerequisite of AUD-C7): the white exit line still ahead of a car back on the track -
+    // the lap share it was at at the end of the last step (NaN once crossed or not leaving the lane), and that time.
+    exitShare0: new Float64Array(n).fill(NaN),
+    exitT0: new Float64Array(n),
   };
 };
 
@@ -1780,6 +1796,8 @@ const advanceInLane = (state, i) => {
   cars.s[i] = s1;
   cars.v[i] = v1;
   if (s1 >= L.geo.limitFromS && s1 <= L.geo.limitToS && v1 > cars.maxInZone[i]) cars.maxInZone[i] = v1;
+  // SIM-C3 (PIT-C2 handover, AUD-C7): the end of the limited zone on the way out - the limiter goes off (pitLane.js).
+  if (s0 < L.geo.limitToS && s1 >= L.geo.limitToS) pushExitLines(state, i, { t0: t1 - sim.dt, t1, s0, s1 });
 
   // The line, inside the lane: the lap ends when the car passes it (exact time from the profile).
   const lineS = L.geo.lineS;
@@ -1822,6 +1840,13 @@ const advanceInLane = (state, i) => {
     sim.P[i] = P;
     checkpoints(state, i, fromTau, tau);
     rejoin(sim, i);
+    // SIM-C3 (PIT-C2 handover, AUD-C7): from the end of the lane, watch for the end of the painted exit line.
+    const lines = pitLinesFor(L.circuit);
+    if (lines) {
+      L.exitShare0[i] = lines.exit.laneEndShare;
+      L.exitT0[i] = Math.min(t1, tEnd);
+      exitLineStep(state, i);
+    }
     // RF-SIM-10: late on the limiter is only an offence if the car really went over it (held up in the lane, it never did).
     if (cars.over[i] && L.judgesSpeeding && Math.round(cars.maxInZone[i] * 3.6 * 10) / 10 > L.kmh) investigateWithCause(state, car, "pitSpeeding", { kmh: Math.round(cars.maxInZone[i] * 3.6 * 10) / 10, limit: L.kmh });
     sim.inPit[i] = 0;
@@ -1835,6 +1860,53 @@ const advanceInLane = (state, i) => {
   sim.tau[i] = tau;
   sim.P[i] = sim.laps[i] + dAt(sim.tables, tau);
   if (tau > fromTau) checkpoints(state, i, fromTau, tau);
+};
+
+/** SIM-C3: push the `pitExitLine` events of car `i` for one stretch of its way out (pitLane.js pitExitLineEvents). */
+const pushExitLines = (state, i, step) => {
+  const sim = state._sim;
+  const out = pitExitLineEvents(sim.lane.circuit, { carId: state.cars[i].id, ...step });
+  for (let k = 0; k < out.length; k += 1) pushEvent(state, sim.laps[i] + 1, { ...out[k], t: Math.round(out[k].t * 1000) / 1000 });
+  return out;
+};
+
+/**
+ * SIM-C3 (PIT-C2 handover, F1M24-CHINA §3.3, prerequisite of AUD-C7): a car back on the track from the lane, until it
+ * passes the end of the painted exit line (`pitExitLine` line "white"), once per step; no draw (RNF-05).
+ */
+const exitLineStep = (state, i) => {
+  const L = state._sim.lane;
+  const share0 = L.exitShare0[i];
+  if (!Number.isFinite(share0)) return;
+  const sim = state._sim;
+  const lines = pitLinesFor(L.circuit);
+  const share1 = frac(sim.P[i]);
+  // Only the step that crosses the mark asks pitLane.js for the event (its geometry is not rebuilt every step).
+  const from = lines ? frac(share0 - lines.exit.laneEndShare) * lines.lapMetres : 0;
+  const to = lines ? from + frac(share1 - share0) * lines.lapMetres : 0;
+  const crosses = lines && from < lines.exit.pastLaneEnd && to >= lines.exit.pastLaneEnd;
+  const out = crosses && sim.active[i] && sim.inPit[i] === 0 ? pushExitLines(state, i, { t0: L.exitT0[i], t1: sim.clock, share0, share1 }) : [];
+  const done = !lines || !sim.active[i] || sim.inPit[i] !== 0 || out.some((event) => event.line === "white") || frac(share1 - lines.exit.laneEndShare) * lines.lapMetres > Math.max(lines.exit.pastLaneEnd, lines.lapMetres / 4);
+  L.exitShare0[i] = done ? NaN : share1;
+  L.exitT0[i] = sim.clock;
+};
+
+/**
+ * SIM-C3 (PIT-C2 handover; F1M24-GAMEPLAY §1.7 `pitStage`, prerequisite of AUD-C7): the stage of car `i`'s stop as
+ * pitStop.js stageInfoAt gives it - `{name, t}` with `t` the seconds since that stage began - while it stands in its
+ * box; null otherwise (queueing, held for a car coming down the lane, driving). Read only.
+ */
+const pitStageOf = (sim, i) => {
+  if (sim.inPit[i] === 0 || !sim.lane) return null;
+  const cars = sim.lane.cars;
+  if (!cars.prof[i] || !cars.plan[i] || !cars.stage[i]) return null;
+  const tStop = cars.prof[i].tStop;
+  if (!(tStop >= 0)) return null;
+  const inStop = sim.clock - cars.enteredAt[i] - tStop - cars.queue[i];
+  const info = stageInfoAt(cars.plan[i], inStop);
+  if (info) return { name: info.name, t: Math.round(info.t * 1000) / 1000 };
+  // Held past the end of the stop for a car coming down the lane (unsafe release): still the release, its time running on.
+  return { name: cars.stage[i], t: Math.round(Math.max(0, inStop - cars.plan[i].stationary) * 1000) / 1000 };
 };
 
 /** For the view and the tests: where car `i` is in the pit lane (null on the track). */
@@ -2319,9 +2391,16 @@ export const stepOnce = (state) => {
       advance(state, i);
     }
   }
+  // SIM-C3 (PIT-C2 handover, AUD-C7): the end of the painted exit line for the cars just out of the lane.
+  const exitWatch = sim.lane.exitShare0;
+  for (let i = 0; i < sim.n; i += 1) if (Number.isFinite(exitWatch[i]) && sim.lane.exitT0[i] < sim.clock) exitLineStep(state, i);
   // SIM-C2 (GS-04): the phases of the passes driven on a DRS straight, told when made (before they are settled).
   straightPassStep(state);
+  // SIM-C3 (AUD-C11): a touch on the inside is paid where the two meet.
+  claimTouchStep(state);
   settleDuels(state);
+  // SIM-C3 (VIEW-09): the passes made on the road this step are told.
+  passTellStep(state);
   raceControl(state);
   // SIM-5: the safety car's phase changes once the field has moved (train grouped, lapped cars through, lights off).
   neutralAfter(state, pushEvent);
@@ -2556,6 +2635,8 @@ export const snapshot = (state) => {
     inPit: sim.inPit[i] !== 0,
     // RF-SIM-12 (WP6/WP7): where in the pit lane, how fast, and the stage of the stop.
     pit: sim.inPit[i] !== 0 && sim.lane.cars.prof[i] ? { phase: PHASE_NAMES[sim.lane.cars.phase[i]], v: sim.lane.cars.v[i], stage: sim.lane.cars.stage[i] } : null,
+    // SIM-C3 (PIT-C2 handover, §1.7 `pitStage`): `{name, t}` of the stop while the car stands in its box, else null.
+    pitStage: pitStageOf(sim, i),
     status: car.status,
     position: car.position,
     duel: sim.duelRole[i],

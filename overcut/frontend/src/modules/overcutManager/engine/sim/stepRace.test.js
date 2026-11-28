@@ -15,6 +15,8 @@ import {
   ROLE, airEffect, createStepRace, fromQuickRace, requestPit, runStepToFinish, setDefence, setMode, setOvertakeRisk, snapshot, stepFor, stepOnce, toRaceState,
 } from "./index";
 import { skipFormation, startOf } from "./stepRace";
+import { pitLinesFor } from "./pitLane";
+import { STAGES } from "./pitStop";
 import { BATTLE_BALANCE, BATTLE_NAMES, confirmTimeOf } from "./duel";
 import { waveYellow } from "../race";
 import { weekend } from "./simTestKit";
@@ -37,6 +39,8 @@ const KNOWN_EVENTS = new Set([
   "sc-phase", "vsc-ending",
   // SIM-7 (F1M24-GAMEPLAY §2.10): track limits and their flag, damage and a puncture on debris.
   "track-limits", "black-white", "damage", "puncture",
+  // SIM-C3 (PIT-C2 handover, F1M24-CHINA §3.3, prerequisite of AUD-C7): the limiter off and the end of the exit line.
+  "pitExitLine",
 ]);
 
 describe("RF-SIM-01 a race in fixed steps on the circuit", () => {
@@ -540,7 +544,9 @@ describe("SIM-4 battles, duel events and sector yellows (F1M24-GAMEPLAY §1.7; R
           if (event.type !== "pass") return;
           // SIM-C2 (F1M24-CHINA §2.2 GS-04): a pass made on a DRS straight is told when it is made, after the cars have
           // moved on the straight: its start is the pair's last one before it, not the event just before.
-          const start = event.straight !== undefined ? state.events.slice(0, k).reverse().find((row) => row.type === "duel" && row.phase === "start" && row.carId === event.carId && row.otherId === event.otherId) : state.events[k - 1];
+          // SIM-C3 (VIEW-09): every pass fought for is told once it is made on the road (duel.js passTellStep), so its
+          // start is likewise the pair's last one before it.
+          const start = state.events.slice(0, k).reverse().find((row) => row.type === "duel" && row.phase === "start" && row.carId === event.carId && row.otherId === event.otherId);
           expect(start).toMatchObject({ type: "duel", phase: "start", carId: event.carId, otherId: event.otherId });
           expect(event.confirmedAt).toBeGreaterThanOrEqual(start.t);
           expect(event.confirmedAt - start.t).toBeLessThan(budget);
@@ -658,5 +664,69 @@ describe("SIM-4 battles, duel events and sector yellows (F1M24-GAMEPLAY §1.7; R
         });
       });
     });
+  });
+});
+
+describe("SIM-C3 the stop's stage in the pose and the pit-exit line (PIT-C2 handover, F1M24-CHINA §3.3; RF-SIM-12, RF-3D-04, RNF-05)", () => {
+  const { state } = stepRaceOf({ seed: "pitc3" });
+  const sim = state._sim;
+  const lines = pitLinesFor(sim.lane.circuit);
+  const stages = [];
+  const standing = [];
+  while (!state.finished) {
+    stepOnce(state);
+    snapshot(state).forEach((car, i) => {
+      if (car.pitStage) stages.push({ i, t: sim.clock, ...car.pitStage, phase: car.pit && car.pit.phase });
+      if (car.pit && car.pit.phase === "STATIONARY") standing.push({ i, stage: car.pit.stage, pose: car.pitStage });
+    });
+  }
+  const exits = state.events.filter((event) => event.type === "pitExitLine");
+  const stops = state.events.filter((event) => event.type === "pit");
+
+  it("puts pitStage {name, t} in the pose while the car stands in its box, the same stage as pit.stage", () => {
+    expect(stages.length).toBeGreaterThan(50);
+    stages.forEach((row) => {
+      expect(STAGES).toContain(row.name);
+      expect(row.t).toBeGreaterThanOrEqual(0);
+      expect(row.phase).toBe("STATIONARY");
+    });
+    standing.forEach((row) => expect(row.pose ? row.pose.name : null).toBe(row.stage));
+    // Within a stage of one stop, its clock runs with the race clock (one step of dt between rows).
+    for (let k = 1; k < stages.length; k += 1) {
+      const a = stages[k - 1];
+      const b = stages[k];
+      if (a.i === b.i && a.name === b.name && Math.abs(b.t - a.t - sim.dt) < 1e-6) expect(b.t).toBeGreaterThan(a.t);
+    }
+    expect(snapshot(state).every((car) => car.pitStage === null)).toBe(true);
+  });
+
+  it("emits pitExitLine for every way out of the lane: the limiter off, then the end of the painted line, in order", () => {
+    expect(lines).not.toBeNull();
+    expect(stops.length).toBeGreaterThan(5);
+    const byCar = new Map();
+    exits.forEach((event) => {
+      expect(["limit", "white"]).toContain(event.line);
+      expect(Number.isFinite(event.t)).toBe(true);
+      expect(event.t).toBeLessThanOrEqual(state.clock + 1e-9);
+      if (!byCar.has(event.carId)) byCar.set(event.carId, []);
+      byCar.get(event.carId).push(event);
+    });
+    const limits = exits.filter((event) => event.line === "limit").length;
+    const whites = exits.filter((event) => event.line === "white").length;
+    // One limiter-off per pass through the lane (stops, drive-throughs); the painted line when the circuit has one ahead.
+    expect(limits).toBeGreaterThanOrEqual(stops.length);
+    if (lines.exit.pastLaneEnd > 0) expect(whites).toBe(limits);
+    byCar.forEach((events) => {
+      for (let k = 1; k < events.length; k += 1) {
+        expect(events[k].t).toBeGreaterThanOrEqual(events[k - 1].t);
+        if (events[k].line === "white") expect(events[k - 1].line).toBe("limit");
+      }
+    });
+  });
+
+  it("is deterministic and draws nothing (RF-SIM-15): the same race, the same events", () => {
+    const again = stepRaceOf({ seed: "pitc3" }).state;
+    runStepToFinish(again);
+    expect(JSON.stringify(again.events)).toBe(JSON.stringify(state.events));
   });
 });

@@ -167,6 +167,26 @@ export const contactOutcome = (stream) => {
   return { kind };
 };
 
+/**
+ * SIM-C3 (F1M24-CHINA §2.2 GS-05, AUD-C11; RF-SIM-09): how much likelier a touch is in a duel for a braking zone with
+ * `cars` cars in it (the claimed pair, a third car of the claim and any other within race-reliability.json
+ * `contact.crowd.windowMetres`): the factor of the last row of `contact.crowd.byCars` whose `cars` is not above it.
+ * Without the block, 1 for any crowd (the touch keeps its pair's chance). Pure.
+ */
+export const crowdFactor = (cars) => {
+  const crowd = REL.contact.crowd;
+  if (!crowd || !Array.isArray(crowd.byCars) || !crowd.byCars.length) return 1;
+  let factor = crowd.byCars[0].factor;
+  for (let k = 0; k < crowd.byCars.length; k += 1) if (cars >= crowd.byCars[k].cars) factor = crowd.byCars[k].factor;
+  return factor;
+};
+
+/** SIM-C3: the metres around a claimed pair within which another car counts in the braking zone's crowd (crowdFactor). */
+export const crowdWindowMetres = () => (REL.contact.crowd ? REL.contact.crowd.windowMetres : 0);
+
+/** SIM-C3 (AUD-C11): the most metres between two boxes, along and across, for a touch the view can show (contact.confirmMetres). */
+export const contactConfirmMetres = () => REL.contact.confirmMetres ?? 0;
+
 /** Does this outcome leave debris on the track (RF-SIM-10)? */
 export const leavesDebris = (outcome) => outcome.kind === "wing" || outcome.kind === "puncture";
 

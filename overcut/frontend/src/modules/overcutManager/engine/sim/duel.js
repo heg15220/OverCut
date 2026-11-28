@@ -87,6 +87,12 @@
  * straight. A held attempt, a touch or a squeeze drawn on the straight is settled at the attack point, where it
  * always was. No draw of its own (RNF-05).
  *
+ * SIM-C3 (F1M24-CHINA §2.2 GS-05 / VIEW-09, §1.5 «Claves del duelo»; RF-SIM-07, RF-SIM-15, SRS 4.2): the cost of a pass,
+ * `duel.rePass`. A car passed by another (a pass, a switchback, a team order) makes no attempt of its own on that car for
+ * `rePassLaps` base laps unless it is faster by `rePassPaceSec` a lap (the quick mode's pace, as the duel reads it): no
+ * ping-pong. Its answer in the same corner is still the switchback at the exit (SIM-8), which is part of the fight. The
+ * hold is per pair and ordered: passing the car back undoes the other's. No draw (RNF-05).
+ *
  * Every number comes from data/balance/race-sim.json, race-physics.json `lateral` / `duel` and
  * driver-attributes.json (RNF-07);
  * every roll from the duel stream (RF-SIM-15).
@@ -94,7 +100,7 @@
 
 import { clamp } from "../../../overcutTrayectoria/engine/rng";
 import { applyContact, collisionInvestigation, energyPush } from "../race";
-import { contactOutcome } from "../incidents";
+import { contactConfirmMetres, contactOutcome, crowdFactor, crowdWindowMetres } from "../incidents";
 import { coldForPass, gripC, windowFor } from "../tyres/thermal";
 import { drsOpen } from "../rules";
 import { pushEvent, wetnessAt } from "./lapModel";
@@ -182,7 +188,7 @@ const duelEvent = (state, a, b, phase, extra = {}) => {
 export const DUEL_GEOMETRY = physicsData.duel.geometry;
 
 /** SIM-8: what a claim leaves for the corner's exit (claimKind). */
-const CLAIM = { NONE: 0, CONTACT_EXIT: 1, SQUEEZE: 2 };
+const CLAIM = { NONE: 0, CONTACT_EXIT: 1, SQUEEZE: 2, CONTACT_ENTRY: 3 };
 
 /**
  * SIM-8 (SIM-FISICA §3.5): the per-pair state of the fights (allocated once, RNF-01). `pairTries[i·n+j]` the
@@ -206,7 +212,35 @@ export const duelGeometrySetup = (n) => ({
   squeezeSide: new Int8Array(n),
   squeezeWide: new Uint8Array(n),
   squeezeShare: DUEL_GEOMETRY.squeeze.edgeShare,
+  // SIM-C3 (GS-05): until when `i` makes no attempt on `j` (rePassUntil[i·n+j]), the car that has just passed it.
+  rePassUntil: new Float64Array(n * n),
+  // SIM-C3 (VIEW-09): the pass of each attacker waiting to be made on the road before it is told (passTellStep).
+  passPending: new Array(n).fill(null),
 });
+
+/**
+ * SIM-C3 (GS-05 / VIEW-09, race-sim.json duel.rePass): `b` has just been passed by `a` - it holds off `a` for
+ * rePassLaps base laps; and `a`'s own hold on `b`, if it had one, is over. Without the block or the arrays, nothing.
+ */
+export const passedBy = (state, b, a) => {
+  const sim = state._sim;
+  const cfg = sim.balance.duel.rePass;
+  if (!cfg || !sim.rePassUntil || a < 0 || b < 0) return;
+  sim.rePassUntil[b * sim.n + a] = sim.clock + cfg.rePassLaps * state.race.baseLap;
+  sim.rePassUntil[a * sim.n + b] = 0;
+};
+
+/**
+ * SIM-C3: is `i` still holding off `j`, the car that passed it - inside rePassLaps and not faster by rePassPaceSec a
+ * lap (j's expected lap less i's)? A pure read (RNF-05).
+ */
+export const rePassHeld = (state, i, j) => {
+  const sim = state._sim;
+  const cfg = sim.balance.duel.rePass;
+  if (!cfg || !sim.rePassUntil || !(sim.rePassUntil[i * sim.n + j] > sim.clock)) return false;
+  const pace = (state.cars[j].expected ?? 0) - (state.cars[i].expected ?? 0);
+  return pace < cfg.rePassPaceSec;
+};
 
 /** SIM-8: may `i` try `j` now (its pair's cool-down over)? Without the pair arrays, always. */
 export const pairOpen = (sim, i, j) => !sim.pairCool || sim.pairCool[i * sim.n + j] <= sim.clock;
@@ -275,8 +309,8 @@ export const resolveClaim = (state, a) => {
   if (b < 0 || !sim.active[a] || !sim.active[b] || sim.inPit[a] !== 0 || sim.inPit[b] !== 0) return;
   // Neutralised before the exit (safety car, VSC, red flag): the fight is off, and so is what it left there.
   if (state.safetyCar || sim.red) return;
-  if (kind === CLAIM.CONTACT_EXIT) {
-    contact(state, a, b, corner, sim.streams.duel, lap, "exitOutside");
+  if (kind === CLAIM.CONTACT_EXIT || kind === CLAIM.CONTACT_ENTRY) {
+    contact(state, a, b, corner, sim.streams.duel, lap, kind === CLAIM.CONTACT_ENTRY ? "entryInside" : "exitOutside");
     sim.cooldownUntil[a] = sim.clock + sim.balance.duel.cooldownSec;
     return;
   }
@@ -295,6 +329,22 @@ export const resolveClaim = (state, a) => {
   // The counter-attack is gone with the room.
   if (sim.switchTarget[victim] >= 0) sim.switchTarget[victim] = -1;
   logDuel(state, { t: round(sim.clock), lap, corner, attacker: state.cars[a].id, defender: state.cars[b].id, outcome: "squeeze", kind: backOut ? "back-out" : "push-wide", victim: state.cars[victim].id, by: state.cars[other].id });
+};
+
+/**
+ * SIM-C3 (AUD-C11 motor, GS-05), every step after the cars moved: a touch on the inside left by a claim is paid the
+ * first step the two boxes are together (contactConfirmed), so the touch the view and the sound get is one they can
+ * show; if they never get that close it is paid at the corner's exit as before (checkpoints, resolveClaim). The roll
+ * was made at the attack point; nothing new is drawn here.
+ */
+export const claimTouchStep = (state) => {
+  const sim = state._sim;
+  if (!sim.claimKind) return;
+  for (let a = 0; a < sim.n; a += 1) {
+    if (sim.claimKind[a] !== CLAIM.CONTACT_ENTRY) continue;
+    const b = sim.claimOther[a];
+    if (b >= 0 && sim.active[a] && sim.active[b] && sim.inPit[a] === 0 && sim.inPit[b] === 0 && contactConfirmed(sim, a, b)) resolveClaim(state, a);
+  }
 };
 
 /**
@@ -338,7 +388,12 @@ export const straightPassSetup = (n, tables, balance) => {
       const attack = tables.attacks[z];
       if (!(attack.drs >= 0) || !tables.drsZones[attack.drs]) continue;
       const brake = fracOf(dAt(tables, attack.tau) + balance.duel.approachMetres / len);
-      const start = fracOf(tables.drsZones[attack.drs].from + cfg.decideAfterM / len);
+      let start = fracOf(tables.drsZones[attack.drs].from + cfg.decideAfterM / len);
+      // SIM-C3 (GS-05, SRS 4.2): a straight that crosses the line is decided decideAfterM past the line, on the lap of
+      // the attack point - each car's pace there is the plan it makes at the line (the pit wall's answer to the car
+      // behind included), as the attempt at the attack point reads it; decided before the line, the attacker read the
+      // pace of the lap ending against a defender not yet pushing, and passed more often (Bahrain T1: +0.17 s/lap).
+      if (fracOf(-start) * len < fracOf(brake - start) * len) start = fracOf(cfg.decideAfterM / len);
       const run = fracOf(brake - start) * len;
       if (run - cfg.completeBeforeBrakeM < cfg.minRunM) continue;
       spTau[z] = tables.tauAt(start);
@@ -487,7 +542,11 @@ const finishStraight = (state, a, completed) => {
   const z = sim.spZ[a];
   const len = sim.tables.length;
   const event = sim.spEvent[a];
-  if (event) {
+  if (event && !completed && sim.passPending && b >= 0) {
+    // SIM-C3 (VIEW-09): carried on into the braking zone, it is told when the road makes it (passTellStep).
+    sim.passPending[a] = { event: { ...event, straight: false }, b, exitTau: sim.tables.attacks[z].exitTau };
+    sim.spEvent[a] = null;
+  } else if (event) {
     const zone = sim.tables.attacks[z];
     pushEvent(state, sim.laps[a] + 1, {
       ...event,
@@ -866,6 +925,8 @@ export const startPass = (state, a, b, sign, extra = {}) => {
   sim.latTarget[a] = sign * lateral.attackMetres;
   sim.latTarget[b] = -sign * lateral.attackMetres * 0.4;
   sim.switchTarget[a] = -1;
+  // SIM-C3 (GS-05): the car passed holds off the one that passed it (duel.rePass).
+  passedBy(state, b, a);
   sim.latState[a] = extra.alongside ? LANE.ALONGSIDE : sign === (extra.inside ?? sign) ? LANE.ATTACK_IN : LANE.ATTACK_OUT;
   sim.latState[b] = extra.alongside ? LANE.ALONGSIDE : LANE.DEFEND;
   // SIM-4: a move fought for (not a team order) is a live duel until the road settles it.
@@ -884,8 +945,46 @@ export const startPass = (state, a, b, sign, extra = {}) => {
       beginStraight(state, a, b, extra.straight, event);
       return;
     }
+    // SIM-C3 (VIEW-09): a pass fought for is told when it is made on the road (passTellStep), not at the corner.
+    if (type === "pass" && extra.duel && sim.passPending) {
+      sim.passPending[a] = { event, b, exitTau: extra.exitTau ?? null };
+      return;
+    }
     // SIM-4 (§1.7): the timing line after the corner confirms the pass.
     if (type === "pass" && sim.timingTau) event.confirmedAt = confirmTimeOf(sim, a, extra.exitTau ?? sim.tau[a]);
+    pushEvent(state, sim.laps[a] + 1, event);
+  }
+};
+
+/**
+ * SIM-C3 (F1M24-CHINA §2.2 VIEW-09, §3.1 «0 pases invertidos tras confirmedAt»; RF-SIM-07, RNF-05), every step after the
+ * passes are settled: a pass fought for (startPass with `duel`, and a straight pass carried on into the braking zone) is
+ * told once the attacker is clear of the car it passed (traffic.minGapMetres ahead, as settleDuels calls it made) or,
+ * the duel over, still in front of it; a pass the road never finished (left unfinished, a touch, the pit lane, an
+ * error) is not told at all - the duel log keeps it. Its `confirmedAt` is the first timing line after the corner's
+ * exit, or after the car if that is behind it. No draw; nothing the race reads.
+ */
+export const passTellStep = (state) => {
+  const sim = state._sim;
+  if (!sim.passPending) return;
+  const len = sim.tables.length;
+  const clear = sim.balance.traffic.minGapMetres / len;
+  for (let a = 0; a < sim.n; a += 1) {
+    const pending = sim.passPending[a];
+    if (!pending) continue;
+    const { b } = pending;
+    const gone = !sim.active[a] || !sim.active[b] || sim.inPit[a] !== 0 || sim.inPit[b] !== 0;
+    const lead = sim.P[a] - sim.P[b];
+    const fighting = sim.duelRole[a] === ROLE.PASSING && sim.duelOther[a] === b;
+    if (!gone && fighting && lead < clear) continue;
+    sim.passPending[a] = null;
+    if (gone || lead <= 0) continue;
+    const event = { ...pending.event };
+    if (sim.timingTau) {
+      const exit = pending.exitTau;
+      const from = exit !== null && fracOf(exit - fracOf(sim.tau[a])) < 0.5 ? exit : sim.tau[a];
+      event.confirmedAt = confirmTimeOf(sim, a, from);
+    }
     pushEvent(state, sim.laps[a] + 1, event);
   }
 };
@@ -970,21 +1069,71 @@ const contact = (state, a, b, corner, stream, lap, kind = "entryInside") => {
   // A touch at the exit ends whatever the two were still doing in the corner.
   if (sim.duelOther[a] === b) endDuel(sim, a);
   const outcome = contactOutcome(stream);
+  // SIM-C3 (AUD-C11, motor): the events of the touch say whether the two boxes were really together then.
+  const from = state.events.length;
   if (outcome.kind === "retire") {
     sim.retireAt(victim, "collision", corner);
+    confirmContact(state, a, b, from);
     stewards(state, a, b);
     return;
   }
   const car = state.cars[victim];
   sim.delay[victim] += applyContact(state, car, outcome, { otherId: state.cars[other].id, corner, stream, lap: sim.laps[victim] + 1, raceLap: sim.leaderLap });
+  confirmContact(state, a, b, from);
   sim.afterIncident();
   stewards(state, a, b);
+};
+
+/**
+ * SIM-C3 (F1M24-CHINA §3.3 `contact {confirmed}`, AUD-C11 motor; RF-SIM-09, RF-3D-04): is the touch between `a` and
+ * `b` one the view can show - their boxes of the era within race-reliability.json `contact.confirmMetres` of each
+ * other along and across the road (lateral.js frame) right now? A touch rolled at the attack point with the attacker
+ * still lengths behind is a racing incident the stewards look at, not an impact to hear or see.
+ */
+export const contactConfirmed = (sim, a, b) => {
+  const len = sim.tables.length;
+  const { carLength: L, carWidth: W } = sim.side.spec;
+  const m = contactConfirmMetres();
+  // Along the road: nose to nose within the closest a car may follow another (traffic.minGapMetres, at least a
+  // length) plus the margin - the boxes touch end to end or overlap side by side.
+  const closest = Math.max(L, sim.balance && sim.balance.traffic ? sim.balance.traffic.minGapMetres : L);
+  const along = Math.abs(wrapHalf(sim.P[a] - sim.P[b])) * len - closest;
+  const across = Math.abs(sim.lat[a] - sim.lat[b]) - W;
+  return along <= m && across <= m;
+};
+
+/** SIM-C3: mark the contact (or collision retirement) events told since index `from` with `confirmed` and the time. */
+const confirmContact = (state, a, b, from) => {
+  const sim = state._sim;
+  const confirmed = contactConfirmed(sim, a, b);
+  for (let k = from; k < state.events.length; k += 1) {
+    const event = state.events[k];
+    if (event.type === "contact" || (event.type === "dnf" && event.reason === "collision")) {
+      event.confirmed = confirmed;
+      if (event.t === undefined) event.t = r3(sim.clock);
+    }
+  }
 };
 
 /** RF-SIM-10: after a contact the stewards may look at the attacker (the quick mode's rule and stream). */
 const stewards = (state, a, b) => collisionInvestigation(state, state.cars[a], state.cars[b].id, state._sim.leaderLap);
 
 const round = (value) => Math.round(value * 100) / 100;
+
+/**
+ * SIM-C3 (GS-05): the cars in the braking zone the attacker `i` claims from `ahead` - the two, the claim's `third` car
+ * (else the car right behind `i`) and the car right in front of `ahead`, each counted within
+ * race-reliability.json contact.crowd.windowMetres of the pair (the gaps at the start of the step). No draw.
+ */
+const crowdOf = (sim, i, ahead, third) => {
+  const w = crowdWindowMetres();
+  let cars = 2;
+  const back = third >= 0 ? third : sim.behind[i];
+  if (back >= 0 && back !== ahead && sim.inPit[back] === 0 && (third >= 0 || sim.gapM[back] <= w)) cars += 1;
+  const front = sim.ahead[ahead];
+  if (front >= 0 && front !== i && front !== back && sim.inPit[front] === 0 && sim.gapM[ahead] <= w) cars += 1;
+  return cars;
+};
 
 /**
  * Car `i` has reached attack point `z`. `ahead` is the car in front of it on the road at
@@ -1002,6 +1151,14 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap, { straig
   if (sim.cooldownUntil[i] > sim.clock || !pairOpen(sim, i, ahead) || sim.duelRole[i] !== ROLE.NONE || sim.duelRole[ahead] === ROLE.PASSING || sim.duelRole[ahead] === ROLE.YIELDING) return false;
   // SIM-8: a corner whose exit still owes the last claim's incident is not claimed again by the same car.
   if (sim.claimTau && sim.claimTau[i] >= 0) return false;
+  // SIM-C3 (GS-05): no attempt on the car that has just passed it, unless it is faster by rePassPaceSec a lap.
+  if (rePassHeld(state, i, ahead)) return false;
+  // SIM-C3 (GS-05, SRS 4.2): the third car of a claim made on this straight by the car ahead joins that claim at the
+  // attack point, at thirdCarFactor, as it would there; it makes no full attempt of its own on the straight.
+  if (straight && sim.spPlan) {
+    const held = sim.spPlan[ahead];
+    if (held && held.deferred && held.third === i && held.z === z) return false;
+  }
   const zone = sim.tables.attacks[z];
   // RF-SIM-10: no passing under a local yellow at this corner.
   if (sim.yellows.length && sim.yellows.some((flag) => flag.corner === zone.corner)) return false;
@@ -1036,18 +1193,21 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap, { straig
   const style = styleOf(balance, defender);
   // RF-SIM-09: the era's calibration of duel touches against f1db (race-reliability.json calibration.stepCollision).
   // RF-STF-02: the squeeze - aggressive drivers touch more (drivers/skills.js contactFactorOf, as the quick mode).
+  // SIM-C3 (GS-05): the crowd in the braking zone - the pair, the third car and any other right there
+  // (incidents.js crowdFactor, race-reliability.json contact.crowd): touches gather where three arrive together.
+  const crowd = crowdOf(sim, i, ahead, third);
   const incidentChance =
-    d.incident.base * sim.collisionScale * (1 + wetnessAt(state, lap) * d.incident.wet) * riskOf(balance, attacker).incident * style.incident * contactFactorOf(attacker, defender) * (third >= 0 ? d.incident.threeWide : 1);
+    d.incident.base * sim.collisionScale * (1 + wetnessAt(state, lap) * d.incident.wet) * riskOf(balance, attacker).incident * style.incident * contactFactorOf(attacker, defender) * crowdFactor(crowd);
   // WP4: the defender's one move - cover the inside or not - and the attacker's line.
   const geo = DRIVER_BALANCE.effects.step;
   const cover = coverChanceOf(defender, defender.defence);
   const covered = stream.next() < cover;
   const open = cover < 1 ? (1 - cover * geo.cover.coveredFactor) / (1 - cover) : 1;
   // SRS 4.2: `stepScale` calibrates the step mode's passes per race on the quick mode's (equivalence.test.js).
-  // SIM-C2: an attempt made on a DRS straight is scaled on its own (straightPass.chanceScale), so that moving it there
-  // leaves the passes per race where they were (SRS 4.2).
-  const spScale = straight ? d.straightPass.chanceScale : 1;
-  const lineChance = clamp(chance * d.stepScale * spScale * (covered ? geo.cover.coveredFactor : open), 0, d.max);
+  // SIM-C3 (GS-05, SRS 4.2): an attempt made on a DRS straight keeps the attack point's chance as it is. Decided on the
+  // attack point's lap (straightPassSetup) and with the claim's third car joining at the attack point (above), it adds
+  // no attempts, so the scale SIM-C2 needed for them (straightPass.chanceScale) is gone.
+  const lineChance = clamp(chance * d.stepScale * (covered ? geo.cover.coveredFactor : open), 0, d.max);
   const side = covered ? -zone.sign : zone.sign;
   // §3.3: how much later the attacker brakes; side by side if it reaches the turn-in alongside.
   // SIM-2: the era's car (race-physics.json lateral.eras, FIA technical regulations).
@@ -1058,7 +1218,9 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap, { straig
   const success = stream.next() < lineChance;
   const entry = {
     t: round(sim.clock), lap, corner: zone.corner, attacker: attacker.id, defender: defender.id, chance: round(lineChance), drs, claim: third >= 0 ? 3 : 2,
-    line: side === zone.sign ? "inside" : "outside", covered, overlap: round(overlap), alongside,
+    line: side === zone.sign ? "inside" : "outside", covered, overlap: round(overlap), alongside, crowd,
+    // SIM-C3: where the attempt was decided (on a DRS straight, or at the attack point).
+    ...(straight ? { at: "straight" } : {}),
   };
 
   // SIM-4: the attempt starts here (its outcome is already drawn; the events tell it as the road plays it out).
@@ -1114,9 +1276,18 @@ const settleDuel = (state, i, plan, straight) => {
   // SIM-C2: nor a third car with an attempt of its own already made on this straight (settled at its own attack point).
   const third = plan.third >= 0 && !(sim.spPlan && sim.spPlan[plan.third]) && (!plan.deferred || (sim.behind[i] === plan.third && sim.active[plan.third] && sim.inPit[plan.third] === 0 && sim.duelRole[plan.third] === ROLE.NONE && sim.spZone[plan.third] === 0)) ? plan.third : -1;
   if (roll < contactChance) {
-    if (side === zone.sign || !sim.claimTau) {
+    if (!sim.claimTau) {
       contact(state, i, ahead, zone.corner, stream, lap, "entryInside");
       sim.cooldownUntil[i] = sim.clock + d.cooldownSec;
+      return;
+    }
+    if (side === zone.sign) {
+      // SIM-C3 (AUD-C11): the touch on the inside happens where the two meet in the braking zone - the first step
+      // their boxes are together (claimTouchStep) - or at the corner's exit at the latest; not at the attack point.
+      closeLive(sim, ahead);
+      holdCorner(state, i, ahead, zone, side, covered, alongside, style);
+      leaveClaim(sim, i, ahead, CLAIM.CONTACT_ENTRY, -1, zone);
+      logDuel(state, { ...entry, outcome: "claim-contact" });
       return;
     }
     // On the outside: through the corner side by side, the touch at its exit; no pass, no switchback.
@@ -1166,6 +1337,8 @@ const settleDuel = (state, i, plan, straight) => {
     }
     // SIM-8: the third car's own pair - not while it is cooling down on that car.
     if (!pairOpen(sim, third, target)) return;
+    // SIM-C3 (GS-05): nor on a car that has just passed it.
+    if (rePassHeld(state, third, target)) return;
     const thirdChance = duelChance(state, state.cars[third], state.cars[target], zone, { drs: false, lap }) * d.thirdCarFactor;
     const made = stream.next() < thirdChance;
     logDuel(state, { t: round(sim.clock), lap, corner: zone.corner, attacker: state.cars[third].id, defender: state.cars[target].id, chance: round(thirdChance), drs: false, claim: 3, outcome: made ? "pass" : "defended" });
