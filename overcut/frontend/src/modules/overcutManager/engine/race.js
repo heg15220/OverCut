@@ -1875,15 +1875,17 @@ export const stepLap = (state) => {
     // Double stack (GS-09, PIT-C2 handover): the second car of a team queues only while its team-mate is still in the
     // box when it gets there (engine/sim/pitLane.js boxQueue, the step mode's rule): their gap at the line, closed
     // behind a safety car to the train's spacing (scTrainSpacingSec).
-    const arrival = car.time + car.lapTime;
+    // The gap is the one previewPit reads (pitLane.js teamQueueOf): race time at the start of the lap, behind a SC
+    // closed to the train's spacing for the cars between them.
     const mate = boxByTeam[car.teamId];
     let queue = 0;
     if (mate) {
-      const green = arrival - mate.arrival;
-      const spacing = sc && !sc.virtual ? scTrainSpacingSec((state.track?.km || 0) * 1000, baseLap, 1) : null;
+      const green = car.time - mate.car.time;
+      const between = sc && !sc.virtual ? running.filter((other) => other !== car && other !== mate.car && other.time > mate.car.time && other.time < car.time).length : 0;
+      const spacing = sc && !sc.virtual ? scTrainSpacingSec((state.track?.km || 0) * 1000, baseLap, between + 1) : null;
       queue = boxQueue({ freeAt: mate.stationary, arrival: spacing === null ? green : Math.min(green, spacing) });
     }
-    boxByTeam[car.teamId] = { arrival, stationary: queue + stationary };
+    boxByTeam[car.teamId] = { car, stationary: queue + stationary };
     // A time penalty (+5/+10 s, from 2014) is served before the crew touches the car.
     const served = car.pendingTime || 0;
     car.lapTime += laneLoss + stationary + queue + served;

@@ -482,7 +482,11 @@ describe("SIM-C4 AUD-C9 nothing frozen behind the safety car", () => {
     const n = state.cars.length;
     let weaving = 0;
     for (let i = 0; i < n; i += 1) {
-      const lat = shots.map((shot) => shot[i] && shot[i].lateral).filter((v) => Number.isFinite(v));
+      const lat = shots.map((shot) => shot[i] && shot[i].lateral + shot[i].weave).filter((v) => Number.isFinite(v));
+      // The view's offset only: zero mean over the 30 s, within the measured amplitude.
+      const weave = shots.map((shot) => shot[i] && shot[i].weave).filter((v) => Number.isFinite(v));
+      weave.forEach((v) => expect(Math.abs(v)).toBeLessThanOrEqual(WEAVE_BALANCE.amplitudeM + 1e-9));
+      expect(Math.abs(weave.reduce((sum, v) => sum + v, 0) / Math.max(1, weave.length))).toBeLessThan(0.5);
       if (lat.length < shots.length * 0.9) continue;
       const swing = Math.max(...lat) - Math.min(...lat);
       if (swing >= WEAVE_BALANCE.amplitudeM) weaving += 1;
@@ -493,7 +497,7 @@ describe("SIM-C4 AUD-C9 nothing frozen behind the safety car", () => {
   it("weaves on its own seed::weave stream: the same seed, the same weave", () => {
     const again = sample("weave-a");
     expect(again.shots.length).toBe(shots.length);
-    const pick = (list) => list.map((shot) => shot.map((car) => [car.lateral, car.rpm, car.gear]));
+    const pick = (list) => list.map((shot) => shot.map((car) => [car.lateral, car.weave, car.rpm, car.gear]));
     expect(JSON.stringify(pick(again.shots))).toBe(JSON.stringify(pick(shots)));
   });
 });

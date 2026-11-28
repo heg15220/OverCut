@@ -310,9 +310,6 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData, pre
     lapFlags: new Uint8Array(n),
     lat: new Float64Array(n),
     latTarget: new Float64Array(n),
-    // SIM-C4 (AUD-C9): the weave behind the safety car added on top of lateral.js's line (m), and whether it is on.
-    weaveLat: new Float64Array(n),
-    weaveOn: new Uint8Array(n),
     // WP4: what each car is doing sideways (lateral.js LANE), for the view.
     latState: new Uint8Array(n),
     // SIM-2 (RF-SIM-07): the era's car box, the room across this circuit's measured asphalt and
@@ -1191,9 +1188,6 @@ const advance = (state, i) => {
   if (sc && sim.inPit[i] === 0 && N) {
     // SIM-5: the VSC delta, or the train behind the safety car on the ring (safetyCar.js).
     rate = N.virtual ? Math.min(rate, vscRate(sim, N, i, baseLap)) : scRateCap(state, i, rate);
-    // SIM-C4 (AUD-C9, race-sim.json safetyCar.weave): the driver breathes on the throttle behind the SC (zero mean).
-    const weave = N.virtual ? null : weaveOf(state, i);
-    if (weave) rate *= weave.speed;
     sim.lapFlags[i] |= 1;
   } else if (sc && sim.inPit[i] === 0) {
     const scRate = 1 / (baseLap * (sc.virtual ? balance.safetyCar.virtualLapFactor : balance.safetyCar.lapFactor));
@@ -2398,26 +2392,6 @@ const mirrorNeutral = (state) => {
   }
 };
 
-/**
- * SIM-C4 (F1M24-CHINA AUD-C9, §1.6 «tono congelado 30 s detrás del SC»; RF-SIM-10): the weave behind the safety car
- * (safetyCar.js weaveOf) laid on top of lateral.js's line without lateral.js knowing it. Before lateral.js moves the
- * cars (`after` false) each weaving car's offset is taken off, so lateral.js steers its own line; after it (`after`
- * true) the new offset goes back on. A car that stops weaving keeps where it is and lateral.js steers it back
- * (no jump). No draw (the phases are on seed::weave, RNF-05).
- */
-const weaveStep = (state, after) => {
-  const sim = state._sim;
-  const on = Boolean(sim.neutral && !sim.neutral.virtual);
-  for (let i = 0; i < sim.n; i += 1) {
-    if (!after) {
-      const weave = on && sim.active[i] ? weaveOf(state, i) : null;
-      if (weave && sim.weaveOn[i]) sim.lat[i] -= sim.weaveLat[i];
-      sim.weaveOn[i] = weave ? 1 : 0;
-      sim.weaveLat[i] = weave ? weave.lat : 0;
-    } else if (sim.weaveOn[i]) sim.lat[i] += sim.weaveLat[i];
-  }
-};
-
 /** One fixed step of `dt` seconds for the whole field. */
 export const stepOnce = (state) => {
   const sim = state._sim;
@@ -2478,9 +2452,7 @@ export const stepOnce = (state) => {
   duelWatch(state);
   battleStep(state);
   // SIM-2 (RF-SIM-07): sideways, inside the measured asphalt, nobody on top of anybody (lateral.js).
-  weaveStep(state, false);
   stepLateral(sim, ROLE.NONE, physicsData.mistake, sim.balance.blueFlags.yieldShare);
-  weaveStep(state, true);
   driveStep(state);
   if (sim.cooling > 0) coolStep(state);
   sortOrder(state);
@@ -2741,6 +2713,10 @@ export const snapshot = (state) => {
     tyreC: { surface: Math.round(sim.heat.s[i] * 10) / 10, carcass: Math.round(sim.heat.c[i] * 10) / 10 },
     // SIM-3: on its cooldown lap after the flag (a ghost: no duels, no pit lane).
     cooldown: sim.cool[i] === 1,
+    // SIM-C4 (F1M24-CHINA AUD-C9, §1.6; RF-SIM-10): the weave behind the safety car (m, + right), for the view to add to
+    // `lateral` (safetyCar.js weaveOf; 0 elsewhere). The view only: the simulation's line, boxes and fuel stay as
+    // they were (SRS 4.2, RNF-05); the engine tone behind the SC already moves through the corners (AUD-C9 test).
+    weave: weaveLatOf(state, i),
   }));
   // SIM-3 / F1M24-GAMEPLAY §1.7 `snapshot.start` (on the array, so `snapshot(state)[i]` stays per car).
   cars.start = startOf(state);
@@ -2753,6 +2729,12 @@ export const snapshot = (state) => {
   cars.weather = weatherOf(state);
   cars.spray = state.cars.map((car, i) => sprayOf(state, i));
   return cars;
+};
+
+/** SIM-C4 (AUD-C9): car `i`'s weave offset now (m, 3 decimals), 0 when nobody weaves. */
+const weaveLatOf = (state, i) => {
+  const weave = state._sim.active[i] ? weaveOf(state, i) : null;
+  return weave ? Math.round(weave.lat * 1000) / 1000 : 0;
 };
 
 /** GS-07: `lineOffset` and `axisOffset` of car `i` for the snapshot (null in the pit lane). */

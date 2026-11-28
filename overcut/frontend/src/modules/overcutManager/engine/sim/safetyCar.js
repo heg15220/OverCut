@@ -443,10 +443,11 @@ const WEAVING = new Set([SC_PHASE.START_BEHIND_SC, SC_PHASE.TRAIN, SC_PHASE.UNLA
 
 /**
  * SIM-C4 (F1M24-CHINA AUD-C9, race-sim.json safetyCar.weave, OpenF1 9480/9655): car `i`'s weave behind the safety car
- * now - `lat` the lateral target (m off the line) and `speed` the factor on its speed cap - or null where nobody
- * weaves (no SC, the VSC, the SC still in the pit lane or picking up the leader, the restart, a lapped car going by,
- * the pit lane). Both are sines of the race clock with zero mean, so the train's lap lasts what it did (SRS 4.2);
- * each car's phase is drawn once on its own `seed::weave` stream, so no other draw moves (RNF-05, RF-SIM-15).
+ * now - `lat` the offset (m, + right) the view adds to the car's line (stepRace snapshot `weave`) - or null where
+ * nobody weaves (no SC, the VSC, the SC still in the pit lane or picking up the leader, the restart, a lapped car
+ * going by, the pit lane). A sine of the race clock faded in over one period; each car's phase is drawn once on its
+ * own `seed::weave` stream, so no other draw moves (RNF-05, RF-SIM-15). The simulation itself does not move:
+ * fed into the line it broke the fuel controller and the boxes' clearance (SRS 4.2).
  */
 export const weaveOf = (state, i) => {
   const sim = state._sim;
@@ -460,7 +461,7 @@ export const weaveOf = (state, i) => {
   const x = (2 * Math.PI * sim.clock) / W.periodSec + sim.weavePhase[i];
   // Faded in over one period from the safety car's deployment, so no car jumps sideways when it starts.
   const env = clamp((sim.clock - N.since) / W.periodSec, 0, 1);
-  return { lat: env * W.amplitudeM * Math.sin(x), speed: 1 + env * W.speedShare * Math.cos(x) };
+  return { lat: env * W.amplitudeM * Math.sin(x) };
 };
 
 /** May car `i` pass car `a` ahead of it under the safety car? Only a lapped car let through, past a car a lap ahead. */
