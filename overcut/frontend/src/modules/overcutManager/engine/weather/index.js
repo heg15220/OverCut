@@ -21,6 +21,13 @@
  *             red flag), piecewise in the water with 0.24 and 0.62 at the two crossovers.
  *   forecast  Friday's rain chance and the live outlook, with an error that shrinks with the
  *             team's weather centre (hq forecastAccuracy).
+ *   track     WX-C3 / GS-14: the track's excess over the air follows the real height of the sun
+ *             (NOAA, engine/weather/solar.js) and the cloud of the state, fitted on OpenF1's dry
+ *             races (temperature.sun), relaxing with the asphalt's time constant; under rain it
+ *             goes to air + trackOverAirRain. The timeline carries it per lap (`track`, `trackEq`,
+ *             `sunElevation`). Five rubber levels (rubber.levels) and the rubber a session starts
+ *             with from the one before, kept within a day and partly lost overnight without
+ *             reaching zero (sessions.json evolution.days).
  *
  * Every number is in data/balance/race-weather.json (RNF-07) with its source or NV. Determinism
  * (RF-SIM-15, RNF-05): only seeded streams (`seed::weather`, `seed::forecast`), no clock.
@@ -28,7 +35,9 @@
 
 import { clamp, createStream } from "../../../overcutTrayectoria/engine/rng";
 import W from "../../data/balance/race-weather.json";
+import SESSIONS from "../../data/balance/sessions.json";
 import CLIMATE from "../../data/weather/climate.json";
+import { SUN_SITES, clearSkyKw, siteOf, solarElevationDeg } from "./solar";
 
 export const WEATHER_BALANCE = W;
 export const STATES = W.states.list;
@@ -273,6 +282,51 @@ const trackTempOf = (air, state, night = false, temp = W.temperature) => {
 };
 const isNight = (climate) => climate.startHour >= W.temperature.nightFromHour || climate.startHour < W.temperature.dayFromHour;
 
+// ------------------------------------------------------------------ the sun on the track (GS-14)
+
+const SUN = W.temperature.sun;
+const cloudOfState = (state) => SUN.cloudByState[STATES[state]?.id] ?? 1;
+
+/**
+ * WX-C3 / GS-14 (RF-SIM-11): the dry track's equilibrium excess over the air (°C) with the sun at
+ * `elevationDeg` (true, degrees) under the cloud of weather state `state` (index; 0 sunny):
+ * base + gain × Haurwitz clear sky × (1 − c × N^3.4), race-weather.json temperature.sun (OpenF1
+ * 2023-2025). The sun below the horizon leaves `base` (the night's excess). Pure.
+ */
+export const sunExcessOf = (elevationDeg, state = 0) => SUN.base + SUN.gain * clearSkyKw(elevationDeg) * (1 - SUN.cloud.coefficient * cloudOfState(state) ** SUN.cloud.exponent);
+
+/** The excess the track goes to in `state` (rain: trackOverAirRain) and its time constant. */
+const excessTargetOf = (elevationDeg, state) => (state >= RAIN_FROM ? W.temperature.trackOverAirRain : sunExcessOf(elevationDeg, state));
+const tauOf = (state) => (state >= RAIN_FROM ? W.temperature.relaxTauMin : SUN.tauMin);
+
+/** First-order step of the excess over `minutes` towards `target` (the asphalt's inertia). Pure. */
+export const relaxExcess = (excess, target, minutes, tauMin) => target + (excess - target) * Math.exp(-Math.max(0, minutes) / tauMin);
+
+/**
+ * Where and when the sun is for this Grand Prix: the climate key's site (sun-sites.json), the race
+ * date and the start hour (climate.json, local with the offset it was computed with). null without
+ * them (the pooled climate, a race without a date): the track then keeps the old sunShare excess.
+ */
+const sunClockOf = (race, climate) => {
+  const site = siteOf(climate.key);
+  const date = typeof race.date === "string" && race.date.length >= 10 ? race.date.slice(0, 10) : null;
+  if (!site || !date || !Number.isFinite(climate.startHour)) return null;
+  return { ...site, date, startHour: climate.startHour };
+};
+const elevationAt = (clock, minutesFromStart) =>
+  solarElevationDeg({ lat: clock.lat, lon: clock.lon, date: clock.date, hour: clock.startHour + minutesFromStart / 60, utcOffsetH: clock.utcOffsetH });
+
+/** The excess after `minutes` in one state from `t0` (minutes from the start), in steps of chain.stepMinutesMax. */
+const runExcess = (excess, clock, state, t0, minutes) => {
+  let e = excess;
+  for (let t = 0; t < minutes; t += W.chain.stepMinutesMax) {
+    const dt = Math.min(W.chain.stepMinutesMax, minutes - t);
+    e = relaxExcess(e, excessTargetOf(elevationAt(clock, t0 + t + dt), state), dt, tauOf(state));
+  }
+  return e;
+};
+const clampTrack = (c) => clamp(c, W.temperature.minC, W.temperature.maxC);
+
 // ------------------------------------------------------------------ the race
 
 const lapMinutes = (baseLap, wetness) => (baseLap * (1 + W.chain.lapSlowdown * wetness)) / 60;
@@ -311,13 +365,29 @@ export const weatherTimeline = ({ race = {}, laps, cars = 20, seed = "weather", 
   let spread = spreadFor(km, stream);
   let water = dryWater();
   const pre = W.chain.preMinutes;
+  // GS-14: the track's excess, warmed up at equilibrium SUN.warmupMin before the pre-run under the
+  // first state (no stream: the same draws as before), then relaxed with every state the chain takes.
+  // The water's evaporation keeps reading the old track temperature (trackTempOf) until the SIM lane
+  // moves race.js onto `track`, so the water and every race stay byte-identical (RNF-05, golden).
+  const clock = sunClockOf(race, climate);
+  let excess = null;
+  if (clock) {
+    const from = -pre - SUN.warmupMin;
+    excess = runExcess(excessTargetOf(elevationAt(clock, from), state), clock, state, from, SUN.warmupMin);
+  }
+  const trackNow = (st) => (clock ? clampTrack(airOf(st) + excess) : trackTempOf(airOf(st), st, night));
   for (let t = 0; t < pre; t += W.chain.stepMinutesMax) {
     const minutes = Math.min(W.chain.stepMinutesMax, pre - t);
     const before = state;
     state = startState ?? transition(climate.matrix, state, minutes, stream);
     if (state >= RAIN_FROM && before < RAIN_FROM) spread = spreadFor(km, stream);
+    if (clock) excess = runExcess(excess, clock, state, -pre + t, minutes);
     water = advanceWater(water, { rain: STATES[state].rainMmPerHour, trackC: trackTempOf(airOf(state), state, night), cars: cars * W.chain.preCarsShare, minutes, spread });
   }
+  let elapsed = 0;
+  const round1 = (value) => Math.round(value * 10) / 10;
+  const eqNow = (st) => (clock ? clampTrack(airOf(st) + excessTargetOf(elevationAt(clock, elapsed), st)) : trackTempOf(airOf(st), st, night));
+  const sunNow = () => (clock ? Math.round(elevationAt(clock, elapsed) * 100) / 100 : null);
 
   // GS-13: the season's tyre generation, for the engine lanes that read the capacity by year.
   const year = Number.isFinite(race.year) ? race.year : typeof race.date === "string" && race.date.length >= 4 ? Number(race.date.slice(0, 4)) : null;
@@ -336,13 +406,22 @@ export const weatherTimeline = ({ race = {}, laps, cars = 20, seed = "weather", 
     wetness: [wetnessOfDepth(water.line)],
     air: [airOf(state)],
     night,
+    // GS-14: the track per lap (relaxed), the equilibrium it heads for and the sun's true elevation.
+    track: [round1(trackNow(state))],
+    trackEq: [round1(eqNow(state))],
+    sunElevation: [sunNow()],
   };
   for (let lap = 1; lap <= laps; lap += 1) {
     const minutes = lapMinutes(baseLap, out.wetness[lap - 1]);
     const before = state;
     state = transition(climate.matrix, state, minutes, stream);
     if (state >= RAIN_FROM && before < RAIN_FROM) spread = spreadFor(km, stream);
+    if (clock) excess = runExcess(excess, clock, state, elapsed, minutes);
+    elapsed += minutes;
     water = advanceWater(water, { rain: STATES[state].rainMmPerHour, trackC: trackTempOf(airOf(state), state, night), cars, minutes, spread });
+    out.track.push(round1(trackNow(state)));
+    out.trackEq.push(round1(eqNow(state)));
+    out.sunElevation.push(sunNow());
     out.states.push(state);
     out.rain.push(STATES[state].rainMmPerHour);
     out.water.push(water.line);
@@ -359,10 +438,28 @@ export const weatherTimeline = ({ race = {}, laps, cars = 20, seed = "weather", 
   return out;
 };
 
-/** The track temperature target for lap `lap` (air + sun or rain, race-weather.json temperature). */
+/**
+ * The track temperature target for lap `lap` as race.js reads it today (air + trackOverAirDry ×
+ * sunShare, or the rain's offset). GS-14 leaves it as it was on purpose: race.js (carril SIM) still
+ * starts from it and adds its own afternoon drift; moving it moves every race and the quick mode's
+ * golden. The sun's model is in the timeline (`track`, `trackEq`) and `trackAt` for the SIM lane to
+ * wire in (F1M24-CHINA SIM-C4 writes race.js).
+ */
 export const trackTargetOf = (weather, lap) => {
   const k = Math.min(Math.max(0, lap), weather.states.length - 1);
   return trackTempOf(weather.air[k], weather.states[k], Boolean(weather.night));
+};
+
+/**
+ * GS-14: the track temperature the weather model gives on lap `lap` (the timeline's `track`: the
+ * sun's excess relaxed with the asphalt's time constant, rain towards air + trackOverAirRain), for
+ * the engine lanes to follow lap by lap instead of race.js's fixed drift (contract, not yet read by
+ * race.js); null without the series. `trackEq[lap]` is the equilibrium it heads for.
+ */
+export const trackAt = (weather, lap) => {
+  if (!weather || !Array.isArray(weather.track) || !weather.track.length) return null;
+  const k = Math.min(Math.max(0, Math.round(lap)), weather.track.length - 1);
+  return Number.isFinite(weather.track[k]) ? weather.track[k] : null;
 };
 
 /**
@@ -449,7 +546,7 @@ export const sessionWetness = ({ race = {}, kind = "qualifying", stream }) => {
  * start-hour air). Night from race-weather.json temperature.nightFromHour to dayFromHour; the
  * track over the air as in the race (trackTempOf) for `state` (0 = sunny). Pure: no stream.
  */
-export const hourlyConditions = ({ race = {}, hour, state = 0, diurnal = null }) => {
+export const hourlyConditions = ({ race = {}, hour, state = 0, diurnal = null, utcOffsetH = null }) => {
   const climate = climateFor(race);
   const startHour = Number.isFinite(climate.startHour) ? climate.startHour : null;
   const h = ((hour % 24) + 24) % 24;
@@ -458,7 +555,58 @@ export const hourlyConditions = ({ race = {}, hour, state = 0, diurnal = null })
   const wave = (at) => Math.cos((2 * Math.PI * (at - diurnal.peakHour)) / 24);
   const airC = diurnal && startHour !== null && Number.isFinite(diurnal.halfRangeC) ? base + diurnal.halfRangeC * (wave(h) - wave(startHour)) : base;
   const round1 = (value) => Math.round(value * 10) / 10;
-  return { hour: Math.round(h * 1000) / 1000, startHour, night, airC: round1(airC), trackC: round1(trackTempOf(airC, state, night)) };
+  // GS-14: with the circuit's site and a date, the track's excess under the real sun at that hour,
+  // relaxed through the SUN.warmupMin before it in the same state (the afternoon track cools later
+  // than the sun drops). The session clock is civil time (the pack's startLocal): the circuit's
+  // civil offset when sun-sites.json has its zone, else the climate's (or `utcOffsetH` if given).
+  const clock = sunClockOf(race, climate);
+  if (clock) {
+    const civil = civilOffsetOf(climate.key);
+    const offset = Number.isFinite(utcOffsetH) ? utcOffsetH : Number.isFinite(civil) ? civil : clock.utcOffsetH;
+    const at = { ...clock, startHour: h, utcOffsetH: offset };
+    const from = -SUN.warmupMin;
+    const excess = runExcess(excessTargetOf(elevationAt(at, from), state), at, state, from, SUN.warmupMin);
+    const sunElevationDeg = Math.round(elevationAt(at, 0) * 100) / 100;
+    return { hour: Math.round(h * 1000) / 1000, startHour, night, airC: round1(airC), trackC: round1(clampTrack(airC + excess)), sunElevationDeg };
+  }
+  return { hour: Math.round(h * 1000) / 1000, startHour, night, airC: round1(airC), trackC: round1(trackTempOf(airC, state, night)), sunElevationDeg: null };
+};
+
+/** The civil UTC offset (summer time included) of a climate key's month, or null (sun-sites.json civilOffsetH). */
+const civilOffsetOf = (climateKey) => {
+  const site = siteOf(climateKey);
+  const civil = site ? SUN_SITES.sites[site.id].civilOffsetH : null;
+  if (!civil) return null;
+  const month = climateKey.split("/")[1];
+  return civil[month] ?? civil[String(parseInt(month, 10))] ?? null;
+};
+
+// ------------------------------------------------------------------ rubber (GS-14)
+
+const RUBBER_BANDS = W.rubber.levels.bands;
+const DAYS = SESSIONS.evolution.days;
+
+/**
+ * GS-14 (RNF-08, RNF-09): the rubber's band among five (race-weather.json rubber.levels) for the
+ * engine's rubber 0..1 (washed below 0 → the first): { id, es, en }. null for no number.
+ */
+export const rubberLevelOf = (rubber) => {
+  if (!Number.isFinite(rubber)) return null;
+  const band = RUBBER_BANDS.find((row) => row.below === null || rubber < row.below) || RUBBER_BANDS[RUBBER_BANDS.length - 1];
+  return { id: band.id, es: band.es, en: band.en };
+};
+
+/**
+ * GS-14 (RF-SIM-11, RF-WKD-03): the rubber (share 0..1 of what the era lays down at most) a
+ * session starts with after one that left `rubber`: × sameDay on the same day; × nextDay
+ * overnight, but never below the supportFloor the next morning's support races lay down. A
+ * washed track (below 0: a wet session, race-weather.json rubber) stays as it is: the water, not
+ * the night, decided it. sessions.json evolution.days (pending). Pure.
+ */
+export const rubberAtSessionStart = ({ rubber = 0, sameDay = true, days = DAYS } = {}) => {
+  const r = Number.isFinite(rubber) ? rubber : 0;
+  if (sameDay || r < 0) return sameDay ? r * days.sameDay : r;
+  return Math.max(r * days.nextDay, days.supportFloor);
 };
 
 // ------------------------------------------------------------------ the view and the sound
@@ -519,5 +667,8 @@ export const weatherSnapshot = (state, lap = state.lap) => {
     spray: round(sprayAt(weather.water[k])),
     trackTemp: state.trackTemp ?? null,
     rubber: round(state.evolution || 0),
+    // GS-14: the rubber's band among five and the sun's true elevation on this lap (null without the model).
+    rubberLevel: rubberLevelOf(state.evolution || 0).id,
+    sunElevationDeg: Array.isArray(weather.sunElevation) ? weather.sunElevation[Math.min(k, weather.sunElevation.length - 1)] ?? null : null,
   };
 };

@@ -78,7 +78,42 @@
     "temperature": {
       "allOf": [{ "$ref": "#/definitions/block" }],
       "required": ["trackOverAirDry", "trackOverAirRain", "raceSd", "airSdDefault", "relaxPerLap", "relaxTauMin", "fallbackAirC", "minC", "maxC"],
-      "properties": { "relaxPerLap": { "$ref": "#/definitions/share" }, "relaxTauMin": { "$ref": "#/definitions/positive" } }
+      "properties": {
+        "relaxPerLap": { "$ref": "#/definitions/share" },
+        "relaxTauMin": { "$ref": "#/definitions/positive" },
+        "sun": {
+          "$comment": "WX-C3 / GS-14: exceso pista - aire por la altura del sol (NOAA) y la nubosidad, medido en OpenF1 (engine/weather temperature).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "base", "gain", "cloud", "cloudByState", "tauMin", "warmupMin", "fit", "source"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "base": { "type": "number", "minimum": -5, "maximum": 15 },
+            "gain": { "type": "number", "minimum": 0, "maximum": 40 },
+            "cloud": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["coefficient", "exponent", "source"],
+              "properties": { "coefficient": { "$ref": "#/definitions/share" }, "exponent": { "$ref": "#/definitions/positive" }, "source": { "type": "string" } }
+            },
+            "cloudByState": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["sunny", "cloudy", "overcast"],
+              "properties": { "sunny": { "$ref": "#/definitions/share" }, "cloudy": { "$ref": "#/definitions/share" }, "overcast": { "$ref": "#/definitions/share" } }
+            },
+            "tauMin": { "$ref": "#/definitions/positive" },
+            "warmupMin": { "$ref": "#/definitions/nonNegative" },
+            "fit": {
+              "type": "object",
+              "required": ["rmse", "rows", "races", "fixture", "script", "sites"],
+              "properties": { "rmse": { "$ref": "#/definitions/positive" }, "rows": { "type": "integer", "minimum": 1 }, "races": { "type": "integer", "minimum": 1 } }
+            },
+            "source": { "type": "string" }
+          }
+        }
+      }
     },
     "grip": {
       "allOf": [{ "$ref": "#/definitions/block" }],
@@ -157,7 +192,38 @@
       }
     },
     "offLine": { "allOf": [{ "$ref": "#/definitions/block" }], "required": ["lineHalfWidthM", "fullAtM"] },
-    "rubber": { "allOf": [{ "$ref": "#/definitions/block" }], "required": ["washPerMm", "washedStart", "practiceWashedStart"] },
+    "rubber": {
+      "allOf": [{ "$ref": "#/definitions/block" }],
+      "required": ["washPerMm", "washedStart", "practiceWashedStart", "levels"],
+      "properties": {
+        "levels": {
+          "$comment": "WX-C3 / GS-14: cinco bandas de goma con texto ES/EN, la última sin tope (below null).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "bands"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "bands": {
+              "type": "array",
+              "minItems": 5,
+              "maxItems": 5,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "below", "es", "en"],
+                "properties": {
+                  "id": { "enum": ["veryLow", "low", "normal", "high", "veryHigh"] },
+                  "below": { "type": ["number", "null"] },
+                  "es": { "type": "string", "minLength": 1 },
+                  "en": { "type": "string", "minLength": 1 }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "forecast": {
       "allOf": [{ "$ref": "#/definitions/block" }],
       "required": ["noise", "max", "timingSdMin", "defaultAccuracy"],
