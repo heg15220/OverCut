@@ -19,6 +19,8 @@ import { merge, ribbon, wall } from "./geometry";
 import { offsetSpan, poseAt } from "../engine/trackGeometry";
 import { biomeFor } from "./biomes";
 import { floodlights, groundMaterials, horizon, skyDome, skyline, vegetation, water } from "./scenery";
+import LOOK from "../data/balance/view-look.json";
+import { enableWetSurface, fillRacingLine, wetAttributes, wetLookFor } from "./rain/wetSurface";
 
 const STREET = new Set(["monaco", "marina_bay", "baku", "detroit", "dallas", "phoenix", "adelaide", "long_beach", "valencia", "jeddah", "vegas", "las_vegas", "pedralbes", "monsanto", "boavista", "pescara", "montjuic", "miami"]);
 
@@ -216,7 +218,12 @@ export const buildTrack = (circuit, { teams = [], street = null, year = 2020 } =
 
   // The road, its lines and the kerbs.
   m.asphalt.map.repeat.set(1, 1);
-  group.add(meshOf(ribbon(P, H, -HALF, HALF, 0.012, 0.08), m.asphalt));
+  // GS-10 / LOOK-C2: per-vertex lateral, racing line, timing sector and puddle-prone edges for the wet
+  // surface (three/rain/wetSurface.js); unused by the dry shader until setWater patches the material.
+  const road = ribbon(P, H, -HALF, HALF, 0.012, 0.08);
+  const wetAttrs = wetAttributes(circuit, { half: HALF, closed: true });
+  Object.entries(wetAttrs).forEach(([name, array]) => road.setAttribute(name, new THREE.BufferAttribute(array, 1)));
+  group.add(meshOf(road, m.asphalt));
   group.add(meshOf(merge([ribbon(P, H, -HALF + 0.15, -HALF + 0.45, 0.016, 0.1), ribbon(P, H, HALF - 0.45, HALF - 0.15, 0.016, 0.1)]), m.line));
   const kerbs = [];
   circuit.corners.forEach((corner) => {
@@ -469,6 +476,8 @@ export const buildTrack = (circuit, { teams = [], street = null, year = 2020 } =
     }
   };
 
+  let wetHandle = null;
+
   return {
     group,
     lights,
@@ -483,6 +492,30 @@ export const buildTrack = (circuit, { teams = [], street = null, year = 2020 } =
       m.asphalt.roughness = wet ? 0.18 : 0.82;
       m.asphalt.color.set(wet ? "#7d8796" : "#ffffff");
       m.asphalt.metalness = wet ? 0.35 : 0.05;
+    },
+    /**
+     * GS-10 / LOOK-C2: continuous wetness from the engine's `snapshot.weather` ({waterMm: {line, off,
+     * sectors[]}}, F1M24-CHINA §1.5). The first call patches the asphalt shader (wetSurface.js) and puts
+     * the material back to its dry values, so the binary setWet is not mixed with it. Returns the look.
+     * LOOK-C4 replaces the setWet calls of Race3D.js with this one.
+     */
+    setWater: (weather) => {
+      const look = wetLookFor(weather);
+      if (!wetHandle) {
+        if (!look.wet) return look;
+        wetHandle = enableWetSurface(m.asphalt);
+        m.asphalt.roughness = LOOK.wet.roughnessDry;
+        m.asphalt.metalness = LOOK.wet.metalnessDry;
+        m.asphalt.color.set("#ffffff");
+      }
+      wetHandle.update(look);
+      return look;
+    },
+    /** GS-07 / LOOK-C2: the racing line lateral (m, + = right) at point i of the lap, from engine/trackData. */
+    setRacingLine: (lateralAt) => {
+      const attribute = road.getAttribute("aOcLine");
+      fillRacingLine(attribute.array, P.length, lateralAt, true);
+      attribute.needsUpdate = true;
     },
   };
 };

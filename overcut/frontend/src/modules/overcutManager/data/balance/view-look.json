@@ -113,22 +113,77 @@
     }
   },
   "wet": {
-    "$comment": "Contrato para LOOK-C2 (GS-10): asfalto con mojado continuo desde snapshot.weather.waterMm (motor); la trazada se seca antes (máscara de ~lineDryWidthM). Sin valores hasta LOOK-C2.",
+    "$comment": "LOOK-C2 (GS-10 módulos; RF-SIM-11, RF-3D-04): asfalto con mojado continuo desde snapshot.weather.waterMm {line, off, sectors[]} del motor (mm de modelo de race-weather.json water, no mm físicos). Dos capas: 'damp' (la superficie se oscurece en cuanto se moja: damp = 1 − exp(−h/saturationMm), albedo × (1 − darkenAtSaturation·damp); mecanismo de Lekner y Dorf, 'Why some things are darker when wet', Applied Optics 27, 1988) y 'film' (lámina que llena la macrotextura: film = min(1, h/filmFullMm), oscurece darkenFilm más y baja la rugosidad de roughnessDry a roughnessWet; filmFullMm del orden de la profundidad media de textura del método de la mancha de arena, EN 13036-1, 0,5–1,5 mm en firmes bituminosos). La rugosidad baja dampGloss·damp + (1 − dampGloss)·film. La trazada (lateral del motor, pose.lineOffset) usa el agua de la línea y fuera de ella el de fuera; la franja seca mide lineDryWidthM (= 2 × race-weather.json offLine.lineHalfWidthM, lo comprueba rain.test.js) y se ensancha hasta lineWidenToM (= 2 × offLine.fullAtM) cuanto más seca está la línea frente a fuera (1 − line/off), con un borde de featherM. Charcos en las zonas bajas: las splines no llevan cota (data/splines.json: x, z), así que mientras no la tengan el agua se junta en los bordes por el bombeo transversal, en manchas sembradas con seedOf del circuito cada puddleCellM; con cota (circuit.elevation) en las depresiones. roughnessDry/Wet y metalnessDry/Wet: los de trackScene.js setWet (current). Lo demás, diseño propio pending de calibrar con fotogramas FOM de mojado (F1M24-CHINA §1.3: el vídeo del juego no tiene lluvia); por eso el bloque va pending.",
     "status": "pending",
-    "darkenAtSaturation": null,
-    "saturationMm": null,
-    "roughnessDry": null,
-    "roughnessWet": null,
-    "lineDryWidthM": null,
-    "puddleFromMm": null
+    "darkenAtSaturation": 0.45,
+    "saturationMm": 0.15,
+    "darkenFilm": 0.25,
+    "filmFullMm": 1.5,
+    "roughnessDry": 0.82,
+    "roughnessWet": 0.18,
+    "dampGloss": 0.3,
+    "metalnessDry": 0.05,
+    "metalnessWet": 0.35,
+    "lineDryWidthM": 2,
+    "lineWidenToM": 6,
+    "featherM": 1,
+    "puddleFromMm": 0.6,
+    "puddleFullMm": 1.5,
+    "puddleDarken": 0.15,
+    "puddleRoughness": 0.04,
+    "puddleEdgeShare": 0.55,
+    "puddleCellM": 24,
+    "puddleCover": 0.35,
+    "sectors": 3
   },
   "rain": {
-    "$comment": "Contrato para LOOK-C2 (VIEW-07): spray instanciado por coche desde snapshot.spray[i] (motor, 0..1), estela de 50–150 m (F1M24-CHINA §2.9), gotas en la lente solo en onboards, niebla por tasa de lluvia (snapshot.weather.rainRate). Todo con seedOf (RNF-05). Sin valores hasta LOOK-C2.",
+    "$comment": "LOOK-C2 (VIEW-07 módulos; RF-SIM-11, RF-3D-04, RNF-02, RNF-05): spray instanciado por coche desde snapshot.spray[i] (motor, 0..1) × la velocidad del coche (speedMinMps–speedFullMps); la vista no recalcula agua. La nube queda casi quieta en el aire (carry: parte de la velocidad del coche que conserva) y su estela mide trailM[0]–trailM[1] según el nivel (F1M24-CHINA §2.9, orden de magnitud de las retransmisiones en mojado; pending de medir en vídeo FOM). Presupuesto por calidad (maxParticles, perCarMax): nada en 'low' (enmienda propuesta 10, F1M24-CHINA §4). Gotas en la lente solo en las onboards (lens.onboardOnly): por la lluvia (dropsPerSecAtMmH por cada mm/h) y por el spray del de delante (sprayDropsPerSec × nivel); con velocidad el viento las arrastra antes (vida / (1 + v/speedClearMps)). Niebla de lluvia: coeficiente de extinción de Koschmieder (fog.koschmieder) desde la visibilidad por intensidad, sumado al de la calima (fog), interpolado en extinción; pending: tabla de diseño en el orden de magnitud de la meteorología de aeródromo, por calibrar con METAR de días de GP con lluvia. Rayas: velocidad terminal de gota de 2 mm ≈ 6,5 m/s (Gunn y Kinzer, 'The terminal velocity of fall for water droplets in stagnant air', J. Meteorology 6, 1949); su longitud en pantalla y el recuento por calidad, diseño. Todo con seedOf y el reloj de carrera (F1M24-CHINA §1.4 regla 7). El bloque va pending: casi todo es diseño por calibrar. Nota para LOOK-C3/C4: THREE.FogExp2 dibuja exp(−(ρ·d)²), no la exponencial de Koschmieder, así que con ρ = 3,912/V (la convención de sky.js fogDensityFor) la visibilidad que se ve no es V; la tabla de lluvia está puesta para que el contraste dibujado a 200 m caiga ≥ 25 % con lluvia fuerte (aceptación de VIEW-07). Si se cambia la convención (ρ = √3,912/V o niebla exponencial en shader) hay que rehacer esta tabla.",
     "status": "pending",
-    "spray": { "trailM": null, "maxParticles": { "low": null, "medium": null, "high": null } },
-    "lens": { "onboardOnly": true, "dropsPerSecAtMmH": null },
-    "fog": { "visibilityKmByRainMmH": [] },
-    "streaks": { "fallMps": null }
+    "spray": {
+      "status": "design",
+      "trailM": [50, 150],
+      "maxParticles": { "low": 0, "medium": 1200, "high": 3000 },
+      "perCarMax": { "low": 0, "medium": 90, "high": 160 },
+      "speedMinMps": 8,
+      "speedFullMps": 70,
+      "carry": 0.15,
+      "lifeMaxSec": 2.5,
+      "startHeightM": 0.35,
+      "halfTrackM": 0.8,
+      "riseMps": 1.2,
+      "spreadMps": 1.6,
+      "sizeM": [0.8, 4.5],
+      "opacity": 0.55,
+      "colour": "#dfe4ea"
+    },
+    "lens": {
+      "status": "design",
+      "onboardOnly": true,
+      "dropsPerSecAtMmH": 2.5,
+      "sprayDropsPerSec": 6,
+      "maxDrops": 40,
+      "lifeSec": 1.4,
+      "speedClearMps": 45,
+      "radiusUv": [0.006, 0.022],
+      "refraction": 0.012
+    },
+    "fog": {
+      "status": "pending",
+      "visibilityKmByRainMmH": [
+        { "mmH": 0.15, "km": 20 },
+        { "mmH": 1.5, "km": 8 },
+        { "mmH": 5, "km": 3.5 },
+        { "mmH": 12, "km": 1.5 }
+      ]
+    },
+    "streaks": {
+      "status": "sourced",
+      "fallMps": 6.5,
+      "lengthM": 0.9,
+      "boxM": 60,
+      "count": { "low": 600, "medium": 1600, "high": 2600 },
+      "countAtMmH": 5
+    }
   },
   "fx": {
     "$comment": "Contrato para LOOK-C3 (VIEW-18). Chispas del suelo solo en eras con patines metálicos bajo el fondo: pending hasta leer el reglamento técnico FIA de cada año (patines de titanio obligatorios desde 2015 según la memoria; la tabla de madera de 1994 sin patines que chispeen hasta entonces). Nunca en 2013 (F1M24-CHINA §2.8). Humo solo con el evento lockup del motor (snapshot lon[i] = LOCKUP).",
