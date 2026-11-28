@@ -15,7 +15,12 @@
  *   stepScript(prev, input, scripts?) → state
  *   stepInsert(prev, input, cfg?)     → state
  *
- * `input` of stepScript: { start, events, tau, viewSec, seed, year, subjectId, rows, skipPreRace }.
+ * `input` of stepScript: { start, events, tau, viewSec, seed, year, subjectId, rows, skipPreRace, zones }.
+ * - CAM-C3 (F1M24-CHINA §2.5 VIEW-10, the script): the start is `startLightsLow` (the gantry in
+ *   frame, low by the pole) from the first light until lights out plus sequences.start.holdShotSec,
+ *   then `startHigh` (high and wide from the line) until the leader brakes for the first corner
+ *   (`until: "zone:braking"` on three/cameraZones `zones`; its maxSec when the view gives no zones),
+ *   then the trackside burst. A held shot (`until`) also ends at its maxSec, if it has one.
  * - `start` is the engine's snapshot.start (§1.7, SIM-3: { phase, lights, t }); without it there is
  *   no pre-race and no lights script (the view invents nothing), only the finish.
  * - `events` the race events seen so far (the `finished` events of §1.7: { carId, t, pos }).
@@ -115,6 +120,40 @@ const startFires = (trigger, start) => {
   return start.phase === value;
 };
 
+/** Zone index of a share of the lap in three/cameraZones zonesFor (-1 outside every zone). */
+const zoneIndexAt = (zones, share) => {
+  const L = zones.lengthM;
+  const m = frac(share) * L;
+  return zones.zones.findIndex((zone) => (m >= zone.fromM && m < zone.toM) || (zone.toM > L && m < zone.toM - L));
+};
+
+/**
+ * Does the end condition of a held shot fire? (CAM-C3, VIEW-10.)
+ * - `start:<phase>` as startFires; for `start:out` the shot also stays `hold` seconds of race time
+ *   after the lights went out (broadcast.json sequences.start.holdShotSec; null = no hold).
+ * - `zone:<kind>`: the shot's car, past the line on its first lap, enters a zone of that kind of
+ *   three/cameraZones (`zone:braking`: the braking for the first corner). Without the zones it never
+ *   fires and the shot's maxSec ends it (the view invents nothing).
+ */
+export const untilFires = (until, { start = null, outAt = null, now = 0, hold = null, rows = [], subjectId = null, zones = null } = {}) => {
+  const [kind, value] = String(until || "").split(":");
+  if (kind === "start") {
+    if (!startFires(until, start)) return false;
+    if (value === "out" && Number.isFinite(hold) && hold > 0) return Number.isFinite(outAt) && now - outAt >= hold - 1e-9;
+    return true;
+  }
+  if (kind === "zone") {
+    if (!zones?.zones?.length || !(zones.lengthM > 0)) return false;
+    const row = (rows || []).find((entry) => entry?.car?.id === subjectId) || (rows || [])[0];
+    const progress = row?.pose?.progress;
+    if (!Number.isFinite(progress) || progress < 0) return false;
+    if (progress >= 1) return true;
+    const index = zoneIndexAt(zones, progress);
+    return index >= 0 && zones.zones[index].kind === value;
+  }
+  return false;
+};
+
 const isPre = (start) => Boolean(start) && (start.phase === "formation" || start.phase === "grid") && !(start.lights > 0);
 
 /** Who a shot films: the director's subject, the winner, the pole sitter (first row of the timing). */
@@ -210,15 +249,21 @@ export const stepScript = (prev, input = {}, scripts = SCRIPTS) => {
     const shot = shots[prev.index];
     const elapsed = now - prev.since;
     const held = elapsed >= (shot.minSec ?? 0);
+    // CAM-C3 (VIEW-10): the race time the lights went out, for the low lights shot's holdShotSec.
+    const outAt = Number.isFinite(prev.outAt) ? prev.outAt : start?.phase === "out" ? now : null;
+    const stay = { ...prev, scParked, done, ...keep, outAt };
     const next = () => {
       const k = nextIndex("start", prev.index + 1);
-      if (k >= 0 && (shots[k].trigger === "next" || startFires(shots[k].trigger, start))) return cutTo("start", k);
-      if (k >= 0) return { ...prev, scParked, done, ...keep };
+      if (k >= 0 && (shots[k].trigger === "next" || startFires(shots[k].trigger, start))) return cutTo("start", k, { outAt });
+      if (k >= 0) return stay;
       return IDLE({ ...done, start: true, preRace: true }, keep);
     };
-    if (shot.until) return held && startFires(shot.until, start) ? next() : { ...prev, scParked, done, ...keep };
+    if (shot.until) {
+      const capped = Number.isFinite(shot.maxSec) && elapsed >= shot.maxSec;
+      return capped || (held && untilFires(shot.until, { start, outAt, now, hold: scripts.start.holdShotSec, rows: input.rows, subjectId: prev.subjectId, zones: input.zones })) ? next() : stay;
+    }
     if (prev.dur !== null && elapsed >= prev.dur) return next();
-    return { ...prev, scParked, done, ...keep };
+    return stay;
   }
   if (!done.start && start) {
     // The lights are on: the script takes over from the pre-race. Lights already out (a race with no
@@ -275,11 +320,7 @@ export const insertZonesFor = (zones, { seed = 0, carId = "", lap = 0 }, cfg = I
   return chosen.sort((a, b) => a - b);
 };
 
-const zoneAt = (zones, share) => {
-  const L = zones.lengthM;
-  const m = frac(share) * L;
-  return zones.zones.findIndex((zone) => (m >= zone.fromM && m < zone.toM) || (zone.toM > L && m < zone.toM - L));
-};
+const zoneAt = zoneIndexAt;
 
 /**
  * One step of the onboard inserts: while the car on air crosses one of this lap's insert zones, the

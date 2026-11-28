@@ -8,7 +8,11 @@ import Ajv from "ajv";
 import schema from "../../engine/packs/schema/broadcast.schema.json";
 import broadcast from "../../data/balance/broadcast.json";
 import cameraData from "../../data/balance/cameras.json";
-import { battlesOf, cameraFor, directorState, rivalOf } from "./directorState";
+import { arbitrate, battlesOf, cameraFor, directorState, isOwnIncident, mayInterrupt, rivalOf, shotClassOf } from "./directorState";
+import { stepScript, untilFires } from "./raceScripts";
+import { scRestartCameras, scRestartShotLength, stepScRestart, trainFraming } from "./scSequence";
+import { circuitFor } from "../../engine/venue";
+import { zonesFor } from "../../three/cameraZones";
 import { battlesIn } from "../raceClock";
 
 // A small seeded generator for the test fields (RF-SIM-15: no Math.random in tests either).
@@ -160,5 +164,273 @@ describe("directorState (F1M24-GAMEPLAY §2.5)", () => {
     const b = directorState("c5", rows, [], RIG, { now: 4 });
     expect(a).toEqual(b);
     expect(JSON.stringify(rows)).toBe(before);
+  });
+});
+
+// ------------------------------------------------------------------------------------------
+// CAM-C3 (F1M24-CHINA §2.5 / §3.3; VIEW-13 and VIEW-10, the script; RF-3D-04, RF-SIM-10, RF-SIM-15,
+// RNF-05, RNF-07): priorities with override and restore, the sting, the restart behind the safety
+// car with the train, and the start script startLightsLow → startHigh, deterministic by seed.
+
+const PRI = broadcast.directorPriorities;
+const lineRows = (n, { inPit = -1, progress = 5.5 } = {}) =>
+  Array.from({ length: n }, (_, i) => ({ car: { id: `c${i}`, isUser: i === 3 }, position: i + 1, interval: i ? 3 : undefined, lapsDown: 0, out: false, pose: { progress: progress - 0.004 * i, inPit: i === inPit, gone: false } }));
+const LOCK = Object.freeze({ cameraId: "tcam", camType: "onboard", focusId: "c3", mode: "camera", fovDeg: 72 });
+
+describe("director priorities (CAM-C3, VIEW-13)", () => {
+  test("the order of broadcast.json: the flag and the own incident override a locked camera, the rest never", () => {
+    expect(PRI.order).toEqual(["finish", "ownIncident", "userLock", "pitSeq", "zones"]);
+    expect(mayInterrupt("finish", { userLocked: true })).toBe(true);
+    expect(mayInterrupt("ownIncident", { userLocked: true })).toBe(true);
+    expect(mayInterrupt("pitSeq", { userLocked: true })).toBe(false);
+    expect(mayInterrupt("zones", { userLocked: true })).toBe(false);
+    ["finish", "ownIncident", "pitSeq", "zones"].forEach((kind) => expect(mayInterrupt(kind, { userLocked: false })).toBe(true));
+    // An override on a class below the lock does not let it jump the lock.
+    const cfg = { ...PRI, override: { ...PRI.override, pitSeq: true } };
+    expect(mayInterrupt("pitSeq", { userLocked: true }, cfg)).toBe(false);
+  });
+
+  test("every shot kind of the director has a class, the scripts by name", () => {
+    Object.values(PRI.shotClass).forEach((kind) => expect(PRI.order).toContain(kind));
+    expect(shotClassOf({ shotKind: "script", script: { name: "finish" } })).toBe("finish");
+    expect(shotClassOf({ shotKind: "script", script: { name: "start" } })).toBe("pitSeq");
+    expect(shotClassOf({ shotKind: "script", scRestartOn: true, script: { name: null } })).toBe("pitSeq");
+    expect(shotClassOf({ shotKind: "pit" })).toBe("pitSeq");
+    expect(shotClassOf({ shotKind: "battle" })).toBe("zones");
+    expect(shotClassOf(null)).toBe("zones");
+  });
+
+  test("own incident: an error or a retirement of a car of the player; a rival's or a pass is not", () => {
+    expect(isOwnIncident({ trigger: "mistake", subjectId: "c3" }, ["c3"])).toBe(true);
+    expect(isOwnIncident({ trigger: "dnf", subjectId: "c9", otherId: "c3" }, new Set(["c3"]))).toBe(true);
+    expect(isOwnIncident({ trigger: "mistake", subjectId: "c9" }, ["c3"])).toBe(false);
+    expect(isOwnIncident({ trigger: "pass", subjectId: "c3" }, ["c3"])).toBe(false);
+    expect(isOwnIncident({ trigger: "mistake", subjectId: "c3" })).toBe(false);
+  });
+
+  test("arbitrate saves the user's state once and hands back that exact state when the interruption ends", () => {
+    let arb = arbitrate(null, { active: ["zones"], userLock: LOCK });
+    expect(arb).toEqual({ onAir: "userLock", saved: null, restore: null, dropLock: false });
+    arb = arbitrate(arb, { active: ["pitSeq"], userLock: LOCK });
+    expect(arb.onAir).toBe("userLock");
+    arb = arbitrate(arb, { active: ["ownIncident", "pitSeq"], userLock: LOCK });
+    expect(arb.onAir).toBe("ownIncident");
+    expect(arb.saved).toBe(LOCK);
+    // The viewer's state as it was at the interruption, even if a later step reports another one.
+    arb = arbitrate(arb, { active: ["finish", "ownIncident"], userLock: { ...LOCK, cameraId: "chase" } });
+    expect(arb.onAir).toBe("finish");
+    expect(arb.saved).toBe(LOCK);
+    arb = arbitrate(arb, { active: ["zones"], userLock: LOCK });
+    expect(arb).toEqual({ onAir: "userLock", saved: null, restore: LOCK, dropLock: false });
+    arb = arbitrate(arb, { active: ["zones"], userLock: LOCK });
+    expect(arb.restore).toBeNull();
+    // restore "zones": the lock is dropped instead.
+    const zonesCfg = { ...PRI, restore: "zones" };
+    const hit = arbitrate(null, { active: ["finish"], userLock: LOCK }, zonesCfg);
+    expect(arbitrate(hit, { active: ["zones"], userLock: LOCK }, zonesCfg)).toMatchObject({ restore: null, dropLock: true });
+  });
+
+  test("directorState: the locked camera holds over the pit lane, the own replay overrides it and restores it exactly", () => {
+    const users = ["c3"];
+    const run = (steps) => {
+      let prev = null;
+      return steps.map(({ rows, replay = null, userLock = LOCK }, k) => {
+        prev = directorState("c3", rows, [], RIG, { now: k, tau: k, prev, seed: 4, year: 2024, userLock, replay, userIds: users });
+        return prev;
+      });
+    };
+    const replay = { trigger: "mistake", subjectId: "c3", otherId: null };
+    const rival = { trigger: "mistake", subjectId: "c7", otherId: null };
+    const shots = run([
+      { rows: lineRows(10) },
+      { rows: lineRows(10, { inPit: 3 }) },
+      { rows: lineRows(10), replay: rival },
+      { rows: lineRows(10), replay },
+      { rows: lineRows(10), replay },
+      { rows: lineRows(10) },
+      { rows: lineRows(10) },
+    ]);
+    expect(shots[0]).toMatchObject({ shotKind: "user", cameraId: "tcam", camType: "onboard", subjectIds: ["c3"] });
+    expect(shots[1]).toMatchObject({ shotKind: "user", priority: { onAir: "userLock" } });
+    expect(shots[2]).toMatchObject({ shotKind: "user", priority: { onAir: "userLock", saved: null } });
+    expect(shots[3]).toMatchObject({ shotKind: "replay", cameraId: null, subjectIds: ["c3"], priority: { onAir: "ownIncident" } });
+    expect(shots[3].priority.saved).toEqual(LOCK);
+    expect(shots[4].priority.saved).toEqual(LOCK);
+    expect(shots[5]).toMatchObject({ shotKind: "user", cameraId: LOCK.cameraId, camType: LOCK.camType });
+    expect(shots[5].priority.restore).toEqual(LOCK);
+    expect(shots[6].priority.restore).toBeNull();
+  });
+
+  test("directorState: the chequered flag overrides a locked camera", () => {
+    const rows = lineRows(4).map((row, i) => ({ ...row, pose: { ...row.pose, finished: i === 0 } }));
+    const events = [{ type: "finished", carId: "c0", t: 100, pos: 1 }];
+    const shot = directorState("c3", rows, events, RIG, { tau: 100, seed: 2, year: 2024, userLock: LOCK, userIds: ["c3"] });
+    expect(shot).toMatchObject({ shotKind: "script", subjectIds: ["c0"], priority: { onAir: "finish" } });
+    expect(shot.priority.saved).toEqual(LOCK);
+  });
+
+  test("without a lock or a replay the director films exactly as before (only `priority` is added)", () => {
+    const run = (extra) => {
+      let prev = null;
+      const out = [];
+      for (let k = 0; k < 120; k += 1) {
+        prev = directorState("c3", lineRows(10, { progress: 5.2 + k * 0.004, inPit: k > 60 && k < 70 ? 3 : -1 }), [], RIG, { now: k / 4, tau: k / 4, prev, seed: 5, year: 2024, ...extra });
+        out.push([prev.shotKind, prev.cameraId, prev.camType, prev.subjectIds.join()]);
+      }
+      return out;
+    };
+    expect(run({ userLock: null, replay: null })).toEqual(run({}));
+    const shot = directorState("c3", lineRows(10), [], RIG, {});
+    expect(shot.priority).toEqual({ onAir: "zones", saved: null, restore: null, dropLock: false });
+  });
+});
+
+describe("the sting (CAM-C3, VIEW-13)", () => {
+  test("one constant sting of 1,6-1,8 s, inside the 1,5-2,1 s of the acceptance check", () => {
+    expect(broadcast.replay.stingSec).toBeGreaterThanOrEqual(1.6);
+    expect(broadcast.replay.stingSec).toBeLessThanOrEqual(1.8);
+  });
+});
+
+/** The engine's snapshot.sc of a neutralisation (SIM-5 shape): in this lap at 20 s, restart at 50 s, gone at 52 s. */
+const scOf = (t) => {
+  if (t < 5) return null;
+  const s = 0.2 + t * 0.001;
+  if (t < 12) return { phase: "PICKUP", s, v: 40, lap: 6, lightsOn: true };
+  if (t < 20) return { phase: "TRAIN", s, v: 38, lap: 6, lightsOn: true };
+  if (t < 50) return { phase: "IN_THIS_LAP", s, v: 38, lap: 7, lightsOn: false };
+  if (t < 52) return { phase: "RESTART", s, v: 0, lap: 8, lightsOn: false };
+  return null;
+};
+
+describe("the restart behind the safety car (CAM-C3, VIEW-13: sequences.scRestart, framing.train)", () => {
+  const SEQ = broadcast.sequences.scRestart;
+  const runRestart = ({ seed = 3, year = 2024, sc = scOf, until = 70 } = {}) => {
+    let state = null;
+    const cuts = [];
+    for (let k = 0; k < until * 10; k += 1) {
+      const t = k / 10;
+      state = stepScRestart(state, { sc: sc(t), tau: t, seed, year });
+      const key = state.active ? state.cam : null;
+      const last = cuts[cuts.length - 1];
+      if (!last || last.key !== key) cuts.push({ key, t });
+    }
+    return cuts;
+  };
+
+  test("its shots name cameras the view films and only exist with a safety car", () => {
+    SEQ.shots.forEach((shot) => expect(shot.requires).toBe("safetyCar"));
+    scRestartCameras().forEach((cam) => expect(cam === "heli" || cam === "chase" || broadcast.rigTemplate.types.some((entry) => `rig:${entry.type}` === cam)).toBe(true));
+  });
+
+  test("side of the train at 'in this lap', then above, then head-on at the restart; then the zones", () => {
+    const cuts = runRestart();
+    expect(cuts[0]).toEqual({ key: null, t: 0 });
+    expect(cuts[1]).toMatchObject({ key: "rig:lateralTrack" });
+    expect(cuts[1].t).toBeCloseTo(20, 6);
+    expect(cuts[2].key).toBe("heli");
+    expect(cuts[2].t - 20).toBeCloseTo(scRestartShotLength(SEQ.shots[0], { seed: 3, restart: 1, index: 0 }), 0);
+    const restart = cuts.find((cut) => cut.key === "rig:headOn");
+    expect(restart.t).toBeCloseTo(50, 6);
+    expect(cuts[cuts.length - 1].key).toBeNull();
+    // The restart shot runs to its end though the engine drops snapshot.sc at 52 s.
+    const end = cuts[cuts.length - 1].t;
+    expect(Math.abs(end - 50 - scRestartShotLength(SEQ.shots[2], { seed: 3, restart: 1, index: 2 }))).toBeLessThanOrEqual(0.11);
+  });
+
+  test("deterministic by seed (RNF-05); nothing before 1993 or without snapshot.sc", () => {
+    expect(runRestart({ seed: 11 })).toEqual(runRestart({ seed: 11 }));
+    expect(runRestart({ seed: 11 }).map((cut) => cut.t)).not.toEqual(runRestart({ seed: 12 }).map((cut) => cut.t));
+    expect(runRestart({ year: 1990 }).every((cut) => cut.key === null)).toBe(true);
+    expect(runRestart({ sc: () => null }).every((cut) => cut.key === null)).toBe(true);
+  });
+
+  test("directorState gives it as a script shot of the leader, below the start and finish scripts", () => {
+    let prev = null;
+    let seen = null;
+    for (let k = 0; k < 300; k += 1) {
+      const t = k / 10;
+      prev = directorState("c3", lineRows(10), [], RIG, { now: t, tau: t, prev, seed: 3, year: 2024, sc: scOf(t) });
+      if (t >= 20.5 && !seen) seen = prev;
+    }
+    expect(seen).toMatchObject({ shotKind: "script", cameraId: "rig:lateralTrack", camType: "rig", scRestartOn: true, subjectIds: ["c0"] });
+    expect(shotClassOf(seen)).toBe("pitSeq");
+  });
+
+  test("the train: the subject and the cars nose to tail with it, front first, at most maxCars, only in its phases", () => {
+    const train = broadcast.framing.train;
+    const rows = lineRows(10);
+    const framed = trainFraming(rows, "c3", { sc: { phase: "TRAIN", v: 38 }, lengthM: 5000 });
+    expect(framed).toEqual({ kind: "train", ids: ["c0", "c1", "c2", "c3"].slice(0, train.maxCars), share: train.trainShare });
+    expect(trainFraming(rows, "c8", { sc: { phase: "TRAIN", v: 38 }, lengthM: 5000 }).ids).toEqual(["c5", "c6", "c7", "c8"]);
+    // Without the lap length the interval and the safety car's speed give the gaps.
+    expect(trainFraming(rows, "c3", { sc: { phase: "TRAIN", v: 38 } }).ids).toEqual(["c0", "c1", "c2", "c3"]);
+    expect(trainFraming(rows, "c3", { sc: { phase: "TRAIN", v: 38 }, lengthM: 1e6 })).toBeNull();
+    expect(trainFraming(rows, "c3", { sc: { phase: "DEPLOYED", v: 38 }, lengthM: 5000 })).toBeNull();
+    expect(trainFraming(rows, "c3", { sc: null, lengthM: 5000 })).toBeNull();
+    const shot = directorState("c3", rows, [], RIG, { tau: 15, seed: 1, year: 2024, sc: scOf(15), lengthM: 5000 });
+    expect(shot.framing).toMatchObject({ kind: "train" });
+    expect(shot.framing.ids).toContain("c3");
+    expect(directorState("c3", rows, [], RIG, { tau: 15, seed: 1, year: 2024 }).framing).toBeUndefined();
+  });
+});
+
+describe("the start script: startLightsLow → startHigh (CAM-C3, VIEW-10)", () => {
+  const bahrain = circuitFor({ name: "Bahrain Grand Prix", circuit: "bahrain" }, 2024);
+  const zones = zonesFor(bahrain);
+  const OUT = 15.3;
+  const startOf = (t) => (t < 10 ? { phase: "grid", lights: 0, t } : t < OUT ? { phase: "lights", lights: Math.min(5, 1 + Math.floor(t - 10)), t } : { phase: "out", lights: 0, t: OUT });
+  const speed = 70;
+  const rowsAt = (t) => Array.from({ length: 6 }, (_, i) => ({ car: { id: `c${i}`, isUser: i === 3 }, position: i + 1, pose: { progress: (Math.max(0, t - OUT) * speed - 8 * i - 1) / zones.lengthM } }));
+  const run = (seed, { withZones = true } = {}) => {
+    let state = null;
+    const cuts = [];
+    for (let k = 0; k < 400; k += 1) {
+      const t = k / 10;
+      const start = startOf(t);
+      const tau = start.phase === "out" ? t - OUT : 0;
+      state = stepScript(state, { start, events: [], tau, seed, year: 2024, subjectId: "c3", rows: rowsAt(t), zones: withZones ? zones : undefined });
+      const key = state.active ? `${state.name}:${state.cam}` : "tv";
+      const last = cuts[cuts.length - 1];
+      if (!last || last.key !== key) cuts.push({ key, t });
+    }
+    return cuts;
+  };
+
+  test("the low lights shot from the first light to lights out plus holdShotSec, then the high shot until the leader brakes for T1", () => {
+    const cuts = run(5);
+    const low = cuts.find((cut) => cut.key === "start:startLightsLow");
+    expect(low.t).toBeCloseTo(10, 6);
+    const high = cuts.find((cut) => cut.key === "start:startHigh");
+    expect(high.t).toBeCloseTo(OUT + broadcast.sequences.start.holdShotSec, 6);
+    const after = cuts[cuts.indexOf(high) + 1];
+    const braking = zones.zones.find((zone) => zone.kind === "braking" && zone.fromM > 0);
+    const reach = OUT + (braking.fromM + 1) / speed;
+    const shot = broadcast.sequences.start.shots[1];
+    const expected = Math.min(Math.max(reach, high.t + shot.minSec), high.t + shot.maxSec);
+    expect(Math.abs(after.t - expected)).toBeLessThanOrEqual(0.11);
+    expect(after.key).toBe("start:rig:corner");
+  });
+
+  test("deterministic by seed: the same seed films the same start, another seed other lengths; without zones maxSec ends the high shot", () => {
+    expect(run(5)).toEqual(run(5));
+    expect(run(5).map((cut) => cut.t)).not.toEqual(run(6).map((cut) => cut.t));
+    const blind = run(5, { withZones: false });
+    const high = blind.find((cut) => cut.key === "start:startHigh");
+    const after = blind[blind.indexOf(high) + 1];
+    expect(after.t - high.t).toBeCloseTo(broadcast.sequences.start.shots[1].maxSec, 6);
+  });
+
+  test("untilFires: the hold after lights out and the braking zone", () => {
+    const out = { phase: "out", lights: 0, t: OUT };
+    expect(untilFires("start:out", { start: out, outAt: OUT, now: OUT + 0.5, hold: 1 })).toBe(false);
+    expect(untilFires("start:out", { start: out, outAt: OUT, now: OUT + 1, hold: 1 })).toBe(true);
+    expect(untilFires("start:out", { start: out, outAt: OUT, now: OUT, hold: null })).toBe(true);
+    expect(untilFires("start:out", { start: { phase: "lights", lights: 5, t: 14 }, outAt: null, now: 14, hold: 1 })).toBe(false);
+    const braking = zones.zones.find((zone) => zone.kind === "braking" && zone.fromM > 0);
+    const at = (m) => [{ car: { id: "c0" }, pose: { progress: m / zones.lengthM } }];
+    expect(untilFires("zone:braking", { rows: at(braking.fromM + 1), subjectId: "c0", zones })).toBe(true);
+    expect(untilFires("zone:braking", { rows: at(-5), subjectId: "c0", zones })).toBe(false);
+    expect(untilFires("zone:braking", { rows: at(braking.fromM + 1), subjectId: "c0" })).toBe(false);
   });
 });
