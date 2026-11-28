@@ -1219,8 +1219,9 @@ export const openDuel = (state, i, z, ahead, gapSec, behind, behindGap, { straig
   const entry = {
     t: round(sim.clock), lap, corner: zone.corner, attacker: attacker.id, defender: defender.id, chance: round(lineChance), drs, claim: third >= 0 ? 3 : 2,
     line: side === zone.sign ? "inside" : "outside", covered, overlap: round(overlap), alongside, crowd,
-    // SIM-C3: where the attempt was decided (on a DRS straight, or at the attack point).
-    ...(straight ? { at: "straight" } : {}),
+    // SIM-C3: where the attempt was decided (on a DRS straight, or at the attack point); not `at`, which the race
+    // worker stamps on every streamed row (engine/worker).
+    ...(straight ? { decided: "straight" } : {}),
   };
 
   // SIM-4: the attempt starts here (its outcome is already drawn; the events tell it as the road plays it out).
