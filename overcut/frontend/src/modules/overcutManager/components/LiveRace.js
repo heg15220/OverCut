@@ -80,6 +80,17 @@
  * key shows the rear T-cam until it is released, a new car to follow keeps the camera, and the optional map in fast
  * forward gives the camera back when the speed drops (live-view.json views.ring/mirror, fastForward). The radio
  * messages go to the sound with the side of their card.
+ *
+ * Start and race control in the wet (HUD-C3 of F1M24-CHINA: VIEW-10 and GS-12, the HUD parts): the HUD is hidden
+ * with the lights and fades in after lights out on the race clock, from the engine's start (hud.json start
+ * hiddenPhases, hudDelaySec, fadeSec; hudStart.js). Race control's messages are the engine's `control` events -
+ * the wet chain (change in conditions, wet track, slippery by sector, low grip) and DRS enabled/disabled with its
+ * reason - shown as banners in the engine's order and, what still holds, in the conditions header
+ * (hudRaceControl.js); with no such events nothing is said, and the view's own DRS rule speaks only until the
+ * engine does. The rubber shows the engine's five bands with word and tone. The sound gets snapshot.weather, the
+ * spray by car, each car's compound, the replay's phase and the safety car; Race3D gets the safety car, the
+ * director's shot on TV, the session, the weather, the spray and the camera bus (hooks of AUD-C-3/4, CAM-C3,
+ * LOOK-C3/C4).
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -119,7 +130,9 @@ import { FoldToggle, ImmersiveHost, ImmersiveToggle, useHudShell } from "./HudZo
 import { cardOpenOf, hudZonesOf, towerRowsShown, zoneStyleOf } from "./hudLayout";
 import { SC_HUD, scBannerOf, scInThisLap, scMapPose, scPhaseLabel, scPhaseOf, vscDeltaOf, vscDeltaText, vscEnding } from "./hudSafetyCar";
 import { lightsOutOf, procedureLimit, replayTimelineOf, startProcedureOf, startStateAt, startTimelineOf } from "./startLights";
-import { clockLabel, raceConditionsOf, raceStartOf } from "./hudConditions";
+import { clockLabel, frameWeatherOf, raceConditionsOf, raceStartOf } from "./hudConditions";
+import { controlBanners, engineHasDrsControl, raceControlLabel, raceControlState } from "./hudRaceControl";
+import { hudOpacityOf } from "./hudStart";
 import { REPLAY, createReplayBuffer, createReplayQueue, enqueueReplay, nextReplay, planReplay, replayFrameAt, replayPoseAt, replaySpan } from "./replay/replayBuffer";
 import ReplayOverlay from "./replay/ReplayOverlay";
 
@@ -399,6 +412,10 @@ function LiveStepRace({ args, onFinished, title }) {
           applyTick(mirror, view);
           // HUD-4 status-strip-data: the weather as the engine has it now (weatherNow: water, rubber, track).
           if (view.weather) mirror.weatherNow = view.weather;
+          // HUD-C3 (F1M24-CHINA §1.5 «Spray»): each car's spray when the worker sends it (absent today: the sound
+          // and the 3D view then read the water on the line, as before).
+          const spray = view.spray !== undefined ? view.spray : view.snapshot?.spray;
+          if (spray !== undefined) mirror.spray = Array.isArray(spray) ? spray : null;
           if (view.start) mirror.start = view.start;
           // HUD-5 (§1.7): snapshot.sc and snapshot.vsc when the engine sends them (SIM-5); null = none now.
           const sc = view.sc !== undefined ? view.sc : view.snapshot?.sc;
@@ -680,6 +697,9 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   const startTimeline = source.timeline();
   const startFromEvents = startTimeline.length || !source.liveStart() ? startStateAt(startTimeline, procedureClock.current, procedure) : { ...source.liveStart(), lamps: procedure ? procedure.spec.lights : 0 };
   const startNow = introDone.current ? { ...startFromEvents, phase: "out", lights: 0 } : startFromEvents;
+  // VIEW-10 (HUD-C3): the HUD is hidden with the lights and fades in after lights out, from the engine's
+  // start (its phase) and the race clock since lights out (hud.json start; hudStart.hudOpacityOf).
+  const hudFade = hudOpacityOf({ phase: startNow.phase, sinceOut: tau.current });
 
   const visibleEvents = current.events.filter((event) => source.eventTime(event, leader?.car.id) <= tau.current);
   // Duels the defender won (step race): a line in the commentary when the player's car
@@ -719,7 +739,25 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   let tvSubjectId = focusId;
   if (cameraMode === "tv") {
     // HUD-4 (start-finish-scripts, the hook): the race clock, the seed and the start for CAM-4's sequences.
-    const tv = tvShotOf({ focusId, rows, events: visibleEvents, battle: current.battle, cars: current.cars, prev: director.current, now: now() / 1000, tau: tau.current, seed: current.seed, start: startNow });
+    // HUD-C3 (hooks of CAM-5 and CAM-C3): the engine's safety car and the season for the SC sequences, the
+    // replay on air and your cars for the director's priorities (no camera lock: in the camera view the
+    // director is not consulted, the viewer's camera is the lock).
+    const tv = tvShotOf({
+      focusId,
+      rows,
+      events: visibleEvents,
+      battle: current.battle,
+      cars: current.cars,
+      prev: director.current,
+      now: now() / 1000,
+      tau: tau.current,
+      seed: current.seed,
+      start: startNow,
+      sc: source.safetyCar(tau.current),
+      year: current.year,
+      replay: replay ? { trigger: replay.plan.trigger, subjectId: replay.plan.subjectId ?? null, otherId: replay.plan.otherId ?? null } : null,
+      userIds: userCars.map((car) => car.id),
+    });
     director.current = tv.shot;
     if (tv.subjectId !== null) {
       tvSubjectId = tv.subjectId;
@@ -795,7 +833,13 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   // AUD-C3 (HUD-C2): the engineer's messages heard so far, each with its car and the side of its panel (your first card
   // on the left, the second on the right; hud.json layout) for the radio's pan (audio.json ui.radio, AUD-C-2).
   const audioRadio = radioForAudio(current.radio, (message) => source.radioTime(message) <= tau.current, userCars);
-  const audioContext = { playing, held: auto.held, done, cameraMode, tvSubjectId, wetness, events: visibleEvents, start: startNow, radio: audioRadio };
+  // HUD-C3 (hooks of AUD-C-3 / AUD-C-4, F1M24-CHINA §1.5 «Spray»): the engine's weather in the §1.5 shape (the
+  // worker's weatherNow renamed, nothing computed) and each car's spray when the worker sends it; absent, null.
+  const frameWeather = source.steps ? frameWeatherOf(current.weatherNow) : null;
+  // The engine's spray is by its car index; the sound and the 3D view get it by car id / in their own order.
+  const sprayById = source.steps && Array.isArray(current.spray) ? Object.fromEntries(current.cars.map((car, index) => [car.id, current.spray[index]]).filter(([, level]) => Number.isFinite(level))) : null;
+  const frameSpray = sprayById;
+  const audioContext = { playing, held: auto.held, done, cameraMode, tvSubjectId, wetness, events: visibleEvents, start: startNow, radio: audioRadio, weather: frameWeather, spray: frameSpray, sc: scNow ?? null, vsc: vscNow ?? null };
   audioPump.current = audio.enabled
     ? () => {
         const ctx = audioContext;
@@ -811,7 +855,8 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
           view: replayLive ? "replay" : null,
           mode: ctx.cameraMode,
           focusId: replayLive ? replayRef.current.plan.subjectId ?? ctx.tvSubjectId : ctx.tvSubjectId,
-          cars: live.map((row) => ({ id: row.car.id, teamId: row.car.teamId, pose: (replayLive && replayPoseAt(replayBuffer, row.car.id, at)) || row.pose })),
+          // HUD-C3 (AUD-C5): each car's compound for the colour of its spray's hiss.
+          cars: live.map((row) => ({ id: row.car.id, teamId: row.car.teamId, compound: row.car.compound ?? null, pose: (replayLive && replayPoseAt(replayBuffer, row.car.id, at)) || row.pose })),
           wetness: ctx.wetness,
           events: ctx.events,
           started: introDone.current,
@@ -819,6 +864,13 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
           start: ctx.start,
           // AUD-C3 (HUD-C2): the radio of the race, as it is heard (replays have their own mix).
           radio: replayLive ? undefined : ctx.radio,
+          // HUD-C3 (AUD-C5, AUD-C12, AUD-5): snapshot.weather and the spray by car id, the replay overlay's phase
+          // (stingIn / content / stingOut; absent without a replay) and the engine's safety car and VSC.
+          weather: ctx.weather,
+          spray: ctx.spray,
+          replayPhase: replayNow && replayNow.phase !== "done" ? replayNow.phase : undefined,
+          sc: ctx.sc,
+          vsc: ctx.vsc,
         });
       }
     : null;
@@ -867,6 +919,12 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
   // HUD-4 status-strip-data: the local time (the official start time is the formation lap's, so the clock
   // runs through the procedure), and air, track, water and rubber as the engine has them (hudConditions.js).
   const raceStart = useMemo(() => raceStartOf(current.race), [current.race]);
+  // HUD-C3 (hook of LOOK-C3): the session three/sky.js lights - the circuit, the day and the local start hour
+  // the strip already uses (pack, climate or fallback); absent fields = the site's own.
+  const raceSession = useMemo(
+    () => ({ circuitId: current.race?.circuitId ?? null, date: current.race?.date ?? null, startLocal: clockLabel(raceStart.startSec).slice(0, 5) }),
+    [current.race, raceStart],
+  );
   const clock = clockLabel(raceStart.startSec + procedureClock.current + Math.max(0, tau.current));
   const conditions = raceConditionsOf(current, Math.min(displayLap, current.laps), source.steps ? current.weatherNow : null);
   const trackTemp = conditions.trackC;
@@ -977,6 +1035,11 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     () => drsCalls(rulesOf(current.era, current.year), { laps: current.laps, wetness: current.weather.wetness, zones: current.track?.drs ?? 0, restartLap: current.restartLap || 0 }),
     [current.era, current.year, current.laps, current.weather.wetness, current.track, current.restartLap],
   );
+  // GS-12 / GS-08 (HUD-C3, F1M24-CHINA §1.5): race control's own messages from the engine (control events), in its
+  // order; once the engine announces DRS itself the view's rule (drsCalls) is quiet - one source.
+  const controlRules = rulesOf(current.era, current.year);
+  const engineDrs = engineHasDrsControl(current.events);
+  const raceControlNow = raceControlLabel(raceControlState(visibleEvents, tau.current, { rules: controlRules }));
   let banner = null;
   if (hudLive) {
     offerBanners(
@@ -985,7 +1048,8 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
         ...eventBanners({ events: visibleEvents, timeOf: (event) => event.at ?? source.eventTime(event, leaderId), positions, isUser: (id) => Boolean(byId[id]?.isUser) }),
         // VIEW-16 (HUD-C2): with the tower's countdown on, the laps to go are said there, not twice.
         ...(countdownReplacesBanners() ? [] : lapCallouts({ laps: current.laps, ends: leaderEnds })),
-        ...drsBanners(drsPlan, { ends: leaderEnds }),
+        ...(engineDrs ? [] : drsBanners(drsPlan, { ends: leaderEnds })),
+        ...controlBanners({ events: visibleEvents, rules: controlRules }),
       ],
       tau.current,
     );
@@ -1060,15 +1124,17 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
     <div
       ref={rootRef}
       className={`lv lv--race${in3D ? " is-3d" : ""}${replay ? " is-replay" : ""}${zoned ? " is-zoned" : ""}${shell.immersive ? " is-immersive" : ""}`}
-      style={zoneStyleOf(zones)}
+      style={{ ...zoneStyleOf(zones), "--hud-fade": String(Math.round(hudFade * 1000) / 1000) }}
       data-engine={source.kind}
       data-start={startNow.phase}
+      data-hud-fade={Math.round(hudFade * 1000) / 1000}
+      data-hud-hidden={hudFade <= 0 ? "" : undefined}
       data-sc={scPhase || undefined}
       data-clock-mode={clockMode}
       data-continuity={continuity.stats.corrected}
       data-testid="live-race"
     >
-      <StatusStrip flag={flag} clock={clock} airTemp={conditions.airC} rainChance={current.weather.forecast ?? 0} change={change} trackTemp={trackTemp} wetness={wetness} waterMm={conditions.waterMm} rubber={conditions.rubber} notes={[current.year, ...eraNotes].join(" · ")} />
+      <StatusStrip flag={flag} clock={clock} airTemp={conditions.airC} rainChance={current.weather.forecast ?? 0} change={change} trackTemp={trackTemp} wetness={wetness} waterMm={conditions.waterMm} rubber={conditions.rubber} rubberBand={conditions.rubberLevel ?? null} notes={[current.year, ...eraNotes].join(" · ")} raceControl={raceControlNow} />
 
       <div className="lv-stage">
         {in3D ? (
@@ -1090,6 +1156,15 @@ function RaceView({ source, onFinished, title = t("Carrera", "Race") }) {
               seed={current.seed}
               replayBuffer={replayBuffer}
               replay={replay ? { plan: replay.plan, clock: replayClock } : null}
+              // HUD-C3 (hooks of CAM-5, CAM-C3, LOOK-C3/C4): the engine's safety car (snapshot.sc), the director's
+              // shot on TV (scripts, SC sequences, framing), the session's place and hour for the sun, the engine's
+              // weather and spray (in `cars` order), and the camera bus the sound's ear sits on.
+              sc={scNow ?? null}
+              director={cameraMode === "tv" ? director.current : null}
+              session={raceSession}
+              weather={frameWeather}
+              spray={sprayById ? stageCars.map((item) => sprayById[item.car.id] ?? null) : null}
+              cameraBus={audio.cameraBus}
             />
           </React.Suspense>
         ) : (

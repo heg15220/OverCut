@@ -228,10 +228,15 @@ const degrees = (value) => (Number.isFinite(value) ? `${value.toFixed(0)} °C` :
  * HUD-4 status-strip-data: every value comes from the engine (components/hudConditions.js) - `waterMm`
  * the water on the racing line, `rubber` the engine's 0..1 - and the words from race-weather.json
  * display; a value the engine does not give shows as "—", never as a guess.
+ * HUD-C3 (GS-14, GS-12 the HUD part): the rubber among the engine's five bands (`rubberBand`, the engine's
+ * own band when it sends one) with its word and tone - a rhombus on the low ones, never colour alone
+ * (RNF-09) - and `raceControl`, the words of what race control has said that still holds (wet track,
+ * slippery sectors, low grip, DRS disabled; hudRaceControl.raceControlLabel), or nothing.
  */
-export const StatusStrip = ({ flag, clock, airTemp, rainChance, change, trackTemp, wetness = 0, waterMm = null, rubber = null, notes = null }) => {
+export const StatusStrip = ({ flag, clock, airTemp, rainChance, change, trackTemp, wetness = 0, waterMm = null, rubber = null, rubberBand = null, notes = null, raceControl = null }) => {
   const Sky = SKY_ICON[skyOf(wetness, rainChance)];
   const water = showsWater(wetness);
+  const rubberNow = rubberLevel(rubber, rubberBand);
   return (
   <div className="lv-status" data-flag={flag.kind} role="status" aria-label={t("Estado de la pista", "Track status")}>
     <div className="lv-status__top">
@@ -241,6 +246,11 @@ export const StatusStrip = ({ flag, clock, airTemp, rainChance, change, trackTem
       </span>
       <span className="lv-status__clock" data-testid="status-clock">{clock}</span>
     </div>
+    {raceControl && (
+      <p className="lv-status__rc" data-testid="race-control" aria-label={t("Dirección de carrera", "Race control")}>
+        <b>{t("Dirección de carrera", "Race control")}</b> {raceControl}
+      </p>
+    )}
     <dl className="lv-status__grid">
       <div title={t("Aire", "Air")}>
         <dt>
@@ -265,7 +275,10 @@ export const StatusStrip = ({ flag, clock, airTemp, rainChance, change, trackTem
       </div>
       <div>
         <dt>{t("Goma", "Rubber")}</dt>
-        <dd>{rubberLevel(rubber).label}</dd>
+        <dd className="lv-status__rubber" data-testid="rubber-level" data-level={rubberNow.id || undefined} data-tone={rubberNow.tone || undefined}>
+          {rubberNow.tone === "low" && <span className="lv-status__mark" aria-hidden="true">◆</span>}
+          {rubberNow.label}
+        </dd>
       </div>
       <div>
         <dt>{t("Agarre", "Grip")}</dt>

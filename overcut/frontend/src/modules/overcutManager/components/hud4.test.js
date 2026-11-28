@@ -177,9 +177,10 @@ describe("HUD-4 · conditions from the engine (status-strip-data, RF-SIM-11)", (
     expect(rubberLevel(null).label).toBe("—");
   });
 
-  it("the words come from race-weather.json display", () => {
+  it("the words come from race-weather.json (rubber.levels since HUD-C3, grip by display)", () => {
     expect(rubberLevel(0.1).id).toBe("veryLow");
-    expect(rubberLevel(0.9).id).toBe("high");
+    expect(rubberLevel(0.7).id).toBe("high");
+    expect(rubberLevel(0.9).id).toBe("veryHigh");
     expect(gripLevel(0.6, 0.9).id).toBe("veryLow");
     expect(gripLevel(0, 0.9).id).toBe("high");
     expect(gripLevel(0, null).id).toBe(WEATHER.display.gripBands.dryDefault);
