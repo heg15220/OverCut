@@ -140,8 +140,35 @@
         "crowd": {"$ref": "#/definitions/share"},
         "wind": {"$ref": "#/definitions/share"},
         "bed": {"$ref": "#/definitions/share"},
-        "lowpassHz": {"$ref": "#/definitions/positive"}
+        "lowpassHz": {"$ref": "#/definitions/positive"},
+        "rain": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["drops", "spray", "lowpassHz"],
+          "properties": {"drops": {"$ref": "#/definitions/share"}, "spray": {"$ref": "#/definitions/share"}, "lowpassHz": {"$ref": "#/definitions/positive"}}
+        }
       }
+    },
+    "pitShot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "hz", "attackSec", "durationSec", "gain"],
+      "properties": {
+        "type": {"enum": ["gun", "thump"]},
+        "hz": {"$ref": "#/definitions/positive"},
+        "endHz": {"$ref": "#/definitions/positive"},
+        "q": {"$ref": "#/definitions/positive"},
+        "rattleHz": {"$ref": "#/definitions/positive"},
+        "attackSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.05},
+        "durationSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "gain": {"$ref": "#/definitions/share"}
+      }
+    },
+    "sprayTone": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hz", "q", "gain"],
+      "properties": {"hz": {"$ref": "#/definitions/positive"}, "q": {"$ref": "#/definitions/positive"}, "gain": {"$ref": "#/definitions/share"}}
     },
     "viewSnapshot": {
       "type": "object",
@@ -601,7 +628,8 @@
             "$comment": {"type": "string"},
             "gain": {"$ref": "#/definitions/share"},
             "stripeM": {"$ref": "#/definitions/positive"},
-            "stripeStatus": {"enum": ["pending", "sourced"]},
+            "stripeStatus": {"enum": ["pending", "sourced", "measured"]},
+            "stripeSource": {"$ref": "#/definitions/text"},
             "reachM": {"$ref": "#/definitions/nonNegative"},
             "minKmh": {"$ref": "#/definitions/nonNegative"},
             "lowpassHz": {"$ref": "#/definitions/positive"},
@@ -612,14 +640,87 @@
         "rain": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["gain", "threshold", "hz", "q"],
-          "properties": {"gain": {"$ref": "#/definitions/share"}, "threshold": {"$ref": "#/definitions/share"}, "hz": {"$ref": "#/definitions/positive"}, "q": {"$ref": "#/definitions/positive"}}
+          "required": ["gain", "threshold", "drops", "spray"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "gain": {"$ref": "#/definitions/share"},
+            "threshold": {"$ref": "#/definitions/share"},
+            "drops": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "gain", "fullMmPerHour", "bandHz", "q", "tilt", "lowpassHz", "bedShare", "smoothingSec", "grains"],
+              "properties": {
+                "status": {"enum": ["NV", "pending", "measured"]},
+                "gain": {"$ref": "#/definitions/share"},
+                "fullMmPerHour": {"$ref": "#/definitions/positive"},
+                "fullSource": {"$ref": "#/definitions/text"},
+                "bandHz": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"$ref": "#/definitions/positive"}},
+                "q": {"$ref": "#/definitions/positive"},
+                "tilt": {"type": "object", "additionalProperties": false, "required": ["hz", "db"], "properties": {"hz": {"$ref": "#/definitions/positive"}, "db": {"type": "number", "minimum": -24, "maximum": 0}}},
+                "lowpassHz": {"$ref": "#/definitions/positive"},
+                "bedShare": {"$ref": "#/definitions/share"},
+                "smoothingSec": {"$ref": "#/definitions/positive"},
+                "grains": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["perSecAtFull", "durationSec", "gain", "maxPerFrame", "bufferSec"],
+                  "properties": {
+                    "perSecAtFull": {"$ref": "#/definitions/positive"},
+                    "durationSec": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.1}},
+                    "gain": {"$ref": "#/definitions/share"},
+                    "maxPerFrame": {"type": "integer", "minimum": 0, "maximum": 32},
+                    "bufferSec": {"$ref": "#/definitions/positive"}
+                  }
+                }
+              }
+            },
+            "spray": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "gain", "minKmh", "fullKmh", "smoothingSec", "byCompound"],
+              "properties": {
+                "status": {"enum": ["NV", "pending", "measured"]},
+                "gain": {"$ref": "#/definitions/share"},
+                "minKmh": {"$ref": "#/definitions/nonNegative"},
+                "fullKmh": {"$ref": "#/definitions/positive"},
+                "smoothingSec": {"$ref": "#/definitions/positive"},
+                "byCompound": {"type": "object", "additionalProperties": false, "required": ["default"], "properties": {"default": {"$ref": "#/definitions/sprayTone"}, "wet": {"$ref": "#/definitions/sprayTone"}, "intermediate": {"$ref": "#/definitions/sprayTone"}}},
+                "compoundStatus": {"enum": ["NV", "pending", "sourced"]},
+                "compoundNote": {"$ref": "#/definitions/text"}
+              }
+            }
+          }
         },
         "pit": {
           "type": "object",
           "additionalProperties": false,
           "required": ["airGunHz", "airGunGain", "airGunBandHz", "stages", "audibleMetres"],
-          "properties": {"airGunHz": {"$ref": "#/definitions/positive"}, "airGunGain": {"$ref": "#/definitions/share"}, "airGunBandHz": {"$ref": "#/definitions/positive"}, "stages": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/text"}}, "audibleMetres": {"$ref": "#/definitions/positive"}}
+          "properties": {
+            "$comment": {"type": "string"},
+            "airGunHz": {"$ref": "#/definitions/positive"},
+            "airGunGain": {"$ref": "#/definitions/share"},
+            "airGunBandHz": {"$ref": "#/definitions/positive"},
+            "stages": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/text"}},
+            "audibleMetres": {"$ref": "#/definitions/positive"},
+            "idleDb": {"type": "number", "minimum": -40, "maximum": 0},
+            "events": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "lookaheadSec", "staleSec", "exitWindowSec", "shots"],
+              "properties": {
+                "status": {"enum": ["NV", "pending", "measured"]},
+                "lookaheadSec": {"type": "number", "minimum": 0, "maximum": 2},
+                "staleSec": {"type": "number", "minimum": 0, "maximum": 5},
+                "exitWindowSec": {"$ref": "#/definitions/positive"},
+                "shots": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["gunOff", "gunOn", "jackUp", "jackDown", "release"],
+                  "properties": {"gunOff": {"$ref": "#/definitions/pitShot"}, "gunOn": {"$ref": "#/definitions/pitShot"}, "jackUp": {"$ref": "#/definitions/pitShot"}, "jackDown": {"$ref": "#/definitions/pitShot"}, "release": {"$ref": "#/definitions/pitShot"}}
+                }
+              }
+            }
+          }
         },
         "squeal": {
           "type": "object",

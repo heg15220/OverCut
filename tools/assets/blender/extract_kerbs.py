@@ -21,10 +21,18 @@ extract_pitlane.py con la pintura):
 4. Los metros se unen en tramos: huecos de hasta `MAX_GAP_M` (el blanco entre dos franjas rojas) no cortan, y un
    tramo de menos de `MIN_RUN_M` se descarta (una línea de boxes, un logotipo).
 
-Salida: `{generator, splineId, frame, lengthM, kerbs: [{fromM, toM, side, edgeM}]}`. `fromM`/`toM` son metros a lo
-largo de la spline desde la meta (el lector los pasa a fracción de vuelta con `lengthM`); `side` es "left" o
-"right" del sentido de carrera, y `edgeM` la mediana de la distancia del borde pintado a la spline en el tramo.
-No se escribe en trackTables.js: lo lee three/audio/kerbs.js.
+5. (v2, AUD-C8 de docs/manager/F1M24-CHINA.md §2.7) El paso de los resaltes: por cada piano, una línea de
+   muestras cada `FINE_M` m a lo largo del tramo (como mucho `STRIPE_MAX_M` m) en las dos bandas más pintadas, con
+   un render más fino (`--fine-px`, `--fine-tile`). La señal pintado/no pintado se autocorrelaciona entre
+   `STRIPE_LAGS` m y el retardo del pico es el periodo rojo+blanco; `stripeM` es medio periodo, la longitud de una
+   franja (cada franja es un bloque del piano: es la suposición que deja `stripeBasis: "paint"`). Un piano sin
+   periodo claro (pico < `STRIPE_MIN_PEAK` de la autocorrelación en 0, o pintado entero) deja `stripeM: null`. El
+   valor del circuito es la mediana ponderada por longitud de los pianos medidos.
+
+Salida: `{generator, splineId, frame, lengthM, stripeM, stripeStatus, stripe, kerbs: [{fromM, toM, side, edgeM,
+stripeM}]}`. `fromM`/`toM` son metros a lo largo de la spline desde la meta (el lector los pasa a fracción de vuelta
+con `lengthM`); `side` es "left" o "right" del sentido de carrera, y `edgeM` la mediana de la distancia del borde
+pintado a la spline en el tramo. No se escribe en trackTables.js: lo lee three/audio/kerbs.js.
 """
 
 import json
@@ -38,8 +46,13 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(__file__))
 from common import import_glb, log, script_args, write_json  # noqa: E402
 
-VERSION = 1
+VERSION = 2
 STEP = 2.0             # m entre puntos de la spline alineada
+FINE_M = 0.05          # m entre muestras a lo largo de un piano para el paso de los resaltes (v2)
+STRIPE_MAX_M = 40.0    # m de cada piano que se muestrean para el paso
+STRIPE_LAGS = (0.4, 6.0)  # m: periodos rojo+blanco que se buscan
+STRIPE_MIN_PEAK = 0.3  # pico mínimo de la autocorrelación normalizada para aceptar un periodo
+STRIPE_MIN_M = 8.0     # m mínimos de un piano para medir su paso
 ROW = 1.0              # m entre filas de muestras
 BAND = (-0.25, 0.25, 0.75, 1.25, 1.75)  # m fuera del borde pintado
 MIN_HITS = 2           # muestras pintadas de una fila para contarla como piano
@@ -54,7 +67,7 @@ def parse():
     if len(args) < 4:
         raise SystemExit(__doc__)
     source, spline_path, widths_path, target = (os.path.abspath(a) for a in args[:4])
-    options = {"debug": None, "px": 0.2, "tile": 400.0}
+    options = {"debug": None, "px": 0.2, "tile": 400.0, "fine-px": 0.04, "fine-tile": 80.0}
     i = 4
     while i < len(args):
         key = args[i].lstrip("-")
@@ -187,6 +200,52 @@ def runs_of(mask, n_rows):
     return [(a, b) for a, b in out if ((b - a) % n_rows + 1) * ROW >= MIN_RUN_M]
 
 
+def stripe_lines(rows, span, side, bands):
+    """xy de las muestras finas de un piano: [banda, muestra], cada FINE_M m desde la fila span[0]."""
+    n_rows = len(rows)
+    length = min(len(span) * ROW, STRIPE_MAX_M)
+    count = int(length / FINE_M)
+    out = np.zeros((len(bands), count, 2))
+    for k in range(count):
+        along = k * FINE_M / ROW
+        r0 = span[0] + int(along)
+        f = along - int(along)
+        a, b = rows[r0 % n_rows], rows[(r0 + 1) % n_rows]
+        p = a[0] * (1 - f) + b[0] * f
+        nv = a[1] * (1 - f) + b[1] * f
+        nv = nv / max(np.linalg.norm(nv), 1e-9)
+        edge = (a[2 + side] * (1 - f) + b[2 + side] * f)
+        for j, band in enumerate(bands):
+            o = edge + BAND[band]
+            out[j, k] = p + nv * o if side == 0 else p - nv * o
+    return out
+
+
+def stripe_period(signal):
+    """Periodo rojo+blanco (m) de una señal pintado/no pintado cada FINE_M m, y la altura de su pico; (None, pico) sin periodo."""
+    x = signal.astype(np.float64)
+    if x.size < 2 * STRIPE_LAGS[1] / FINE_M:
+        return None, 0.0
+    x = x - x.mean()
+    zero = float(np.dot(x, x))
+    if zero <= 1e-9:
+        return None, 0.0  # pintado entero o nada pintado: sin franjas
+    lo, hi = int(STRIPE_LAGS[0] / FINE_M), int(STRIPE_LAGS[1] / FINE_M)
+    ac = np.array([np.dot(x[:-lag], x[lag:]) / zero for lag in range(lo, hi + 1)])
+    # El primer máximo local por encima del umbral (no el mayor: un múltiplo del periodo puede empatar).
+    for k in range(1, len(ac) - 1):
+        if ac[k] >= STRIPE_MIN_PEAK and ac[k] >= ac[k - 1] and ac[k] >= ac[k + 1]:
+            return (lo + k) * FINE_M, float(ac[k])
+    return None, float(ac.max()) if ac.size else 0.0
+
+
+def weighted_median(values, weights):
+    order = np.argsort(values)
+    v, w = np.asarray(values)[order], np.asarray(weights)[order]
+    cum = np.cumsum(w)
+    return float(v[np.searchsorted(cum, cum[-1] / 2)])
+
+
 def main():
     source, spline_path, widths_path, target, options = parse()
     with open(spline_path, encoding="utf-8") as handle:
@@ -198,14 +257,56 @@ def main():
     xy = samples_of(rows)
     flat = xy.reshape(-1, 2)
     rgb = render_tiles(flat, options["tile"], options["px"], os.path.dirname(target)).reshape(len(rows), 2, len(BAND), 3)
-    hits = painted(rgb).sum(axis=2) >= MIN_HITS
+    paint = painted(rgb)
+    hits = paint.sum(axis=2) >= MIN_HITS
     kerbs = []
+    spans = []
     for side, name in ((0, "left"), (1, "right")):
         for a, b in runs_of(hits[:, side], len(rows)):
             span = [(a + k) % len(rows) for k in range((b - a) % len(rows) + 1)]
             edge = float(np.median([rows[r][2 + side] for r in span]))
-            kerbs.append({"fromM": round(a * ROW, 1), "toM": round((b + 1) * ROW, 1), "side": name, "edgeM": round(edge, 2)})
+            kerbs.append({"fromM": round(a * ROW, 1), "toM": round((b + 1) * ROW, 1), "side": name, "edgeM": round(edge, 2), "stripeM": None})
+            spans.append((len(kerbs) - 1, span, side))
+    # v2: el paso de los resaltes, con un render más fino de una línea a lo largo de cada piano.
+    lines, owners = [], []
+    for index, span, side in spans:
+        if len(span) * ROW < STRIPE_MIN_M:
+            continue
+        counts = paint[span, side, :].sum(axis=0)
+        bands = [int(b) for b in np.argsort(-counts)[:2]]
+        xy_line = stripe_lines(rows, span, side, bands)
+        lines.append(xy_line.reshape(-1, 2))
+        owners.append((index, xy_line.shape))
+    peaks = []
+    if lines:
+        flat_fine = np.concatenate(lines)
+        colours = render_tiles(flat_fine, options["fine-tile"], options["fine-px"], os.path.dirname(target))
+        at = 0
+        for index, shape in owners:
+            size = shape[0] * shape[1]
+            signal = painted(colours[at:at + size]).reshape(shape[0], shape[1])
+            at += size
+            best = (None, 0.0)
+            for row in signal:
+                period, peak = stripe_period(row)
+                if period is not None and peak > best[1]:
+                    best = (period, peak)
+            if best[0] is not None:
+                kerbs[index]["stripeM"] = round(best[0] / 2, 2)
+                peaks.append(best[1])
     kerbs.sort(key=lambda k: (k["fromM"], k["side"]))
+    measured = [k for k in kerbs if k["stripeM"]]
+    length_of = lambda k: ((k["toM"] - k["fromM"]) % (spline.get("lengthM") or 1e9)) or k["toM"]
+    stripe_m = round(weighted_median([k["stripeM"] for k in measured], [length_of(k) for k in measured]), 2) if measured else None
+    stripe = {
+        "basis": "paint",
+        "kerbsMeasured": len(measured),
+        "kerbs": len(kerbs),
+        "p25": round(float(np.percentile([k["stripeM"] for k in measured], 25)), 2) if measured else None,
+        "p75": round(float(np.percentile([k["stripeM"] for k in measured], 75)), 2) if measured else None,
+        "meanPeak": round(float(np.mean(peaks)), 3) if peaks else None,
+        "finePx": options["fine-px"],
+    }
     sid = os.path.splitext(os.path.basename(spline_path))[0]
     length = float(spline.get("lengthM") or len(spline["points"]) * STEP)
     total = sum(((k["toM"] - k["fromM"]) % length) or length for k in kerbs)
@@ -216,6 +317,9 @@ def main():
         "source": os.path.basename(source),
         "frame": "spline: metros desde la meta en el sentido de carrera; side left/right del sentido de carrera",
         "lengthM": round(length, 1),
+        "stripeM": stripe_m,
+        "stripeStatus": "measured" if stripe_m else "pending",
+        "stripe": stripe,
         "kerbs": kerbs,
         "quality": {"rows": len(rows), "kerbRows": {"left": int(hits[:, 0].sum()), "right": int(hits[:, 1].sum())}, "kerbMetres": round(total, 1)},
     }
