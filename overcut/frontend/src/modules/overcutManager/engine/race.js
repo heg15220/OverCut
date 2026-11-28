@@ -1386,6 +1386,9 @@ export const beginLapWorld = (state, lap) => {
   if (weatherClass(previousWetness) !== climate && lap > 1) {
     pushEvent(state, { type: wetness > previousWetness ? "rain" : "drying", wetness }, lap);
   }
+  // SIM-C4 (GS-12, §1.5): race control's wet chain and the DRS messages of this lap.
+  wetControlStep(state, lap);
+  drsControlStep(state, lap);
 };
 
 /** KERS (RF-SIM-05): the deploy budget is restored at the line every lap. */
@@ -2528,7 +2531,7 @@ const resolveTraffic = (state, running, beforeIndex, stream, wetness) => {
   const profile = state.race.profile;
   const baseLap = state.race.baseLap;
   const zones = state.track?.drs ?? 1;
-  const drsLap = drsOpen(rules, { lap: state.lap, wetness, zones, restartLap: state.restartLap || 0 });
+  const drsLap = drsOpen(rules, { lap: state.lap, wetness, zones, restartLap: state.restartLap || 0, wetTrack: wetDrsClosed(state, state.lap) });
   const drsBonus = drsBonusFor(rules, zones);
   const yellow = Boolean(state.yellow && state.yellow.lap === state.lap);
   const ordered = [...running].filter((car) => car.status === "running").sort((a, b) => (beforeIndex[a.id] ?? 99) - (beforeIndex[b.id] ?? 99));
@@ -2667,7 +2670,13 @@ export const radioFor = (state, car, wetness, lap = state.lap) => {
     pushRadio(state, car, "sc-window", {}, lap);
   }
   const zones = state.track?.drs ?? 0;
-  if (drsOpen(rules, { lap: lap + 1, wetness, zones, restartLap: state.restartLap || 0, gapAhead: car.gapAhead })) pushRadio(state, car, "drs", {}, lap);
+  if (drsOpen(rules, { lap: lap + 1, wetness, zones, restartLap: state.restartLap || 0, gapAhead: car.gapAhead, wetTrack: wetDrsClosed(state, lap + 1) })) pushRadio(state, car, "drs", {}, lap);
+  // SIM-C4 (GS-11, race-sim.json radio.spray): the spray of the car ahead costs time - the engineer says so and, if
+  // the driver is not on it, offers the clean-air order (RF-CMD-01).
+  const sprayLoss = state.safetyCar || lap < 1 ? 0 : sprayLossOf(depthOfWetness(wetness), car.gapAhead);
+  if (sprayLoss >= simBalance.radio.spray.minLossSecPerLap) {
+    pushRadio(state, car, "spray", { loss: round1(sprayLoss), cleanAir: !(car.tactics && car.tactics.cleanAir) }, lap, simBalance.radio.spray.cooldownLaps);
+  }
   if (rules.energy.overtakeMode && car.battery !== null && car.gapAhead !== null && car.gapAhead < rules.energy.balance.overtakeGap && car.ersMode !== "overtake") {
     pushRadio(state, car, "overtake", {}, lap);
   }
