@@ -292,6 +292,70 @@ export const lapDeployOf = ({ rules, spec, plan, mode, battery }) => {
  */
 export const referenceDeployOf = ({ rules, spec, plan }) => (rules.energy.kers ? 0 : lapDeployOf({ rules, spec, plan, mode: "balanced", battery: 100 }));
 
+// ------------------------------------------------------- end of race tactics
+
+/** SIM-C5 / GS-09 (RNF-07): the rival pit walls' end-of-race tactics (race-energy.json tactics). */
+export const TACTICS_ENERGY = data.tactics;
+
+/**
+ * RF-SIM-04 (GS-09): the fuel (kg) a car must still have at the flag in `year`: the FIA's fuel
+ * sample (tactics.fuelSpendToTarget reserveLitres, or an era's own `litres`) at the fuel's density.
+ */
+export const fuelReserveKgOf = (year = 2020, cfg = data.tactics.fuelSpendToTarget) => {
+  const era = cfg.reserveEras.find((row) => year >= row.from && year <= row.to);
+  const litres = era && Number.isFinite(era.litres) ? era.litres : cfg.reserveLitres;
+  return litres * data.fuel.densityKgL;
+};
+
+/**
+ * RF-SIM-04 / RF-SIM-13 (GS-09, tactics.fuelSpendToTarget): the mix a car outside refuelling runs on
+ * the lap about to start. All in laps of fuel (the race's ledger, race.js car.fuel):
+ *   fuel       on board now;  remaining  laps still to run, this one included;
+ *   reserve    what must be left at the flag;  lapBurn  this lap's burn on the standard mix (the
+ *              pace mode and a safety car on it); `mixes` race-eras.json fuel.mixes.
+ * The delta is what is on board over the remaining laps on the standard mix plus the reserve.
+ * Short of it: lean. Over it, inside the last `laps` laps (or earlier when the window could not
+ * burn it all on the rich mix): the mix that leaves the delta after this lap closest to zero, so it
+ * reaches the flag within half the difference between two mixes. Pure (no draws, RF-SIM-15).
+ * Returns { mix, delta } (delta before the lap, laps of fuel).
+ */
+export const fuelSpendMixOf = ({ fuel, remaining, reserve, lapBurn = 1, paceBurn = 1, lapsRun = Infinity, mixes, cfg = data.tactics.fuelSpendToTarget }) => {
+  // The laps after this one at the pace the car runs now (`paceBurn`, its pace mode; no safety car).
+  const delta = fuel - lapBurn - (remaining - 1) * paceBurn - reserve;
+  if (delta < 0) return { mix: "lean", delta };
+  const richExtra = (mixes.rich.burn - 1) * lapBurn;
+  if (remaining <= cfg.laps) return { mix: Math.abs(delta - richExtra) < Math.abs(delta) ? "rich" : "standard", delta };
+  // The opening `holdLaps` laps keep what the car started with (the wall reads the race's real burn
+  // first): the standard mix.
+  if (lapsRun < cfg.holdLaps) return { mix: "standard", delta };
+  // Before the window, only what the window could not burn (at `windowShare` of the rich mix's extra:
+  // a pace that saves its tyres burns less of it), once it is a whole lap of the rich mix's extra
+  // over that line (no flicker between mixes).
+  const line = (mixes.rich.burn - 1) * paceBurn * cfg.laps * cfg.windowShare;
+  return { mix: delta - line >= richExtra ? "rich" : "standard", delta };
+};
+
+/**
+ * RF-SIM-05 (GS-09, tactics.ersEndgame): the energy mode of a hybrid (ERS, 2014-) in the last laps,
+ * or null when the endgame does not apply (earlier in the race, KERS, no store). With a rival close
+ * ahead or behind, the store is spent whatever is left above `fightFloorPct` (2026: the overtake mode
+ * when attacking); without one, only above `quietMinPct`. Pure.
+ */
+export const ersEndgameModeOf = (rules, car, remaining, cfg = data.tactics.ersEndgame) => {
+  if (!rules.energy || rules.energy.kers || car.battery === null || car.battery === undefined || remaining > cfg.laps) return null;
+  const modes = rules.energy.modes || [];
+  if (!modes.includes("deploy")) return null;
+  const attacking = car.gapAhead !== null && car.gapAhead !== undefined && car.gapAhead < cfg.fightAheadSec;
+  const defending = car.gapBehind !== null && car.gapBehind !== undefined && car.gapBehind < cfg.fightBehindSec;
+  if (attacking || defending) {
+    if (!(car.battery > cfg.fightFloorPct)) return null;
+    // 2026: the overtake mode only where the rules give it (within the era's gap of the car ahead).
+    const overtakeGap = rules.energy.balance?.overtakeGap ?? cfg.fightAheadSec;
+    return attacking && rules.energy.overtakeMode && modes.includes("overtake") && car.gapAhead < overtakeGap ? "overtake" : "deploy";
+  }
+  return car.battery > cfg.quietMinPct ? "deploy" : null;
+};
+
 // ------------------------------------------------------------ battle assist
 
 /**

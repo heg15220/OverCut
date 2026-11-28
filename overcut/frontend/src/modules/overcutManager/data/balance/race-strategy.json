@@ -1,0 +1,26 @@
+{
+  "$comment": "RNF-07: estrategia de los rivales bajo neutralización (SIM-C5 / GS-09, docs/manager/F1M24-CHINA.md §2.2; RF-SIM-13, RF-SIM-12). Lo lee engine/race.js pitDecision (los dos modos, SRS 4.2) y lo comprueba engine/sim/energyFuel.test.js con el esquema engine/packs/schema/race-strategy.schema.json. La pérdida en boxes en verde y bajo SC/VSC no está aquí: el estratega la lee de engine/sim/pitLane.js previewPit (una sola definición, F1M24-CHINA §1.5) y race-pit.json. V = verificado, S = fuente secundaria, M = medido, NV = inferido.",
+  "version": 1,
+  "scStop": {
+    "$comment": "Parada barata bajo SC/VSC fuera del repostaje y donde se cambian neumáticos. Un coche de la IA con la siguiente parada del plan a windowLaps vueltas o menos la adelanta si lo que ahorra (previewPit lossGreen − lossSc, o lossVsc bajo VSC) supera earlyLapCostSec por cada vuelta que adelanta, y si el último juego llega a la bandera. La decisión se tira una vez por neutralización y coche (stream de la carrera), con probabilidad takeChance + (estratega − 50) / 100 × strategistSlope, recortada a [minChance, maxChance].",
+    "windowLaps": 15,
+    "windowSource": "Criterio de aceptación de GS-09 (F1M24-CHINA §3.1: coches con la ventana a ≤ 15 vueltas)",
+    "takeChance": 0.75,
+    "takeStatus": "M",
+    "takeSource": "M: OpenF1 2023-2024 (race_control categoría SafetyCar y stints, 14 carreras con SC completo, sesiones de carrera de api.openf1.org/v1/sessions): de los coches cuya siguiente parada cayó bajo el SC o en las 15 vueltas siguientes, 112 de 161 (0,70) pararon bajo el SC; con el neumático de 15 vueltas o más, 51 de 61 (0,84). Sesgo: los que paran bajo el SC entran por definición en la ventana. 0,75 deja la cuota simulada (con la puerta de ahorro y de neumático, que quita algunos) en el 0,70 medido",
+    "strategistSlope": 0.3,
+    "minChance": 0.4,
+    "maxChance": 0.95,
+    "chanceStatus": "pending",
+    "chanceNote": "NV: cuánto cambia la decisión con el estratega (y sus cotas) no tiene fuente; antes el código usaba 0,35 + estratega/120 por vuelta en [0,3; 0,95] con ventana de 9 vueltas",
+    "earlyLapCostSec": 0.4,
+    "earlyLapStatus": "pending",
+    "earlyLapNote": "NV: lo que cuesta cada vuelta que se adelanta la parada (el último juego hace esas vueltas de más); del orden de la degradación por vuelta de Pirelli 2013-2024 (0,03-0,1 s por vuelta de edad) sumada en el tramo. Pendiente de medir con OpenF1 laps",
+    "minTyreAge": 5,
+    "minTyreAgeStatus": "pending",
+    "minTyreAgeNote": "NV: vueltas que debe llevar el juego montado para adelantar la parada bajo el SC (un SC en las primeras vueltas no se aprovecha para la parada del plan; las paradas de la vuelta 1-3 por daños van por otra rama). La medida de OpenF1 apunta en esa dirección (con el neumático de 15 vueltas o más paran 0,84; el resto, 61 de 100) pero no fija la cota; pendiente de medir con stints por edad",
+    "virtual": true,
+    "virtualStatus": "pending",
+    "virtualNote": "Bajo VSC se aplica la misma regla con lossVsc (el ahorro es menor y la puerta de ahorro corta antes). La cuota medida es solo de SC completo; la del VSC queda pendiente de medir"
+  }
+}

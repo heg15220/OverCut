@@ -163,7 +163,10 @@ describe("HUD-5 · a real quick race with a safety car", () => {
       const state = createRace({ ...args, seed: `${args.seed}-hud5-${k}` });
       runToFinish(state);
       const deployed = state.events.findIndex((event) => event.type === "sc");
-      if (deployed >= 0 && state.events.slice(deployed).some((event) => event.type === "sc-in" && !event.virtual)) return state;
+      // The live check below steps to the first neutralisation the flag names: a VSC before the SC
+      // would be that one (a race that has both is not what it measures).
+      const vscFirst = state.events.slice(0, Math.max(0, deployed)).some((event) => event.type === "vsc");
+      if (deployed >= 0 && !vscFirst && state.events.slice(deployed).some((event) => event.type === "sc-in" && !event.virtual)) return state;
     }
     return null;
   };

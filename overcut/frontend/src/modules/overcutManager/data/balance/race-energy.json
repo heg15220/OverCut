@@ -137,5 +137,33 @@
     "minDeployShare": 0.03,
     "mixFlow": { "lean": 0.95, "standard": 1, "rich": 1.07 },
     "brakeHarvestMinG": 0.5
+  },
+  "tactics": {
+    "$comment": "SIM-C5 / GS-09 (docs/manager/F1M24-CHINA.md §2.2; RF-SIM-04, RF-SIM-05, RF-SIM-13): cómo gasta el muro de los rivales lo que lleva de más (engine/energy.js fuelSpendMixOf, ersEndgameModeOf; los dos modos, SRS 4.2). Del juego solo la idea (el delta de combustible que sube con el SC y se lleva a ~0 en la bandera; el ERS que se vacía en la última vuelta de duelo), ningún valor suyo.",
+    "fuelSpendToTarget": {
+      "$comment": "Fuera del repostaje. El objetivo en la bandera es la reserva de la muestra de combustible que exige la FIA (reserveLitres × fuel.densityKgL); el delta es lo que lleva el coche por encima de las vueltas que faltan más esa reserva. Con delta positivo la mezcla rica lo quema en las últimas `laps` vueltas (antes, si no cabe en ellas); en cada vuelta se elige la mezcla que deja el delta más cerca de 0, así que en la bandera queda a menos de media vuelta de diferencia entre mezclas. Con delta negativo, la mezcla pobre (y el ritmo de ahorro si no basta), como antes.",
+      "reserveLitres": 1,
+      "reserveEras": [
+        {"from": 1950, "to": 2009, "status": "pending", "source": "NV: no se ha leído el reglamento técnico de esos años; se usa la misma reserva que desde 2010. En 1994-2009 hay repostaje y la regla no se aplica (rules.js refuelling)"},
+        {"from": 2010, "to": 2100, "status": "S", "source": "S: 'Competitors must ensure that a one litre sample of fuel may be taken from the car at any time during the Event' (F1 Technical Regulations art. 6.6.2); casos que la aplican: exclusión de Hamilton en la clasificación de Barcelona 2012 y descalificación de Vettel en Hungría 2021 por no llevar el litro (https://en.wikipedia.org/wiki/2021_Hungarian_Grand_Prix; https://en.wikipedia.org/wiki/2012_Spanish_Grand_Prix). Texto del artículo pendiente de leer en la edición de cada año"}
+      ],
+      "laps": 15,
+      "windowShare": 0.5,
+      "holdLaps": 10,
+      "holdStatus": "pending",
+      "holdNote": "NV: vueltas del principio en que el coche guarda el margen con que salió (fuel.margin) con la mezcla estándar: el muro lee primero el consumo real de la carrera antes de quemar nada (y la vuelta de salida y las primeras van con el depósito lleno). Sin fuente pública; antes de SIM-C5 los rivales nunca iban con la mezcla rica fuera de las 15 últimas vueltas. Con 0 el margen se quemaba desde la vuelta 1 y las vueltas de banco de PT-2/PT-C1 (vueltas 2-8, speeds.test.js) salían con la mezcla rica",
+      "lapsStatus": "pending",
+      "lapsNote": "NV: diseño del plan (F1M24-CHINA §2.2 GS-09, 'el delta se gasta en las últimas N vueltas'); sin fuente pública del reparto real del gasto. 15 vueltas con la mezcla rica (race-eras.json fuel.mixes.rich.burn 1,07) queman ~1 vuelta de combustible, lo que deja de quemar un SC de 3 vueltas (scBurn 0,62). windowShare (NV): antes de la ventana solo se quema lo que ella no podría, contando la mitad del extra de la mezcla rica (un ritmo que cuida neumáticos, save 0,97, quema menos). Límite físico: lo que la mezcla rica no alcanza a quemar en las vueltas que quedan (un SC tardío o dos SC) llega a la bandera; ver F1M24-CHINA §3.3 SIM-C5"
+    },
+    "ersEndgame": {
+      "$comment": "ERS 2014-2026 (con KERS el presupuesto vuelve cada vuelta y race.js ya lo gasta entero). En las últimas `laps` vueltas, con un rival a menos de fightAheadSec delante o fightBehindSec detrás en la línea, el coche despliega aunque la batería esté baja (lo que quede ya no sirve para nada), hasta fightFloorPct; sin duelo despliega si le queda más de quietMinPct. 2026: atacando, el modo adelantamiento. El despliegue sigue dentro de los límites de la era (energyStep, lapDeployOf).",
+      "laps": 2,
+      "fightAheadSec": 1,
+      "fightBehindSec": 0.8,
+      "fightFloorPct": 0,
+      "quietMinPct": 15,
+      "status": "pending",
+      "source": "NV: 2 vueltas, 1 s y 0,8 s, 15 % son los umbrales que ya tenía race.js rivalCalls (ahora en datos, RNF-07). La idea (batería al 2-6 % en la última vuelta de duelo) es de la observación del juego (F1M24-CHINA §2.2, race-b §2), no una medida real; pendiente de contrastar con el estado de carga de OpenF1 si se publica"
+    }
   }
 }

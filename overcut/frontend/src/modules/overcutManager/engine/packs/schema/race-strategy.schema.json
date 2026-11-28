@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "RNF-07: esquema de data/balance/race-strategy.json (estrategia bajo SC/VSC, SIM-C5 / GS-09; RF-SIM-13, RF-SIM-12). Lo comprueba engine/sim/energyFuel.test.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "scStop"],
+  "definitions": {
+    "text": {"type": "string", "minLength": 1},
+    "status": {"enum": ["V", "S", "M", "NV", "pending"]},
+    "share": {"type": "number", "minimum": 0, "maximum": 1}
+  },
+  "properties": {
+    "$comment": {"type": "string"},
+    "version": {"const": 1},
+    "scStop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["windowLaps", "windowSource", "takeChance", "takeStatus", "takeSource", "strategistSlope", "minChance", "maxChance", "chanceStatus", "chanceNote", "earlyLapCostSec", "earlyLapStatus", "earlyLapNote", "minTyreAge", "minTyreAgeStatus", "minTyreAgeNote", "virtual", "virtualStatus", "virtualNote"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "windowLaps": {"type": "integer", "minimum": 1, "maximum": 40},
+        "windowSource": {"$ref": "#/definitions/text"},
+        "takeChance": {"$ref": "#/definitions/share"},
+        "takeStatus": {"$ref": "#/definitions/status"},
+        "takeSource": {"$ref": "#/definitions/text"},
+        "strategistSlope": {"type": "number", "minimum": 0, "maximum": 2},
+        "minChance": {"$ref": "#/definitions/share"},
+        "maxChance": {"$ref": "#/definitions/share"},
+        "chanceStatus": {"$ref": "#/definitions/status"},
+        "chanceNote": {"$ref": "#/definitions/text"},
+        "earlyLapCostSec": {"type": "number", "minimum": 0, "maximum": 5},
+        "earlyLapStatus": {"$ref": "#/definitions/status"},
+        "earlyLapNote": {"$ref": "#/definitions/text"},
+        "minTyreAge": {"type": "integer", "minimum": 0, "maximum": 30},
+        "minTyreAgeStatus": {"$ref": "#/definitions/status"},
+        "minTyreAgeNote": {"$ref": "#/definitions/text"},
+        "virtual": {"type": "boolean"},
+        "virtualStatus": {"$ref": "#/definitions/status"},
+        "virtualNote": {"$ref": "#/definitions/text"}
+      }
+    }
+  }
+}
