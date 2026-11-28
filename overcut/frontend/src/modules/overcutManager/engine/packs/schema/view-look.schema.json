@@ -41,6 +41,12 @@
         "autoExposure": { "type": "boolean" }
       }
     },
+    "byQuality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["low", "medium", "high"],
+      "properties": { "low": { "type": "integer", "minimum": 0 }, "medium": { "type": "integer", "minimum": 0 }, "high": { "type": "integer", "minimum": 0 } }
+    },
     "eraFlag": {
       "type": "object",
       "additionalProperties": false,
@@ -60,7 +66,7 @@
     "sky": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["$comment", "status", "timezone", "refraction", "northDegByLayout", "cloudByState", "sun", "hemi", "shadow", "dome"],
+      "required": ["$comment", "status", "timezone", "session", "refraction", "northDegByLayout", "cloudByState", "sun", "hemi", "shadow", "dome"],
       "properties": {
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
@@ -69,6 +75,19 @@
           "additionalProperties": false,
           "required": ["fallback", "status"],
           "properties": { "fallback": { "enum": ["solarMean", "utc"] }, "status": { "$ref": "#/definitions/status" } }
+        },
+        "session": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "defaultStartHour", "dryState", "wetState", "updateSec"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "defaultStartHour": { "type": "number", "minimum": 0, "maximum": 24 },
+            "dryState": { "enum": ["sunny", "cloudy", "overcast", "drizzle", "light", "moderate", "heavy"] },
+            "wetState": { "enum": ["sunny", "cloudy", "overcast", "drizzle", "light", "moderate", "heavy"] },
+            "updateSec": { "$ref": "#/definitions/positive" }
+          }
         },
         "refraction": { "type": "boolean" },
         "northDegByLayout": {
@@ -181,14 +200,15 @@
         "shadow": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["$comment", "status", "opacityPerCloud", "minOpacity", "radiusMin", "radiusMax"],
+          "required": ["$comment", "status", "opacityPerCloud", "minOpacity", "radiusMin", "radiusMax", "lightDistanceM"],
           "properties": {
             "$comment": { "type": "string" },
             "status": { "$ref": "#/definitions/status" },
             "opacityPerCloud": { "$ref": "#/definitions/share" },
             "minOpacity": { "$ref": "#/definitions/share" },
             "radiusMin": { "$ref": "#/definitions/positive" },
-            "radiusMax": { "$ref": "#/definitions/positive" }
+            "radiusMax": { "$ref": "#/definitions/positive" },
+            "lightDistanceM": { "$ref": "#/definitions/positive" }
           }
         },
         "dome": {
@@ -208,7 +228,7 @@
     "fog": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["$comment", "status", "koschmieder", "visibilityKmByHumidity", "minDensity", "maxDensity", "colourFromSky"],
+      "required": ["$comment", "status", "koschmieder", "visibilityKmByHumidity", "defaultHumidity", "minDensity", "maxDensity", "colourFromSky"],
       "properties": {
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
@@ -223,6 +243,7 @@
             "properties": { "humidity": { "type": "number", "minimum": 0, "maximum": 100 }, "km": { "$ref": "#/definitions/positive" } }
           }
         },
+        "defaultHumidity": { "type": "number", "minimum": 0, "maximum": 100 },
         "minDensity": { "$ref": "#/definitions/nonNegative" },
         "maxDensity": { "$ref": "#/definitions/positive" },
         "colourFromSky": { "$ref": "#/definitions/share" }
@@ -271,8 +292,8 @@
         "meter": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["sizePx", "lowClip"],
-          "properties": { "sizePx": { "type": "integer", "minimum": 4, "maximum": 256 }, "lowClip": { "$ref": "#/definitions/positive" } }
+          "required": ["sizePx", "lowClip", "everyFrames"],
+          "properties": { "sizePx": { "type": "integer", "minimum": 4, "maximum": 256 }, "lowClip": { "$ref": "#/definitions/positive" }, "everyFrames": { "type": "integer", "minimum": 1, "maximum": 120 } }
         }
       }
     },
@@ -295,10 +316,12 @@
     "quality": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["$comment", "status", "levels"],
+      "required": ["$comment", "status", "default", "coarsePointer", "levels"],
       "properties": {
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
+        "default": { "enum": ["low", "medium", "high"] },
+        "coarsePointer": { "enum": ["low", "medium", "high"] },
         "levels": {
           "type": "object",
           "additionalProperties": false,
@@ -448,25 +471,62 @@
     "fx": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["$comment", "status", "sparks", "lockupSmoke"],
+      "required": ["$comment", "status", "sparks", "lockupSmoke", "strays"],
       "properties": {
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
         "sparks": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["eras", "minDecelG", "flashFrames"],
+          "required": ["eras", "minDecelG", "flashFrames", "status", "nominalFps", "minSpeedKmh", "minBrake", "bumpCurvature", "tickSec", "burstsPerSec", "particlesPerBurst", "carry", "spreadMps", "gravityMps2", "streakSec", "spawnAheadM", "maxBursts", "colour"],
           "properties": {
             "eras": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/eraFlag" } },
             "minDecelG": { "$ref": "#/definitions/maybePositive" },
-            "flashFrames": { "oneOf": [{ "type": "null" }, { "type": "integer", "minimum": 1 }] }
+            "flashFrames": { "oneOf": [{ "type": "null" }, { "type": "integer", "minimum": 1 }] },
+            "status": { "$ref": "#/definitions/status" },
+            "nominalFps": { "$ref": "#/definitions/positive" },
+            "minSpeedKmh": { "$ref": "#/definitions/nonNegative" },
+            "minBrake": { "$ref": "#/definitions/share" },
+            "bumpCurvature": { "$ref": "#/definitions/positive" },
+            "tickSec": { "$ref": "#/definitions/positive" },
+            "burstsPerSec": { "$ref": "#/definitions/nonNegative" },
+            "particlesPerBurst": { "type": "integer", "minimum": 1, "maximum": 64 },
+            "carry": { "$ref": "#/definitions/share" },
+            "spreadMps": { "$ref": "#/definitions/nonNegative" },
+            "gravityMps2": { "$ref": "#/definitions/nonNegative" },
+            "streakSec": { "$ref": "#/definitions/nonNegative" },
+            "spawnAheadM": { "type": "number" },
+            "maxBursts": { "$ref": "#/definitions/byQuality" },
+            "colour": { "$ref": "#/definitions/colour" }
           }
         },
         "lockupSmoke": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["enabled", "status", "lifeSec"],
-          "properties": { "enabled": { "type": "boolean" }, "status": { "$ref": "#/definitions/status" }, "lifeSec": { "$ref": "#/definitions/maybePositive" } }
+          "required": ["enabled", "status", "lifeSec", "puffsPerSec", "riseMps", "sizeM", "opacity", "colour", "maxPuffs"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "status": { "$ref": "#/definitions/status" },
+            "lifeSec": { "$ref": "#/definitions/maybePositive" },
+            "puffsPerSec": { "$ref": "#/definitions/nonNegative" },
+            "riseMps": { "$ref": "#/definitions/nonNegative" },
+            "sizeM": { "$ref": "#/definitions/positive" },
+            "opacity": { "$ref": "#/definitions/share" },
+            "colour": { "$ref": "#/definitions/colour" },
+            "maxPuffs": { "$ref": "#/definitions/byQuality" }
+          }
+        },
+        "strays": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "maxSizeM", "minAboveM", "everySec"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "maxSizeM": { "$ref": "#/definitions/positive" },
+            "minAboveM": { "$ref": "#/definitions/positive" },
+            "everySec": { "$ref": "#/definitions/positive" }
+          }
         }
       }
     }

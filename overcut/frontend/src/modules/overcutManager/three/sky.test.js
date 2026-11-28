@@ -179,7 +179,7 @@ describe("dirección del sol en la escena", () => {
   });
 
   it("los trazados sin orientación medida usan el norte por defecto (pending)", () => {
-    expect(northDegFor("shanghai-1")).toBe(LOOK.sky.northDegByLayout.default);
+    expect(northDegFor("silverstone-7")).toBe(LOOK.sky.northDegByLayout.default);
     expect(northDegFor(undefined)).toBe(LOOK.sky.northDegByLayout.default);
   });
 });

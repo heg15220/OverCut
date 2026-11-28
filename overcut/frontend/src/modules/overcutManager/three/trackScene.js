@@ -21,6 +21,7 @@ import { biomeFor } from "./biomes";
 import { floodlights, groundMaterials, horizon, skyDome, skyline, vegetation, water } from "./scenery";
 import LOOK from "../data/balance/view-look.json";
 import { enableWetSurface, fillRacingLine, wetAttributes, wetLookFor } from "./rain/wetSurface";
+import { hazeColourFor } from "./sky";
 
 const STREET = new Set(["monaco", "marina_bay", "baku", "detroit", "dallas", "phoenix", "adelaide", "long_beach", "valencia", "jeddah", "vegas", "las_vegas", "pedralbes", "monsanto", "boavista", "pescara", "montjuic", "miami"]);
 
@@ -450,11 +451,48 @@ export const buildTrack = (circuit, { teams = [], street = null, year = 2020 } =
   group.add(horizon(circuit, biome));
   if (biome.skyline || isStreet) group.add(skyline(circuit, biome));
   group.add(water(circuit, biome));
-  group.add(skyDome(circuit, biome));
+  const paintedSky = skyDome(circuit, biome);
+  group.add(paintedSky);
   if (biome.night) group.add(floodlights(circuit));
+
+  /**
+   * VIEW-06 (LOOK-C3): daylight from the real sun and the engine's clouds. `look` is three/sky.js lookAt
+   * for the moment (sun direction, lights by cloud cover, haze density) and `dome` whether the Preetham
+   * sky of sky.js is drawn (then the painted dome of the biome steps aside). Floodlit races and a sun
+   * below the horizon keep the place's own night light; in the wet (`wet`) the fog of applyWeather stays.
+   * Returns true when it lit the scene.
+   */
+  const applyDaylight = (state, look, { dome = false, wet = false } = {}) => {
+    if (!look || biome.night || !look.sun?.aboveHorizon) {
+      paintedSky.visible = true;
+      return false;
+    }
+    const { light, cloud } = look;
+    // In the wet the rain's own air (applyWeather; LOOK-C4 replaces it with rain/fog.js) is kept.
+    if (!wet) {
+      const haze = new THREE.Color(hazeColourFor(biome.haze, cloud));
+      state.scene.background = dome ? null : haze;
+      state.scene.fog = new THREE.FogExp2(haze, look.fogDensity);
+    } else if (dome) state.scene.background = null;
+    paintedSky.visible = !dome;
+    state.sun.color.set(light.sunColour);
+    state.sun.intensity = light.sunIntensity;
+    state.sun.castShadow = light.castShadow;
+    state.sun.shadow.intensity = light.shadowOpacity;
+    state.sun.shadow.radius = light.shadowRadius;
+    state.hemi.color.set(light.hemiSkyColour);
+    state.hemi.groundColor.set(biome.sand ? "#8a7550" : light.hemiGroundColour);
+    state.hemi.intensity = light.hemiIntensity;
+    state.scene.environmentIntensity = 0.55;
+    return true;
+  };
 
   /** Light and air for the place, the time of day and the weather. */
   const applyWeather = (state, wet) => {
+    paintedSky.visible = true;
+    state.sun.castShadow = true;
+    state.sun.shadow.intensity = 1;
+    state.sun.shadow.radius = 1;
     const haze = new THREE.Color(wet ? (biome.night ? "#10141e" : "#8e98a3") : biome.haze);
     state.scene.background = haze;
     state.scene.fog = new THREE.Fog(haze, wet ? 160 : 320, wet ? 900 : biome.night ? 1500 : 2200);
@@ -483,6 +521,7 @@ export const buildTrack = (circuit, { teams = [], street = null, year = 2020 } =
     lights,
     biome,
     applyWeather,
+    applyDaylight,
     setLights: (count) => {
       lights.forEach((light) => {
         light.mesh.material = light.index < count ? m.lightOn : m.lightOff;
