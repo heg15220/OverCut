@@ -50,7 +50,7 @@
     },
     "minSpeed": 8,
     "fullThrottleTopShare": 0.985,
-    "fullThrottleNote": "Pedal a fondo en la vista (powertrain): donde la traza de referencia acelera y también en la meseta de punta (vRef >= esta parte de la punta de la vuelta): sostener la punta en una recta es ir a fondo. Sin ella Monza 2024 iba a fondo el 64 % de la vuelta contra el 76 % real (OpenF1) al repartir el presupuesto también por la recta. NV la cifra (26/11/2026)."
+    "fullThrottleNote": "Pedal a fondo en la vista (powertrain): donde la traza de referencia acelera y también en la meseta de punta (vRef >= esta parte de la punta de la vuelta): sostener la punta en una recta es ir a fondo. Sin ella Monza 2024 iba a fondo el 64 % de la vuelta contra el 76 % real (OpenF1) al repartir el presupuesto también por la recta. NV la cifra (26/11/2026). Desde el 28/11/2026 la meseta se mide contra la punta de cada recta (no la de la vuelta): las rectas de Monza que no llegan a la punta con DRS también van a fondo (69 % frente al 76 % real; antes 63 %)."
   },
   "eras": [
     {
