@@ -75,7 +75,9 @@ export const createRaceSession = () => {
     return {
       clock: state.clock,
       p: cars.map((car) => car.progress),
-      l: cars.map((car) => car.lateral),
+      // SIM-C4 (F1M24-CHINA AUD-C9, §1.6): the weave behind the safety car is the view's only (snapshot[i].weave, m):
+      // the line the view draws is the engine's lateral plus it; the simulation's own line does not move.
+      l: cars.map((car) => (car.lateral ?? 0) + (car.weave || 0)),
       pit: cars.map((car) => (car.inPit ? 1 : 0)),
       duel: cars.map((car) => car.duel),
       // WP9 (SIM-FISICA §3.7-3.9): speed on the road (m/s), the pit-lane phase and stop stage, an error being paid.

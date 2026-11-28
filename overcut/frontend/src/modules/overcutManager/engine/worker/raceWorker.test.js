@@ -59,6 +59,15 @@ describe("SRS 4 race worker: the session handler", () => {
     expect(() => serialize(reply)).not.toThrow();
   });
 
+  it("draws the weave behind the safety car on the view's line only (AUD-C9: trail lateral = lateral + weave)", () => {
+    const { args } = sunday();
+    const session = createRaceSession();
+    const reply = session.handle({ id: 1, type: "create", args });
+    const shot = reply.view.snapshot;
+    const last = reply.view.trail[reply.view.trail.length - 1];
+    shot.forEach((car, i) => expect(last.l[i]).toBeCloseTo((car.lateral ?? 0) + (car.weave || 0), 6));
+  });
+
   it("RF-SIM-15 / RNF-05: the same messages give the same race as the sim in-thread, byte for byte", () => {
     const { args, career } = sunday("determinism");
     const userId = args.entrants.find((entrant) => entrant.isUser).id;
