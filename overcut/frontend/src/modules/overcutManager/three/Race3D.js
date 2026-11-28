@@ -36,6 +36,20 @@
  * that have one (three/safetyCarView.js). Without the snapshot no safety car runs (the 90 m ahead of
  * the leader are gone). On TV the director's `shotKind: "sc"` (sequences.scDeploy) films it leaving
  * the pits.
+ *
+ * LOOK-C3 (F1M24-CHINA §2.8, §2.4, §2.5; VIEW-06, VIEW-05, VIEW-18, VIEW-10; RF-3D-04, RF-SIM-11,
+ * RNF-02, RNF-05, RNF-07):
+ *   - daylight: the real sun of the circuit at the session's hour (three/sky.js lookContextFor from
+ *     data/circuits/sites.json + the race clock; optional `session` {date, startLocal, tzHours} and
+ *     `weather` = snapshot.weather from the live view), the engine's clouds softening the shadows and
+ *     lifting the sky light, a Preetham dome, FogExp2 by humidity; floodlit races keep their night.
+ *   - post (three/post/*) by quality (`quality` prop, else view-look.json quality): grade, asymmetric
+ *     auto exposure metered on the drawn frame and carried across cuts, onboard motion blur with the
+ *     car on air masked (layer blur.maskLayer); nothing in `low`.
+ *   - sparks from the floor in the eras with skids and smoke on the engine's lock-ups (three/fx/sparks.js,
+ *     seeded on the race clock).
+ *   - every object hung on the scene has an owner; meshes without one, or small ones floating above the
+ *     road inside the circuit model, are hidden and counted (three/fx/strays.js, data-strays on the host).
  */
 
 import React, { useEffect, useRef } from "react";
@@ -56,6 +70,17 @@ import { carAssetFor, circuitAssetFor } from "./assets/manifest";
 import { createAssetCar } from "./assets/assetCar";
 import { buildHeightField, loadCircuitAsset } from "./assets/assetCircuit";
 import { pruneOldCaches } from "./assets/loader";
+import LOOK from "../data/balance/view-look.json";
+import { applySkyDome, createSkyDome, lookAt, lookContextFor, lookIsStale } from "./sky";
+import { createPostChain, qualityFor, renderMask } from "./post/chain";
+import { cutExposure, createExposure, exposureMultiplier, sceneLuminanceFrom, stepExposure } from "./post/exposure";
+import { gradeFor } from "./post/grade";
+import { blurParams } from "./post/motionBlur";
+import { createSparkSystem, lockupOf } from "./fx/sparks";
+import { hideStrays, own, roadTopOf } from "./fx/strays";
+
+const MASK_LAYER = LOOK.blur.maskLayer;
+const SUN_DISTANCE = LOOK.sky.shadow.lightDistanceM;
 
 
 const unwrap = (from, to) => {
@@ -101,6 +126,7 @@ const buildSafetyCar = () => {
   group.traverse((node) => {
     node.castShadow = true;
   });
+  own(group, "safetyCar");
   let spun = 0;
   group.userData.setLights = (levels) => {
     halves.forEach((material, index) => {
@@ -120,7 +146,7 @@ const buildSafetyCar = () => {
 
 /** A pit crew: a dozen figures in team colours around a stopped car. */
 const buildCrew = (color) => {
-  const group = new THREE.Group();
+  const group = own(new THREE.Group(), "crew");
   const suit = new THREE.MeshStandardMaterial({ color, roughness: 0.7 });
   const helmet = new THREE.MeshStandardMaterial({ color: "#f3f1e9", roughness: 0.4 });
   const spots = [[1.9, 1.2], [1.9, -1.2], [-1.6, 1.25], [-1.6, -1.25], [2.4, 1.6], [2.4, -1.6], [-2.1, 1.65], [-2.1, -1.65], [3.4, 0], [-3.1, 0], [0.6, 1.5], [0.6, -1.5]];
@@ -138,10 +164,10 @@ const buildCrew = (color) => {
 const CREW_LEAD_SEC = broadcast.sequences.pitStop.crewLeadSec;
 const SC_VIEW = broadcast.scView;
 
-export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights, sc, safetyCar, teams, onPick, labels, clock, sample, cameraBus, seed, replayBuffer, replay, director }) {
+export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights, sc, safetyCar, teams, onPick, labels, clock, sample, cameraBus, seed, replayBuffer, replay, director, session, weather, humidity, quality }) {
   const mount = useRef(null);
   const props = useRef({});
-  props.current = { cars, focusId, mode, wet, lights, sc, safetyCar, onPick, clock, sample, year, cameraBus, seed, replayBuffer, replay, director };
+  props.current = { cars, focusId, mode, wet, lights, sc, safetyCar, onPick, clock, sample, year, cameraBus, seed, replayBuffer, replay, director, session, weather, humidity, quality };
   const world = useRef(null);
 
   // Renderer, sky, sun and camera: once.
@@ -174,26 +200,58 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
     const drops = new Float32Array(dropCount * 6);
     const rainGeometry = new THREE.BufferGeometry();
     rainGeometry.setAttribute("position", new THREE.BufferAttribute(drops, 3));
-    const rain = new THREE.LineSegments(rainGeometry, new THREE.LineBasicMaterial({ color: "#c9dcf0", transparent: true, opacity: 0.45 }));
+    const rain = own(new THREE.LineSegments(rainGeometry, new THREE.LineBasicMaterial({ color: "#c9dcf0", transparent: true, opacity: 0.45 })), "rain");
     rain.frustumCulled = false;
     rain.visible = false;
     scene.add(rain);
+    own(sun, "light");
+    own(sun.target, "light");
+    own(hemi, "light");
+    // LOOK-C3: the quality level, the sparks and the exposure; the sky dome and the post chain load lazily.
+    const level = qualityFor(props.current.quality);
+    const sparks = createSparkSystem({ quality: level });
+    scene.add(sparks.object);
     const seeds = Array.from({ length: dropCount }, () => [Math.random() * 80 - 40, Math.random() * 40, Math.random() * 80 - 40]);
 
     pruneOldCaches();
     const state = {
       heightAt: null,
       field: null,
-      renderer, scene, camera, sun, hemi, sky, rain, drops, seeds, overlay,
+      renderer, scene, camera, sun, hemi, sky, rain, drops, seeds, overlay, host,
+      quality: level, qualityLevel: LOOK.quality.levels[level], sparks, exposure: createExposure(), post: null, dome: null, look: null, lookCtx: null,
       track: null, carObjects: new Map(), tags: new Map(), crews: new Map(), safetyCar: null, rig: [], camState: {},
       cam: { pos: new THREE.Vector3(0, 50, 0), look: new THREE.Vector3(), heading: 0 }, last: performance.now(),
     };
     world.current = state;
+    let disposed = false;
+    createSkyDome()
+      .then((dome) => {
+        if (disposed) return;
+        own(dome, "sky");
+        dome.visible = false;
+        dome.frustumCulled = false;
+        scene.add(dome);
+        state.dome = dome;
+        state.lookCtx = null;
+      })
+      .catch(() => {});
+    createPostChain({ renderer, scene, camera, quality: level })
+      .then((chain) => {
+        if (disposed) {
+          chain.dispose();
+          return;
+        }
+        state.post = chain;
+        chain.setSize(host.clientWidth || 800, host.clientHeight || 480);
+      })
+      .catch(() => {});
 
     const resize = () => {
       const width = host.clientWidth || 800;
       const height = host.clientHeight || 480;
       renderer.setSize(width, height, false);
+      state.post?.setSize(width, height);
+      if (state.mask) state.mask.target.setSize(Math.max(1, Math.round(width / 2)), Math.max(1, Math.round(height / 2)));
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
     };
@@ -222,15 +280,23 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
       const dt = Math.min(0.1, (now - state.last) / 1000);
       state.last = now;
       step(state, props.current, dt);
-      renderer.render(scene, camera);
+      if (state.post) state.post.render(dt);
+      else renderer.render(scene, camera);
     };
     frame = requestAnimationFrame(loop);
 
     return () => {
+      disposed = true;
       cancelAnimationFrame(frame);
       observer?.disconnect();
       canvas.removeEventListener("click", click);
       rainGeometry.dispose();
+      sparks.dispose();
+      state.post?.dispose();
+      if (state.mask) {
+        state.mask.target.dispose();
+        state.mask.material.dispose();
+      }
       renderer.dispose();
       host.removeChild(canvas);
       host.removeChild(overlay);
@@ -243,9 +309,14 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
     const state = world.current;
     if (!state) return undefined;
     const track = buildTrack(circuit, { teams, year });
+    own(track.group, "track");
     state.scene.add(track.group);
     state.track = track;
     track.applyWeather(state, Boolean(state.wet));
+    // LOOK-C3: relight for this circuit on the next frame; audit the scene once it settles.
+    state.lookCtx = null;
+    state.strayAt = null;
+    state.sparks?.reset();
     // The TV rig by zones (CAM-2): the circuit's camera-zones.json, or zones built from its geometry.
     state.rig = buildZoneRig(circuit);
     state.camState = {};
@@ -263,10 +334,12 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
       loadCircuitAsset(asset, state.renderer)
         .then(({ scene, heightAt, spline }) => {
           if (disposed) return null;
-          assetScene = scene;
+          assetScene = own(scene, "circuit");
           state.scene.add(scene);
           track.group.visible = false;
           state.heightAt = heightAt;
+          state.roadTop = roadTopOf(heightAt);
+          state.strayAt = null;
           // Once per circuit: what stands around the road, then the rig fitted to it (RF-3D-04).
           return buildHeightField(scene, spline.points).then((field) => {
             if (disposed || !field) return;
@@ -281,6 +354,7 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
       disposed = true;
       if (assetScene) state.scene.remove(assetScene);
       state.heightAt = null;
+      state.roadTop = 0;
       state.field = null;
       state.scene.remove(track.group);
       track.group.traverse((node) => {
@@ -307,6 +381,7 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
       const asset = carAssetFor(year, car.teamId);
       const object = asset ? createAssetCar({ asset, placeholder: procedural, renderer: state.renderer, year }) : procedural;
       object.userData.carId = car.id;
+      own(object, "car");
       state.scene.add(object);
       // F1-game name tag: position on the team colour, flag, surname, gap.
       const tag = document.createElement("div");
@@ -358,7 +433,7 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
  * from the radius it is turning on and wheels that roll at its speed.
  */
 function step(state, props, dt) {
-  const { cars = [], wet, lights, sc: scSnapshot, safetyCar, clock, sample, year, cameraBus, seed, replayBuffer, replay, director } = props;
+  const { cars = [], wet, lights, sc: scSnapshot, safetyCar, clock, sample, year, cameraBus, seed, replayBuffer, replay, director, session, weather, humidity } = props;
   const { camera, circuit } = state;
   if (!circuit) return;
   const liveTau = clock ? clock.current : null;
@@ -574,11 +649,28 @@ function step(state, props, dt) {
 
   // Weather.
   const isWet = Boolean(wet);
+  let relight = false;
   if (state.wet !== isWet) {
     state.wet = isWet;
     state.track?.setWet(isWet);
     state.rain.visible = isWet;
     state.track?.applyWeather?.(state, isWet);
+    relight = true;
+  }
+  // LOOK-C3 (VIEW-06): the sun of this circuit at the session's hour on the race clock, the engine's clouds.
+  const ctx = lookContextFor({ circuit, year, tau: tau ?? 0, session, weather, wet: isWet, humidity });
+  if (ctx ? lookIsStale(state.lookCtx, ctx) : state.lookCtx !== null || state.look) {
+    state.lookCtx = ctx;
+    state.look = ctx ? lookAt(ctx) : null;
+    relight = true;
+  }
+  if (relight && state.track) {
+    if (!state.look) state.track.applyWeather(state, isWet);
+    state.daylit = Boolean(state.track.applyDaylight?.(state, state.look, { dome: Boolean(state.dome), wet: isWet }));
+    if (state.dome) {
+      state.dome.visible = state.daylit;
+      if (state.daylit) applySkyDome(state.dome, state.look.sun, state.look.cloud);
+    }
   }
 
   // Camera.
@@ -765,8 +857,44 @@ function step(state, props, dt) {
       };
     }
     const base = focus.y || 0;
-    state.sun.position.set(focus.x + 60, base + 120, focus.z + 40);
+    // VIEW-06: the light comes from where the sun is (sky.js), the shadow camera still around the car on air.
+    if (state.daylit && state.look) {
+      const d = state.look.sun;
+      state.sun.position.set(focus.x + d.x * SUN_DISTANCE, base + d.y * SUN_DISTANCE, focus.z + d.z * SUN_DISTANCE);
+    } else state.sun.position.set(focus.x + 60, base + 120, focus.z + 40);
     state.sun.target.position.set(focus.x, base, focus.z);
+    if (state.dome) state.dome.position.copy(camera.position);
+    // VIEW-05 / VIEW-06: grade, onboard blur with the car on air masked, auto exposure on the race clock.
+    if (state.post) {
+      const cloud = state.look ? state.look.cloud : isWet ? 1 : 0;
+      let blur = blurParams({ speedMps: 0, quality: state.quality });
+      let maskTexture = null;
+      if (rider && state.post.passes?.motionBlur) {
+        blur = blurParams({ speedMps: focus.speed || 0, yawRate: focus.turn || 0, aspect: camera.aspect, quality: state.quality });
+        if (blur.enabled) {
+          if (!state.mask) {
+            const size = state.renderer.getSize(new THREE.Vector2());
+            state.mask = { target: new THREE.WebGLRenderTarget(Math.max(1, Math.round(size.x / 2)), Math.max(1, Math.round(size.y / 2))), material: new THREE.MeshBasicMaterial({ color: "#ffffff", fog: false }) };
+          }
+          rider.object.traverse((node) => node.layers.enable(MASK_LAYER));
+          renderMask(THREE, state.renderer, state.scene, camera, state.mask.target, state.mask.material);
+          maskTexture = state.mask.target.texture;
+        }
+      }
+      state.post.update({ grade: gradeFor(cloud), blur, maskTexture });
+      if (state.qualityLevel?.autoExposure) {
+        // A cut keeps the previous shot's exposure (cutExposure); the meter reads the last drawn frame.
+        const shotKey = cameraBus?.current?.id ?? mode;
+        if (state.shotKey !== shotKey) {
+          state.exposure = cutExposure(state.exposure);
+          state.shotKey = shotKey;
+        }
+        const measured = state.post.luminance?.();
+        if (measured !== null && measured !== undefined) state.sceneLum = sceneLuminanceFrom(measured, state.exposure);
+        if (Number.isFinite(state.sceneLum)) state.exposure = stepExposure(state.exposure, state.sceneLum, tau !== null ? simDt : dt);
+        state.renderer.toneMappingExposure = exposureMultiplier(state.exposure);
+      }
+    }
     if (state.rain.visible) {
       const positions = state.drops;
       state.seeds.forEach((seed, i) => {
@@ -779,6 +907,38 @@ function step(state, props, dt) {
       });
       state.rain.geometry.attributes.position.needsUpdate = true;
     }
+  }
+
+  // VIEW-18: sparks and lock-up smoke on the race clock, seeded by the race (three/fx/sparks.js).
+  if (state.sparks && tau !== null) {
+    const sparkCars = [];
+    items.forEach((item) => {
+      const entry = state.carObjects.get(item.car.id);
+      if (!entry || item.pose.gone || item.pose.inPit || !entry.object.visible) return;
+      const pos = entry.object.position;
+      sparkCars.push({
+        key: item.car.id,
+        x: pos.x,
+        y: pos.y,
+        z: pos.z,
+        heading: entry.yaw,
+        speedMps: entry.speed || 0,
+        brake: item.pose.brake,
+        lonG: item.pose.lonG,
+        rough: roadRoughness(state.heightAt, item.pose.progress, length),
+        lockup: lockupOf(item.pose),
+      });
+    });
+    state.sparks.update({ year, tau, seed: seed ?? state.camState.seed ?? 0, cars: sparkCars });
+  }
+
+  // VIEW-10: nothing on air without an owner, nothing small floating over the road (three/fx/strays.js).
+  const viewTime = state.viewTime || 0;
+  if (state.strayAt === null || state.strayAt === undefined || viewTime - state.strayAt >= LOOK.fx.strays.everySec) {
+    state.strayAt = viewTime;
+    const found = hideStrays(state.scene, { roadTopY: state.roadTop || 0 });
+    state.strays = (state.strays || 0) + found.ownerless + found.floating;
+    if (state.host) state.host.dataset.strays = String(state.strays);
   }
 
   // Name tags over the cars in shot.

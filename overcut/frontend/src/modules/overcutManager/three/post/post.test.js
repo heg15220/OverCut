@@ -11,7 +11,7 @@ import LOOK from "../../data/balance/view-look.json";
 import { gradeColour, gradeFor, GradeShader, applyGrade } from "./grade";
 import { createExposure, stepExposure, cutExposure, evOf, targetEvFor, exposureMultiplier, meanLuminanceOf, sceneLuminanceFrom } from "./exposure";
 import { blurParams, blurImage, blurTapsFor, flowAt, MotionBlurShader, applyBlur } from "./motionBlur";
-import { postPlanFor, createPostChain } from "./chain";
+import { postPlanFor, createPostChain, meterFor, qualityFor } from "./chain";
 import { exposureFor } from "../studio";
 
 const luma = (rgb) => LOOK.grade.lumaWeights.reduce((sum, w, k) => sum + w * rgb[k], 0);
@@ -199,5 +199,15 @@ describe("cadena de post por calidad", () => {
     chain.render();
     expect(chain.composer).toBeNull();
     expect(calls).toEqual([["s", "c"]]);
+    expect(chain.luminance()).toBeNull();
+  });
+
+  it("LOOK-C3: calidad pedida, por defecto o baja con puntero grueso; medidor solo con autoexposición y grading", () => {
+    expect(qualityFor("high")).toBe("high");
+    expect(qualityFor(undefined, null)).toBe(LOOK.quality.default);
+    expect(qualityFor("nope", { matchMedia: () => ({ matches: true }) })).toBe(LOOK.quality.coarsePointer);
+    expect(qualityFor(undefined, { matchMedia: () => ({ matches: false }) })).toBe(LOOK.quality.default);
+    expect(meterFor("low")).toBe(false);
+    expect(meterFor("medium")).toBe(true);
   });
 });

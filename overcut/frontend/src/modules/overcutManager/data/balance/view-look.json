@@ -1,12 +1,36 @@
 {
-  "$comment": "RNF-07: aspecto de la vista 3D (cielo, sol, sombra, niebla, grading, exposición, desenfoque, mojado, lluvia y efectos; RF-3D-04, RF-SIM-11, RNF-02). Única fuente de estos parámetros (F1M24-CHINA §1.5): race-weather.json se queda con lo físico (agua, spray, evacuación) y su bloque display (bandas del HUD). Lo leen three/sky.js y three/post/* (LOOK-C1, sin enganchar a Race3D.js hasta LOOK-C3); los bloques wet, rain y fx los rellenan LOOK-C2 y LOOK-C3. Lo comprueba three/sky.test.js contra engine/packs/schema/view-look.schema.json. De F1 Manager 24 solo la idea (luz que sigue al sol, negros levantados, autoexposición asimétrica, desenfoque con el coche propio nítido); ningún valor suyo se copia. status: sourced = fórmula o cifra con fuente citada; current = valor que OverCut ya usaba (Race3D.js, studio.js), trasladado sin cambios; design = diseño propio de OverCut, sin fuente que lo fije; pending = por calibrar o verificar (no es un hecho).",
+  "$comment": "RNF-07: aspecto de la vista 3D (cielo, sol, sombra, niebla, grading, exposición, desenfoque, mojado, lluvia y efectos; RF-3D-04, RF-SIM-11, RNF-02). Única fuente de estos parámetros (F1M24-CHINA §1.5): race-weather.json se queda con lo físico (agua, spray, evacuación) y su bloque display (bandas del HUD). Lo leen three/sky.js, three/post/*, three/rain/* y three/fx/*; LOOK-C3 engancha cielo, sol, niebla, grading, exposición, desenfoque y chispas a Race3D.js (el mojado, LOOK-C4). Lo comprueba three/sky.test.js contra engine/packs/schema/view-look.schema.json. De F1 Manager 24 solo la idea (luz que sigue al sol, negros levantados, autoexposición asimétrica, desenfoque con el coche propio nítido); ningún valor suyo se copia. status: sourced = fórmula o cifra con fuente citada; current = valor que OverCut ya usaba (Race3D.js, studio.js), trasladado sin cambios; design = diseño propio de OverCut, sin fuente que lo fije; pending = por calibrar o verificar (no es un hecho).",
   "version": 1,
   "sky": {
     "$comment": "Sol y nubes. Posición solar: algoritmo de la NOAA Solar Calculator (NOAA Global Monitoring Laboratory, gml.noaa.gov/grad/solcalc, hoja 'NOAA_Solar_Calculations_day', basada en Meeus, Astronomical Algorithms, 1991) con su refracción atmosférica; las constantes astronómicas van en three/sky.js porque no son balance. Hora: la local de la sesión; el huso sale de la hora UTC del pack cuando la haya (f1db da 'time' en UTC desde 2024) y, si no, de la hora solar media lon/15 (timezone.fallback; error de unos minutos frente al huso civil y de 1 h con horario de verano: pending hasta que el pack lleve el huso). northDegByLayout: ángulo del norte geográfico en el plano xz de la escena de cada trazado (0 = norte hacia −Z, este hacia +X); pending: las splines salen de los GLB sin orientación geográfica. Nubosidad: fracción de cielo cubierto por estado del motor (race-weather.json states.list, 7 estados), centro de las clases en octas de WMO-No. 8 (despejado ≤ 3/8, nuboso 4–7/8, cubierto 8/8) que ya usa race-weather.json; los estados con lluvia, cubiertos. Irradiancia directa con cielo despejado: modelo de Meinel (Meinel y Meinel, Applied Solar Energy, 1976) I = 1,353·0,7^(AM^0,678) kW/m², con la masa de aire de Kasten y Young (Applied Optics 28, 1989); global con nubes: Kasten y Czeplak (Solar Energy 24, 1980) 1 − 0,75·N^3,4. sunIntensityMax y hemi son los de Race3D.js (current); el reparto de luz difusa con nubes y la dureza de sombra son diseño propio (VIEW-06: dureza y opacidad de sombra = 1 − nubes).",
     "status": "sourced",
     "timezone": { "fallback": "solarMean", "status": "pending" },
+    "session": {
+      "$comment": "LOOK-C3: hora de la sesión en la vista en directo = hora local de salida + reloj de carrera. Lugar, fecha, salida y huso de cada GP desde data/circuits/sites.json (f1db + IANA; la salida antes de 2024 sale de climate.json y es pending). defaultStartHour: salida si el GP no la tiene (14:00 local, la DEFAULT_START del script de clima; pending). Sin instantánea de clima del motor (snapshot.weather.state), el estado sale del booleano de mojado: dryState/wetState (diseño, el comportamiento anterior: sol limpio en seco). updateSec: cada cuántos segundos de reloj de carrera se recalculan sol, nubes y niebla (el sol se mueve 0,25° por minuto).",
+      "status": "pending",
+      "defaultStartHour": 14,
+      "dryState": "sunny",
+      "wetState": "light",
+      "updateSec": 5
+    },
     "refraction": true,
-    "northDegByLayout": { "$comment": "pending: orientación geográfica de cada spline por medir (OSM o mapa oficial del circuito).", "status": "pending", "default": 0, "layouts": {} },
+    "northDegByLayout": {
+      "$comment": "LOOK-C3: norte de cada spline calibrada por Procrustes contra el trazado real georreferenciado de bacinger/f1-circuits (MIT), tools/assets/north_from_geo.mjs (el residuo del ajuste va en source; solo se escribe con rms ≤ 40 m). silverstone-7 no entra: el trazado de f1-circuits es otro layout (rms 244 m). Los circuitos sin spline (trazado procedural de engine/layouts.js) siguen pending con el default 0.",
+      "status": "pending",
+      "default": 0,
+      "layouts": {
+        "monza-7": { "deg": -0.2, "source": "bacinger/f1-circuits it-1922, Procrustes rms 10.1 m", "status": "sourced" },
+        "spa-francorchamps-4": { "deg": -1.5, "source": "bacinger/f1-circuits be-1925, Procrustes rms 11.5 m", "status": "sourced" },
+        "shanghai-1": { "deg": 0.1, "source": "bacinger/f1-circuits cn-2004, Procrustes rms 5.5 m", "status": "sourced" },
+        "hungaroring-3": { "deg": 2.7, "source": "bacinger/f1-circuits hu-1986, Procrustes rms 15.4 m", "status": "sourced" },
+        "interlagos-2": { "deg": 14.2, "source": "bacinger/f1-circuits br-1940, Procrustes rms 6.5 m", "status": "sourced" },
+        "montreal-6": { "deg": -0.1, "source": "bacinger/f1-circuits ca-1978, Procrustes rms 13.2 m", "status": "sourced" },
+        "bahrain-1": { "deg": -179.8, "source": "bacinger/f1-circuits bh-2002, Procrustes rms 6.8 m", "status": "sourced" },
+        "monaco-6": { "deg": 1.5, "source": "bacinger/f1-circuits mc-1929, Procrustes rms 15.4 m", "status": "sourced" },
+        "suzuka-2": { "deg": -1.6, "source": "bacinger/f1-circuits jp-1962, Procrustes rms 6.5 m", "status": "sourced" },
+        "nurburgring-4": { "deg": -45, "source": "bacinger/f1-circuits de-1927, Procrustes rms 4.1 m", "status": "sourced" }
+      }
+    },
     "cloudByState": {
       "status": "sourced",
       "values": { "sunny": 0.19, "cloudy": 0.69, "overcast": 1, "drizzle": 1, "light": 1, "moderate": 1, "heavy": 1 }
@@ -44,7 +68,8 @@
       "opacityPerCloud": 1,
       "minOpacity": 0,
       "radiusMin": 1,
-      "radiusMax": 8
+      "radiusMax": 8,
+      "lightDistanceM": 200
     },
     "dome": {
       "$comment": "Parámetros del shader Sky de three/examples (Preetham et al., 'A Practical Analytic Model for Daylight', SIGGRAPH 1999). Diseño propio; con nubes sube la turbidez y baja Rayleigh (cielo blanco lechoso).",
@@ -65,6 +90,7 @@
       { "humidity": 85, "km": 4 },
       { "humidity": 95, "km": 1.5 }
     ],
+    "defaultHumidity": 60,
     "minDensity": 0.00012,
     "maxDensity": 0.004,
     "colourFromSky": 0.85
@@ -80,17 +106,17 @@
     "lumaWeights": [0.2126, 0.7152, 0.0722]
   },
   "exposure": {
-    "$comment": "studio.js: exposición base del tone mapping (current, la de antes de LOOK-C1). Autoexposición asimétrica en EV (log2): el objetivo compensa solo 'completeness' de la desviación de la luminancia media respecto a 'key' (nunca completa); una parte rápida (fastShare, τ rápido) y una cola lenta; al aclararse la escena la cámara cierra antes que abre. Cada corte de cámara conserva la exposición del plano anterior. Diseño propio, pending de calibrar con planos FOM de contraluz.",
+    "$comment": "studio.js: exposición base del tone mapping (current, la de antes de LOOK-C1). Autoexposición asimétrica en EV (log2): el objetivo compensa solo 'completeness' de la desviación de la luminancia media respecto a 'key' (nunca completa); una parte rápida (fastShare, τ rápido) y una cola lenta; al aclararse la escena la cámara cierra antes que abre. Cada corte de cámara conserva la exposición del plano anterior. Diseño propio, pending de calibrar con planos FOM de contraluz. LOOK-C3: completeness baja de 0,7 a 0,4 para que un cielo cubierto se siga viendo más oscuro que uno despejado con la exposición asentada (aceptación de VIEW-06: desviación de luminancia ≥ 15 %, three/skyLive.test.js); meter.everyFrames: cada cuántos fotogramas se lee el cuadro (32×32, readRenderTargetPixels).",
     "status": "design",
     "baseAces": 1.05,
     "baseNeutral": 1,
     "key": 0.18,
-    "completeness": 0.7,
+    "completeness": 0.4,
     "fastShare": 0.7,
     "tauSec": { "brightenFast": 0.25, "brightenSlow": 1.6, "darkenFast": 0.6, "darkenSlow": 2.4 },
     "minEv": -2,
     "maxEv": 1.5,
-    "meter": { "sizePx": 32, "lowClip": 0.0001 }
+    "meter": { "sizePx": 32, "lowClip": 0.0001, "everyFrames": 6 }
   },
   "blur": {
     "$comment": "VIEW-05: desenfoque de movimiento de la cámara a bordo en pantalla. Flujo radial desde el centro de expansión (avance) más un término horizontal por la guiñada; peso nulo dentro de centreRadius (lo que se mira queda nítido) y pleno desde edgeRadius; el coche propio (capa maskLayer) se pinta en una máscara y no se desenfoca. Taps fijos y simétricos (sin ruido), así el pase es determinista. Diseño propio.",
@@ -106,6 +132,8 @@
   "quality": {
     "$comment": "Post-proceso por nivel de calidad (RNF-02; enmienda propuesta 10 de F1M24-CHINA §4: el desenfoque se apaga en LOD bajo o móvil).",
     "status": "design",
+    "default": "medium",
+    "coarsePointer": "low",
     "levels": {
       "low": { "post": false, "motionBlur": false, "blurTaps": 0, "grade": false, "autoExposure": false },
       "medium": { "post": true, "motionBlur": true, "blurTaps": 6, "grade": true, "autoExposure": true },
@@ -186,7 +214,7 @@
     }
   },
   "fx": {
-    "$comment": "Contrato para LOOK-C3 (VIEW-18). Chispas del suelo solo en eras con patines metálicos bajo el fondo: pending hasta leer el reglamento técnico FIA de cada año (patines de titanio obligatorios desde 2015 según la memoria; la tabla de madera de 1994 sin patines que chispeen hasta entonces). Nunca en 2013 (F1M24-CHINA §2.8). Humo solo con el evento lockup del motor (snapshot lon[i] = LOCKUP).",
+    "$comment": "LOOK-C3 (VIEW-18; RF-3D-04, SRS §6, RNF-05, RNF-07). Chispas del suelo solo en eras con patines metálicos bajo el fondo (eras: pending hasta leer el reglamento técnico FIA de cada año; patines de titanio obligatorios desde 2015 según la memoria; tabla de 1994 sin patines que chispeen hasta entonces). Nunca en 2013 (F1M24-CHINA §2.8). Disparo (three/fx/sparks.js): con el coche por encima de minSpeedKmh, frenando fuerte (pose.brake ≥ minBrake y, si la pose lo trae, deceleración ≥ minDecelG: el morro baja y la tabla toca al final de las rectas) o sobre un bache (rugosidad vertical de la carretera ≥ bumpCurvature, 1/m, three/cameras.js roadRoughness). Cada tickSec de reloj de carrera se tira con seedOf si sale una ráfaga (burstsPerSec mientras dura la condición): destellos de flashFrames fotogramas a nominalFps (1–3 fotogramas en el vídeo, race-a 14:31), particlesPerBurst chispas que salen desde spawnAheadM por delante del eje trasero (la tabla) con la velocidad del coche × carry más spreadMps, con gravedad, y se dibujan como rayas de streakSec. Nada en calidad baja (enmienda propuesta 10). Humo solo con el error de bloqueo que paga el motor (pose.incident = lockup o lon = LOCKUP). Diseño propio salvo las eras; ningún valor del juego.",
     "status": "pending",
     "sparks": {
       "eras": [
@@ -194,9 +222,41 @@
         { "from": 1994, "to": 2014, "value": false, "source": "Memoria: tabla de referencia de 1994 (FIA Technical Regulations art. 3.13) sin patines de titanio; verificar", "status": "pending" },
         { "from": 2015, "to": 2026, "value": true, "source": "Memoria: patines de titanio en la tabla desde 2015 (FIA Technical Regulations 2015 art. 3.13); verificar", "status": "pending" }
       ],
-      "minDecelG": null,
-      "flashFrames": null
+      "minDecelG": 2.5,
+      "flashFrames": 2,
+      "status": "design",
+      "nominalFps": 60,
+      "minSpeedKmh": 220,
+      "minBrake": 0.5,
+      "bumpCurvature": 0.004,
+      "tickSec": 0.05,
+      "burstsPerSec": 6,
+      "particlesPerBurst": 14,
+      "carry": 0.75,
+      "spreadMps": 9,
+      "gravityMps2": 9.81,
+      "streakSec": 0.02,
+      "spawnAheadM": 1.2,
+      "maxBursts": { "low": 0, "medium": 48, "high": 96 },
+      "colour": "#ffc46b"
     },
-    "lockupSmoke": { "enabled": true, "status": "pending", "lifeSec": null }
+    "lockupSmoke": {
+      "enabled": true,
+      "status": "design",
+      "lifeSec": 1.2,
+      "puffsPerSec": 18,
+      "riseMps": 0.8,
+      "sizeM": 0.6,
+      "opacity": 0.45,
+      "colour": "#d9d9d6",
+      "maxPuffs": { "low": 0, "medium": 64, "high": 128 }
+    },
+    "strays": {
+      "$comment": "VIEW-10 (malla flotante): auditoría de la escena de three/fx/strays.js. Todo lo que Race3D.js cuelga de la escena lleva dueño (userData.owner); una malla visible sin dueño es un error del código y se oculta. Dentro del GLB del circuito, una malla pequeña (lado mayor < maxSizeM) cuya base queda más de minAboveM por encima de la pista más cercana flota en el aire y se oculta (el objeto rojo de la salida de Shanghái, F1M24-CHINA §2.5). Diseño propio.",
+      "status": "design",
+      "maxSizeM": 40,
+      "minAboveM": 25,
+      "everySec": 10
+    }
   }
 }

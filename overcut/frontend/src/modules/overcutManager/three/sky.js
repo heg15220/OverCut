@@ -10,13 +10,16 @@
  *   haze      FogExp2 density from the air's humidity (Koschmieder).
  *   dome      three's Preetham `Sky` with turbidity and Rayleigh moving with the clouds.
  *
- * Isolated module: Race3D.js does not use it until LOOK-C3. Pure functions of their inputs (no
+ * LOOK-C3 wires it into Race3D.js: `lookContextFor` turns the circuit, the season and the race clock
+ * into place, day and hour (data/circuits/sites.json, from f1db) and the view relights the scene
+ * every sky.session.updateSec of race clock. Pure functions of their inputs (no
  * clock, no Math.random): the view passes the race clock's hour, so a replay lights the same way.
  * Every tunable value is in data/balance/view-look.json (RNF-07); the astronomical constants of the
  * NOAA/Meeus series are physics, not balance, and stay here.
  */
 
 import LOOK from "../data/balance/view-look.json";
+import SITES from "../data/circuits/sites.json";
 
 export const VIEW_LOOK = LOOK;
 const SKY = LOOK.sky;
@@ -280,6 +283,90 @@ export const lookAt = ({ lat, lon, date, hour, tzHours, northDeg, layoutId, stat
     dome: domeParamsFor(cloud),
   };
 };
+
+// ------------------------------------------------------------------ the live session (LOOK-C3)
+
+const SESSION = SKY.session;
+const COLUMNS = SITES.raceColumns;
+
+/** f1db circuit id of an engine layout ref (data/circuits/sites.json aliases, else "a_b" → "a-b"). */
+export const circuitIdFor = (ref) => (ref ? SITES.aliases[ref] ?? String(ref).replace(/_/g, "-") : null);
+
+/** "HH:MM" → decimal hour; null when it is not one. */
+export const hourOf = (text) => {
+  const match = /^(\d{1,2}):(\d{2})/.exec(String(text ?? ""));
+  return match ? Number(match[1]) + Number(match[2]) / 60 : null;
+};
+
+/**
+ * Where and when a Grand Prix was run (data/circuits/sites.json, from f1db): `{circuitId, lat, lon,
+ * tz, date, startLocal, startSource, tzHours}` for the circuit (`circuitId`, or the engine's layout
+ * `ref`) in `year`, the race on `date` when there were two there that year. null for a circuit the
+ * table does not have; date and start null for a year it did not hold a GP.
+ */
+export const siteFor = ({ ref, circuitId, year, date } = {}) => {
+  const id = circuitId || circuitIdFor(ref);
+  const place = id ? SITES.circuits[id] : null;
+  if (!place) return null;
+  const rows = (SITES.races[String(year)] || []).filter((row) => row[0] === id);
+  const row = rows.find((entry) => !date || entry[1] === date) || null;
+  const race = row ? Object.fromEntries(COLUMNS.map((column, k) => [column, row[k]])) : {};
+  return {
+    circuitId: id,
+    lat: place.lat,
+    lon: place.lon,
+    tz: place.tz,
+    date: race.date ?? null,
+    startLocal: race.startLocal ?? null,
+    startSource: race.startSource ?? null,
+    tzHours: Number.isFinite(race.utcOffsetH) ? race.utcOffsetH : null,
+  };
+};
+
+/**
+ * The inputs of `lookAt` for a moment of a live session, or null when the place or the day is
+ * unknown (the view then keeps its fixed light: absent → previous behaviour).
+ *   circuit   the built circuit (venue.circuitFor: `ref`, `splineId`)
+ *   year      the season
+ *   tau       the race clock (s since the start): the hour is the local start + tau
+ *   session   optional `{circuitId, date, startLocal, tzHours}` from the live view (the session's own
+ *             start in practice or qualifying); without it, the race of sites.json
+ *   weather   optional engine `snapshot.weather` (`state`: index or id of the seven states); without
+ *             it, view-look.json sky.session dryState or wetState from `wet`
+ *   humidity  optional relative humidity (%), else fog.defaultHumidity
+ */
+export const lookContextFor = ({ circuit, year, tau = 0, session = null, weather = null, wet = false, humidity } = {}) => {
+  const site = siteFor({ ref: circuit?.ref, circuitId: session?.circuitId, year, date: session?.date });
+  if (!site) return null;
+  const date = session?.date || site.date;
+  if (!date) return null;
+  const start = hourOf(session?.startLocal) ?? hourOf(site.startLocal) ?? SESSION.defaultStartHour;
+  const state = weather && weather.state !== undefined && weather.state !== null ? weather.state : wet ? SESSION.wetState : SESSION.dryState;
+  const rh = Number.isFinite(humidity) ? humidity : Number.isFinite(weather?.humidity) ? weather.humidity : LOOK.fog.defaultHumidity;
+  return {
+    lat: site.lat,
+    lon: site.lon,
+    date,
+    hour: start + Math.max(0, Number.isFinite(tau) ? tau : 0) / 3600,
+    tzHours: Number.isFinite(session?.tzHours) ? session.tzHours : site.tzHours,
+    layoutId: circuit?.splineId ?? null,
+    state,
+    humidity: rh,
+  };
+};
+
+/** Whether the look must be recomputed: the clock moved updateSec either way, or the inputs changed. */
+export const lookIsStale = (last, ctx) =>
+  !last ||
+  !ctx ||
+  last.date !== ctx.date ||
+  last.state !== ctx.state ||
+  last.layoutId !== ctx.layoutId ||
+  last.humidity !== ctx.humidity ||
+  Math.abs((last.hour - ctx.hour) * 3600) >= SESSION.updateSec - 1e-6;
+
+/** Colour of the haze for a cloud fraction: the place's own haze towards the overcast sky. */
+export const hazeColourFor = (placeHaze, cloud) => mixHex(placeHaze, SKY.hemi.overcastSky.value, clamp(cloud, 0, 1) * LOOK.fog.colourFromSky);
 
 /**
  * A three `Sky` dome (Preetham) sized from view-look.json. `THREE`-free callers can skip it; the
