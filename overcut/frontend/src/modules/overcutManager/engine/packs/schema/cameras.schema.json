@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$comment": "RNF-07: esquema de data/balance/cameras.json (cámaras que viajan con el coche, RF-3D-04, RF-3D-05, SRS 6.2). Lo comprueba three/cameras.test.js. CAM-C1 (F1M24-CHINA §3.2): campos de visión horizontales (hfovDeg, número o por eras), aim por horizonShare, refAspect, helicóptero por elevación y cuota de cuadro, y los contratos de la ola 1 shake.hf/bob/head y wheelDisplay.byEra.",
+  "$comment": "RNF-07: esquema de data/balance/cameras.json (cámaras que viajan con el coche, RF-3D-04, RF-3D-05, SRS 6.2). Lo comprueba three/cameras.test.js. CAM-C1 (F1M24-CHINA §3.2): campos de visión horizontales (hfovDeg, número o por eras), aim por horizonShare, refAspect, helicóptero por elevación y cuota de cuadro, y los contratos de la ola 1 shake.hf/bob/head y wheelDisplay.byEra. CAM-C2 (VIEW-04): shakeModel, shake.fullSpeedMs y en hf/bob/head los ejes, kerbGain, roughGain y driftHz.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "refAspect", "horizonReachM", "sources", "onboard", "follow", "wheelDisplay"],
+  "required": ["version", "refAspect", "horizonReachM", "sources", "shakeModel", "onboard", "follow", "wheelDisplay"],
   "definitions": {
     "num": {"type": "number"},
     "positive": {"type": "number", "exclusiveMinimum": 0},
@@ -24,9 +24,15 @@
       }
     },
     "numOrNull": {"oneOf": [{"type": "null"}, {"type": "number", "minimum": 0}]},
+    "axes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["pitch", "yaw", "roll"]}},
     "wobble": {
       "type": "object", "additionalProperties": false, "required": ["deg", "hz"],
-      "properties": {"deg": {"$ref": "#/definitions/numOrNull"}, "hz": {"$ref": "#/definitions/numOrNull"}}
+      "properties": {
+        "deg": {"$ref": "#/definitions/numOrNull"}, "hz": {"$ref": "#/definitions/numOrNull"},
+        "axes": {"$ref": "#/definitions/axes"},
+        "kerbGain": {"type": "number", "minimum": 0, "maximum": 10},
+        "roughGain": {"type": "number", "minimum": 0, "maximum": 10}
+      }
     },
     "shake": {
       "type": "object",
@@ -37,11 +43,15 @@
         "perSpeed": {"type": "number", "minimum": 0, "maximum": 0.01},
         "max": {"type": "number", "minimum": 0, "maximum": 0.1},
         "minSpeed": {"type": "number", "minimum": 0},
+        "fullSpeedMs": {"type": "number", "exclusiveMinimum": 0, "maximum": 150},
         "hf": {"$ref": "#/definitions/wobble"},
         "bob": {"$ref": "#/definitions/wobble"},
         "head": {
           "type": "object", "additionalProperties": false, "required": ["deg", "hz", "driftDeg"],
-          "properties": {"deg": {"$ref": "#/definitions/numOrNull"}, "hz": {"$ref": "#/definitions/numOrNull"}, "driftDeg": {"$ref": "#/definitions/numOrNull"}}
+          "properties": {
+            "deg": {"$ref": "#/definitions/numOrNull"}, "hz": {"$ref": "#/definitions/numOrNull"}, "driftDeg": {"$ref": "#/definitions/numOrNull"},
+            "driftHz": {"$ref": "#/definitions/numOrNull"}, "axes": {"$ref": "#/definitions/axes"}
+          }
         },
         "status": {"$ref": "#/definitions/status"},
         "note": {"type": "string"}
@@ -100,6 +110,23 @@
     "horizonReachM": {"type": "number", "exclusiveMinimum": 0, "maximum": 500},
     "horizonReachNote": {"type": "string"},
     "sources": {"type": "object", "additionalProperties": {"$ref": "#/definitions/text"}},
+    "shakeModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["partials", "roughStepM", "roughRefPerM", "headDriftPitchShare", "kerbReachM", "status", "source"],
+      "properties": {
+        "partials": {
+          "type": "array", "minItems": 1, "maxItems": 6,
+          "items": {"type": "object", "additionalProperties": false, "required": ["k", "w"], "properties": {"k": {"type": "number", "minimum": 0.1, "maximum": 10}, "w": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}}}
+        },
+        "roughStepM": {"type": "number", "exclusiveMinimum": 0, "maximum": 50},
+        "roughRefPerM": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "headDriftPitchShare": {"type": "number", "minimum": 0, "maximum": 1},
+        "kerbReachM": {"type": "number", "minimum": 0, "maximum": 3},
+        "status": {"$ref": "#/definitions/status"},
+        "source": {"$ref": "#/definitions/text"}
+      }
+    },
     "onboard": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/onboard"}},
     "follow": {
       "type": "object",

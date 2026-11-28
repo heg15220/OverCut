@@ -30,6 +30,7 @@
 
 import * as THREE from "three";
 import { poseAt } from "../engine/trackGeometry";
+import { positionAt } from "../engine/trackData";
 import cameraData from "../data/balance/cameras.json";
 import broadcast from "../data/balance/broadcast.json";
 import raceSim from "../data/balance/race-sim.json";
@@ -129,6 +130,131 @@ export const shakeOffset = (shake, speed, tSec, seed) => {
   const k = f * f * (3 - 2 * f);
   const value = hash01(seed, i) * (1 - k) + hash01(seed, i + 1) * k;
   return (value - 0.5) * amp;
+};
+
+// ------------------------------------------------- CAM-C2 (VIEW-04): onboards ride the chassis
+
+const SHAKE_MODEL = cameraData.shakeModel;
+const AXES = ["pitch", "yaw", "roll"];
+const isNum = (value) => typeof value === "number" && Number.isFinite(value);
+const wobbleOn = (w) => Boolean(w) && isNum(w.deg) && w.deg > 0 && isNum(w.hz) && w.hz > 0;
+
+/**
+ * Does an onboard's shake vibrate by angle (CAM-C2, VIEW-04)? True when one of its `hf`, `bob` or
+ * `head` blocks has a level and a frequency; otherwise the view keeps the old vertical jitter of
+ * shakeOffset (cameras.json: null = no sourced value).
+ */
+export const angularShake = (shake) => Boolean(shake) && (wobbleOn(shake.hf) || wobbleOn(shake.bob) || wobbleOn(shake.head));
+
+/**
+ * A sum of the shakeModel partials (cameras.json: frequency multiples k and weights w of a base
+ * frequency) with phases drawn from the seed, scaled so its rms is `rms` degrees: a tone with a
+ * few overtones, never a single sine, never white noise. Same seed and time, same value (RNF-05).
+ */
+const partialsAt = (rms, hz, tSec, seed, salt) => {
+  const partials = SHAKE_MODEL.partials;
+  const power = partials.reduce((sum, p) => sum + (p.w * p.w) / 2, 0);
+  const a = rms / Math.sqrt(power);
+  let value = 0;
+  partials.forEach((p, k) => {
+    const phase = hash01(seed, salt * 31 + k) * 2 * Math.PI;
+    value += a * p.w * Math.sin(2 * Math.PI * hz * p.k * tSec + phase);
+  });
+  return value;
+};
+
+/** Smooth seeded value noise in [-1, 1] at `hz` cells per second (the slow drift of the head). */
+const driftAt = (hz, tSec, seed, salt) => {
+  const cell = tSec * hz;
+  const i = Math.floor(cell);
+  const f = cell - i;
+  const k = f * f * (3 - 2 * f);
+  const at = (n) => hash01(seed ^ Math.imul(salt + 1, 0x9e3779b1), n) * 2 - 1;
+  return at(i) * (1 - k) + at(i + 1) * k;
+};
+
+/**
+ * The angles an onboard adds to the chassis this frame (CAM-C2, VIEW-04; F1M24-CHINA §2.4), in
+ * degrees: { pitch, yaw, roll } (+ pitch nose up, + yaw to the left, + roll to the right, the car's
+ * own senses in three/Race3D.js). From cameras.json onboard[].shake:
+ *   hf   the high-frequency vibration of the chassis (rms `deg` at `hz`), on its `axes`
+ *   bob  the slow bounce (rms `deg` at `hz`), larger on a kerb (`kerbGain`) and on a rough road
+ *        (`roughGain` times the share of shakeModel.roughRefPerM the road's vertical curvature makes)
+ *   head the driver's head (visor only): rms `deg` at `hz` plus a slow drift of `driftDeg` at `driftHz`
+ * All grow with speed up to shake.fullSpeedMs and are zero at or below shake.minSpeed (the drift
+ * too: a car standing still has nothing to shake). `opts`: { speed m/s, tSec race clock, seed
+ * (seedOf car|camera), kerb (bool), rough (1/m) }. Pure and seeded: the same race time films the same.
+ */
+export const onboardWobble = (shake, { speed = 0, tSec = 0, seed = 0, kerb = false, rough = 0 } = {}) => {
+  const out = { pitch: 0, yaw: 0, roll: 0 };
+  if (!angularShake(shake) || !(speed > shake.minSpeed) || !Number.isFinite(tSec)) return out;
+  const level = isNum(shake.fullSpeedMs) && shake.fullSpeedMs > 0 ? Math.min(1, speed / shake.fullSpeedMs) : 1;
+  const add = (w, salt, rmsScale = 1) => {
+    if (!wobbleOn(w)) return;
+    (w.axes || ["pitch"]).forEach((axis) => {
+      const index = AXES.indexOf(axis);
+      out[axis] += partialsAt(w.deg * rmsScale * level, w.hz, tSec, seed, salt * 7 + index);
+    });
+  };
+  add(shake.hf, 1);
+  if (wobbleOn(shake.bob)) {
+    const roughShare = SHAKE_MODEL.roughRefPerM > 0 ? Math.min(1, Math.max(0, rough) / SHAKE_MODEL.roughRefPerM) : 0;
+    const gain = (kerb ? shake.bob.kerbGain ?? 1 : 1) * (1 + (shake.bob.roughGain ?? 0) * roughShare);
+    add(shake.bob, 2, gain);
+  }
+  const head = shake.head;
+  if (wobbleOn(head)) {
+    add(head, 3);
+    if (isNum(head.driftDeg) && head.driftDeg > 0 && isNum(head.driftHz) && head.driftHz > 0) {
+      out.yaw += head.driftDeg * driftAt(head.driftHz, tSec, seed, 11);
+      out.pitch += head.driftDeg * SHAKE_MODEL.headDriftPitchShare * driftAt(head.driftHz, tSec, seed, 12);
+    }
+  }
+  return out;
+};
+
+/**
+ * The vertical curvature of the road under a car (1/m), from the circuit's height profile
+ * (`heightAt(share)`, Race3D state.heightAt on a GLB circuit): what makes the onboard bounce on a
+ * bumpy stretch (VIEW-04 «rebote ligado a la rugosidad de la spline»). 0 on a flat circuit.
+ */
+export const roadRoughness = (heightAt, share, lengthM) => {
+  if (typeof heightAt !== "function" || !(lengthM > 0) || !Number.isFinite(share)) return 0;
+  const d = SHAKE_MODEL.roughStepM / lengthM;
+  const h0 = heightAt(share);
+  const value = Math.abs(heightAt(share + d) - 2 * h0 + heightAt(share - d)) / (SHAKE_MODEL.roughStepM * SHAKE_MODEL.roughStepM);
+  return Number.isFinite(value) ? value : 0;
+};
+
+const UP = new THREE.Vector3(0, 1, 0);
+
+/**
+ * An onboard as a child of the car (CAM-C2, VIEW-04): the shot `frame` placed on the car's yaw and
+ * the road (pos, look), turned with the chassis about the car's origin by the body's own pitch and
+ * roll - the very rotation three/Race3D.js gives the car's group (order YXZ: rotation.y = -yaw,
+ * rotation.x = roll, rotation.z = pitch) - so the car does not move in its own camera's frame. Then
+ * the camera's own wobble (onboardWobble, degrees about the chassis axes) turns the lens about the
+ * camera. Returns { pos, look, up } (THREE.Vector3) for camera.position, camera.up and lookAt.
+ */
+export const carBodyFrame = (pos, look, origin, { yaw = 0, pitch = 0, roll = 0 } = {}, wobble = null) => {
+  const turn = new THREE.Quaternion().setFromAxisAngle(UP, -yaw);
+  const body = new THREE.Quaternion().setFromEuler(new THREE.Euler(roll, -yaw, pitch, "YXZ")).multiply(turn.clone().invert());
+  const at = pos.clone().sub(origin).applyQuaternion(body).add(origin);
+  const dir = look.clone().sub(pos).applyQuaternion(body);
+  const up = UP.clone().applyQuaternion(body);
+  if (wobble && (wobble.pitch || wobble.yaw || wobble.roll)) {
+    const forward = new THREE.Vector3(Math.cos(yaw), 0, Math.sin(yaw)).applyQuaternion(body);
+    const side = new THREE.Vector3(-Math.sin(yaw), 0, Math.cos(yaw)).applyQuaternion(body);
+    // Side is the car's local +Z: a positive turn about it lifts the nose; about up, swings it left
+    // (local +X towards -Z); about forward, rolls to the right.
+    const q = new THREE.Quaternion()
+      .setFromAxisAngle(up, (wobble.yaw * Math.PI) / 180)
+      .multiply(new THREE.Quaternion().setFromAxisAngle(side, (wobble.pitch * Math.PI) / 180))
+      .multiply(new THREE.Quaternion().setFromAxisAngle(forward, (wobble.roll * Math.PI) / 180));
+    dir.applyQuaternion(q);
+    up.applyQuaternion(q);
+  }
+  return { pos: at, look: at.clone().add(dir), up };
 };
 
 const wrap = (value) => ((value % 1) + 1) % 1;
@@ -278,8 +404,10 @@ export const fitRig = (rig, circuit, field, heightAt) => {
     }
     const span = wrap(cam.to - cam.from);
     const shares = [0, 0.25, 0.5, 0.75, 1].map((k) => wrap(cam.from + span * k));
+    // CAM-C2 (GS-07 / VIEW-08): the stretch a camera must see is where the cars are drawn - on
+    // the engine's racing line (engine/trackData.js positionAt) - not the centreline.
     const targets = shares.map((s) => {
-      const p = poseAt(circuit, s);
+      const p = positionAt(circuit, s, 0);
       return { x: p.x, y: heightAt(s) + 0.8, z: p.y };
     });
     const road = heightAt(cam.at ?? shares[2]);
@@ -472,8 +600,9 @@ export const frame = (mode, focus, circuit, rig, state, dt, world = null) => {
   const camPos = (cam) => {
     if (cam.type === "cable") {
       // Runs above the main straight alongside the car.
+      // Above the racing line (CAM-C2: the cars' own line, engine/trackData.js positionAt).
       const lag = rigType("cable").lagM;
-      const along = poseAt(circuit, wrap(share - lag / L));
+      const along = positionAt(circuit, wrap(share - lag / L), 0);
       return v3(along.x, real ? road(-lag) + cam.y : cam.y, along.y);
     }
     if (cam.moving) {
