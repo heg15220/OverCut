@@ -844,7 +844,8 @@ describe("kerbs and wind (kerbs-wind, RF-3D-03, RF-3D-04, RNF-07)", () => {
     expect(fast.gain).toBe(kerb.gain);
     expect(fast.hz).toBeCloseTo(200 / 3.6 / kerb.stripeM, 6);
     expect(kerbRumble(120, true).hz).toBeLessThan(fast.hz);
-    expect(kerb.stripeStatus).toBe("pending");
+    // AUD-C8: measured on the mesh (Shanghai, extract_kerbs.py v2); before, pending.
+    expect(kerb.stripeStatus).toBe("measured");
   });
 });
 

@@ -1,1378 +1,1617 @@
 {
  "$comment": "GENERADO por tools/assets/blender/extract_kerbs.py desde la malla GLB (pintura saturada junto al borde pintado). No editar a mano: volver a generar.",
- "generator": "extract_kerbs.py v1",
+ "generator": "extract_kerbs.py v2",
  "splineId": "shanghai-1",
  "source": "shanghai-1.glb",
  "frame": "spline: metros desde la meta en el sentido de carrera; side left/right del sentido de carrera",
  "lengthM": 5449.7,
+ "stripeM": 2.38,
+ "stripeStatus": "measured",
+ "stripe": {
+  "basis": "paint",
+  "kerbsMeasured": 60,
+  "kerbs": 228,
+  "p25": 2.07,
+  "p75": 2.53,
+  "meanPeak": 0.654,
+  "finePx": 0.04
+ },
  "kerbs": [
   {
    "fromM": 4.0,
    "toM": 18.0,
    "side": "left",
-   "edgeM": 6.7
+   "edgeM": 6.7,
+   "stripeM": null
   },
   {
    "fromM": 48.0,
    "toM": 55.0,
    "side": "left",
-   "edgeM": 6.7
+   "edgeM": 6.7,
+   "stripeM": null
   },
   {
    "fromM": 76.0,
    "toM": 82.0,
    "side": "left",
-   "edgeM": 6.7
+   "edgeM": 6.7,
+   "stripeM": null
   },
   {
    "fromM": 86.0,
    "toM": 91.0,
    "side": "left",
-   "edgeM": 6.7
+   "edgeM": 6.7,
+   "stripeM": null
   },
   {
    "fromM": 154.0,
    "toM": 164.0,
    "side": "left",
-   "edgeM": 6.7
+   "edgeM": 6.7,
+   "stripeM": null
   },
   {
    "fromM": 175.0,
    "toM": 183.0,
    "side": "left",
-   "edgeM": 6.7
+   "edgeM": 6.7,
+   "stripeM": null
   },
   {
    "fromM": 228.0,
    "toM": 233.0,
    "side": "left",
-   "edgeM": 6.7
+   "edgeM": 6.7,
+   "stripeM": null
   },
   {
    "fromM": 290.0,
    "toM": 308.0,
    "side": "left",
-   "edgeM": 6.7
+   "edgeM": 6.7,
+   "stripeM": null
   },
   {
    "fromM": 313.0,
    "toM": 401.0,
    "side": "left",
-   "edgeM": 5.6
+   "edgeM": 5.6,
+   "stripeM": 2.43
   },
   {
    "fromM": 411.0,
    "toM": 421.0,
    "side": "left",
-   "edgeM": 6.7
+   "edgeM": 6.7,
+   "stripeM": null
   },
   {
    "fromM": 412.0,
    "toM": 423.0,
    "side": "right",
-   "edgeM": 6.65
+   "edgeM": 6.65,
+   "stripeM": null
   },
   {
    "fromM": 427.0,
    "toM": 432.0,
    "side": "left",
-   "edgeM": 6.6
+   "edgeM": 6.6,
+   "stripeM": null
   },
   {
    "fromM": 427.0,
    "toM": 432.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 437.0,
    "toM": 454.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.62
   },
   {
    "fromM": 480.0,
    "toM": 576.0,
    "side": "left",
-   "edgeM": 6.3
+   "edgeM": 6.3,
+   "stripeM": null
   },
   {
    "fromM": 480.0,
    "toM": 492.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 498.0,
    "toM": 525.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.73
   },
   {
    "fromM": 533.0,
    "toM": 562.0,
    "side": "right",
-   "edgeM": 6.3
+   "edgeM": 6.3,
+   "stripeM": 2.62
   },
   {
    "fromM": 566.0,
    "toM": 584.0,
    "side": "right",
-   "edgeM": 6.3
+   "edgeM": 6.3,
+   "stripeM": 0.3
   },
   {
    "fromM": 588.0,
    "toM": 622.0,
    "side": "right",
-   "edgeM": 6.35
+   "edgeM": 6.35,
+   "stripeM": 2.68
   },
   {
    "fromM": 630.0,
    "toM": 638.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 642.0,
    "toM": 649.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 653.0,
    "toM": 660.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 664.0,
    "toM": 671.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 681.0,
    "toM": 690.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 703.0,
    "toM": 710.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 719.0,
    "toM": 738.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 729.0,
    "toM": 760.0,
    "side": "left",
-   "edgeM": 6.6
+   "edgeM": 6.6,
+   "stripeM": null
   },
   {
    "fromM": 764.0,
    "toM": 780.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 802.0,
    "toM": 808.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 843.0,
    "toM": 904.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": 2.27
   },
   {
    "fromM": 923.0,
    "toM": 939.0,
    "side": "left",
-   "edgeM": 6.6
+   "edgeM": 6.6,
+   "stripeM": 2.9
   },
   {
    "fromM": 953.0,
    "toM": 962.0,
    "side": "left",
-   "edgeM": 6.6
+   "edgeM": 6.6,
+   "stripeM": null
   },
   {
    "fromM": 967.0,
    "toM": 973.0,
    "side": "left",
-   "edgeM": 6.57
+   "edgeM": 6.57,
+   "stripeM": null
   },
   {
    "fromM": 979.0,
    "toM": 995.0,
    "side": "left",
-   "edgeM": 6.6
+   "edgeM": 6.6,
+   "stripeM": null
   },
   {
    "fromM": 991.0,
    "toM": 1064.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": 2.4
   },
   {
    "fromM": 1000.0,
    "toM": 1012.0,
    "side": "left",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": 2.75
   },
   {
    "fromM": 1022.0,
    "toM": 1030.0,
    "side": "left",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 1052.0,
    "toM": 1064.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1068.0,
    "toM": 1109.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.4
   },
   {
    "fromM": 1072.0,
    "toM": 1095.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1102.0,
    "toM": 1110.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1185.0,
    "toM": 1196.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1213.0,
    "toM": 1233.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.08
   },
   {
    "fromM": 1226.0,
    "toM": 1232.0,
    "side": "left",
-   "edgeM": 6.38
+   "edgeM": 6.38,
+   "stripeM": null
   },
   {
    "fromM": 1412.0,
    "toM": 1483.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.25
   },
   {
    "fromM": 1429.0,
    "toM": 1441.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 0.35
   },
   {
    "fromM": 1461.0,
    "toM": 1486.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1510.0,
    "toM": 1517.0,
    "side": "left",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 1538.0,
    "toM": 1663.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.35
   },
   {
    "fromM": 1565.0,
    "toM": 1572.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1594.0,
    "toM": 1601.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1609.0,
    "toM": 1622.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 0.58
   },
   {
    "fromM": 1637.0,
    "toM": 1648.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1667.0,
    "toM": 1699.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.6
   },
   {
    "fromM": 1703.0,
    "toM": 1718.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1722.0,
    "toM": 1732.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1729.0,
    "toM": 1828.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.4
   },
   {
    "fromM": 1755.0,
    "toM": 1760.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1805.0,
    "toM": 1814.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1833.0,
    "toM": 1861.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.68
   },
   {
    "fromM": 1863.0,
    "toM": 1870.0,
    "side": "right",
-   "edgeM": 6.45
+   "edgeM": 6.45,
+   "stripeM": null
   },
   {
    "fromM": 1866.0,
    "toM": 1881.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1883.0,
    "toM": 1896.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 0.23
   },
   {
    "fromM": 1896.0,
    "toM": 1919.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1908.0,
    "toM": 1916.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1923.0,
    "toM": 1934.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1938.0,
    "toM": 1949.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1954.0,
    "toM": 1960.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1968.0,
    "toM": 1984.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.4
   },
   {
    "fromM": 1972.0,
    "toM": 1979.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1988.0,
    "toM": 1995.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 1990.0,
    "toM": 1998.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2005.0,
    "toM": 2014.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2028.0,
    "toM": 2035.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2053.0,
    "toM": 2059.0,
    "side": "left",
-   "edgeM": 6.43
+   "edgeM": 6.43,
+   "stripeM": null
   },
   {
    "fromM": 2078.0,
    "toM": 2084.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2088.0,
    "toM": 2094.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2098.0,
    "toM": 2114.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.23
   },
   {
    "fromM": 2103.0,
    "toM": 2108.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2121.0,
    "toM": 2130.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2137.0,
    "toM": 2159.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2147.0,
    "toM": 2158.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2167.0,
    "toM": 2173.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2178.0,
    "toM": 2209.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 0.3
   },
   {
    "fromM": 2181.0,
    "toM": 2199.0,
    "side": "right",
-   "edgeM": 6.32
+   "edgeM": 6.32,
+   "stripeM": null
   },
   {
    "fromM": 2206.0,
    "toM": 2240.0,
    "side": "right",
-   "edgeM": 6.3
+   "edgeM": 6.3,
+   "stripeM": 0.35
   },
   {
    "fromM": 2220.0,
    "toM": 2229.0,
    "side": "left",
-   "edgeM": 6.3
+   "edgeM": 6.3,
+   "stripeM": null
   },
   {
    "fromM": 2234.0,
    "toM": 2242.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2253.0,
    "toM": 2286.0,
    "side": "right",
-   "edgeM": 6.6
+   "edgeM": 6.6,
+   "stripeM": 2.6
   },
   {
    "fromM": 2290.0,
    "toM": 2297.0,
    "side": "right",
-   "edgeM": 6.7
+   "edgeM": 6.7,
+   "stripeM": null
   },
   {
    "fromM": 2301.0,
    "toM": 2322.0,
    "side": "right",
-   "edgeM": 6.65
+   "edgeM": 6.65,
+   "stripeM": 2.65
   },
   {
    "fromM": 2315.0,
    "toM": 2320.0,
    "side": "left",
-   "edgeM": 6.6
+   "edgeM": 6.6,
+   "stripeM": null
   },
   {
    "fromM": 2335.0,
    "toM": 2353.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.6
   },
   {
    "fromM": 2355.0,
    "toM": 2362.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2367.0,
    "toM": 2373.0,
    "side": "left",
-   "edgeM": 6.3
+   "edgeM": 6.3,
+   "stripeM": null
   },
   {
    "fromM": 2378.0,
    "toM": 2383.0,
    "side": "right",
-   "edgeM": 6.3
+   "edgeM": 6.3,
+   "stripeM": null
   },
   {
    "fromM": 2388.0,
    "toM": 2403.0,
    "side": "right",
-   "edgeM": 6.3
+   "edgeM": 6.3,
+   "stripeM": 2.43
   },
   {
    "fromM": 2397.0,
    "toM": 2457.0,
    "side": "left",
-   "edgeM": 6.3
+   "edgeM": 6.3,
+   "stripeM": 2.5
   },
   {
    "fromM": 2421.0,
    "toM": 2437.0,
    "side": "right",
-   "edgeM": 6.3
+   "edgeM": 6.3,
+   "stripeM": 2.3
   },
   {
    "fromM": 2448.0,
    "toM": 2465.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2481.0,
    "toM": 2490.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2496.0,
    "toM": 2517.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2500.0,
    "toM": 2562.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.53
   },
   {
    "fromM": 2583.0,
    "toM": 2601.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2616.0,
    "toM": 2734.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": 2.38
   },
   {
    "fromM": 2656.0,
    "toM": 2662.0,
    "side": "left",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 2672.0,
    "toM": 2679.0,
    "side": "left",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 2703.0,
    "toM": 2710.0,
    "side": "left",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 2738.0,
    "toM": 2758.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": 2.35
   },
   {
    "fromM": 2743.0,
    "toM": 2748.0,
    "side": "left",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 2790.0,
    "toM": 2805.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 2791.0,
    "toM": 2803.0,
    "side": "left",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 2816.0,
    "toM": 2821.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 2859.0,
    "toM": 2869.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2861.0,
    "toM": 2867.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2871.0,
    "toM": 2892.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2877.0,
    "toM": 2898.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2916.0,
    "toM": 2939.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 2965.0,
    "toM": 3046.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.45
   },
   {
    "fromM": 2975.0,
    "toM": 2996.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 0.68
   },
   {
    "fromM": 3011.0,
    "toM": 3018.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 3025.0,
    "toM": 3049.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 3069.0,
    "toM": 3076.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 3134.0,
    "toM": 3150.0,
    "side": "right",
-   "edgeM": 6.3
+   "edgeM": 6.3,
+   "stripeM": 0.33
   },
   {
    "fromM": 3146.0,
    "toM": 3226.0,
    "side": "left",
-   "edgeM": 6.3
+   "edgeM": 6.3,
+   "stripeM": 2.05
   },
   {
    "fromM": 3183.0,
    "toM": 3190.0,
    "side": "right",
-   "edgeM": 6.3
+   "edgeM": 6.3,
+   "stripeM": null
   },
   {
    "fromM": 3207.0,
    "toM": 3213.0,
    "side": "right",
-   "edgeM": 6.3
+   "edgeM": 6.3,
+   "stripeM": null
   },
   {
    "fromM": 3220.0,
    "toM": 3225.0,
    "side": "right",
-   "edgeM": 6.3
+   "edgeM": 6.3,
+   "stripeM": null
   },
   {
    "fromM": 3230.0,
    "toM": 3305.0,
    "side": "left",
-   "edgeM": 6.6
+   "edgeM": 6.6,
+   "stripeM": 2.15
   },
   {
    "fromM": 3233.0,
    "toM": 3267.0,
    "side": "right",
-   "edgeM": 6.3
+   "edgeM": 6.3,
+   "stripeM": null
   },
   {
    "fromM": 3271.0,
    "toM": 3278.0,
    "side": "right",
-   "edgeM": 6.7
+   "edgeM": 6.7,
+   "stripeM": null
   },
   {
    "fromM": 3283.0,
    "toM": 3290.0,
    "side": "right",
-   "edgeM": 6.9
+   "edgeM": 6.9,
+   "stripeM": null
   },
   {
    "fromM": 3294.0,
    "toM": 3333.0,
    "side": "right",
-   "edgeM": 6.9
+   "edgeM": 6.9,
+   "stripeM": 2.7
   },
   {
    "fromM": 3310.0,
    "toM": 3323.0,
    "side": "left",
-   "edgeM": 7.0
+   "edgeM": 7.0,
+   "stripeM": 2.2
   },
   {
    "fromM": 3327.0,
    "toM": 3337.0,
    "side": "left",
-   "edgeM": 7.0
+   "edgeM": 7.0,
+   "stripeM": null
   },
   {
    "fromM": 3337.0,
    "toM": 3366.0,
    "side": "right",
-   "edgeM": 7.0
+   "edgeM": 7.0,
+   "stripeM": 2.6
   },
   {
    "fromM": 3341.0,
    "toM": 3351.0,
    "side": "left",
-   "edgeM": 6.9
+   "edgeM": 6.9,
+   "stripeM": null
   },
   {
    "fromM": 3359.0,
    "toM": 3383.0,
    "side": "left",
-   "edgeM": 6.95
+   "edgeM": 6.95,
+   "stripeM": 2.3
   },
   {
    "fromM": 3387.0,
    "toM": 3487.0,
    "side": "left",
-   "edgeM": 6.95
+   "edgeM": 6.95,
+   "stripeM": 2.2
   },
   {
    "fromM": 3410.0,
    "toM": 3417.0,
    "side": "right",
-   "edgeM": 6.9
+   "edgeM": 6.9,
+   "stripeM": null
   },
   {
    "fromM": 3435.0,
    "toM": 3447.0,
    "side": "right",
-   "edgeM": 7.0
+   "edgeM": 7.0,
+   "stripeM": 2.55
   },
   {
    "fromM": 3451.0,
    "toM": 3478.0,
    "side": "right",
-   "edgeM": 6.8
+   "edgeM": 6.8,
+   "stripeM": null
   },
   {
    "fromM": 3483.0,
    "toM": 3489.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 3491.0,
    "toM": 3567.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.33
   },
   {
    "fromM": 3496.0,
    "toM": 3503.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 3507.0,
    "toM": 3512.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 3571.0,
    "toM": 3590.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.33
   },
   {
    "fromM": 3598.0,
    "toM": 3609.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 3613.0,
    "toM": 3623.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 3717.0,
    "toM": 3730.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 0.28
   },
   {
    "fromM": 3719.0,
    "toM": 3728.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 3733.0,
    "toM": 3745.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 3749.0,
    "toM": 3771.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 3763.0,
    "toM": 3771.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 3849.0,
    "toM": 3864.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.23
   },
   {
    "fromM": 3886.0,
    "toM": 3895.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 3890.0,
    "toM": 3918.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 3965.0,
    "toM": 3983.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4052.0,
    "toM": 4060.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4089.0,
    "toM": 4097.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4108.0,
    "toM": 4116.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4135.0,
    "toM": 4142.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4159.0,
    "toM": 4169.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4188.0,
    "toM": 4194.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4191.0,
    "toM": 4200.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4207.0,
    "toM": 4220.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 0.23
   },
   {
    "fromM": 4212.0,
    "toM": 4221.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4236.0,
    "toM": 4244.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4242.0,
    "toM": 4249.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4268.0,
    "toM": 4274.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4282.0,
    "toM": 4289.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4303.0,
    "toM": 4333.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.95
   },
   {
    "fromM": 4305.0,
    "toM": 4314.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4321.0,
    "toM": 4340.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4350.0,
    "toM": 4359.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4354.0,
    "toM": 4371.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.15
   },
   {
    "fromM": 4399.0,
    "toM": 4405.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4411.0,
    "toM": 4417.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4419.0,
    "toM": 4433.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 1.43
   },
   {
    "fromM": 4425.0,
    "toM": 4430.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4442.0,
    "toM": 4450.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4457.0,
    "toM": 4466.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4481.0,
    "toM": 4486.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4501.0,
    "toM": 4527.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 0.35
   },
   {
    "fromM": 4518.0,
    "toM": 4545.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4534.0,
    "toM": 4544.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4580.0,
    "toM": 4585.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4595.0,
    "toM": 4600.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4626.0,
    "toM": 4701.0,
    "side": "left",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": 2.4
   },
   {
    "fromM": 4644.0,
    "toM": 4649.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4660.0,
    "toM": 4694.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 4707.0,
    "toM": 4715.0,
    "side": "right",
-   "edgeM": 7.2
+   "edgeM": 7.2,
+   "stripeM": null
   },
   {
    "fromM": 4721.0,
    "toM": 4729.0,
    "side": "right",
-   "edgeM": 7.25
+   "edgeM": 7.25,
+   "stripeM": null
   },
   {
    "fromM": 4742.0,
    "toM": 4752.0,
    "side": "left",
-   "edgeM": 8.85
+   "edgeM": 8.85,
+   "stripeM": null
   },
   {
    "fromM": 4756.0,
    "toM": 4782.0,
    "side": "left",
-   "edgeM": 8.25
+   "edgeM": 8.25,
+   "stripeM": 2.38
   },
   {
    "fromM": 4767.0,
    "toM": 4783.0,
    "side": "right",
-   "edgeM": 7.65
+   "edgeM": 7.65,
+   "stripeM": 0.33
   },
   {
    "fromM": 4787.0,
    "toM": 4797.0,
    "side": "right",
-   "edgeM": 6.62
+   "edgeM": 6.62,
+   "stripeM": null
   },
   {
    "fromM": 4790.0,
    "toM": 4807.0,
    "side": "left",
-   "edgeM": 6.7
+   "edgeM": 6.7,
+   "stripeM": null
   },
   {
    "fromM": 4808.0,
    "toM": 4816.0,
    "side": "right",
-   "edgeM": 6.57
+   "edgeM": 6.57,
+   "stripeM": null
   },
   {
    "fromM": 4811.0,
    "toM": 4835.0,
    "side": "left",
-   "edgeM": 6.6
+   "edgeM": 6.6,
+   "stripeM": 0.33
   },
   {
    "fromM": 4836.0,
    "toM": 4842.0,
    "side": "right",
-   "edgeM": 6.6
+   "edgeM": 6.6,
+   "stripeM": null
   },
   {
    "fromM": 4845.0,
    "toM": 4851.0,
    "side": "left",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 4847.0,
    "toM": 4859.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 4856.0,
    "toM": 4874.0,
    "side": "left",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 4874.0,
    "toM": 4879.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 4890.0,
    "toM": 4897.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 4899.0,
    "toM": 4911.0,
    "side": "left",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 4910.0,
    "toM": 4917.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 4922.0,
    "toM": 4930.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 4957.0,
    "toM": 4992.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": 2.4
   },
   {
    "fromM": 4962.0,
    "toM": 4968.0,
    "side": "left",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 4999.0,
    "toM": 5006.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 5034.0,
    "toM": 5044.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 5048.0,
    "toM": 5054.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 5059.0,
    "toM": 5066.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 5076.0,
    "toM": 5081.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 5099.0,
    "toM": 5132.0,
    "side": "left",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 5107.0,
    "toM": 5114.0,
    "side": "right",
-   "edgeM": 6.4
+   "edgeM": 6.4,
+   "stripeM": null
   },
   {
    "fromM": 5118.0,
    "toM": 5133.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": 2.4
   },
   {
    "fromM": 5137.0,
    "toM": 5152.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": 2.38
   },
   {
    "fromM": 5164.0,
    "toM": 5175.0,
    "side": "left",
-   "edgeM": 6.6
+   "edgeM": 6.6,
+   "stripeM": null
   },
   {
    "fromM": 5165.0,
    "toM": 5176.0,
    "side": "right",
-   "edgeM": 6.5
+   "edgeM": 6.5,
+   "stripeM": null
   },
   {
    "fromM": 5180.0,
    "toM": 5186.0,
    "side": "right",
-   "edgeM": 6.53
+   "edgeM": 6.53,
+   "stripeM": null
   },
   {
    "fromM": 5258.0,
    "toM": 5268.0,
    "side": "left",
-   "edgeM": 6.6
+   "edgeM": 6.6,
+   "stripeM": null
   },
   {
    "fromM": 5272.0,
    "toM": 5280.0,
    "side": "left",
-   "edgeM": 6.7
+   "edgeM": 6.7,
+   "stripeM": null
   },
   {
    "fromM": 5326.0,
    "toM": 5333.0,
    "side": "left",
-   "edgeM": 6.7
+   "edgeM": 6.7,
+   "stripeM": null
   },
   {
    "fromM": 5371.0,
    "toM": 5379.0,
    "side": "left",
-   "edgeM": 6.7
+   "edgeM": 6.7,
+   "stripeM": null
   }
  ],
  "quality": {

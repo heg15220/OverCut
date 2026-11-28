@@ -54,6 +54,17 @@
  * onboard mix to its target loudness; a stereo track bed sits under TV, helicopter and chase
  * and the crowd is decorrelated left and right.
  *
+ * Pit lane, kerbs and rain (AUD-C7, AUD-C8, AUD-C5, F1M24-CHINA §2.7, §2.9): the stop sounds as
+ * one-shots on the engine's stages (pose.pitStage, PIT-C2's `{ name, t, start, duration }` or the
+ * old string), scheduled on the audio clock from the race time; the engine idles `pit.idleDb` lower
+ * in the box; the pit limiter cuts on the engine's `pitExitLine` event (events, line "limit") rather
+ * than on the nearest snapshot. The kerb under the focus car is found with the engine's distance
+ * from the spline (axisOffsetOf) and rumbles at its own measured pitch. The rain is `drops` (the
+ * frame's optional `weather`, snapshot.weather: rain rate and state; without it the wetness as
+ * before) and `spray` per voiced car (the frame's optional `spray`, snapshot.spray[], or the water
+ * on the line), each with its camera's share (mixer.cameras.mix.*.rain). All optional: a frame
+ * without them sounds as before, but with the drops in 1-8 kHz under the engines.
+ *
  * Recorded engines (AUD-C10): off by default (mixer.defaults.recorded false); every bank is
  * riskRipped or without a licence, so it only sounds when the viewer turns it on in a local
  * build, never in a public one (engineSamples.bankAllowed).
@@ -65,9 +76,9 @@ import { loadSeasonPack } from "../../engine/packs/seasonPacks";
 import audioData from "../../data/balance/audio.json";
 import { createEngineVoice, driveStep, engineSpecFor, safetyCarSpecFor } from "./engineSynth";
 import { assignVoices, blendMix, busGains, cameraListener, cameraUsable, createMixer, distanceGain, dopplerFactor, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, transitionAt, viewMix, viewTransition } from "./mixer";
-import { airGunsOn, createAmbience, crowdLevel, fieldBedOf, trackBedOf, gridRevsOf, kerbRumble, makeNoiseBuffer, rainOf, squeals, startLightsStep, swellFor, windOf } from "./ambience";
+import { airGunsOn, createAmbience, createPitSoundState, createSprayVoice, crowdLevel, dropGrains, dropsOf, fieldBedOf, idleGainOf, limiterPhaseOf, pitEventTime, pitSoundStep, rainShareOf, sprayLevelFor, sprayVoiceOf, trackBedOf, gridRevsOf, kerbRumble, makeNoiseBuffer, squeals, startLightsStep, swellFor, windOf } from "./ambience";
 import { firingFrequency } from "./engineSynth";
-import { kerbZonesFor, onKerb } from "./kerbs";
+import { axisOffsetOf, kerbAt, kerbZonesFor } from "./kerbs";
 import { clickCueFor, createUiCueState, gateCue, isUiCue, playCue, uiCuesStep } from "./uiSounds";
 import { SAFETY_CAR_ID, createScCueState, scCarOf, scCuesStep } from "./safetyCarSound";
 import { createSampledVoice, loadEngineBank, recordedAvailable, sampleBankFor } from "./engineSamples";
@@ -133,6 +144,14 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
   const bankOfSpec = new WeakMap();
   const sampleRandom = createStream(`${seed}::audio::samples`).next;
   let panners = [];
+  // AUD-C5: one spray voice per pooled slot, on that slot's panner.
+  let sprays = [];
+  // AUD-C7: the stop one-shots heard per car, and the race time each car crosses the end of the limiter.
+  const pitMemo = createPitSoundState();
+  const exitAt = new Map();
+  let lineSeen = 0;
+  // AUD-C5: the drop grains on their own seeded stream (RF-SIM-15), so they never move the shared one.
+  const rainRandom = createStream(`${seed}::audio::rain`).next;
   let slots = [];
   let settings = loadSettings();
   let teamEngines = engines;
@@ -239,6 +258,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         sampled[index].out.connect(panner);
         return panner;
       });
+      sprays = panners.map((panner, index) => createSprayVoice(ctx, noise, panner, index));
       slots = new Array(size).fill(null);
       mixer.apply(settings, ctx.currentTime);
       ensureBanks();
@@ -274,9 +294,11 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
      * vsc (snapshot.sc / snapshot.vsc) with scPose (where the view draws the safety car), and
      * speed (the simulation speed, AUD-C1; x1 when absent), and panels (AUD-C3: the player's
      * driver cards' carIds in screen order, left to right, so each radio message sounds on
-     * its driver's side; absent, the radio is centred).
+     * its driver's side; absent, the radio is centred). AUD-C5: weather (snapshot.weather
+     * { state, rainRate, waterMm: { line, off, sectors } }) and spray (snapshot.spray[], by the
+     * index of `cars`, or { carId: level }); a car may carry its own `spray` and `compound`.
      */
-    frame({ tau = 0, playing = true, mode = "tv", focusId = null, cars = [], wetness = 0, events = [], started: startedFlag = false, view = null, camera, circuit: frameCircuit, start: frameStart = null, radio, panels = null, sc = null, vsc = null, scPose = null, speed = 1 }) {
+    frame({ tau = 0, playing = true, mode = "tv", focusId = null, cars = [], wetness = 0, events = [], started: startedFlag = false, view = null, camera, circuit: frameCircuit, start: frameStart = null, radio, panels = null, sc = null, vsc = null, scPose = null, speed = 1, weather = null, spray = null }) {
       if (!ctx || ctx.state === "closed") return;
       const now = ctx.currentTime;
       const dt = lastTime === null ? 0 : Math.max(0, now - lastTime);
@@ -324,12 +346,24 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       const step = transitionAt(fade.transition, (now - fade.at) * 1000);
       const mix = blendMix(fade.from, target, step.k);
       shownMix = mix;
+      // AUD-C5: this camera's rain shares (drops, spray, the halo's low-pass on board).
+      const rainShare = rainShareOf(mix);
       mixer.applyView(mix, now, { extraDb: step.db, tauSec: fade.transition ? fade.transition.tauSec : undefined });
 
+      // AUD-C7: the end of the limited zone of each car leaving the lane (the engine's pitExitLine events).
+      if (lineSeen > events.length) lineSeen = 0;
+      events.slice(lineSeen).forEach((event) => {
+        if (event && event.type === "pitExitLine" && event.line === "limit" && event.carId != null && Number.isFinite(event.t)) exitAt.set(event.carId, event.t);
+      });
+      lineSeen = events.length;
       // Every car's drivetrain, cheap pure maths (22 cars).
       const placed = [];
-      cars.forEach(({ id, teamId, pose }) => {
-        if (!pose) return;
+      cars.forEach((entry, carIndex) => {
+        const { id, teamId, pose: seenPose } = entry;
+        if (!seenPose) return;
+        // The limiter cuts on the line the engine crossed, not on the snapshot the view is nearest to.
+        const phase = limiterPhaseOf(seenPose, exitAt.get(id), tau);
+        const pose = phase !== seenPose.pitPhase ? { ...seenPose, pitPhase: phase } : seenPose;
         const spec = specOf(teamId);
         const state = driveStep(spec, drive.get(id), pose, dtau, dt);
         drive.set(id, state);
@@ -343,7 +377,9 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
           }
         }
         const heading = pose.heading || 0;
-        placed.push({ id, spec, state, pose, x: pose.x, y: pose.y, vx: Math.cos(heading) * state.v, vy: Math.sin(heading) * state.v, gone: engineOff(pose, state) });
+        const sprayLevel = sprayLevelFor({ car: entry, index: carIndex, spray, weather, year });
+        const compound = entry.compound || pose.compound || null;
+        placed.push({ id, spec, state, pose, sprayLevel, compound, x: pose.x, y: pose.y, vx: Math.cos(heading) * state.v, vy: Math.sin(heading) * state.v, gone: engineOff(pose, state) });
       });
       // The safety car on the road (AUD-5): one more car for the pool, after the field.
       const scCar = scCarOf(scSpec, sc, { pose: scPose, circuit: kerbCircuit });
@@ -386,9 +422,11 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         const voice = voices[index];
         const twin = sampled[index];
         const car = id && byId.get(id);
+        const sprayVoice = sprays[index];
         if (!car) {
           voice.silence(now);
           twin.silence(now);
+          if (sprayVoice) sprayVoice.silence(now);
           return;
         }
         const bank = bankFor(car.spec);
@@ -398,7 +436,13 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         const sy = atEar ? listener.y : car.y;
         mixer.setPosition(panners[index], sx, sy, atEar ? listener.z : 0.6, now);
         const doppler = atEar ? 1 : dopplerFactor({ x: car.x, y: car.y, z: 0.6, vx: car.vx, vy: car.vy }, listener);
-        const share = (car.id === focus?.id ? mix.focus : mix.field) * (car.spec.safetyCar ? audioData.safetyCar.voiceGain : 1);
+        // AUD-C7: standing in the box the engine idles lower (pit.idleDb).
+        const share = (car.id === focus?.id ? mix.focus : mix.field) * (car.spec.safetyCar ? audioData.safetyCar.voiceGain : 1) * idleGainOf(car.pose);
+        // AUD-C5: its spray, on its own panner with its Doppler, at the camera's spray share.
+        if (sprayVoice) {
+          const hiss = car.gone ? { gain: 0 } : sprayVoiceOf(car.sprayLevel, car.state.v * KMH, car.compound);
+          sprayVoice.update({ ...hiss, gain: hiss.gain * (car.id === focus?.id ? 1 : mix.field) * rainShare.spray, doppler, time: now });
+        }
         const overrun = car.state.load < 0.2 && car.state.rpm > car.spec.revLimit * 0.5;
         const crackle = overrun && random() < VOICING.crackleRatePerSec * car.spec.crackle * Math.max(dt, 0.016) ? 1 : 0;
         const voiceMix = { gain: share, doppler, interior: atEar ? mix.interior : 0, lowpassHz: mix.lowpassHz, time: now, crackle };
@@ -431,6 +475,9 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       swells = swells.filter((swell) => now - swell.at < audioData.ambience.crowd.decaySec * 6);
 
       // Lock-ups and spins squeal when they start; air guns while a stop changes wheels near the ear.
+      // AUD-C7: with pit.events the stop is its one-shots (two gun hits per wheel, the jacks, the
+      // release) on the engine's stage times; the rattle loop only without them.
+      const PIT = audioData.ambience.pit;
       let guns = 0;
       placed.forEach((car) => {
         const metres = Math.hypot(car.x - listener.x, car.y - listener.y, listener.z || 0);
@@ -438,7 +485,11 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         const is = car.pose.incident || null;
         if (is !== was && squeals(is) && metres < audioData.ambience.impact.audibleMetres && playing) ambience.squeal(now, distanceGain(metres));
         incidents.set(car.id, is);
-        if (airGunsOn(car.pose.pitStage) && metres < audioData.ambience.pit.audibleMetres) guns = Math.max(guns, distanceGain(metres));
+        if (PIT.events) {
+          const rate = Math.max(1, Number.isFinite(speed) ? speed : 1);
+          const shots = pitSoundStep(pitMemo, car.id, car.pose, tau, { lookahead: PIT.events.lookaheadSec * rate, stale: PIT.events.staleSec * rate });
+          if (playing && !skipped && metres < PIT.audibleMetres) shots.forEach((shot) => ambience.pitShot(shot.kind, pitEventTime(now, tau, shot.at, speed), distanceGain(metres)));
+        } else if (airGunsOn(car.pose.pitStage) && metres < PIT.audibleMetres) guns = Math.max(guns, distanceGain(metres));
       });
 
       const focusKmh = focus ? focus.state.v * KMH : 0;
@@ -449,8 +500,9 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         slots,
       );
       // The kerb under the focus car (only when it is heard up close: its gain goes with the distance).
-      const kerbOn = Boolean(focus && playing && !focus.pose.inPit && onKerb(kerbZones, focus.pose.progress, focus.pose.lateral, audioData.ambience.kerb.reachM));
-      const rumble = kerbRumble(focusKmh, kerbOn);
+      // AUD-C8: on the engine's distance from the spline (racing line + lateral, §1.5), at the kerb's measured pitch.
+      const kerb = focus && playing && !focus.pose.inPit ? kerbAt(kerbZones, focus.pose.progress, axisOffsetOf(focus.pose, kerbCircuit), audioData.ambience.kerb.reachM) : null;
+      const rumble = kerbRumble(focusKmh, Boolean(kerb), audioData.ambience.kerb, kerb ? kerb.stripeM : null);
       const kerbNear = mix.listener === "car" || !focus ? 1 : distanceGain(Math.hypot(focus.x - listener.x, focus.y - listener.y, listener.z || 0));
       ambience.update({
         bed: { level: bed.level * mix.field, hz: bed.hz },
@@ -460,7 +512,11 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         crowdShare: mix.crowd,
         trackBed: trackBedOf(mix),
         wind: windOf(playing ? focusKmh : 0, mix.wind),
-        rain: rainOf(wetness),
+        drops: (() => {
+          // AUD-C5: what falls (never the water left on the track), at the camera's share, with its seeded grains.
+          const level = dropsOf(weather, wetness) * rainShare.drops;
+          return { gain: level, lowpassHz: rainShare.lowpassHz, grains: playing ? dropGrains(rainRandom, level, dt) : [] };
+        })(),
         guns: playing ? guns : 0,
       });
     },
@@ -469,6 +525,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       if (!ctx) return;
       voices.forEach((voice) => voice.stop());
       sampled.forEach((voice) => voice.stop());
+      sprays.forEach((voice) => voice.stop());
       if (ambience) ambience.stop();
       if (ffBed) ffBed.stop();
       if (mixer) mixer.disconnect();

@@ -376,14 +376,14 @@
       "makeupDb": 13.4
     },
     "cameras": {
-      "$comment": "NV: mezcla por cámara de LiveRace (RF-3D-04). Oyente: 'car' va con el coche enfocado (offset en metros: atrás, lado, alto); 'post' es un poste de TV junto a la pista delante del coche que se recoloca cuando el coche lo pasa; 'above' sobre el coche. 'focus' y 'field' son las ganancias del coche enfocado y del resto; 'interior' sube la admisión y oscurece el escape (a bordo). 'bed' (AUD-C4): cuota del lecho de pista estéreo (ambience.trackBed), siempre presente en TV, helicóptero y persecución y fuera a bordo (el motor a bordo suena mono, correlación ~1) y en el mapa (el avance rápido tiene su propio lecho).",
+      "$comment": "NV: mezcla por cámara de LiveRace (RF-3D-04). Oyente: 'car' va con el coche enfocado (offset en metros: atrás, lado, alto); 'post' es un poste de TV junto a la pista delante del coche que se recoloca cuando el coche lo pasa; 'above' sobre el coche. 'focus' y 'field' son las ganancias del coche enfocado y del resto; 'interior' sube la admisión y oscurece el escape (a bordo). 'bed' (AUD-C4): cuota del lecho de pista estéreo (ambience.trackBed), siempre presente en TV, helicóptero y persecución y fuera a bordo (el motor a bordo suena mono, correlación ~1) y en el mapa (el avance rápido tiene su propio lecho). 'rain' (AUD-C5, F1M24-CHINA §2.9): cuotas de la lluvia por cámara, drops (lo que cae, ambience.rain.drops), spray (el agua que levanta cada coche, en su voz) y lowpassHz, el paso bajo de las gotas (a bordo, 2,5 kHz: las gotas sobre el halo y el casco suenan apagadas); todo NV, diseño propio, elegido para que el motor quede ≥ 6 dB sobre la lluvia en 150-1.500 Hz y el centroide de la TV ≤ 5 kHz (modelo offline de ambience.js, audio.test.js).",
       "groups": {"onboard": ["tcam", "visor", "nose", "tcamRear"], "chase": ["chase", "drone"], "tv": ["tv"], "heli": ["heli"], "map": ["map", "follow"]},
       "mix": {
-        "onboard": {"listener": "car", "back": 0, "side": 0, "up": 1, "focus": 0.8, "field": 0.55, "interior": 1, "crowd": 0.35, "wind": 1.0, "bed": 0, "lowpassHz": 12000},
-        "chase": {"listener": "car", "back": 9, "side": 0, "up": 2.5, "focus": 0.9, "field": 0.7, "interior": 0, "crowd": 0.55, "wind": 0.45, "bed": 0.5, "lowpassHz": 14000},
-        "tv": {"listener": "post", "useCamera": true, "ahead": 160, "side": 25, "up": 6, "passBehind": 120, "focus": 1.0, "field": 0.85, "interior": 0, "crowd": 1.0, "wind": 0.15, "bed": 1.0, "lowpassHz": 16000},
-        "heli": {"listener": "above", "useCamera": true, "back": 0, "side": 30, "up": 140, "focus": 1.0, "field": 0.9, "interior": 0, "crowd": 0.7, "wind": 0.6, "bed": 0.8, "lowpassHz": 5000},
-        "map": {"listener": "above", "back": 0, "side": 0, "up": 220, "focus": 1.0, "field": 0.8, "interior": 0, "crowd": 0.6, "wind": 0.2, "bed": 0, "lowpassHz": 4000}
+        "onboard": {"listener": "car", "back": 0, "side": 0, "up": 1, "focus": 0.8, "field": 0.55, "interior": 1, "crowd": 0.35, "wind": 1.0, "bed": 0, "lowpassHz": 12000, "rain": {"drops": 0.7, "spray": 0.5, "lowpassHz": 2500}},
+        "chase": {"listener": "car", "back": 9, "side": 0, "up": 2.5, "focus": 0.9, "field": 0.7, "interior": 0, "crowd": 0.55, "wind": 0.45, "bed": 0.5, "lowpassHz": 14000, "rain": {"drops": 0.8, "spray": 1.0, "lowpassHz": 9000}},
+        "tv": {"listener": "post", "useCamera": true, "ahead": 160, "side": 25, "up": 6, "passBehind": 120, "focus": 1.0, "field": 0.85, "interior": 0, "crowd": 1.0, "wind": 0.15, "bed": 1.0, "lowpassHz": 16000, "rain": {"drops": 0.55, "spray": 1.0, "lowpassHz": 8000}},
+        "heli": {"listener": "above", "useCamera": true, "back": 0, "side": 30, "up": 140, "focus": 1.0, "field": 0.9, "interior": 0, "crowd": 0.7, "wind": 0.6, "bed": 0.8, "lowpassHz": 5000, "rain": {"drops": 0.3, "spray": 0.6, "lowpassHz": 5000}},
+        "map": {"listener": "above", "back": 0, "side": 0, "up": 220, "focus": 1.0, "field": 0.8, "interior": 0, "crowd": 0.6, "wind": 0.2, "bed": 0, "lowpassHz": 4000, "rain": {"drops": 0.25, "spray": 0.3, "lowpassHz": 4000}}
       }
     },
     "views": {
@@ -450,18 +450,71 @@
       "smoothingSec": 0.25
     },
     "kerb": {
-      "$comment": "Pianos (kerbs-wind, RF-3D-03, RF-3D-04): suena cuando el coche enfocado pisa un piano de data/circuits/<splineId>/kerbs.json (sacado de la malla por tools/assets/blender/extract_kerbs.py): dentro del tramo y con su desplazamiento lateral (pose.lateral, + = derecha como splines.json line) a menos de reachM del borde de ese lado (reachM NV: la trazada de curvatura mínima deja el centro del coche a trackMarginM = 1,3 m del borde, splines.json; con 1,5 m la trazada pisa el piano en el vértice y la salida). Zumbido grave: onda cuadrada a v / stripeM Hz por un paso bajo en lowpassHz. stripeM pending: sin fuente del paso de los resaltes de un piano (deja ~40 Hz a 200 km/h, el orden de lo que se oye a bordo en la referencia). gain, reachM, minKmh y lowpassHz NV, diseño propio. Sin kerbs.json para el circuito o sin lateral (modo rápido) no suena.",
+      "$comment": "Pianos (kerbs-wind, RF-3D-03, RF-3D-04): suena cuando el coche enfocado pisa un piano de data/circuits/<splineId>/kerbs.json (sacado de la malla por tools/assets/blender/extract_kerbs.py): dentro del tramo y con su desplazamiento lateral (pose.lateral, + = derecha como splines.json line) a menos de reachM del borde de ese lado (reachM NV: la trazada de curvatura mínima deja el centro del coche a trackMarginM = 1,3 m del borde, splines.json; con 1,5 m la trazada pisa el piano en el vértice y la salida). Zumbido grave: onda cuadrada a v / stripeM Hz por un paso bajo en lowpassHz. AUD-C8 (F1M24-CHINA §2.7): el desplazamiento es la distancia del coche a la spline que da el motor (trazada + lateral, §1.5: pose.axisOffset, o lineOffset + lateral, o engine/trackData.js lineAt + lateral), no el lateral respecto a la trazada (con CAM-3 el coche enfocado casi nunca pisaba el piano). El paso de los resaltes se mide en la malla (extract_kerbs.py v2: autocorrelación de la pintura a lo largo de cada piano; stripeM = media franja roja+blanca, suponiendo que cada franja es un bloque del piano): cada piano medido suena con el suyo (kerbs.json kerbs[].stripeM) y este stripeM es la mediana ponderada por longitud de Shanghái (2,38 m; p25-p75 2,07-2,53 m; 60 de 228 pianos con periodo claro), el respaldo de los pianos y circuitos sin medir. La distribución es bimodal: unos pocos pianos dan 0,23-0,35 m (probablemente el estriado de su textura, no las franjas): suenan con el suyo y maxHz 160 los recorta. Antes 1,4 m pending (~40 Hz a 200 km/h) y maxHz 90. gain, reachM, minKmh y lowpassHz NV, diseño propio (lowpassHz sube con maxHz para dejar armónicos). Sin kerbs.json para el circuito o sin lateral (modo rápido) no suena.",
       "gain": 0.4,
-      "stripeM": 1.4,
-      "stripeStatus": "pending",
+      "stripeM": 2.38,
+      "stripeStatus": "measured",
+      "stripeSource": "data/circuits/shanghai-1/kerbs.json (extract_kerbs.py v2, mediana ponderada)",
       "reachM": 1.5,
       "minKmh": 60,
-      "lowpassHz": 160,
+      "lowpassHz": 320,
       "minHz": 15,
-      "maxHz": 90
+      "maxHz": 160
     },
-    "rain": {"gain": 0.32, "threshold": 0.05, "hz": 4500, "q": 0.4},
-    "pit": {"airGunHz": 22, "airGunGain": 0.5, "airGunBandHz": 3200, "stages": ["wheels"], "audibleMetres": 150},
+    "rain": {
+      "$comment": "Lluvia (RF-SIM-11, RF-3D-04, RNF-05, RNF-07). AUD-C5 (F1M24-CHINA §2.9): antes un paso alto de 4,5 kHz con gain 0,32 igual en todas las cámaras (captura propia: centroide 9,5 kHz y 10-20 kHz a −6 dB, la lluvia tapaba los motores). Ahora dos capas que leen el mismo dato del motor, sin recalcular nada: 'drops', lo que cae, del ritmo de lluvia de snapshot.weather (rainRate, o el del estado en race-weather.json states); nivel = drops.gain × raíz(ritmo / fullMmPerHour), y nunca el agua que queda en pista (una pista que se seca no tiene gotas); ruido entre bandHz (1-8 kHz) con una inclinación hacia rosa (tilt, estante alto) y el paso bajo de la cámara (mixer.cameras.mix.*.rain.lowpassHz: a bordo, bajo el halo), más gránulos cortos sembrados (grains, con su propio flujo: RF-SIM-15). 'spray', el agua que levanta cada coche (snapshot.spray[i], §1.5; sin él, sprayLevelOf del agua en la trazada), en la voz de cada coche con su panner y su Doppler: nivel × min(1, v / fullKmh) × gain × el del compuesto (byCompound; el que no se sabe, default), sigue mientras la pista se seca. gain y threshold son el respaldo de antes (sin snapshot.weather, la humedad 0..1). fullMmPerHour = 12, la lluvia fuerte de race-weather.json states (AMS). Todo lo demás NV, diseño propio, elegido para que el motor quede ≥ 6 dB sobre la lluvia en 150-1.500 Hz y el centroide de la TV ≤ 5 kHz (modelo offline de ambience.js, audio.test.js). Ningún sonido grabado ni del juego.",
+      "gain": 0.32,
+      "threshold": 0.05,
+      "drops": {
+        "status": "NV",
+        "gain": 0.24,
+        "fullMmPerHour": 12,
+        "fullSource": "race-weather.json states.heavy.rainMmPerHour",
+        "bandHz": [1000, 8000],
+        "q": 0.6,
+        "tilt": {"hz": 3000, "db": -6},
+        "lowpassHz": 8000,
+        "bedShare": 0.6,
+        "smoothingSec": 0.5,
+        "grains": {"perSecAtFull": 60, "durationSec": [0.004, 0.018], "gain": 0.9, "maxPerFrame": 6, "bufferSec": 2}
+      },
+      "spray": {
+        "status": "NV",
+        "gain": 0.3,
+        "minKmh": 30,
+        "fullKmh": 250,
+        "smoothingSec": 0.15,
+        "byCompound": {
+          "wet": {"hz": 2200, "q": 0.6, "gain": 1.0},
+          "intermediate": {"hz": 2800, "q": 0.6, "gain": 0.75},
+          "default": {"hz": 3200, "q": 0.5, "gain": 0.6}
+        },
+        "compoundStatus": "pending",
+        "compoundNote": "El orden (lluvia > intermedio > liso) sigue el caudal que evacua cada neumático; las cifras de Pirelli que se citan de memoria (unos 85 l/s el de lluvia y 30 l/s el intermedio a 300 km/h) no se han verificado en una fuente de Pirelli: las ganancias y frecuencias son diseño propio hasta leerla."
+      }
+    },
+    "pit": {
+      "$comment": "Boxes (RF-SIM-12, RF-3D-04, RNF-07). airGun*, stages: el traqueteo de antes (un ruido modulado a airGunHz toda la etapa 'wheels'); solo suena sin el bloque events. AUD-C7 (F1M24-CHINA §2.7): con events, la parada son golpes sueltos sobre las etapas del motor (pose.pitStage, PIT-C2 {name, t, start, duration}; con sus 'events' o 'wheels', los tiempos de cada rueda): por rueda gunOff al empezar (afloja) y gunOn al acabar (aprieta), jackUp, jackDown y release; los tiempos son los del plan de la parada (race-pit.json vía engine/sim/pitStop.js), aquí solo el timbre. Se programan en el reloj de audio con lookaheadSec de antelación (en segundos de carrera, × la velocidad) y se descartan si llegan con más de staleSec de retraso (un salto). idleDb: el motor parado en el box suena más bajo (STATIONARY, QUEUE). exitWindowSec: alrededor del evento pitExitLine (línea 'limit', fin de la zona limitada, pitLane.js pitExitLineEvents) el limitador se corta en ese instante y no en la instantánea más cercana. Timbres, ganancias, idleDb y ventanas NV, diseño propio; ningún sonido ni ajuste del juego.",
+      "airGunHz": 22,
+      "airGunGain": 0.5,
+      "airGunBandHz": 3200,
+      "stages": ["wheels"],
+      "audibleMetres": 150,
+      "idleDb": -8,
+      "events": {
+        "status": "NV",
+        "lookaheadSec": 0.25,
+        "staleSec": 0.5,
+        "exitWindowSec": 3,
+        "shots": {
+          "gunOff": {"type": "gun", "hz": 3400, "q": 2.5, "rattleHz": 38, "attackSec": 0.003, "durationSec": 0.3, "gain": 0.6},
+          "gunOn": {"type": "gun", "hz": 2700, "q": 2.5, "rattleHz": 46, "attackSec": 0.003, "durationSec": 0.22, "gain": 0.7},
+          "jackUp": {"type": "thump", "hz": 90, "endHz": 55, "attackSec": 0.004, "durationSec": 0.16, "gain": 0.5},
+          "jackDown": {"type": "thump", "hz": 75, "endHz": 40, "attackSec": 0.003, "durationSec": 0.2, "gain": 0.8},
+          "release": {"type": "thump", "hz": 110, "endHz": 70, "attackSec": 0.005, "durationSec": 0.12, "gain": 0.3}
+        }
+      }
+    },
     "squeal": {"gain": 0.35, "hz": 1800, "vibratoHz": 7, "durationSec": 0.9, "kinds": ["lockup", "spin"]},
     "impact": {"gain": 0.8, "durationSec": 0.5, "lowHz": 180, "audibleMetres": 600},
     "startLights": {

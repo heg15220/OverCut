@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$comment": "data/circuits/<splineId>/kerbs.json (kerbs-wind, RF-3D-03, RF-3D-04): pianos sacados de la malla GLB por tools/assets/blender/extract_kerbs.py. Lo lee three/audio/kerbs.js.",
+  "$comment": "data/circuits/<splineId>/kerbs.json (kerbs-wind, RF-3D-03, RF-3D-04): pianos sacados de la malla GLB por tools/assets/blender/extract_kerbs.py. Lo lee three/audio/kerbs.js. v2 (AUD-C8, F1M24-CHINA §2.7): stripeM, el paso de los resaltes medido en la pintura de la malla (por piano y la mediana del circuito, stripeStatus measured), opcional para los kerbs.json v1.",
   "type": "object",
   "additionalProperties": false,
   "required": ["generator", "splineId", "source", "frame", "lengthM", "kerbs", "quality"],
@@ -11,6 +11,22 @@
     "source": {"type": "string", "minLength": 1},
     "frame": {"type": "string", "minLength": 1},
     "lengthM": {"type": "number", "exclusiveMinimum": 0},
+    "stripeM": {"anyOf": [{"type": "null"}, {"type": "number", "exclusiveMinimum": 0, "maximum": 5}]},
+    "stripeStatus": {"enum": ["measured", "pending"]},
+    "stripe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["basis", "kerbsMeasured", "kerbs"],
+      "properties": {
+        "basis": {"enum": ["paint"]},
+        "kerbsMeasured": {"type": "integer", "minimum": 0},
+        "kerbs": {"type": "integer", "minimum": 0},
+        "p25": {"anyOf": [{"type": "null"}, {"type": "number"}]},
+        "p75": {"anyOf": [{"type": "null"}, {"type": "number"}]},
+        "meanPeak": {"anyOf": [{"type": "null"}, {"type": "number"}]},
+        "finePx": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
     "kerbs": {
       "type": "array",
       "items": {
@@ -21,7 +37,8 @@
           "fromM": {"type": "number", "minimum": 0},
           "toM": {"type": "number", "minimum": 0},
           "side": {"enum": ["left", "right"]},
-          "edgeM": {"type": "number", "exclusiveMinimum": 0, "maximum": 40}
+          "edgeM": {"type": "number", "exclusiveMinimum": 0, "maximum": 40},
+          "stripeM": {"anyOf": [{"type": "null"}, {"type": "number", "exclusiveMinimum": 0, "maximum": 5}]}
         }
       }
     },
