@@ -34,19 +34,42 @@ export const weekend = ({ year = 2024, teamId = "ferrari", seed = "sim", circuit
   return { career, race: currentRace(career), make: () => createWeekendRace(career) };
 };
 
-/** Laps under (or just after) a safety car, by the leader's lap numbers in the events. */
+/**
+ * Laps under (or just after) a safety car or a red flag, by the leader's lap numbers in the events. A red flag runs
+ * from its lap to the lap after the restart (a standing restart is a start, like lap 1; a rolling one is followed by
+ * its own safety car): the suspended lap's time is the stoppage's, not a racing lap's (RF-SIM-10).
+ */
 const safetyCarLaps = (state) => {
   const laps = new Set();
   let open = null;
+  let red = null;
   state.events.forEach((event) => {
     if ((event.type === "sc" || event.type === "vsc") && open === null) open = event.lap;
     if (event.type === "sc-in" && open !== null) {
       for (let lap = open; lap <= event.lap + 1; lap += 1) laps.add(lap);
       open = null;
     }
+    if (event.type === "red" && red === null) red = event.lap;
+    if (event.type === "restart" && red !== null) {
+      for (let lap = red; lap <= event.lap + 1; lap += 1) laps.add(lap);
+      red = null;
+    }
   });
   if (open !== null) for (let lap = open; lap <= state.laps; lap += 1) laps.add(lap);
+  if (red !== null) for (let lap = red; lap <= state.laps; lap += 1) laps.add(lap);
   return laps;
+};
+
+/**
+ * The laps a car changed tyres on, as a key: its pit stops plus the red flags (redFlagTyres fits a fresh set to the
+ * whole field in the red-flag pit lane, a stop that leaves no pit entry). Two runs are in the same stint phase on a
+ * lap number only if their keys match.
+ */
+export const tyreChangesKey = (state, id) => {
+  const car = state.cars.find((entry) => entry.id === id);
+  const stops = car.history.filter((entry) => entry.pit).map((entry) => entry.lap);
+  const reds = state.events.filter((event) => event.type === "red").map((event) => `red${event.lap}`);
+  return [...stops, ...reds].join(",");
 };
 
 /**

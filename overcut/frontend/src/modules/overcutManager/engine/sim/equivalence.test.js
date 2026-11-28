@@ -13,7 +13,8 @@
  *            model). The fair comparison takes, per car and seed, only the laps that
  *            were clean in BOTH modes - the same lap numbers, so the same fuel load and
  *            stint phase - and leaves out the cars that stopped on different laps in the two
- *            modes (a safety car in one mode only), the laps the rival pit wall drove on a different
+ *            modes (a safety car in one mode only, or a red flag in one mode only: its pit lane
+ *            changes the tyres), the laps the rival pit wall drove on a different
  *            pace mode or fuel mix in each mode (RF-SIM-13: its calls read the gaps, which traffic
  *            makes differ), and those whose race carried a lasting incident
  *            (damage from a contact, a misfire): a handful of discrete draws per race on
@@ -29,7 +30,7 @@
 import { createRace, runToFinish } from "../race";
 import { eraOf, entrantsFor } from "../career";
 import { createStepRace, fromQuickRace, runStepToFinish } from "./index";
-import { carsWithIncidents, cleanLaps, cleanLapsByLap, meanOf, stdOf, weekend } from "./simTestKit";
+import { carsWithIncidents, cleanLaps, cleanLapsByLap, meanOf, stdOf, tyreChangesKey, weekend } from "./simTestKit";
 
 const SEEDS = ["eq1", "eq2", "eq3", "eq4"];
 // RF-SIM-11: wet laps scatter five times more than dry ones (the line drying): eight weekends.
@@ -71,8 +72,10 @@ const poolMatched = (runs, { dryBelow = null } = {}) => {
     const s = cleanLapsByLap(step);
     const hurt = new Set([...carsWithIncidents(quick), ...carsWithIncidents(step)]);
     // Same lap number is only the same stint phase if the car stopped on the same laps: a
-    // safety car one mode has and the other not moves the stops by ten laps (a free stop).
-    const stops = (state, id) => state.cars.find((car) => car.id === id).history.filter((entry) => entry.pit).map((entry) => entry.lap).join(",");
+    // safety car one mode has and the other not moves the stops by ten laps (a free stop), and a
+    // red flag one mode has and the other not changes every car's tyres in the red-flag pit lane
+    // (race.js redFlagTyres, no pit entry): tyreChangesKey counts both.
+    const stops = tyreChangesKey;
     // RF-SIM-13: the rival pit wall picks each lap's pace mode and fuel mix from the gaps around the
     // car, which traffic makes differ between the modes by design; a lap driven on another mode in
     // each (save against normal: ~0.5 s) is not the same lap. Only laps on the same call count.

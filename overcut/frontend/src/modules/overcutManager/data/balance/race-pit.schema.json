@@ -127,8 +127,8 @@
               "to": {"type": "integer"},
               "target": {
                 "type": "object",
-                "required": ["median", "ver", "note"],
-                "properties": {"median": {"type": "number", "exclusiveMinimum": 0}, "ver": {"enum": ["V", "S", "NV"]}, "note": {"type": "string"}}
+                "required": ["median", "ver", "measure", "note"],
+                "properties": {"median": {"type": "number", "exclusiveMinimum": 0}, "ver": {"enum": ["V", "S", "NV"]}, "measure": {"enum": ["lane", "stationary"], "description": "What the real median counts. lane: every stop as f1db pit_stops times it in the pit lane, so a double-stacked car's wait for its team-mate is inside it (eras whose target is derived from f1db lane times). stationary: the car on its marks only, without a queue (a stationary-time source, or a value with no published series)."}, "note": {"type": "string"}}
               },
               "marks": {"$ref": "#/definitions/stage"},
               "jackUp": {"$ref": "#/definitions/stage"},
