@@ -211,6 +211,25 @@
       "boxM": 60,
       "count": { "low": 600, "medium": 1600, "high": 2600 },
       "countAtMmH": 5
+    },
+    "hookup": {
+      "$comment": "LOOK-C4 (GS-10, VIEW-07; RF-SIM-11, RF-3D-04, RNF-05, RNF-07): enganche del mojado en Race3D.js (three/rain/hookup.js, three/rain/worldWet.js). La vista lee snapshot.weather o el weatherNow del worker (engine/weather weatherSnapshot) y snapshot.spray[i]/pose.spray; el booleano setWet desaparece. flagFallback: sin clima del motor (sesiones, modo rápido, partidas viejas) el antiguo prop 'wet' (booleano, o la humedad 0..1 con el umbral fromWetness = 0,2 que usaban LiveRace.js y SessionLive.js: current) equivale a una pista con la humedad 'wetness' (su agua en mm la da engine/weather depthOfWetness, no la vista), fuera de la trazada offOverLine veces más agua, y lluvia de rainMmH (1,5 mm/h = estado 'light' de race-weather.json states, el wetState de sky.session: sourced); wetness y offOverLine son diseño. lens.sprayReachM: hasta qué distancia el spray del coche de delante llega a la lente de la onboard (diseño, pending de medir con onboards FOM en mojado). haze: color del aire mojado de día y de noche con focos (current: los de trackScene.js applyWeather). worldMask: máscara cenital de la pista de un circuito GLB (el GLB no trae lateral ni nombres de material de asfalto: shanghai-1 usa 'Merged_materials_N'), rasterizada con la trazada del motor (engine/trackData lineGeometryFor) cada metresPerTexel hasta maxSize texels; defaultHalfM = HALF de trackScene.js (current) para trazados sin anchos medidos; edgeM margen del recuadro; maxLineDistM tope de la distancia a la trazada que se guarda (8 bits). Fuera del asfalto el suelo se oscurece offRoadDamp y brilla offRoadFilm de lo que lo haría el asfalto; solo se moja lo que mira al cielo (normal.y de upFrom a upFull). Todo diseño propio salvo lo marcado.",
+      "status": "design",
+      "flagFallback": { "status": "design", "fromWetness": 0.2, "wetness": 0.4, "offOverLine": 1.5, "rainMmH": 1.5 },
+      "lens": { "status": "pending", "sprayReachM": 60 },
+      "haze": { "status": "current", "day": "#8e98a3", "night": "#10141e" },
+      "worldMask": {
+        "status": "design",
+        "metresPerTexel": 1,
+        "maxSize": 2048,
+        "defaultHalfM": 6.5,
+        "edgeM": 8,
+        "maxLineDistM": 20,
+        "offRoadDamp": 0.6,
+        "offRoadFilm": 0.15,
+        "upFrom": 0.55,
+        "upFull": 0.85
+      }
     }
   },
   "fx": {

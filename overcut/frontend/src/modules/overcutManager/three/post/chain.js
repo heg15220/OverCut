@@ -13,6 +13,7 @@ import LOOK from "../../data/balance/view-look.json";
 import { GradeShader, applyGrade } from "./grade";
 import { MotionBlurShader, applyBlur } from "./motionBlur";
 import { meanLuminanceOf } from "./exposure";
+import { LensDropShader, applyLens } from "../rain/lens";
 
 /** The quality level to draw at: the one asked for, else view-look.json quality (coarse pointer → coarsePointer). */
 export const qualityFor = (asked, env = typeof window !== "undefined" ? window : null) => {
@@ -27,12 +28,17 @@ export const meterFor = (quality = "medium") => {
   return Boolean(level.post && level.autoExposure && level.grade);
 };
 
-/** Ordered pass ids for a quality level. `[]` means draw straight with renderer.render. */
-export const postPlanFor = (quality = "medium") => {
+/**
+ * Ordered pass ids for a quality level. `[]` means draw straight with renderer.render. LOOK-C4 (VIEW-07):
+ * `lens` adds the drops on the onboard lens (three/rain/lens.js) before the tone mapping; the pass stays
+ * off while there is no drop on the lens.
+ */
+export const postPlanFor = (quality = "medium", { lens = false } = {}) => {
   const level = LOOK.quality.levels[quality] || LOOK.quality.levels.medium;
   if (!level.post) return [];
   const plan = ["render"];
   if (level.motionBlur && level.blurTaps >= 2) plan.push("motionBlur");
+  if (lens) plan.push("lens");
   plan.push("output");
   if (level.grade) plan.push("grade");
   return plan;
@@ -67,8 +73,8 @@ export const renderMask = (THREE, renderer, scene, camera, target, maskMaterial)
  * `{plan, composer, render(), setSize(w, h), update({grade, blur, maskTexture}), dispose()}`;
  * with an empty plan `render()` is a plain renderer.render.
  */
-export const createPostChain = async ({ renderer, scene, camera, quality = "medium" }) => {
-  const plan = postPlanFor(quality);
+export const createPostChain = async ({ renderer, scene, camera, quality = "medium", lens = false }) => {
+  const plan = postPlanFor(quality, { lens });
   if (!plan.length) {
     return {
       plan,
@@ -125,6 +131,10 @@ export const createPostChain = async ({ renderer, scene, camera, quality = "medi
   plan.forEach((id) => {
     if (id === "render") passes.render = new RenderPass(scene, camera);
     if (id === "motionBlur") passes.motionBlur = new ShaderPass(MotionBlurShader);
+    if (id === "lens") {
+      passes.lens = new ShaderPass(LensDropShader);
+      passes.lens.enabled = false;
+    }
     if (id === "output") passes.output = new OutputPass();
     if (id === "grade") passes.grade = new ShaderPass(GradeShader);
     if (id === "grade" && meter) {
@@ -141,7 +151,12 @@ export const createPostChain = async ({ renderer, scene, camera, quality = "medi
     /** Mean display luminance of the last metered frame (0..1), null before the first or without a meter. */
     luminance: () => (meter ? meter.value : null),
     setSize: (w, h) => composer.setSize(w, h),
-    update: ({ grade, blur, maskTexture } = {}) => {
+    update: ({ grade, blur, maskTexture, lens: drops } = {}) => {
+      // LOOK-C4: the drops of the onboard lens; with none the pass is skipped.
+      if (drops && passes.lens) {
+        applyLens(passes.lens.uniforms, drops.drops || [], { aspect: drops.aspect });
+        passes.lens.enabled = passes.lens.uniforms.dropCount.value > 0;
+      }
       if (grade && passes.grade) applyGrade(passes.grade.uniforms, grade);
       if (blur && passes.motionBlur) applyBlur(passes.motionBlur.uniforms, blur, maskTexture || null);
     },

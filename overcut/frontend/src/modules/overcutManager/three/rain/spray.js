@@ -12,7 +12,8 @@
  * unseeded random or the wall clock; F1M24-CHINA §1.4 rule 7). No spray with no water or no speed; none in
  * the `low` quality level (proposed amendment 10, §4).
  *
- * Values in data/balance/view-look.json rain.spray. Not wired to Race3D.js until LOOK-C4.
+ * Values in data/balance/view-look.json rain.spray. LOOK-C4 draws it in Race3D.js from each car's engine
+ * spray (three/rain/hookup.js carSprayOf), with the trail following the track.
  */
 
 import * as THREE from "three";
@@ -154,7 +155,8 @@ export const createSprayLayer = ({ quality = "medium", cfg = LOOK.rain.spray } =
         if (n >= capacity) return;
         const at = car.behind ? car.behind(p.back) : { x: car.x - Math.cos(car.heading) * p.back, z: car.z - Math.sin(car.heading) * p.back, heading: car.heading };
         const h = finite(at.heading, car.heading);
-        position.set(at.x - Math.sin(h) * p.side, finite(car.y, 0) + p.up, at.z + Math.cos(h) * p.side);
+        // LOOK-C4: a trail that follows the track (`behind`) also follows the road's height when it gives one.
+        position.set(at.x - Math.sin(h) * p.side, finite(at.y, finite(car.y, 0)) + p.up, at.z + Math.cos(h) * p.side);
         scale.set(p.size, p.size, p.size);
         matrix.compose(position, facing, scale);
         mesh.setMatrixAt(n, matrix);

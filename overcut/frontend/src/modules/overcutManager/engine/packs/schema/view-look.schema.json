@@ -366,7 +366,7 @@
     "rain": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["$comment", "status", "spray", "lens", "fog", "streaks"],
+      "required": ["$comment", "status", "spray", "lens", "fog", "streaks", "hookup"],
       "properties": {
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
@@ -464,6 +464,56 @@
               }
             },
             "countAtMmH": { "$ref": "#/definitions/positive" }
+          }
+        },
+        "hookup": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "flagFallback", "lens", "haze", "worldMask"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "flagFallback": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "fromWetness", "wetness", "offOverLine", "rainMmH"],
+              "properties": {
+                "status": { "$ref": "#/definitions/status" },
+                "fromWetness": { "$ref": "#/definitions/share" },
+                "wetness": { "$ref": "#/definitions/share" },
+                "offOverLine": { "type": "number", "minimum": 1 },
+                "rainMmH": { "$ref": "#/definitions/nonNegative" }
+              }
+            },
+            "lens": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "sprayReachM"],
+              "properties": { "status": { "$ref": "#/definitions/status" }, "sprayReachM": { "$ref": "#/definitions/positive" } }
+            },
+            "haze": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "day", "night"],
+              "properties": { "status": { "$ref": "#/definitions/status" }, "day": { "$ref": "#/definitions/colour" }, "night": { "$ref": "#/definitions/colour" } }
+            },
+            "worldMask": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "metresPerTexel", "maxSize", "defaultHalfM", "edgeM", "maxLineDistM", "offRoadDamp", "offRoadFilm", "upFrom", "upFull"],
+              "properties": {
+                "status": { "$ref": "#/definitions/status" },
+                "metresPerTexel": { "$ref": "#/definitions/positive" },
+                "maxSize": { "type": "integer", "minimum": 64, "maximum": 4096 },
+                "defaultHalfM": { "$ref": "#/definitions/positive" },
+                "edgeM": { "$ref": "#/definitions/nonNegative" },
+                "maxLineDistM": { "$ref": "#/definitions/positive" },
+                "offRoadDamp": { "$ref": "#/definitions/share" },
+                "offRoadFilm": { "$ref": "#/definitions/share" },
+                "upFrom": { "$ref": "#/definitions/share" },
+                "upFull": { "$ref": "#/definitions/share" }
+              }
+            }
           }
         }
       }

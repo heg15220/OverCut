@@ -50,6 +50,16 @@
  *     seeded on the race clock).
  *   - every object hung on the scene has an owner; meshes without one, or small ones floating above the
  *     road inside the circuit model, are hidden and counted (three/fx/strays.js, data-strays on the host).
+ *
+ * LOOK-C4 (F1M24-CHINA §2.9, §1.5 «Spray»; GS-10, VIEW-07; RF-SIM-11, RF-3D-04, RNF-02, RNF-05, RNF-07):
+ * the wet is the engine's water, no longer a boolean. `weather` (snapshot.weather or the worker's
+ * weatherNow) and each car's spray (`pose.spray`, `car.spray` or the `spray` prop, in `cars` order) are
+ * read through three/rain/hookup.js; without them the old `wet` flag stands for a wet track
+ * (view-look.json rain.hookup.flagFallback). The asphalt darkens and the racing line dries first
+ * (trackScene.js setWater on the procedural road; three/rain/worldWet.js on a real circuit's GLB); every
+ * car throws its spray, with a trail that follows the track; the rain fog follows the rain rate; lens
+ * drops only on the onboards (a post pass); rain streaks seeded on the race clock (seedFor, never an
+ * unseeded random). Nothing here touches the race.
  */
 
 import React, { useEffect, useRef } from "react";
@@ -78,6 +88,9 @@ import { gradeFor } from "./post/grade";
 import { blurParams } from "./post/motionBlur";
 import { createSparkSystem, lockupOf } from "./fx/sparks";
 import { hideStrays, own, roadTopOf } from "./fx/strays";
+import { carSprayOf, createSprayLayer, enableWorldWet, frameWeatherFor, isRaining, lensDrops, rainFogDensity, seedFor, sprayAheadOf, sprayIntensityOf, spraySeedOf, streakCountFor, streakPositions, wettableMaterialsOf, worldMaskFor } from "./rain";
+import { racingLine } from "./racingLine";
+import { poseAt } from "../engine/trackGeometry";
 
 const MASK_LAYER = LOOK.blur.maskLayer;
 const SUN_DISTANCE = LOOK.sky.shadow.lightDistanceM;
@@ -164,10 +177,10 @@ const buildCrew = (color) => {
 const CREW_LEAD_SEC = broadcast.sequences.pitStop.crewLeadSec;
 const SC_VIEW = broadcast.scView;
 
-export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights, sc, safetyCar, teams, onPick, labels, clock, sample, cameraBus, seed, replayBuffer, replay, director, session, weather, humidity, quality }) {
+export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights, sc, safetyCar, teams, onPick, labels, clock, sample, cameraBus, seed, replayBuffer, replay, director, session, weather, spray, humidity, quality }) {
   const mount = useRef(null);
   const props = useRef({});
-  props.current = { cars, focusId, mode, wet, lights, sc, safetyCar, onPick, clock, sample, year, cameraBus, seed, replayBuffer, replay, director, session, weather, humidity, quality };
+  props.current = { cars, focusId, mode, wet, lights, sc, safetyCar, onPick, clock, sample, year, cameraBus, seed, replayBuffer, replay, director, session, weather, spray, humidity, quality };
   const world = useRef(null);
 
   // Renderer, sky, sun and camera: once.
@@ -195,15 +208,6 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
     sun.shadow.bias = -0.0004;
     scene.add(sun, sun.target);
     const camera = new THREE.PerspectiveCamera(55, 16 / 9, 0.3, 4000);
-    // Rain: streaks that live in a box around the camera.
-    const dropCount = 2600;
-    const drops = new Float32Array(dropCount * 6);
-    const rainGeometry = new THREE.BufferGeometry();
-    rainGeometry.setAttribute("position", new THREE.BufferAttribute(drops, 3));
-    const rain = own(new THREE.LineSegments(rainGeometry, new THREE.LineBasicMaterial({ color: "#c9dcf0", transparent: true, opacity: 0.45 })), "rain");
-    rain.frustumCulled = false;
-    rain.visible = false;
-    scene.add(rain);
     own(sun, "light");
     own(sun.target, "light");
     own(hemi, "light");
@@ -211,13 +215,28 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
     const level = qualityFor(props.current.quality);
     const sparks = createSparkSystem({ quality: level });
     scene.add(sparks.object);
-    const seeds = Array.from({ length: dropCount }, () => [Math.random() * 80 - 40, Math.random() * 40, Math.random() * 80 - 40]);
+    // LOOK-C4 (VIEW-07): rain streaks in a box around the camera, as many as the rain rate asks for at this
+    // quality (three/rain/fog.js), placed from the race seed and clock each frame.
+    const streakCapacity = Math.max(1, LOOK.rain.streaks.count[level] ?? LOOK.rain.streaks.count.medium);
+    const drops = new Float32Array(streakCapacity * 6);
+    const rainGeometry = new THREE.BufferGeometry();
+    rainGeometry.setAttribute("position", new THREE.BufferAttribute(drops, 3));
+    rainGeometry.setDrawRange(0, 0);
+    const rain = own(new THREE.LineSegments(rainGeometry, new THREE.LineBasicMaterial({ color: "#c9dcf0", transparent: true, opacity: 0.45 })), "rain");
+    rain.frustumCulled = false;
+    rain.visible = false;
+    scene.add(rain);
+    // LOOK-C4 (GS-10, VIEW-07): the spray of every car, one instanced layer sized for the quality level.
+    const sprayLayer = createSprayLayer({ quality: level });
+    const sprayMesh = own(sprayLayer.mesh, "rain");
+    scene.add(sprayMesh);
 
     pruneOldCaches();
     const state = {
       heightAt: null,
       field: null,
-      renderer, scene, camera, sun, hemi, sky, rain, drops, seeds, overlay, host,
+      renderer, scene, camera, sun, hemi, sky, rain, drops, streakCapacity, sprayLayer, overlay, host,
+      raining: false, assetScene: null, assetWet: null,
       quality: level, qualityLevel: LOOK.quality.levels[level], sparks, exposure: createExposure(), post: null, dome: null, look: null, lookCtx: null,
       track: null, carObjects: new Map(), tags: new Map(), crews: new Map(), safetyCar: null, rig: [], camState: {},
       cam: { pos: new THREE.Vector3(0, 50, 0), look: new THREE.Vector3(), heading: 0 }, last: performance.now(),
@@ -235,7 +254,7 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
         state.lookCtx = null;
       })
       .catch(() => {});
-    createPostChain({ renderer, scene, camera, quality: level })
+    createPostChain({ renderer, scene, camera, quality: level, lens: true })
       .then((chain) => {
         if (disposed) {
           chain.dispose();
@@ -291,6 +310,8 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
       observer?.disconnect();
       canvas.removeEventListener("click", click);
       rainGeometry.dispose();
+      sprayLayer.dispose();
+      state.assetWet?.dispose();
       sparks.dispose();
       state.post?.dispose();
       if (state.mask) {
@@ -312,7 +333,10 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
     own(track.group, "track");
     state.scene.add(track.group);
     state.track = track;
-    track.applyWeather(state, Boolean(state.wet));
+    track.applyWeather(state, Boolean(state.raining));
+    // LOOK-C4 (GS-10): the drier racing line of the wet asphalt is the engine's line (engine/trackData).
+    const line = racingLine(circuit);
+    track.setRacingLine((i) => line.offsets[i]);
     // LOOK-C3: relight for this circuit on the next frame; audit the scene once it settles.
     state.lookCtx = null;
     state.strayAt = null;
@@ -337,6 +361,8 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
           assetScene = own(scene, "circuit");
           state.scene.add(scene);
           track.group.visible = false;
+          // LOOK-C4: its materials get the engine's water through a mask of the road, on the first wet frame.
+          state.assetScene = scene;
           state.heightAt = heightAt;
           state.roadTop = roadTopOf(heightAt);
           state.strayAt = null;
@@ -353,6 +379,9 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
     return () => {
       disposed = true;
       if (assetScene) state.scene.remove(assetScene);
+      state.assetWet?.dispose();
+      state.assetWet = null;
+      state.assetScene = null;
       state.heightAt = null;
       state.roadTop = 0;
       state.field = null;
@@ -433,7 +462,7 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
  * from the radius it is turning on and wheels that roll at its speed.
  */
 function step(state, props, dt) {
-  const { cars = [], wet, lights, sc: scSnapshot, safetyCar, clock, sample, year, cameraBus, seed, replayBuffer, replay, director, session, weather, humidity } = props;
+  const { cars = [], wet, lights, sc: scSnapshot, safetyCar, clock, sample, year, cameraBus, seed, replayBuffer, replay, director, session, weather, spray: sprayGiven, humidity } = props;
   const { camera, circuit } = state;
   if (!circuit) return;
   const liveTau = clock ? clock.current : null;
@@ -647,31 +676,40 @@ function step(state, props, dt) {
 
   state.track?.setLights(typeof lights === "number" ? lights : 0);
 
-  // Weather.
-  const isWet = Boolean(wet);
+  // Weather. LOOK-C4 (GS-10, VIEW-07): the engine's water and rain (or the old flag's stand-in).
+  const frameWeather = frameWeatherFor({ weather, wet });
+  const raining = isRaining(frameWeather);
+  const rh = Number.isFinite(humidity) ? humidity : Number.isFinite(frameWeather.humidity) ? frameWeather.humidity : LOOK.fog.defaultHumidity;
+  const rainFog = raining ? rainFogDensity({ humidity: rh, rainMmH: frameWeather.rainRate }) : null;
   let relight = false;
-  if (state.wet !== isWet) {
-    state.wet = isWet;
-    state.track?.setWet(isWet);
-    state.rain.visible = isWet;
-    state.track?.applyWeather?.(state, isWet);
+  if (state.raining !== raining) {
+    state.raining = raining;
+    state.track?.applyWeather?.(state, raining, { fogDensity: rainFog });
     relight = true;
   }
+  // The asphalt from the water on and off the racing line, by sector: the procedural road and the GLB's.
+  const wetLook = state.track ? state.track.setWater(frameWeather) : null;
+  if (state.assetScene && wetLook && (wetLook.wet || state.assetWet)) {
+    if (!state.assetWet) state.assetWet = enableWorldWet(wettableMaterialsOf(state.assetScene), worldMaskFor(circuit));
+    state.assetWet.update(wetLook);
+  }
   // LOOK-C3 (VIEW-06): the sun of this circuit at the session's hour on the race clock, the engine's clouds.
-  const ctx = lookContextFor({ circuit, year, tau: tau ?? 0, session, weather, wet: isWet, humidity });
+  const ctx = lookContextFor({ circuit, year, tau: tau ?? 0, session, weather: frameWeather.state !== null ? frameWeather : null, wet: raining, humidity });
   if (ctx ? lookIsStale(state.lookCtx, ctx) : state.lookCtx !== null || state.look) {
     state.lookCtx = ctx;
     state.look = ctx ? lookAt(ctx) : null;
     relight = true;
   }
   if (relight && state.track) {
-    if (!state.look) state.track.applyWeather(state, isWet);
-    state.daylit = Boolean(state.track.applyDaylight?.(state, state.look, { dome: Boolean(state.dome), wet: isWet }));
+    if (!state.look) state.track.applyWeather(state, raining, { fogDensity: rainFog });
+    state.daylit = Boolean(state.track.applyDaylight?.(state, state.look, { dome: Boolean(state.dome), wet: raining, fogDensity: rainFog }));
     if (state.dome) {
       state.dome.visible = state.daylit;
       if (state.daylit) applySkyDome(state.dome, state.look.sun, state.look.cloud);
     }
   }
+  // VIEW-07: the rain's air thickens and thins with the rain rate between relights.
+  if (raining && state.track) state.track.setRainFog(state, rainFog);
 
   // Camera.
   if (focus) {
@@ -866,7 +904,7 @@ function step(state, props, dt) {
     if (state.dome) state.dome.position.copy(camera.position);
     // VIEW-05 / VIEW-06: grade, onboard blur with the car on air masked, auto exposure on the race clock.
     if (state.post) {
-      const cloud = state.look ? state.look.cloud : isWet ? 1 : 0;
+      const cloud = state.look ? state.look.cloud : raining ? 1 : 0;
       let blur = blurParams({ speedMps: 0, quality: state.quality });
       let maskTexture = null;
       if (rider && state.post.passes?.motionBlur) {
@@ -881,7 +919,18 @@ function step(state, props, dt) {
           maskTexture = state.mask.target.texture;
         }
       }
-      state.post.update({ grade: gradeFor(cloud), blur, maskTexture });
+      // VIEW-07: drops on the lens of an onboard only - the rain's and the spray of the car just ahead.
+      let lens = [];
+      if (rider && state.post.passes?.lens) {
+        const subject = focus.item?.car?.id;
+        const k = ordered.findIndex((item) => item.car.id === subject);
+        const ahead = k > 0 ? ordered[k - 1] : null;
+        const aheadEntry = ahead ? state.carObjects.get(ahead.car.id) : null;
+        const aheadLevel = ahead ? sprayIntensityOf(carSprayOf({ car: ahead.car, pose: ahead.pose, index: cars.findIndex((c) => c.car.id === ahead.car.id), spray: sprayGiven, frame: frameWeather, year }), aheadEntry?.speed || 0) : 0;
+        const sprayAhead = ahead ? sprayAheadOf(aheadLevel, ahead.metres - ordered[k].metres) : 0;
+        lens = lensDrops({ seed: seedFor("lens", seed ?? state.camState.seed ?? 0, subject ?? ""), t: tau ?? state.viewTime, rainRate: raining ? frameWeather.rainRate : 0, sprayAhead, speedMps: focus.speed || 0, cameraKind: "onboard" });
+      }
+      state.post.update({ grade: gradeFor(cloud), blur, maskTexture, lens: { drops: lens, aspect: camera.aspect } });
       if (state.qualityLevel?.autoExposure) {
         // A cut keeps the previous shot's exposure (cutExposure); the meter reads the last drawn frame.
         const shotKey = cameraBus?.current?.id ?? mode;
@@ -895,18 +944,43 @@ function step(state, props, dt) {
         state.renderer.toneMappingExposure = exposureMultiplier(state.exposure);
       }
     }
-    if (state.rain.visible) {
-      const positions = state.drops;
-      state.seeds.forEach((seed, i) => {
-        seed[1] -= dt * 28;
-        if (seed[1] < 0) seed[1] += 40;
-        const px = cam.pos.x + seed[0];
-        const py = base + seed[1];
-        const pz = cam.pos.z + seed[2];
-        positions.set([px, py, pz, px + 0.15, py + 0.9, pz], i * 6);
-      });
+    // VIEW-07: the rain streaks, as many as the rain rate asks for, from the race seed and clock (RNF-05).
+    const streaks = raining ? Math.min(state.streakCapacity, streakCountFor(frameWeather.rainRate, state.quality)) : 0;
+    state.rain.visible = streaks > 0;
+    if (streaks > 0) {
+      const streakSeed = seedFor("streaks", seed ?? state.camState.seed ?? 0);
+      streakPositions({ seed: streakSeed, t: tau ?? state.viewTime, count: streaks, centre: { x: camera.position.x, y: camera.position.y, z: camera.position.z }, out: state.drops });
+      state.rain.geometry.setDrawRange(0, streaks * 2);
       state.rain.geometry.attributes.position.needsUpdate = true;
     }
+  }
+
+  // GS-10 / VIEW-07: every car's spray from the engine's figure, the trail along the track behind it.
+  if (state.sprayLayer) {
+    const seedText = seed ?? state.camState.seed ?? 0;
+    const sprayCars = [];
+    items.forEach((item, index) => {
+      const entry = state.carObjects.get(item.car.id);
+      const pose = item.pose;
+      if (!entry || pose.gone || pose.inPit || !entry.object.visible) return;
+      const level = carSprayOf({ car: item.car, pose, index, spray: sprayGiven, frame: frameWeather, year });
+      if (!(level > 0)) return;
+      if (entry.spraySeedKey !== seedText) {
+        entry.spraySeed = spraySeedOf(seedText, item.car.id);
+        entry.spraySeedKey = seedText;
+      }
+      const at = entry.object.position;
+      const off = (pose.lineOffset ?? 0) + (pose.lateral ?? 0) + entry.lateral;
+      const behind = Number.isFinite(pose.progress)
+        ? (metres) => {
+            const share = pose.progress - metres / length;
+            const p = poseAt(circuit, share);
+            return { x: p.x - Math.sin(p.heading) * off, z: p.y + Math.cos(p.heading) * off, y: state.heightAt ? state.heightAt(share) : at.y, heading: p.heading };
+          }
+        : null;
+      sprayCars.push({ seed: entry.spraySeed, x: at.x, y: at.y, z: at.z, heading: entry.yaw, speedMps: entry.speed || 0, spray: level, behind });
+    });
+    state.sprayLayer.update(sprayCars, { t: tau ?? state.viewTime ?? 0, camera });
   }
 
   // VIEW-18: sparks and lock-up smoke on the race clock, seeded by the race (three/fx/sparks.js).
