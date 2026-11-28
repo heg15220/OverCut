@@ -79,12 +79,13 @@ export const layoutTags = (candidates, { policy = TAGS.policy, focusId = null, r
     let moved = true;
     while (moved) {
       moved = false;
-      placed.forEach((other) => {
+      for (let k = 0; k < placed.length; k += 1) {
+        const other = placed[k];
         if (rowsOverlap(box, other, 0) && colsOverlap(box, other, gapPx)) {
           box.left = other.left + other.w + gapPx;
           moved = true;
         }
-      });
+      }
     }
     placed.push(box);
   });

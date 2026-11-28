@@ -184,6 +184,7 @@ describe("CAM-C4 · VIEW-15: the steering-wheel screen by era, shift lights from
     let dropAt = null;
     let gearAt = null;
     let previous = null;
+    let staleKeys = 0;
     for (let k = 0; k <= 2 * FPS; k += 1) {
       const t = k / FPS;
       const frame = wheelFrameOf({ year, pose: poseOf(t), battery: 50, shiftRpm: shift });
@@ -191,9 +192,10 @@ describe("CAM-C4 · VIEW-15: the steering-wheel screen by era, shift lights from
       if (previous && previous.lights.lit > frame.lights.lit && dropAt === null) dropAt = t;
       if (previous && previous.gear !== frame.gear && gearAt === null) gearAt = t;
       // Same key, same picture: the canvas repaints only when something on it changes.
-      if (previous && previous.key === frame.key) expect(frame.lights.lit).toBe(previous.lights.lit);
+      if (previous && previous.key === frame.key && (previous.lights.lit !== frame.lights.lit || previous.gear !== frame.gear)) staleKeys += 1;
       previous = frame;
     }
+    expect(staleKeys).toBe(0);
     // The lights fill on the frame the revs reach the shift point (the last frame before the change).
     expect(fullAt).not.toBeNull();
     expect(shiftAt - fullAt).toBeLessThanOrEqual(0.1);

@@ -616,7 +616,9 @@ function step(state, props, dt) {
       // the shift lights from this frame's pose (pose.rpm against race-powertrain.json shiftRpm) - the
       // same race-clock pose the sound reads, so lights and revs change on the same frame.
       if (onboard && object.userData.setDisplay && object.userData.wheelLayout) {
-        if (entry.shiftRpm === undefined) entry.shiftRpm = shiftRpmFor(year, car.engineManufacturer || car.engine?.manufacturer || null);
+        // The era's shift point, the one the step race shifts at (stepRace builds powertrainFor without a
+        // maker; when the engine assigns makers' units, pass the car's maker here too).
+        if (entry.shiftRpm === undefined) entry.shiftRpm = shiftRpmFor(year);
         object.userData.setDisplay(wheelFrameOf({ year, pose, battery: Number.isFinite(car.battery) ? car.battery : null, shiftRpm: entry.shiftRpm, layout: object.userData.wheelLayout }));
       } else if (onboard && Number.isFinite(pose.gear)) object.userData.setGear?.(pose.gear);
     }
