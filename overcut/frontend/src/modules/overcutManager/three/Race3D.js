@@ -66,7 +66,9 @@ import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { buildCar } from "./carModel";
 import { buildTrack } from "./trackScene";
-import { angularShake, buildPitRig, buildZoneRig, carBodyFrame, critDampStep, fitRig, frame, garageShot, isOnboard, modeForYear, onboardFor, onboardWobble, pitShot, rigCamOfType, roadRoughness, scParkedPose, scriptShot, seedOf, shakeOffset, tvRival } from "./cameras";
+import { angularShake, buildPitRig, buildZoneRig, carBodyFrame, critDampStep, fitRig, frame, garageShot, isOnboard, modeForYear, onboardFor, onboardWobble, pitShot, rigCamOfType, roadRoughness, scParkedPose, scriptShot, seedOf, shakeOffset, START_GANTRY, tvRival } from "./cameras";
+import { layoutTags, tagPolicyOf } from "./nameTags";
+import { shiftRpmFor, wheelFrameOf } from "./wheelDisplay";
 import { kerbZonesFor, onKerb } from "./audio/kerbs";
 import cameraData from "../data/balance/cameras.json";
 import { onRacingLine } from "./racingLine";
@@ -177,10 +179,10 @@ const buildCrew = (color) => {
 const CREW_LEAD_SEC = broadcast.sequences.pitStop.crewLeadSec;
 const SC_VIEW = broadcast.scView;
 
-export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights, sc, safetyCar, teams, onPick, labels, clock, sample, cameraBus, seed, replayBuffer, replay, director, session, weather, spray, humidity, quality }) {
+export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights, sc, safetyCar, teams, onPick, labels, clock, sample, cameraBus, seed, replayBuffer, replay, director, session, weather, spray, humidity, quality, tagPolicy }) {
   const mount = useRef(null);
   const props = useRef({});
-  props.current = { cars, focusId, mode, wet, lights, sc, safetyCar, onPick, clock, sample, year, cameraBus, seed, replayBuffer, replay, director, session, weather, spray, humidity, quality };
+  props.current = { cars, focusId, mode, wet, lights, sc, safetyCar, onPick, clock, sample, year, cameraBus, seed, replayBuffer, replay, director, session, weather, spray, humidity, quality, tagPolicy };
   const world = useRef(null);
 
   // Renderer, sky, sun and camera: once.
@@ -361,6 +363,13 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
           assetScene = own(scene, "circuit");
           state.scene.add(scene);
           track.group.visible = false;
+          // CAM-C4 (VIEW-10): the procedural gantry stays for the start on the real circuit
+          // (broadcast.json scriptRig.gantry.showOnAsset), standing on the mesh's road.
+          if (track.gantry && START_GANTRY.showOnAsset !== "never") {
+            state.scene.attach(own(track.gantry, "track"));
+            track.gantry.position.y = heightAt(START_GANTRY.lineShare) || 0;
+            state.assetGantry = track.gantry;
+          }
           // LOOK-C4: its materials get the engine's water through a mask of the road, on the first wet frame.
           state.assetScene = scene;
           state.heightAt = heightAt;
@@ -379,6 +388,10 @@ export default function Race3D({ circuit, year, cars, focusId, mode, wet, lights
     return () => {
       disposed = true;
       if (assetScene) state.scene.remove(assetScene);
+      if (state.assetGantry) {
+        state.scene.remove(state.assetGantry);
+        state.assetGantry = null;
+      }
       state.assetWet?.dispose();
       state.assetWet = null;
       state.assetScene = null;
@@ -599,8 +612,15 @@ function step(state, props, dt) {
     }
     if (car.id === focusId) {
       focus = { x, z, y: ground, heading: entry.yaw, speed: entry.speed || 0, share: pose.progress, turn: entry.turn, spec, item: { ...item, pose }, entry };
-      // The gear on the steering wheel (pose.gear from the power unit), read only from the cockpit.
-      if (onboard && Number.isFinite(pose.gear)) object.userData.setGear?.(pose.gear);
+      // The steering-wheel screen, read only from the cockpit (CAM-C4, VIEW-15): the era's fields and
+      // the shift lights from this frame's pose (pose.rpm against race-powertrain.json shiftRpm) - the
+      // same race-clock pose the sound reads, so lights and revs change on the same frame.
+      if (onboard && object.userData.setDisplay && object.userData.wheelLayout) {
+        // The era's shift point, the one the step race shifts at (stepRace builds powertrainFor without a
+        // maker; when the engine assigns makers' units, pass the car's maker here too).
+        if (entry.shiftRpm === undefined) entry.shiftRpm = shiftRpmFor(year);
+        object.userData.setDisplay(wheelFrameOf({ year, pose, battery: Number.isFinite(car.battery) ? car.battery : null, shiftRpm: entry.shiftRpm, layout: object.userData.wheelLayout }));
+      } else if (onboard && Number.isFinite(pose.gear)) object.userData.setGear?.(pose.gear);
     }
 
     // The pit crew around a car stopped in its box during the race - and, for the car on air,
@@ -675,6 +695,12 @@ function step(state, props, dt) {
   }
 
   state.track?.setLights(typeof lights === "number" ? lights : 0);
+  // CAM-C4 (VIEW-10): on a real circuit the gantry is up while lights are on or the start script is on air.
+  if (state.assetGantry) {
+    const scriptName = director?.shotKind === "script" ? director.script?.name : null;
+    const startOnAir = scriptName === "start" || scriptName === "preRace";
+    state.assetGantry.visible = START_GANTRY.showOnAsset === "always" || (typeof lights === "number" && lights > 0) || startOnAir;
+  }
 
   // Weather. LOOK-C4 (GS-10, VIEW-07): the engine's water and rain (or the old flag's stand-in).
   const frameWeather = frameWeatherFor({ weather, wet });
@@ -1015,10 +1041,21 @@ function step(state, props, dt) {
     if (state.host) state.host.dataset.strays = String(state.strays);
   }
 
-  // Name tags over the cars in shot.
+  // Name tags over the cars in shot. CAM-C4 (VIEW-11): hud.json tags.policy (focus+rival by default),
+  // no tag on a car narrower than hideBelowWidthShare of the canvas, and a 1D repulsion so no two
+  // tags overlap (three/nameTags.js).
   const width = state.renderer.domElement.clientWidth;
   const height = state.renderer.domElement.clientHeight;
   const v = new THREE.Vector3();
+  const corner = new THREE.Vector3();
+  const box = boxSpecFor(year);
+  const halfLength = (box.length || 5) / 2;
+  const halfWidth = (box.width || 2) / 2;
+  const policy = tagPolicyOf(props.tagPolicy);
+  const rivalEntry = policy === "focus+rival" || policy === "all" ? tvRival(ordered, focusId, state.carObjects) : null;
+  const rivalId = rivalEntry?.object?.userData?.carId ?? null;
+  const candidates = [];
+  const shown = new Map();
   items.forEach((item) => {
     const tag = state.tags.get(item.car.id);
     const entry = state.carObjects.get(item.car.id);
@@ -1027,17 +1064,48 @@ function step(state, props, dt) {
     v.y += 1.6;
     const distance = v.distanceTo(camera.position);
     v.project(camera);
-    const visible = !item.pose.gone && v.z < 1 && Math.abs(v.x) < 1.1 && Math.abs(v.y) < 1.1 && distance < (mode === "heli" ? 500 : 260) && !(onboard && item.car.id === focusId);
-    tag.style.display = visible ? "flex" : "none";
-    if (!visible) return;
-    tag.style.transform = `translate(${((v.x + 1) / 2) * width}px, ${((1 - v.y) / 2) * height}px) translate(-50%, -130%)`;
+    const inShot = !item.pose.gone && entry.object.visible && v.z < 1 && Math.abs(v.x) < 1.1 && Math.abs(v.y) < 1.1 && distance < (mode === "heli" ? 500 : 260) && !(onboard && item.car.id === focusId);
+    if (!inShot) return;
+    // The car's width on screen: the spread in x of its four corners, projected.
+    let minX = Infinity;
+    let maxX = -Infinity;
+    const c = Math.cos(entry.yaw);
+    const s = Math.sin(entry.yaw);
+    [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(([a, b]) => {
+      corner.set(entry.object.position.x + c * a * halfLength - s * b * halfWidth, entry.object.position.y + 0.5, entry.object.position.z + s * a * halfLength + c * b * halfWidth).project(camera);
+      minX = Math.min(minX, corner.x);
+      maxX = Math.max(maxX, corner.x);
+    });
     const parts = tag.userData;
     const pos = item.row ? String(item.row.position) : "";
-    if (parts.position.textContent !== pos) parts.position.textContent = pos;
     const gap = item.pose.stopped && !item.pose.garage
       ? `BOX ${item.pose.stopLeft.toFixed(1)}s`
       : item.tag ?? (item.row && item.row.position > 1 && item.row.gap !== undefined ? `+${item.row.gap.toFixed(3)}` : "");
-    if (parts.gapNode.textContent !== gap) parts.gapNode.textContent = gap;
-    tag.classList.toggle("is-focus", item.car.id === focusId);
+    shown.set(item.car.id, { tag, parts, pos, gap });
+    candidates.push({ id: item.car.id, x: ((v.x + 1) / 2) * width, y: ((1 - v.y) / 2) * height, w: parts.size?.w || 0, h: parts.size?.h || 0, carWidthPx: ((maxX - minX) / 2) * width });
+  });
+  const placed = new Map(layoutTags(candidates, { policy, focusId, rivalId, viewWidth: width }).map((box) => [box.id, box]));
+  state.tags.forEach((tag, id) => {
+    const box = placed.get(id);
+    const on = shown.get(id);
+    if (!box || !box.visible || !on) {
+      tag.style.display = "none";
+      return;
+    }
+    tag.style.display = "flex";
+    const { parts, pos, gap } = on;
+    let changed = false;
+    if (parts.position.textContent !== pos) {
+      parts.position.textContent = pos;
+      changed = true;
+    }
+    if (parts.gapNode.textContent !== gap) {
+      parts.gapNode.textContent = gap;
+      changed = true;
+    }
+    tag.classList.toggle("is-focus", id === focusId);
+    // Measured once per text (the layout of the next frame uses it).
+    if (changed || !parts.size) parts.size = { w: tag.offsetWidth || 0, h: tag.offsetHeight || 0 };
+    tag.style.transform = `translate(${box.left}px, ${box.top}px)`;
   });
 }

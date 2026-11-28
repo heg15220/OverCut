@@ -126,7 +126,8 @@
         "sideM": {"type": "number", "minimum": -200, "maximum": 200},
         "height": {"type": "number", "minimum": 0, "maximum": 200},
         "width": {"type": "number", "exclusiveMinimum": 0, "maximum": 500},
-        "aim": {"enum": ["anchor", "subject", "gridMid"]},
+        "aim": {"enum": ["anchor", "subject", "gridMid", "gantry"]},
+        "gantryShare": {"type": "number", "minimum": 0, "maximum": 1},
         "label": {"type": "array", "items": {"$ref": "#/definitions/text"}, "minItems": 2, "maxItems": 2}
       }
     },
@@ -389,7 +390,21 @@
           "type": "object", "additionalProperties": false, "required": ["min", "max"],
           "properties": {"min": {"type": "number", "exclusiveMinimum": 0, "maximum": 120}, "max": {"type": "number", "exclusiveMinimum": 0, "maximum": 120}}
         },
-        "critDamp": {"type": "number", "exclusiveMinimum": 0}
+        "critDamp": {"type": "number", "exclusiveMinimum": 0},
+        "gantry": {
+          "type": "object", "additionalProperties": false,
+          "required": ["lineShare", "heightM", "lightSpacingM", "faceOffsetM", "count", "showOnAsset", "status", "note"],
+          "properties": {
+            "lineShare": {"type": "number", "minimum": 0, "maximum": 0.05},
+            "heightM": {"type": "number", "exclusiveMinimum": 0, "maximum": 20},
+            "lightSpacingM": {"type": "number", "exclusiveMinimum": 0, "maximum": 5},
+            "faceOffsetM": {"type": "number", "minimum": 0, "maximum": 2},
+            "count": {"type": "integer", "minimum": 1, "maximum": 10},
+            "showOnAsset": {"enum": ["start", "always", "never"]},
+            "status": {"$ref": "#/definitions/status"},
+            "note": {"type": "string"}
+          }
+        }
       }
     },
     "viewSafety": {

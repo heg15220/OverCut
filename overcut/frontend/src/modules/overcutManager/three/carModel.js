@@ -34,6 +34,7 @@ import * as THREE from "three";
 import { merge, rod, tyre } from "./geometry";
 import { bodyGeometry, carSpec, eraOf, markings } from "./carBody";
 import cameraData from "../data/balance/cameras.json";
+import { CANVAS as WHEEL_CANVAS, drawWheelDisplay, gearText, wheelLayoutFor } from "./wheelDisplay";
 
 export { carSpec, eraOf };
 
@@ -44,25 +45,28 @@ const WHEEL_DISPLAY = cameraData.wheelDisplay;
 /** Does a car of `year` show its gear on the steering wheel (data/balance/cameras.json wheelDisplay, SRS 6.2)? */
 export const hasWheelDisplay = (year) => year >= WHEEL_DISPLAY.from && year <= WHEEL_DISPLAY.to;
 
-/** What the display reads for a gear from the power unit: N in neutral, R in reverse. */
-export const gearText = (gear) => (!Number.isFinite(gear) ? "" : gear === 0 ? "N" : gear < 0 ? "R" : String(Math.round(gear)));
+export { gearText };
 
 /**
- * The gear on the steering wheel (F1M24-GAMEPLAY §2.5 onboard-mounts): a small screen in the
- * middle of the wheel facing the driver, drawn on a canvas only when the gear changes, and
- * only once an onboard first asks for it (cheap for the twenty cars nobody rides in).
+ * The steering-wheel screen (F1M24-GAMEPLAY §2.5 onboard-mounts; CAM-C4 VIEW-15): a small screen in
+ * the middle of the wheel facing the driver with what its era shows (three/wheelDisplay.js: gear,
+ * speed, KERS/ERS, shift lights from the revs), drawn on a canvas only when something on it changes,
+ * and only once an onboard first asks for it (cheap for the twenty cars nobody rides in).
+ * `setDisplay(frame)` takes a wheelFrameOf frame; `setGear(gear)` is the gear alone.
  */
 const attachWheelDisplay = (car, spec) => {
   let shown = null;
   let display = null;
-  car.userData.setGear = (gear) => {
-    const text = gearText(gear);
-    if (text === shown) return;
+  const layout = wheelLayoutFor(spec.year);
+  car.userData.setGear = (gear) => car.userData.setDisplay({ gear: gearText(gear), speed: null, energy: null, lights: { lit: 0, count: 0, share: 0 }, leds: null, key: `${gearText(gear)}|||0` });
+  car.userData.wheelLayout = layout;
+  car.userData.setDisplay = (frame) => {
+    if (!frame || frame.key === shown) return;
     if (!display) {
       if (typeof document === "undefined") return;
       const canvas = document.createElement("canvas");
-      canvas.width = 64;
-      canvas.height = 48;
+      canvas.width = WHEEL_CANVAS.width;
+      canvas.height = WHEEL_CANVAS.height;
       const g = canvas.getContext && canvas.getContext("2d");
       if (!g) return;
       const texture = new THREE.CanvasTexture(canvas);
@@ -77,15 +81,9 @@ const attachWheelDisplay = (car, spec) => {
       car.add(mesh);
       display = { g, texture, mesh };
     }
-    shown = text;
+    shown = frame.key;
     const { g, texture } = display;
-    g.fillStyle = WHEEL_DISPLAY.colors.bg;
-    g.fillRect(0, 0, 64, 48);
-    g.fillStyle = WHEEL_DISPLAY.colors.fg;
-    g.font = "900 38px Arial, sans-serif";
-    g.textAlign = "center";
-    g.textBaseline = "middle";
-    g.fillText(text, 32, 26);
+    drawWheelDisplay(g, frame, WHEEL_DISPLAY.colors);
     texture.needsUpdate = true;
   };
 };

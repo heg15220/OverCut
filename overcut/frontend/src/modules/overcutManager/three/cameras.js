@@ -772,6 +772,29 @@ export const scParkedPose = (circuit, gridCount = 20) => {
   return { ...poseAt(circuit, progress), progress };
 };
 
+// CAM-C4 (VIEW-10, F1M24-CHINA §2.5): the start gantry, one layout for the scene and the camera.
+const GANTRY = SCRIPT_RIG.gantry;
+export const START_GANTRY = GANTRY;
+
+/** Lateral offset (metres across the road) of each light of the gantry, left to right (broadcast.json scriptRig.gantry). */
+export const gantryLightOffsets = () => Array.from({ length: GANTRY.count }, (_, i) => (i - (GANTRY.count - 1) / 2) * GANTRY.lightSpacingM);
+
+/**
+ * The start lights in the world ([{ x, y, z, index }], one per light, at their centre between the
+ * two faces), where three/trackScene.js hangs them: across the road at scriptRig.gantry.lineShare,
+ * heightM above `ground` (the road's height there on a real circuit, 0 on the procedural one).
+ */
+export const gantryLightPoints = (circuit, ground = 0) => {
+  const line = poseAt(circuit, GANTRY.lineShare);
+  // trackScene's gantry group is turned by -heading: its local z is the road's left-right axis.
+  return gantryLightOffsets().map((across, index) => ({
+    x: line.x - Math.sin(line.heading) * across,
+    y: ground + GANTRY.heightM,
+    z: line.y + Math.cos(line.heading) * across,
+    index,
+  }));
+};
+
 /**
  * The shot from a scriptRig camera: { pos, look, fov, critDamp, cameraId, camType: "script", abs }.
  * `focus` is Race3D's { x, y, z, heading } of the car on air; `opts` { gridCount (cars on the grid),
@@ -800,6 +823,17 @@ export const scriptShot = (id, focus, circuit, { gridCount = 20, world = null } 
   const pos = new THREE.Vector3(px, floor + cam.height, pz);
   const aimAt = cam.aim === "subject" ? { x: focus.x, y: focus.z } : at(cam.aim === "gridMid" ? "gridMid" : cam.anchor);
   const look = new THREE.Vector3(aimAt.x, level + FRAMING.aimUpM, aimAt.y);
+  // CAM-C4 (VIEW-10): aim 'gantry' looks gantryShare of the way from the anchor to the lights, so the
+  // pole sitter and the gantry share the frame.
+  if (cam.aim === "gantry") {
+    const lineAt = poseAt(circuit, GANTRY.lineShare);
+    const ground = real ? world.field.floorNear(lineAt.x, lineAt.y, level) ?? level : 0;
+    const lights = gantryLightPoints(circuit, ground);
+    const centre = new THREE.Vector3();
+    lights.forEach((p) => centre.add(new THREE.Vector3(p.x, p.y, p.z)));
+    centre.divideScalar(lights.length);
+    look.lerp(centre, cam.gantryShare ?? 0.5);
+  }
   const distance = pos.distanceTo(look);
   const fov = THREE.MathUtils.clamp((2 * Math.atan(cam.width / 2 / Math.max(2, distance)) * 180) / Math.PI, SCRIPT_RIG.fovDeg.min, SCRIPT_RIG.fovDeg.max);
   return { pos, look, fov, critDamp: SCRIPT_RIG.critDamp, lookLag: SCRIPT_RIG.critDamp, cameraId: id, camType: "script", abs: real };

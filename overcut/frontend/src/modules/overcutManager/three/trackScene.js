@@ -23,6 +23,7 @@ import LOOK from "../data/balance/view-look.json";
 import { enableWetSurface, fillRacingLine, wetAttributes, wetLookFor } from "./rain/wetSurface";
 import { rainHazeOf } from "./rain/hookup";
 import { hazeColourFor } from "./sky";
+import { START_GANTRY, gantryLightOffsets } from "./cameras";
 
 const STREET = new Set(["monaco", "marina_bay", "baku", "detroit", "dallas", "phoenix", "adelaide", "long_beach", "valencia", "jeddah", "vegas", "las_vegas", "pedralbes", "monsanto", "boavista", "pescara", "montjuic", "miami"]);
 
@@ -422,27 +423,30 @@ export const buildTrack = (circuit, { teams = [], street = null, year = 2020 } =
   }
 
   // Start gantry with its five lights.
-  const line = poseAt(circuit, 0.0005);
+  // CAM-C4 (VIEW-10): one layout for the gantry and the start camera that frames it (broadcast.json scriptRig.gantry).
+  const line = poseAt(circuit, START_GANTRY.lineShare);
   const gantry = new THREE.Group();
+  gantry.name = "start-gantry";
   const span = HALF * 2 + 4;
+  const top = START_GANTRY.heightM;
   [-1, 1].forEach((side) => {
-    const post = new THREE.Mesh(new THREE.BoxGeometry(0.5, 7.5, 0.5), m.steel);
-    post.position.set(0, 3.75, side * (span / 2));
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.5, top + 0.5, 0.5), m.steel);
+    post.position.set(0, (top + 0.5) / 2, side * (span / 2));
     gantry.add(post);
   });
   const beam = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.4, span), m.steel);
-  beam.position.set(0, 7, 0);
+  beam.position.set(0, top, 0);
   gantry.add(beam);
   const lights = [];
-  for (let i = 0; i < 5; i += 1) {
+  gantryLightOffsets().forEach((across, i) => {
     [-1, 1].forEach((face) => {
       const light = new THREE.Mesh(new THREE.CircleGeometry(0.28, 20), m.lightOff);
-      light.position.set(face * 0.41, 7, (i - 2) * 0.8);
+      light.position.set(face * START_GANTRY.faceOffsetM, top, across);
       light.rotation.y = face * Math.PI / 2;
       gantry.add(light);
       lights.push({ mesh: light, index: i });
     });
-  }
+  });
   gantry.position.set(line.x, 0, line.y);
   gantry.rotation.y = -line.heading;
   group.add(gantry);
@@ -520,6 +524,7 @@ export const buildTrack = (circuit, { teams = [], street = null, year = 2020 } =
 
   return {
     group,
+    gantry,
     lights,
     biome,
     applyWeather,

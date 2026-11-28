@@ -223,10 +223,12 @@
                 "oneOf": [
                   {"type": "null"},
                   {
-                    "type": "object", "additionalProperties": false, "required": ["count", "colors"],
+                    "type": "object", "additionalProperties": false, "required": ["count", "colors", "startShare"],
                     "properties": {
                       "count": {"type": "integer", "minimum": 1, "maximum": 30},
-                      "colors": {"type": "array", "items": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"}, "minItems": 1}
+                      "colors": {"type": "array", "items": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"}, "minItems": 1},
+                      "startShare": {"type": "number", "minimum": 0, "maximum": 0.99},
+                      "offColor": {"type": "string", "pattern": "^#[0-9a-fA-F]{6}$"}
                     }
                   }
                 ]

@@ -172,18 +172,18 @@
     "from": 1998,
     "to": 2100,
     "offset": { "ahead": 0.3, "up": -0.15 },
-    "size": [0.07, 0.05],
+    "size": [0.08, 0.04],
     "tiltRad": -0.35,
     "colors": { "fg": "#f2f5f8", "bg": "#0c0e12" },
     "status": "pending",
     "source": "Marcha en la pantalla del volante, leída de pose.gear (engine/sim/powertrain.js). 'offset' desde spec.head, junto al aro que dibuja three/carBody.js (head + 0,32 m, head − 0,17 m). 'from': pending; volantes con pantalla de marcha generalizados a finales de los 90 (sin fuente), por verificar",
     "byEra": [
-      { "from": 1998, "to": 2008, "fields": ["gear"], "leds": null, "status": "pending", "source": "Lo de hoy (solo la marcha); años NV" },
-      { "from": 2009, "to": 2009, "fields": ["gear", "speed", "kers"], "leds": null, "status": "pending", "source": "KERS opcional en 2009 (SRS 6.2, RF-SIM-05): la carga solo si el coche lo lleva; qué mostraba la pantalla real, NV" },
-      { "from": 2010, "to": 2010, "fields": ["gear", "speed"], "leds": null, "status": "pending", "source": "2010 sin KERS (SRS 6.2): nada de energía; qué mostraba la pantalla real, NV" },
-      { "from": 2011, "to": 2013, "fields": ["gear", "speed", "kers"], "leds": null, "status": "pending", "source": "KERS 2011-2013 (SRS 6.2, RF-SIM-05); qué mostraba la pantalla real, NV" },
-      { "from": 2014, "to": 2100, "fields": ["gear", "speed", "ers"], "leds": null, "status": "pending", "source": "ERS desde 2014 (SRS 6.2); 2026 con el nuevo reparto eléctrico (pending de separar). leds: número y colores de las luces de cambio, null hasta tener fuente (VIEW-15 las enciende con pose.rpm y shiftRpm de race-powertrain.json)" }
+      { "from": 1998, "to": 2008, "fields": ["gear"], "leds": { "count": 10, "colors": ["#2fd34a", "#ff2a2a"], "startShare": 0.8, "offColor": "#1b1f26" }, "status": "pending", "source": "Lo de hoy (solo la marcha); años NV" },
+      { "from": 2009, "to": 2009, "fields": ["gear", "speed", "kers"], "leds": { "count": 15, "colors": ["#2fd34a", "#ff2a2a", "#3d6bff"], "startShare": 0.8, "offColor": "#1b1f26" }, "status": "pending", "source": "KERS opcional en 2009 (SRS 6.2, RF-SIM-05): la carga solo si el coche lo lleva; qué mostraba la pantalla real, NV" },
+      { "from": 2010, "to": 2010, "fields": ["gear", "speed"], "leds": { "count": 15, "colors": ["#2fd34a", "#ff2a2a", "#3d6bff"], "startShare": 0.8, "offColor": "#1b1f26" }, "status": "pending", "source": "2010 sin KERS (SRS 6.2): nada de energía; qué mostraba la pantalla real, NV" },
+      { "from": 2011, "to": 2013, "fields": ["gear", "speed", "kers"], "leds": { "count": 15, "colors": ["#2fd34a", "#ff2a2a", "#3d6bff"], "startShare": 0.8, "offColor": "#1b1f26" }, "status": "pending", "source": "KERS 2011-2013 (SRS 6.2, RF-SIM-05); qué mostraba la pantalla real, NV" },
+      { "from": 2014, "to": 2100, "fields": ["gear", "speed", "ers"], "leds": { "count": 15, "colors": ["#2fd34a", "#ff2a2a", "#3d6bff"], "startShare": 0.8, "offColor": "#1b1f26" }, "status": "pending", "source": "ERS desde 2014 (SRS 6.2); 2026 con el nuevo reparto eléctrico (pending de separar). leds: número y colores de las luces de cambio, null hasta tener fuente (VIEW-15 las enciende con pose.rpm y shiftRpm de race-powertrain.json)" }
     ],
-    "byEraNote": "Contrato de la ola 1 (F1M24-CHINA §1.5 y §3.2) para VIEW-15 (CAM-C2/C4): qué muestra la pantalla del volante por era. Nada de energía antes de 2009 (SRS §6). Aún no lo lee nadie: three/carModel.js sigue con la marcha de 'from'..'to'."
+    "byEraNote": "Contrato de la ola 1 (F1M24-CHINA §1.5 y §3.2) para VIEW-15, cableado por CAM-C4 (three/wheelDisplay.js, three/carModel.js, three/Race3D.js): qué muestra la pantalla del volante por era. Nada de energía antes de 2009 (SRS §6); la barra de KERS/ERS solo con la carga que da el motor (car.battery), nunca inventada. leds: luces de cambio (count luces, colors en bandas iguales de izquierda a derecha, offColor apagadas); se encienden desde pose.rpm del motor contra shiftRpm de race-powertrain.json (de la era o del fabricante medido): ninguna por debajo de startShare·shiftRpm, todas desde shiftRpm, relleno lineal entre medias (con 0,8, a 0,85·shiftRpm luce el 20 %; aceptación de VIEW-15 ≤ 60 %). Número, colores y startShare de diseño propio (15 luces en tres bandas es la disposición habitual de los volantes modernos, sin fuente leída; 10 en dos bandas antes de 2009, sin fuente): pending de verificar con onboards FOM y OpenF1 car_data. size: proporción 2:1 del lienzo de la pantalla (128×64)."
   }
 }
