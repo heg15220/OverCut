@@ -52,6 +52,13 @@
       { "from": 2017, "to": 2021, "simYear": 2019, "startSec": 0.8, "perFieldLap": -0.0045, "max": -1.3, "carryBetweenSegments": 0.9, "status": "measured" },
       { "from": 2022, "to": 2026, "simYear": 2024, "startSec": 0.9, "perFieldLap": -0.005, "max": -1.4, "carryBetweenSegments": 0.9, "status": "measured" }
     ],
+    "days": {
+      "$comment": "WX-C3 / GS-14 (F1M24-CHINA §2.10 «goma heredada dentro del mismo día y reiniciada entre días, sin llegar a cero»; RF-SIM-11, RF-WKD-03): la goma (como parte 0..1 de lo que la era acumula a tope, la escala de race.js evolution y de hudConditions) con que empieza una sesión a partir de la que dejó la anterior: el mismo día se hereda × sameDay; de un día al siguiente se queda × nextDay (rocío, enfriamiento, la noche sin coches), pero nunca por debajo de supportFloor, la que ponen las carreras de apoyo de la mañana (F2, F3, Supercopa). Una pista lavada (goma bajo 0: sesión mojada, race-weather.json rubber) se queda como está: la decidió el agua, no la noche. Función pura engine/weather rubberAtSessionStart; la enganchan el carril SES (engine/sessionSim) y la carrera del domingo (career.js sundayRubber). pending: valores de diseño sin medir; medirlos con OpenF1 laps (mejora de los mismos pilotos de la primera tanda de Q frente al final de L3 el mismo día, y de las primeras vueltas del domingo frente al final de la Q). El juego de referencia reinicia la goma el domingo; no se copia.",
+      "status": "pending",
+      "sameDay": 1,
+      "nextDay": 0.5,
+      "supportFloor": 0.25
+    },
     "measured": {
       "$comment": "f1db v2026.20.0 (qualifying_result q1/q2/q3, KNOCKOUT), clasificaciones en seco por la regla de refLaps, mediana por carrera de los que llegan a Q3 y mediana de carreras (scripts/measureEvolution.js --f1db). Faltan 2015 y 2017 (sin pack de temporada: la regla de seco necesita su refLaps). Referencia: Baréin 2024, pole Q1 1:30.031 → Q3 1:29.179 (0,85 s); el juego de referencia da 0,36 s (F1M24-GAMEPLAY §1.6), no se copia.",
       "2006-2007": { "q1ToQ3": -0.017, "q1ToQ2": 0.687, "races": 34 },

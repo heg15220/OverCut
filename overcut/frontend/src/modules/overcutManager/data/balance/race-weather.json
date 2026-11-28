@@ -45,7 +45,7 @@
     "maxMm": 4
   },
   "temperature": {
-    "$comment": "Temperatura de pista = aire (climate.json airC a la hora de salida, ERA5) + exceso. Exceso medido en OpenF1 (70 carreras 2023-2025, una fila por minuto): mediana pista − aire 11,2 °C en seco (10.579 filas) y 4,9 °C con lluvia (490 filas); desviación entre carreras 6,7 °C. En seco se reparte por estado con states.list[].sunShare (NV). De noche (salida desde nightFromHour, climate.json startHour) no hay sol: el exceso es el de lluvia, 4,9 °C, el que tienen las carreras nocturnas de OpenF1 (Baréin 2023-2025: pista 23,5-31,6 °C con aire 18,2-27,1 °C, +3,4 a +5,3). En carrera la pista sale de la temperatura de la salida con la deriva de la tarde de antes (sol hasta media carrera, luego baja; NV) y, mientras llueve, va hacia aire + 4,9 °C a relaxPerLap por vuelta; una nube que pasa en seco no la mueve vuelta a vuelta (movía la dispersión de los dos modos de forma distinta, SRS 4.2). GS-13: relaxTauMin, la constante de tiempo (min) con que la pista va hacia aire + trackOverAirRain bajo la lluvia (engine/weather relaxTrackTemp): la SQ de China 2024 (OpenF1 9668, engine/weather/__fixtures__/openf1-9668.json) bajó de 28,9 a 22,2 °C en 33 min con la pista final a ~4,9 °C del aire; 12,3 min es el relaxPerLap 0,15 de race.js a una vuelta en mojado de 2 min (1 − exp(−2/12,3) = 0,15) y da −6,1 °C en 30 min y −6,4 en 33. pending hasta regenerar el fixture desde OpenF1 (la API rechazó las consultas el 2026-11-27 por una sesión en directo).",
+    "$comment": "Temperatura de pista = aire (climate.json airC a la hora de salida, ERA5) + exceso. Exceso medido en OpenF1 (70 carreras 2023-2025, una fila por minuto): mediana pista − aire 11,2 °C en seco (10.579 filas) y 4,9 °C con lluvia (490 filas); desviación entre carreras 6,7 °C. En seco se reparte por estado con states.list[].sunShare (NV). De noche (salida desde nightFromHour, climate.json startHour) no hay sol: el exceso es el de lluvia, 4,9 °C, el que tienen las carreras nocturnas de OpenF1 (Baréin 2023-2025: pista 23,5-31,6 °C con aire 18,2-27,1 °C, +3,4 a +5,3). En carrera la pista sale de la temperatura de la salida con la deriva de la tarde de antes (sol hasta media carrera, luego baja; NV) y, mientras llueve, va hacia aire + 4,9 °C a relaxPerLap por vuelta; una nube que pasa en seco no la mueve vuelta a vuelta (movía la dispersión de los dos modos de forma distinta, SRS 4.2). GS-13: relaxTauMin, la constante de tiempo (min) con que la pista va hacia aire + trackOverAirRain bajo la lluvia (engine/weather relaxTrackTemp): la SQ de China 2024 (OpenF1 9668, engine/weather/__fixtures__/openf1-9668.json) bajó de 28,9 a 22,2 °C en 33 min con la pista final a ~4,9 °C del aire; 12,3 min es el relaxPerLap 0,15 de race.js a una vuelta en mojado de 2 min (1 − exp(−2/12,3) = 0,15) y da −6,1 °C en 30 min y −6,4 en 33. pending hasta regenerar el fixture desde OpenF1 (la API rechazó las consultas el 2026-11-27 por una sesión en directo). WX-C3 / GS-14: en seco, con circuito y fecha, el exceso sale de temperature.sun (altura del sol NOAA y nubosidad, medido en OpenF1) y la serie de la tarde va en el timeline (weather.track y trackEq por vuelta, engine/weather trackAt) y en el reloj de sesiones (hourlyConditions); race.js (carril SIM) aún sale de trackTargetOf con trackOverAirDry × sunShare y su deriva fija, y la evaporación del agua también, para no mover las carreras hasta que SIM-C4 enganche trackAt (pendiente). trackOverAirDry × sunShare queda además para el clima global, y nightFromHour/dayFromHour solo para la etiqueta de noche. raceSd no lo lee el motor.",
     "status": "measured",
     "trackOverAirDry": 11.2,
     "trackOverAirRain": 4.9,
@@ -57,7 +57,28 @@
     "relaxTauMin": 12.3,
     "fallbackAirC": 20,
     "minC": 8,
-    "maxC": 58
+    "maxC": 58,
+    "sun": {
+      "$comment": "WX-C3 / GS-14 (F1M24-CHINA §2.10; RF-SIM-11, RNF-07): exceso pista − aire en seco según la altura REAL del sol y la nubosidad, en lugar de trackOverAirDry × sunShare (que queda solo para un circuito sin sitio o sin fecha: el clima global). Objetivo = base + gain × S × (1 − cloud.coefficient × N^cloud.exponent), con S la irradiancia global de cielo despejado de Haurwitz (1945), 1,098·sin(e)·exp(−0,057/sin e) kW/m², e la altura verdadera del sol de la NOAA Solar Calculator (Meeus; engine/weather/solar.js, sitios en data/weather/sun-sites.json) y N la fracción de cielo cubierto del estado (cloudByState: centro de las clases en octas de WMO-No. 8, las mismas que view-look.json sky.cloudByState; los estados con lluvia van con trackOverAirRain). La forma N^3,4 es la de Kasten y Czeplak (Solar Energy 24, 1980); su coeficiente 0,75 es para la irradiancia con octas observadas y la nubosidad de ERA5 cuenta también las nubes altas finas, así que el coeficiente se AJUSTA. La pista va hacia el objetivo con la constante tauMin (primer orden: la inercia del asfalto) y, con lluvia, hacia aire + trackOverAirRain con relaxTauMin. base, gain y cloud.coefficient MEDIDOS por mínimos cuadrados en todos los minutos de las 54 carreras secas de OpenF1 2023-2025 (8.407 filas; overcut/src/main/resources/scripts/track_temp_from_openf1.py, con la nubosidad horaria de ERA5 de Open-Meteo de la caché de weather_climate_from_era5.py): rmse 4,07 °C, dispersión entre carreras 3,75 °C (la de raceSd, 6,7, era la de pista − aire sin modelo); de noche (sol a −6° o menos) la mediana medida es 4,8 °C, coherente con base. tauMin: la nubosidad horaria no la resuelve (rmse plano de 0 a 30 min, 4,062-4,070), así que se usa la medida con lluvia en OpenF1 9668 (relaxTauMin); la del juego de referencia (1,2-1,5 min) no se copia. warmupMin: el filtro arranca en equilibrio tantos minutos antes de la salida con el estado de la salida (determinista, sin flujo). Fixture: engine/weather/__fixtures__/openf1-9664-9673.json (clasificación y carrera de China 2024). Limitación: Open-Meteo da el desfase horario del día de la consulta, así que en circuitos con horario de verano la nubosidad del ajuste puede ir 1 h desplazada.",
+      "status": "measured",
+      "base": 4.47,
+      "gain": 15.85,
+      "cloud": { "coefficient": 0.297, "exponent": 3.4, "source": "Kasten y Czeplak, Solar Energy 24 (1980) 177-189 (forma); coeficiente ajustado a OpenF1 + ERA5" },
+      "cloudByState": { "sunny": 0.19, "cloudy": 0.69, "overcast": 1 },
+      "tauMin": 12.3,
+      "warmupMin": 360,
+      "fit": {
+        "rmse": 4.07,
+        "rows": 8407,
+        "races": 54,
+        "raceSd": 3.75,
+        "nightMedian": 4.8,
+        "fixture": "engine/weather/__fixtures__/openf1-9664-9673.json",
+        "script": "overcut/src/main/resources/scripts/track_temp_from_openf1.py",
+        "sites": "data/weather/sun-sites.json"
+      },
+      "source": "https://api.openf1.org/v1/weather; https://archive-api.open-meteo.com/v1/archive (ERA5 cloud_cover); https://gml.noaa.gov/grad/solcalc/"
+    }
   },
   "grip": {
     "$comment": "Tiempo de vuelta por compuesto frente al agua h, como razón sobre el ritmo seco de carrera (baseLap = pole × 1,067, pack-world.json raceFromPole). Todo de vueltas reales de OpenF1 (measured.openf1): el inter en pista casi seca va a 1,09 (Montreal 2024 v43-45 1,09-1,10; Silverstone 2025 v42-43 1,09); slick e inter se cruzan a 1,11 (Zandvoort 2023 v8 1,127; Montreal 2024 v44 1,10; Silverstone 2025 v42 1,10; Melbourne 2025 ~1,12) y el inter y el de lluvia a 1,27 (Montreal 2024 v6 1,256; Mónaco 2023 v65 1,28). La profundidad del cruce inter/mojado es la capacidad del inter a fondo: 25 l/s por rueda a velocidad punta (Pirelli, https://www.pirelli.com/global/en-ww/road/driving-safety-and-aquaplaning-the-help-comes-from-car-races; 316 km/h de Bottas en China 2014 con inters) sobre 0,30 m de banda de rodadura (NV) = 0,95 mm. El inter sube en línea de 1,09 a 1,27 entre 0 y 0,95 mm, así el cruce slick/inter cae en 0,105 mm. El slick: 1 + 0,11 × (h / 0,105)^slickExponent (exponente NV, ajustado a que el slick pase de 1,106 a 1,035 al secarse la trazada en 6 vueltas en Montreal 2024 y Silverstone 2025), con techo slickMax. El de lluvia: 1,22 en seco (NV: Montreal 2024 con lluvia fuerte 1,235) + 0,05 por cada 0,95 mm. Por encima de su capacidad un neumático flota: + aquaplane × (h/capacidad − 1)^1,5 (NV, ajustado a Montreal 2024 v2-5: inter 1,33 cuando el de lluvia iba a 1,277). Capacidad del de lluvia: 65 l/s por rueda (Pirelli, misma fuente) = 2,47 mm. dryOverheat: el inter y el de lluvia sin agua se recalientan y degradan (s por vuelta de edad bajo dryBelowMm; NV, los valores del modelo anterior). GS-13: la capacidad ya no es una sola: sale de grip.evacuation por año (Pirelli por generación de neumático), relativa a la era de calibración, que conserva 0,95 y 2,47 mm de modelo (grip.evacuation.fit); 2014 queda en 0,60 y 1,79 mm de modelo. topSpeedKmh pasa a evacuation.fit.atKmh y eras[].atKmh.",
@@ -131,7 +152,18 @@
     "status": "NV",
     "washPerMm": 1.5,
     "washedStart": -0.3,
-    "practiceWashedStart": -0.1
+    "practiceWashedStart": -0.1,
+    "levels": {
+      "$comment": "WX-C3 / GS-14 (F1M24-CHINA §2.10; RF-SIM-11, RNF-08, RNF-09): las cinco bandas de goma del motor sobre la goma 0..1 (0 = pista verde, 1 = la que el motor acumula a tope; por debajo de 0, lavada, cae en la primera), con su texto ES/EN. El motor publica la banda en weatherSnapshot (rubberLevel). Umbrales: decisión de presentación de OverCut (NV, sin fuente externa); de F1 Manager 24 solo la idea de cinco palabras, ningún valor. display.rubberBands (bloque del carril HUD) sigue con cuatro hasta que el HUD lea rubberLevel (pendiente HUD-C3).",
+      "status": "NV",
+      "bands": [
+        { "id": "veryLow", "below": 0.15, "es": "Muy baja", "en": "Very low" },
+        { "id": "low", "below": 0.35, "es": "Baja", "en": "Low" },
+        { "id": "normal", "below": 0.6, "es": "Normal", "en": "Normal" },
+        { "id": "high", "below": 0.85, "es": "Alta", "en": "High" },
+        { "id": "veryHigh", "below": null, "es": "Muy alta", "en": "Very high" }
+      ]
+    }
   },
   "forecast": {
     "$comment": "RF-HQ-02: pronóstico del viernes. % de lluvia = verdad × precisión + clima × (1 − precisión) + N(0, noise × (1 − precisión)); verdad 100 si la carrera tiene algún estado de lluvia, clima = la probabilidad de lluvia del circuito ese mes (cadena de climate.json). La vista en vivo lee `outlook`: el índice de cada vuelta desplazado por un error de hora N(0, timingSdMin × (1 − precisión)) minutos. precisión = efecto forecastAccuracy del centro meteorológico (hq.json, 0,55-0,9 por nivel; neutral 0,5). NV.",

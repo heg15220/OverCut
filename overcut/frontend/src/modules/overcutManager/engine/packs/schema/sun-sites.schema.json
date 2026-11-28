@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "WX-C3 / GS-14 (RNF-07): esquema de data/weather/sun-sites.json (dónde está cada circuito de climate.json, para la altura del sol de engine/weather/solar.js). Lo genera overcut/src/main/resources/scripts/track_temp_from_openf1.py y lo comprueba engine/weather/weather.test.js.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$comment", "source", "sites"],
+  "definitions": {
+    "offsets": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^(1[0-2]|[1-9])d?$" },
+      "additionalProperties": { "type": "number", "minimum": -12, "maximum": 14 }
+    }
+  },
+  "properties": {
+    "$comment": { "type": "string" },
+    "source": { "type": "string" },
+    "sites": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["lat", "lon", "utcOffsetH"],
+        "properties": {
+          "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+          "lon": { "type": "number", "minimum": -180, "maximum": 180 },
+          "utcOffsetH": { "$ref": "#/definitions/offsets" },
+          "civilOffsetH": { "$ref": "#/definitions/offsets" }
+        }
+      }
+    }
+  }
+}

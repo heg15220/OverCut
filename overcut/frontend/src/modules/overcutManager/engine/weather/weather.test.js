@@ -22,19 +22,30 @@
  *     races 2023-2025 measure (__fixtures__/openf1-wet-spray.json, spray_from_openf1.py) and 0 in
  *     the dry; `sprayAt` is pure, 0 in the dry, monotone in water and speed and in 0..1; the
  *     snapshot's spray is the same with the same seed.
+ *   - WX-C3 / GS-14 (F1M24-CHINA §2.10, §3.1): the track's excess over the air follows the NOAA sun
+ *     and the cloud (temperature.sun, fitted on OpenF1's dry races 2023-2025): ±2 °C of OpenF1 at
+ *     every reading of the Chinese GP 2024 qualifying and race (__fixtures__/openf1-9664-9673.json,
+ *     track_temp_from_openf1.py) and an excess that falls ≥ 2 °C through the race; ramps of at
+ *     most 0.5 °C a lap in the dry; five rubber levels; the rubber kept within a day and partly
+ *     reset overnight without reaching zero (sessions.json evolution.days).
  */
 
 import Ajv from "ajv";
 import W from "../../data/balance/race-weather.json";
+import SESSIONS_BALANCE from "../../data/balance/sessions.json";
 import CLIMATE from "../../data/weather/climate.json";
 import schema from "../packs/schema/race-weather.schema.json";
 import climateSchema from "../packs/schema/weather-climate.schema.json";
+import sunSitesSchema from "../packs/schema/sun-sites.schema.json";
 import SQ_CHINA_2024 from "./__fixtures__/openf1-9668.json";
+import CHINA_2024 from "./__fixtures__/openf1-9664-9673.json";
 import WET_SPRAY from "./__fixtures__/openf1-wet-spray.json";
 import {
   INTER_CAPACITY_MM, SLICK_INTER_MM, STATES, WET_CAPACITY_MM, aquaplaningOf, capacityFor, climateFor, depthOfWetness, evacuationFor, forecastOf, gripRatio, rainChanceOf,
   rainTrackTargetOf, relaxTrackTemp, sprayAt, sprayLevelOf, sprayLossOf, sprayRiskOf, tyreForDepth, tyreForWetness, waterStep, weatherSnapshot, weatherTimeline, wetnessOfDepth,
+  hourlyConditions, rubberAtSessionStart, rubberLevelOf, sunExcessOf, trackAt, trackTargetOf,
 } from "./index";
+import { SUN_SITES, clearSkyKw, solarElevationDeg } from "./solar";
 import { createRace, tyreTime } from "../race";
 import { fromQuickRace, runStepToFinish, weatherNow } from "../sim";
 import { loadSeasonPack } from "../packs/seasonPacks";
@@ -399,5 +410,139 @@ describe("WX-C2 · GS-11 spray calibrated with OpenF1 (F1M24-CHINA §2.9; RF-SIM
     const wrong = a.filter((shot) => shot.spray !== Math.round(sprayAt(shot.waterMm) * 1000) / 1000 && Math.abs(shot.spray - sprayAt(shot.waterMm)) > 1e-3);
     expect(wrong).toEqual([]);
     expect(a.filter((shot) => !(shot.spray >= 0 && shot.spray <= 1))).toEqual([]);
+  });
+});
+
+describe("WX-C3 · GS-14 track temperature by the sun and rubber by day (F1M24-CHINA §2.10; RF-SIM-11, RF-WKD-03, RNF-07)", () => {
+  const CHINA_SITE = { packCircuitId: "shanghai" };
+  const OVERCAST = STATES.findIndex((state) => state.id === "overcast");
+  const SUNNY = STATES.findIndex((state) => state.id === "sunny");
+  const sessionOf = (key) => CHINA_2024.sessions.find((session) => session.key === key);
+
+  it("sun-sites.json matches its schema and covers every circuit-month of climate.json; sessions.json evolution.days is well formed", () => {
+    const a = ajv().compile(sunSitesSchema);
+    expect(a(SUN_SITES) || a.errors).toBe(true);
+    expect(Object.keys(CLIMATE.circuits).filter((id) => !SUN_SITES.sites[id])).toEqual([]);
+    const missing = Object.entries(CLIMATE.circuits).flatMap(([id, months]) => Object.keys(months).filter((month) => !Number.isFinite(SUN_SITES.sites[id].utcOffsetH[month])).map((month) => `${id}/${month}`));
+    expect(missing).toEqual([]);
+    const days = SESSIONS_BALANCE.evolution.days;
+    expect(days.status).toBe("pending");
+    ["sameDay", "nextDay", "supportFloor"].forEach((key) => {
+      expect(days[key]).toBeGreaterThanOrEqual(0);
+      expect(days[key]).toBeLessThanOrEqual(1);
+    });
+    expect(days.supportFloor).toBeGreaterThan(0);
+    expect(W.temperature.sun.status).toBe("measured");
+    expect(W.temperature.sun.tauMin).toBe(W.temperature.relaxTauMin);
+    expect(CHINA_2024.fit.base).toBe(W.temperature.sun.base);
+    expect(CHINA_2024.fit.gain).toBe(W.temperature.sun.gain);
+    expect(CHINA_2024.fit.cloud).toBe(W.temperature.sun.cloud.coefficient);
+  });
+
+  it("the engine's NOAA sun is the script's within 0.05° at every row of the fixture, and astronomically sane", () => {
+    CHINA_2024.sessions.forEach((session) =>
+      session.rows.forEach((row) => {
+        const e = solarElevationDeg({ lat: session.lat, lon: session.lon, date: session.date, hour: row.hour, utcOffsetH: session.utcOffsetH });
+        expect(Math.abs(e - row.elevationDeg)).toBeLessThan(0.05);
+      }),
+    );
+    // Equator at the March equinox: the sun near the zenith at solar noon, under the horizon at midnight.
+    expect(solarElevationDeg({ lat: 0, lon: 0, date: "2024-03-20", hour: 12.1, utcOffsetH: 0 })).toBeGreaterThan(88);
+    expect(solarElevationDeg({ lat: 0, lon: 0, date: "2024-03-20", hour: 0, utcOffsetH: 0 })).toBeLessThan(-80);
+    expect(clearSkyKw(-5)).toBe(0);
+    expect(clearSkyKw(60)).toBeGreaterThan(clearSkyKw(20));
+    expect(solarElevationDeg({ lat: 0, lon: 0, date: null, hour: 12 })).toBeNull();
+  });
+
+  it("track ±2 °C of OpenF1 at every reading of the Chinese GP 2024 qualifying (9664) and race (9673), with the real air and ERA5's cloud", () => {
+    [9664, 9673].forEach((key) => {
+      const session = sessionOf(key);
+      const misses = session.rows
+        .map((row) => {
+          const c = hourlyConditions({ race: { ...CHINA_SITE, date: session.date }, hour: row.hour, state: OVERCAST, utcOffsetH: session.utcOffsetH });
+          return { local: row.local, model: Math.round((row.airC + c.trackC - c.airC) * 10) / 10, real: row.trackC };
+        })
+        .filter((row) => Math.abs(row.model - row.real) > 2);
+      expect({ key, misses }).toEqual({ key, misses: [] });
+    });
+    // ERA5 had the whole weekend overcast, the state whose cloud the model uses.
+    expect(sessionOf(9673).rows.every((row) => row.cloud >= W.temperature.sun.cloudByState.cloudy)).toBe(true);
+  });
+
+  it("the excess falls ≥ 2 °C through the race as the sun drops (OpenF1 9673: 13.1 → 9.0 °C), in the race timeline too", () => {
+    const rows = sessionOf(9673).rows;
+    const real = rows[0].trackC - rows[0].airC - (rows[rows.length - 1].trackC - rows[rows.length - 1].airC);
+    expect(real).toBeGreaterThanOrEqual(2);
+    const race = { ...CHINA_SITE, date: "2024-04-21", laps: 56, baseLap: 101, lengthKm: 5.451 };
+    [OVERCAST, SUNNY].forEach((startState) => {
+      const t = weatherTimeline({ race, laps: 56, seed: "gs14", startState });
+      const excess = (lap) => t.track[lap] - t.air[lap];
+      expect(t.track).toHaveLength(57);
+      expect(excess(0) - excess(56)).toBeGreaterThanOrEqual(2);
+      // The race starts at the hour the climate says (15:00 local, f1db 07:00 UTC).
+      expect(t.sunElevation[0]).toBeCloseTo(solarElevationDeg({ lat: SUN_SITES.sites.shanghai.lat, lon: SUN_SITES.sites.shanghai.lon, date: "2024-04-21", hour: 15, utcOffsetH: 8 }), 1);
+      // No reading jumps more than 0.5 °C a lap in the dry (ramps, never steps).
+      for (let lap = 1; lap <= 56; lap += 1) expect(Math.abs(t.track[lap] - t.track[lap - 1])).toBeLessThanOrEqual(0.5);
+      // race.js still starts from the old target (sunShare): the sun model is a contract for the SIM lane, races unchanged.
+      expect(trackTargetOf(t, 0)).toBeCloseTo(Math.min(W.temperature.maxC, Math.max(W.temperature.minC, t.air[0] + W.temperature.trackOverAirDry * STATES[startState].sunShare)), 9);
+      expect(trackAt(t, 56)).toBe(t.track[56]);
+    });
+    // Same seed, same afternoon (RF-SIM-15).
+    expect(weatherTimeline({ race, laps: 56, seed: "gs14" }).track).toEqual(weatherTimeline({ race, laps: 56, seed: "gs14" }).track);
+  });
+
+  it("more cloud, a cooler track; at night only the night's excess; under rain towards air + trackOverAirRain", () => {
+    const e = [SUNNY, 1, OVERCAST].map((state) => sunExcessOf(45, state));
+    expect(e[0]).toBeGreaterThan(e[1]);
+    expect(e[1]).toBeGreaterThan(e[2]);
+    expect(sunExcessOf(-10, SUNNY)).toBe(W.temperature.sun.base);
+    expect(Math.abs(W.temperature.sun.base - W.temperature.sun.fit.nightMedian)).toBeLessThan(1);
+    const night = weatherTimeline({ race: { packCircuitId: "bahrain", date: "2024-03-02", laps: 57, baseLap: 97 }, laps: 57, seed: "gs14-night", startState: SUNNY });
+    expect(night.sunElevation[0]).toBeLessThan(0);
+    expect(night.trackEq[10] - night.air[10]).toBeCloseTo(W.temperature.sun.base, 1);
+    const HEAVY = STATES.length - 1;
+    const wet = weatherTimeline({ race: { ...CHINA_SITE, date: "2024-04-21", laps: 56, baseLap: 101 }, laps: 56, seed: "gs14-wet", startState: HEAVY });
+    expect(wet.trackEq[30] - wet.air[30]).toBeCloseTo(W.temperature.trackOverAirRain, 1);
+    // Without a site or a date the old sunShare excess holds (the pooled climate).
+    const old = weatherTimeline({ race: { packCircuitId: "nowhere", laps: 50 }, laps: 50, seed: "gs14-old", startState: SUNNY });
+    expect(old.track[0]).toBeCloseTo(old.air[0] + W.temperature.trackOverAirDry * STATES[SUNNY].sunShare, 1);
+    expect(old.sunElevation[0]).toBeNull();
+  });
+
+  it("the session clock cools the track from the afternoon to the evening (civil time, summer time included)", () => {
+    const race = { packCircuitId: "silverstone", date: "2024-07-07" };
+    const over = (hour) => {
+      const c = hourlyConditions({ race, hour });
+      return c.trackC - c.airC;
+    };
+    expect(over(13)).toBeGreaterThan(over(17));
+    expect(over(17)).toBeGreaterThan(over(21.5));
+    // Silverstone in July runs on British Summer Time: the session clock uses the civil offset.
+    const site = SUN_SITES.sites.silverstone;
+    expect(site.civilOffsetH["7"]).toBe(1);
+    expect(hourlyConditions({ race, hour: 14 }).sunElevationDeg).toBeCloseTo(solarElevationDeg({ lat: site.lat, lon: site.lon, date: race.date, hour: 14, utcOffsetH: 1 }), 1);
+  });
+
+  it("five rubber levels in order, the snapshot names them, and the rubber is kept within a day and partly reset overnight without reaching zero", () => {
+    const ids = [0, 0.1, 0.25, 0.5, 0.7, 0.95, 1].map((r) => rubberLevelOf(r).id);
+    expect([...new Set(ids)]).toEqual(["veryLow", "low", "normal", "high", "veryHigh"]);
+    expect(rubberLevelOf(-0.3).id).toBe("veryLow");
+    expect(rubberLevelOf(null)).toBeNull();
+    W.rubber.levels.bands.forEach((band) => expect(band.es && band.en).toBeTruthy());
+    const weather = weatherTimeline({ race: { ...CHINA_SITE, date: "2024-04-21", laps: 56, baseLap: 101 }, laps: 56, seed: "gs14-rubber" });
+    expect(weatherSnapshot({ weather, lap: 0, evolution: 1 }, 0).rubberLevel).toBe("veryHigh");
+    expect(weatherSnapshot({ weather, lap: 0, evolution: 0 }, 0).rubberLevel).toBe("veryLow");
+    expect(weatherSnapshot({ weather, lap: 0, evolution: 0 }, 0).sunElevationDeg).toBe(weather.sunElevation[0]);
+    // Saturday's qualifying ends with a lot of rubber: kept for the next session that day, partly lost by Sunday, never to zero.
+    const days = SESSIONS_BALANCE.evolution.days;
+    expect(rubberAtSessionStart({ rubber: 0.8, sameDay: true })).toBeCloseTo(0.8 * days.sameDay, 9);
+    const sunday = rubberAtSessionStart({ rubber: 0.8, sameDay: false });
+    expect(sunday).toBeLessThan(0.8);
+    expect(sunday).toBeGreaterThan(0);
+    expect(rubberAtSessionStart({ rubber: 1, sameDay: false })).toBeGreaterThanOrEqual(days.supportFloor);
+    // A green Saturday still finds the support races' rubber on Sunday.
+    expect(rubberAtSessionStart({ rubber: 0.05, sameDay: false })).toBe(days.supportFloor);
+    // A washed track stays washed overnight (the floor only refills what was there).
+    expect(rubberAtSessionStart({ rubber: -0.3, sameDay: false })).toBeLessThan(0);
   });
 });
