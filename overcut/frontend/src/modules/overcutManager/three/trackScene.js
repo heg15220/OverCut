@@ -21,6 +21,7 @@ import { biomeFor } from "./biomes";
 import { floodlights, groundMaterials, horizon, skyDome, skyline, vegetation, water } from "./scenery";
 import LOOK from "../data/balance/view-look.json";
 import { enableWetSurface, fillRacingLine, wetAttributes, wetLookFor } from "./rain/wetSurface";
+import { rainHazeOf } from "./rain/hookup";
 import { hazeColourFor } from "./sky";
 
 const STREET = new Set(["monaco", "marina_bay", "baku", "detroit", "dallas", "phoenix", "adelaide", "long_beach", "valencia", "jeddah", "vegas", "las_vegas", "pedralbes", "monsanto", "boavista", "pescara", "montjuic", "miami"]);
@@ -459,21 +460,19 @@ export const buildTrack = (circuit, { teams = [], street = null, year = 2020 } =
    * VIEW-06 (LOOK-C3): daylight from the real sun and the engine's clouds. `look` is three/sky.js lookAt
    * for the moment (sun direction, lights by cloud cover, haze density) and `dome` whether the Preetham
    * sky of sky.js is drawn (then the painted dome of the biome steps aside). Floodlit races and a sun
-   * below the horizon keep the place's own night light; in the wet (`wet`) the fog of applyWeather stays.
-   * Returns true when it lit the scene.
+   * below the horizon keep the place's own night light. LOOK-C4 (VIEW-07): while it rains (`wet`) the air
+   * is the rain's: FogExp2 of `fogDensity` (three/rain/fog.js rainFogDensity, haze plus rain) in the wet
+   * haze colour; without a density the haze of the look. Returns true when it lit the scene.
    */
-  const applyDaylight = (state, look, { dome = false, wet = false } = {}) => {
+  const applyDaylight = (state, look, { dome = false, wet = false, fogDensity = null } = {}) => {
     if (!look || biome.night || !look.sun?.aboveHorizon) {
       paintedSky.visible = true;
       return false;
     }
     const { light, cloud } = look;
-    // In the wet the rain's own air (applyWeather; LOOK-C4 replaces it with rain/fog.js) is kept.
-    if (!wet) {
-      const haze = new THREE.Color(hazeColourFor(biome.haze, cloud));
-      state.scene.background = dome ? null : haze;
-      state.scene.fog = new THREE.FogExp2(haze, look.fogDensity);
-    } else if (dome) state.scene.background = null;
+    const haze = new THREE.Color(wet ? rainHazeOf(false) : hazeColourFor(biome.haze, cloud));
+    state.scene.background = dome ? null : haze;
+    state.scene.fog = new THREE.FogExp2(haze, wet && Number.isFinite(fogDensity) ? fogDensity : look.fogDensity);
     paintedSky.visible = !dome;
     state.sun.color.set(light.sunColour);
     state.sun.intensity = light.sunIntensity;
@@ -487,15 +486,18 @@ export const buildTrack = (circuit, { teams = [], street = null, year = 2020 } =
     return true;
   };
 
-  /** Light and air for the place, the time of day and the weather. */
-  const applyWeather = (state, wet) => {
+  /**
+   * Light and air for the place, the time of day and the weather. LOOK-C4: in the rain with a
+   * `fogDensity` (rain/fog.js) the air is FogExp2 of it instead of the old linear wet fog.
+   */
+  const applyWeather = (state, wet, { fogDensity = null } = {}) => {
     paintedSky.visible = true;
     state.sun.castShadow = true;
     state.sun.shadow.intensity = 1;
     state.sun.shadow.radius = 1;
-    const haze = new THREE.Color(wet ? (biome.night ? "#10141e" : "#8e98a3") : biome.haze);
+    const haze = new THREE.Color(wet ? rainHazeOf(biome.night) : biome.haze);
     state.scene.background = haze;
-    state.scene.fog = new THREE.Fog(haze, wet ? 160 : 320, wet ? 900 : biome.night ? 1500 : 2200);
+    state.scene.fog = wet && Number.isFinite(fogDensity) ? new THREE.FogExp2(haze, fogDensity) : new THREE.Fog(haze, wet ? 160 : 320, wet ? 900 : biome.night ? 1500 : 2200);
     if (biome.night) {
       // Floodlit: bright, cool and from above, the sky black beyond.
       state.sun.color.set("#e8eeff");
@@ -527,16 +529,20 @@ export const buildTrack = (circuit, { teams = [], street = null, year = 2020 } =
         light.mesh.material = light.index < count ? m.lightOn : m.lightOff;
       });
     },
-    setWet: (wet) => {
-      m.asphalt.roughness = wet ? 0.18 : 0.82;
-      m.asphalt.color.set(wet ? "#7d8796" : "#ffffff");
-      m.asphalt.metalness = wet ? 0.35 : 0.05;
+    /**
+     * LOOK-C4 (VIEW-07): the rain's air from frame to frame - the density of three/rain/fog.js
+     * rainFogDensity as the rain rate moves, on the FogExp2 applyDaylight / applyWeather put up.
+     */
+    setRainFog: (state, density) => {
+      if (!Number.isFinite(density)) return;
+      if (state.scene.fog && state.scene.fog.isFogExp2) state.scene.fog.density = density;
+      else state.scene.fog = new THREE.FogExp2(state.scene.fog ? state.scene.fog.color.clone() : new THREE.Color(rainHazeOf(biome.night)), density);
     },
     /**
      * GS-10 / LOOK-C2: continuous wetness from the engine's `snapshot.weather` ({waterMm: {line, off,
      * sectors[]}}, F1M24-CHINA §1.5). The first call patches the asphalt shader (wetSurface.js) and puts
-     * the material back to its dry values, so the binary setWet is not mixed with it. Returns the look.
-     * LOOK-C4 replaces the setWet calls of Race3D.js with this one.
+     * the material back to its dry values. Returns the look. LOOK-C4: Race3D.js calls it every frame with
+     * the engine's water (three/rain/hookup.js frameWeatherFor); the binary setWet is gone.
      */
     setWater: (weather) => {
       const look = wetLookFor(weather);
