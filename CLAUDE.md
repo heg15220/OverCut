@@ -61,6 +61,13 @@ Reglas:
   revisión independiente: suite y build en verde, validación 7.2 baja a 34/38 y Spearman 0,918 (1994 cambia de campeón);
   abiertos SIM-8 (pases invertidos y contactos), CAM-3 (cajas medidas sobre el eje central, no la trazada) y la amarilla
   duplicada (`era-defaults.json yellowLapDeleted` frente a `sessions.json yellow.laps`).
+- Plan F1M24-CHINA (2026-11-28, `docs/manager/F1M24-CHINA.md`, estado por paquete en su §5): cinco olas fusionadas
+  (trazada única y hueco en tiempo, pase con DRS en recta, histéresis y vigilante de orden, SC y salida en mojado por era,
+  spray y evacuación, goma y pista por el sol, `previewPit` igual al cronómetro, zonas de Shanghái, FOV horizontal,
+  realizador con prioridades, cielo/post/lluvia/chispas por era, volante con LED, HUD por zonas, licencias y avance
+  rápido del sonido); validación 7.2 en 35/38 y Spearman 0,9185 tras la ola 3 (objetivo 0,92 de SIM-C3 sin cumplir);
+  **7.2 tras las olas 4 y 5 pendiente** (SIM-C4 regeneró el golden); ningún Playwright ejecutado; parciales GS-02,
+  GS-11 y otros en su §5.4.
 - Tests del Manager: `CI=true npx react-scripts test --watchAll=false --testPathPattern overcutManager`.
   `npm install` necesita `--legacy-peer-deps` (conflicto previo de react-vis con React 18).
 - Ningún valor de balance en código (RNF-07): va a los packs de temporada con esquema JSON.

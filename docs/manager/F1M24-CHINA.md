@@ -849,3 +849,97 @@ Se suman a las de F1M24-GAMEPLAY §4, que siguen sin aplicar.
 12. **Criterio 7.2.** Añadir dos criterios medibles: «En vivo, ningún coche avanza entre dos fotogramas más de lo que
     permite su velocidad salvo en un salto explícito de repetición» y «la holgura lateral entre coches se mide sobre la
     trazada, no sobre el eje central» (cierra la ambigüedad que dejó abierto CAM-3).
+
+---
+
+## 5. Estado (28/11/2026)
+
+Las cinco olas están fusionadas en `feature/overcut-manager` (sin push). Una revisión independiente leyó el código de
+cada id del backlog sin fiarse de los mensajes de commit. No relanzó la suite completa, la validación 7.2 ni el build:
+la suite y el build corrían aparte y el usuario pidió no medir la 7.2 ahora. Solo se pasaron sueltos los ficheros de
+test tocados.
+
+### 5.1 Paquetes
+
+| Ola | Paquete | Fusión | Estado | Pendiente |
+|---|---|---|---|---|
+| 1 | SIM-C0 DRS por tabla | `b6c27eff` | Hecho (GS-08) | Filas de `drsProcedure` 2012–17, 2019–20, 2021–23 y 2025 en `pending` |
+| 1 | SIM-C1 Trazada única y seguimiento | `7075aadc` | Hecho (GS-07 motor, GS-03) | `traffic.minFollowSec.eras` (tres eras a 0,2 s) y `settleStatus` en `pending`. `three/cameraZones.js` no importa `trackData` |
+| 1 | PIT-C1 Estimación = cronómetro | `5eb8dc69` | Hecho (GS-15) | El test descuenta el tiempo de parada sorteado. Undercut y coste de vuelta (`race.js` ~1872, ~2073, ~2507) siguen en `pitLaneLoss`, no en `previewPit` |
+| 1 | PT-C1 Curvas de Shanghái (+ `82ee92c4` PT-C2fix) | `b547e3c4` | Parcial (GS-02) | `budget.radiusExponent` está en datos pero `trackTables.js` no lo lee. `speeds.test.js` exime 12 curvas (`CHINA_KNOWN_OFF`, p. ej. T14 2024 122 frente a 156 km/h). «T14 ≥ 65 km/h» pasó a «≥ 90 % de OpenF1» |
+| 1 | WX-C1 Evacuación por era | `37f85bde` | Hecho (GS-13) | Eras 1950–2010 NV; 2022–30 `pending` |
+| 1 | SES-C1 Radio en sesiones | `39e2c366` | Hecho (AUD-C3 motor) | — |
+| 1 | AUD-C-1 Licencias, avance rápido y cortes | `4caeeea2` | Hecho (AUD-C10, AUD-C1, AUD-C2) | `scripts/prunePublicSounds.js` no está en `package.json`: es un paso manual. `samples.cars` sigue apuntando a bancos *ripped* (solo cuenta si el usuario los activa en local) |
+| 1 | CAM-C1 Encuadre TV y FOV | `5da827b6` | Hecho (VIEW-02, VIEW-12); parcial (VIEW-03) | FOV FOM por era `pending`. La aceptación de VIEW-03 dice «mismo vfov con el mismo hfov» y el test comprueba el hfov: el texto parece invertido |
+| 1 | HUD-C1 Continuidad y HUD por zonas | `6878e453` | Hecho (GS-01, VIEW-01) | `continuity.fallbackSpeedFactor` 1,6 es de diseño |
+| 1 | LOOK-C1 Cielo, sol y grading | `5e422280` | Hecho (módulos de VIEW-05 y VIEW-06) | — |
+| 2 | SIM-C2 Duelo legible | `9fe15607` | Hecho (GS-04, GS-06) | Todas las claves de `duel.straightPass` y `lateral.alongsideByBand` en `pending` y sin medir con OpenF1. El ≥ 50 % se cuenta en todas las zonas DRS, no solo en T14. El ±10 % se mide frente al modo por pasos sin la fase, no frente al rápido |
+| 2 | SIM-C5 Estrategia bajo SC y final | `d09a8191` | Hecho (GS-09) | Las comprobaciones de la carrera por pasos con SC forzado van dentro de `if`, así que pueden pasar sin comprobar nada. Márgenes 0,85 y 0,9 de `scStopCall` escritos en código (RNF-07) |
+| 2 | PIT-C2 Cola y etapas | `9c78f315` | Hecho (cola de GS-09, prerrequisito de AUD-C7) | — |
+| 2 | WX-C2 Spray calibrado | `0b121c48` | Parcial (GS-11) | `snapshot.spray[i]` (`stepRace.js` ~2761) usa `sprayLevelOf(h)` sin velocidad ni año, no `sprayAt`, contra la §1.5. El tiempo por vuelta llama a `sprayLossOf` sin año y la radio con año |
+| 2 | AUD-C-2 Radio, sonoridad y lecho | `0a18dbfa` | Hecho (AUD-C3); parcial (AUD-C4) | `mixer.loudness` en `pending`: el *makeup* sale de la captura antigua y hay que medirlo de nuevo en navegador |
+| 2 | CAM-C2 Vibración y trazada en la vista | `64e2dd4c` | Parcial (VIEW-04); hecho (VIEW-08, GS-07 vista) | Sin `tau`, la vibración cae al reloj de la vista (`state.viewTime`). Balanceo y cabeceo de carrocería escritos en `Race3D.js` ~577 (RNF-07) |
+| 2 | HUD-C2 Torre, selector, boxes y sesiones | `d67f5dbb` | Hecho (VIEW-16, VIEW-17); parcial (VIEW-14) | Ningún test mide «retrovisor en ≤ 1 fotograma» |
+| 2 | LOOK-C2 Asfalto mojado y lluvia | `85b8604f` | Hecho (módulos de GS-10 y VIEW-07) | — |
+| 3 | SIM-C3 Histéresis y contactos | `70362d63` | Hecho (GS-05); parcial (VIEW-09) | **No llega al objetivo 7.2 de la ola (≥ 0,92)**. `duel.rePass` `pending`, `contact.crowd` NV. Las 32 semillas de VIEW-09 son de Baréin, no de Shanghái. A la par ≥ 1,5 s en el 80 %, no en todos. Ningún test comprueba que el banner salga con el atacante delante en la pose |
+| 3 | WX-C3 Goma y temperatura | `17ac1b58` | Hecho (GS-14) | Goma NV; `sessions.json evolution.days` `pending` |
+| 3 | AUD-C-3 Pit lane, pianos y lluvia | `0f7456d6` | Hecho (AUD-C7, AUD-C8, AUD-C5) | Tiempos de pistola NV y fuera de `race-pit.json`. `spray.compoundStatus` `pending` |
+| 3 | CAM-C3 Realizador | `ddf5180a` | Hecho (VIEW-13, guion de VIEW-10) | — |
+| 3 | LOOK-C3 Luz y efectos | `e3d0e7c2` | Hecho (VIEW-05, VIEW-06, VIEW-18, malla flotante) | Eras de chispas `pending` (1976–93 sí, 1994–2014 no, 2015–26 sí). Luminancia medida con un modelo de Lambert, no con un fotograma |
+| 4 | SIM-C4 Mojado, SC y radio | `62e36785` | Hecho (GS-12); parcial (AUD-C9) | `wetStart` en `pending` salvo 2024; `wetTyresMandatory` 2007–16 sale de memoria. El zigzag no aplica `speedShare`; `shift.underSc` `pending`. Golden del modo rápido regenerado (`2d402a47`) |
+| 4 | AUD-C-4 Timbre y pulido | `7d37b4f7` | Hecho (AUD-C6, AUD-C12) | `voicing.byManufacturer` NV y solo 2006–13 |
+| 4 | LOOK-C4 Mojado en la vista | `f51d4117` | Hecho en unidad (GS-10, VIEW-07) | No existe `save-china-wet.json` en el repo, que necesita su Playwright |
+| 5 | CAM-C4 Etiquetas, volante y luces | `7723f5a6` | Hecho (VIEW-11, plano de VIEW-10); parcial (VIEW-15) | Disposición de los LED `pending`. La pantalla se construye en `carModel.js`, no en el `carBody.js` que nombra la §3.3 |
+| 5 | HUD-C3 Salida y DC en mojado | `d3aa8396` | Hecho (HUD de VIEW-10 y de GS-12) | — |
+
+Resumen del backlog: ningún id falta ni contradice la spec. Están parciales GS-02, GS-11, VIEW-03, VIEW-04,
+VIEW-09, VIEW-14, VIEW-15, AUD-C4 y AUD-C9. AUD-C11 tenía el sonido de impacto sin filtrar por `confirmed`; la revisión
+lo arregló.
+
+### 5.2 Validación 7.2
+
+| Momento | Campeones | Spearman | Nota |
+|---|---|---|---|
+| Tras la ola 2 | 35/38 | 0,918 | `c8fffb97` |
+| Tras la ola 3 | 35/38 | 0,9185 | `4af589de`. **No se cumple el objetivo de SIM-C3** (≥ 0,92) |
+| Tras las olas 4 y 5 | **sin medir** | **sin medir** | No se midió por petición del usuario. SIM-C4 regeneró el golden del modo rápido, así que hay que relanzar `node scripts/validateSeasons.js --full` antes de dar la ola 4 por cerrada (§1.4 regla 8) |
+
+### 5.3 Arreglos de la revisión
+
+- `97748eb4`: `hud.json tags.status` pasa de `pending` a `behaviour`, porque CAM-C4 ya aplica la política.
+- `4df0340c`: se quita `race-weather.json display.rubberBands`, que nadie leía, del JSON y del esquema.
+- `cfb57550`: el impacto solo suena con contactos no marcados `confirmed: false`
+  (`three/audio/index.js impactHeard`; AUD-C11). Lleva test.
+- `b65fb4d6`: el `$comment` de `cameras.json` ya no dice «sin cablear» de `shake` y `wheelDisplay.byEra`.
+
+### 5.4 Abierto
+
+1. Validación 7.2 tras las olas 4 y 5, y objetivo de 0,92 de SIM-C3 sin cumplir.
+2. GS-11: unificar `snapshot.spray[i]` con `sprayAt` y pasar el año a `sprayLossOf` en el tiempo por vuelta. Mueve
+   el golden y la 7.2.
+3. GS-02: enganchar `budget.radiusExponent` en `trackTables.js` sin pasar de +5 % de punta en Monza 2012, y reducir
+   `CHINA_KNOWN_OFF`.
+4. GS-15: pasar el undercut y el coste de vuelta de `race.js` a `previewPit`.
+5. RNF-07: márgenes 0,85 y 0,9 de `scStopCall`. En la vista y el sonido, números de ajuste menores en código:
+   balanceo y cabeceo de carrocería en `Race3D.js`, constantes de tiempo de `mixer.js` y `ambience.js`, Q del filtro de
+   radio y `turboTarget`.
+6. Regla 7 (§1.4): sin reloj de carrera, la vibración, las gotas, el spray y las chispas de `Race3D.js` caen a
+   `state.viewTime`, que suma el `dt` del reloj de pared. El confeti de `three/Podium.js` usa `Math.random`. Esto es
+   anterior a este plan y queda fuera de la carrera.
+7. Duplicados menores frente a la §1.5: `audio.json ui.sting.fallbackSec` copia `broadcast.json replay.stingSec`, y
+   `ambience.kerb.stripeM` está marcado `measured` cuando copia `kerbs.json`. Los dos solo son respaldo.
+8. Tests más flojos que su aceptación: las comprobaciones con SC forzado de GS-09 van dentro de `if`, y VIEW-09 se
+   mide sobre Baréin y con el 80 %.
+9. Todo lo que está `pending` o NV en los datos (tablas por era de `wetStart`, chispas, DRS y FOV; claves de duelo;
+   voicing), por verificar contra FIA, OpenF1 y f1db.
+
+### 5.5 Aceptación sin ejecutar
+
+No se ha ejecutado **ninguna** prueba Playwright. El repo no tiene ni un spec, ni configuración, ni el paquete. Quedan
+pendientes las mitades Playwright de GS-01, GS-06, GS-07, GS-10, VIEW-01, VIEW-02, VIEW-03, VIEW-07, VIEW-08, VIEW-13,
+AUD-C1, AUD-C2, AUD-C3, AUD-C4, AUD-C5, AUD-C8 y AUD-C12, más los ≥ 50 fps a 1080p de VIEW-05, LOOK-C3 y LOOK-C4
+(RNF-02). Para GS-10 y VIEW-07 falta además el fixture `save-china-wet.json`.
+
+### 5.6 Enmiendas
+
+Las **12 enmiendas al SRS de la §4 siguen sin aplicar** a `SRS.md`, igual que las de F1M24-GAMEPLAY §4.
