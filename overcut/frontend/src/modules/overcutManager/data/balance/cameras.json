@@ -10,7 +10,7 @@
     "onboardHistory": "NV: primeras cámaras a bordo en carrera a mediados de los años 80 (pending fecha exacta); antes solo cámaras de pista",
     "tcamPod": "NV: la carcasa de T-cam sobre la toma de aire, alineada con el modelo de OverCut (three/carBody.js dibuja la T-cam desde 1993); pending verificar el año con el reglamento técnico FIA",
     "reference": "docs/manager/f1m24-analysis/cameras.md §3 (posiciones y FOV inferidos de vídeo, confianza media-baja; solo referencia)",
-    "china": "docs/manager/F1M24-CHINA.md §2.4 (CAM-C1, VIEW-03 y VIEW-12; contratos de la ola 1 para VIEW-04 y VIEW-15: shake angular y wheelDisplay.byEra, sin cablear). Composición buscada en la T-cam: horizonte al 30-40 % desde arriba y ruedas delanteras ≤ 30 % del ancho (§3.1 VIEW-03); los FOM por era no se han consultado: pending",
+    "china": "docs/manager/F1M24-CHINA.md §2.4 (CAM-C1, VIEW-03 y VIEW-12; contratos de la ola 1 para VIEW-04 y VIEW-15: shake angular y wheelDisplay.byEra, cableados en CAM-C2 y CAM-C4). Composición buscada en la T-cam: horizonte al 30-40 % desde arriba y ruedas delanteras ≤ 30 % del ancho (§3.1 VIEW-03); los FOM por era no se han consultado: pending",
     "previous": "three/cameras.js y three/Race3D.js antes de CAM-1 (valores trasladados sin cambios)"
   },
   "shakeModel": {
