@@ -160,11 +160,21 @@
       { "id": "startHeadOn", "anchor": "pole", "alongM": 160, "sideM": 3, "height": 10, "width": 70, "aim": "subject", "label": ["Frontal de la salida", "Start head-on"] },
       { "id": "lineHigh", "anchor": "line", "alongM": 70, "sideM": 16, "height": 15, "width": 40, "aim": "subject", "label": ["Meta desde arriba", "Finish from above"] },
       { "id": "lineSide", "anchor": "line", "alongM": 45, "sideM": 9, "height": 1.8, "width": 16, "aim": "subject", "label": ["Meta a ras de pista", "Finish line, low"] },
-      { "id": "startLightsLow", "anchor": "pole", "alongM": -18, "sideM": 7, "height": 1.0, "width": 34, "aim": "anchor", "label": ["Luces de salida a ras de pista", "Start lights, low"] },
+      { "id": "startLightsLow", "anchor": "pole", "alongM": -18, "sideM": 7, "height": 1.0, "width": 34, "aim": "gantry", "gantryShare": 0.45, "label": ["Luces de salida a ras de pista", "Start lights, low"] },
       { "id": "startHigh", "anchor": "line", "alongM": 40, "sideM": 30, "height": 32, "width": 150, "aim": "subject", "label": ["Salida desde lo alto", "Start from above"] }
     ],
     "fovDeg": { "min": 6, "max": 75 },
-    "critDamp": 10
+    "critDamp": 10,
+    "gantry": {
+      "lineShare": 0.0005,
+      "heightM": 7,
+      "lightSpacingM": 0.8,
+      "faceOffsetM": 0.41,
+      "count": 5,
+      "showOnAsset": "start",
+      "status": "current",
+      "note": "CAM-C4 (VIEW-10, F1M24-CHINA §2.5): el pórtico de salida que dibuja three/trackScene.js (antes literales de su código, trasladados sin cambios: a lineShare de la vuelta, luces a heightM sobre el suelo, lightSpacingM entre luces a lo ancho de la pista y una cara a ±faceOffsetM a lo largo) y que mira el plano startLightsLow con aim 'gantry': la cámara apunta al punto que está a gantryShare del camino entre su ancla (a framing.aimUpM) y el centro de las luces, así el poleman y el pórtico caben en cuadro (aceptación de VIEW-10: ≥ 4 de 5 luces dentro del campo, three/cameras.test.js). showOnAsset 'start': en un circuito GLB (que oculta la pista procedural) el pórtico procedural se sigue viendo mientras hay luces encendidas o el guion de salida está en el aire, sobre la altura de la malla (three/Race3D.js). Diseño propio; gantryShare pending de comparar con retransmisiones FOM."
+    }
   },
   "sequences": {
     "pitStop": {
