@@ -16,7 +16,8 @@
     "soundSpeed": "https://en.wikipedia.org/wiki/Speed_of_sound",
     "openf1Downshifts": "https://api.openf1.org/v1/car_data?session_key=9472 (VER 15:30:30-15:33:30, LEC 15:21-15:24, NOR 15:24:20-15:27:20 UTC; leído el 2026-11-24)",
     "openf1PitLane": "https://api.openf1.org/v1/car_data?session_key=9472 y /v1/pit?session_key=9472 (mismas ventanas, alrededor de cada parada; leído el 2026-11-24)",
-    "itutBand": "ITU-T G.712: banda de la telefonía analógica 300-3.400 Hz (la «radio» del equipo se filtra a una banda de este tipo; aquí 300-3.000 Hz, F1M24-GAMEPLAY §2.1)",
+    "itutBand": "ITU-T G.712: banda de la telefonía analógica 300-3.400 Hz (la «radio» de AUD-4 se filtraba a 300-3.000 Hz, F1M24-GAMEPLAY §2.1; desde AUD-C3 la banda es más ancha, F1M24-CHINA §2.7)",
+    "ownCapture": "Captura propia de OverCut Manager en China 2013 (F1M24-CHINA §1.2, audio_summary.json de cn/ours, ya borrada; la cifra queda en el §2.6-§2.7 de la especificación): tcam −33,4 dBFS, chase −34,6 dBFS, TV −48,3 dBFS, correlación L/R de la TV 0,88",
     "scCars": "https://en.wikipedia.org/wiki/Safety_car (lista de coches de seguridad de F1; leída de memoria, no verificada: pending)",
     "openf1Grid": "https://api.openf1.org/v1/car_data?session_key=9472 (2024-03-02 15:02:30-15:03:50 UTC; pilotos 1, 4, 11, 16, 44, 63) y session_key=7953 (2023-03-05 15:03:20-15:03:40 UTC; pilotos 1, 11, 14, 16, 44); /v1/race_control SESSION STARTED 15:03:42 (2024) y 15:03:38 (2023); leído el 2026-11-24"
   },
@@ -365,19 +366,28 @@
     "distance": {"$comment": "Atenuación inversa de Web Audio (PannerNode 'inverse'): g = ref / (ref + rolloff·(max(d, ref) − ref)); NV los metros", "model": "inverse", "refDistance": 12, "rolloff": 1.2, "maxDistance": 900, "audibleGain": 0.025},
     "doppler": {"speedOfSound": 343, "minFactor": 0.6, "maxFactor": 1.6, "source": "soundSpeed: 343 m/s en aire seco a 20 °C"},
     "masterLimiter": {"threshold": -10, "knee": 8, "ratio": 6},
+    "loudness": {
+      "$comment": "AUD-C4 (F1M24-CHINA §2.7; RF-3D-04, RNF-07, RNF-09): sonoridad de referencia a bordo onboardTargetDbfs ± tolerance con la mezcla por defecto del espectador. makeupDb es una ganancia fija entre el volumen general y el limitador (mixer.js createMixer): sube todos los buses por igual, así que no cambia ninguna relación entre vistas ni la jerarquía radio > avisos > pista. Se calcula como onboardTargetDbfs − measuredOnboardDbfs con la última medida de la cámara a bordo (fuente ownCapture: −33,4 dBFS). status pending: la medida es de antes de AUD-C-1 (bancos grabados por defecto) y de AUD-C4 (lecho de pista); la prueba Playwright de 60 s a bordo (−23…−17 dBFS) la tiene que repetir y, si sale fuera, se corrige measuredOnboardDbfs y con ella makeupDb. El objetivo −20 dBFS y la tolerancia son el ejemplo del §2.7, decisión propia (la referencia queda en −21 dBFS a bordo); ninguna cifra de ajuste del juego.",
+      "status": "pending",
+      "onboardTargetDbfs": -20,
+      "tolerance": 3,
+      "measuredOnboardDbfs": -33.4,
+      "source": "ownCapture",
+      "makeupDb": 13.4
+    },
     "cameras": {
-      "$comment": "NV: mezcla por cámara de LiveRace (RF-3D-04). Oyente: 'car' va con el coche enfocado (offset en metros: atrás, lado, alto); 'post' es un poste de TV junto a la pista delante del coche que se recoloca cuando el coche lo pasa; 'above' sobre el coche. 'focus' y 'field' son las ganancias del coche enfocado y del resto; 'interior' sube la admisión y oscurece el escape (a bordo).",
+      "$comment": "NV: mezcla por cámara de LiveRace (RF-3D-04). Oyente: 'car' va con el coche enfocado (offset en metros: atrás, lado, alto); 'post' es un poste de TV junto a la pista delante del coche que se recoloca cuando el coche lo pasa; 'above' sobre el coche. 'focus' y 'field' son las ganancias del coche enfocado y del resto; 'interior' sube la admisión y oscurece el escape (a bordo). 'bed' (AUD-C4): cuota del lecho de pista estéreo (ambience.trackBed), siempre presente en TV, helicóptero y persecución y fuera a bordo (el motor a bordo suena mono, correlación ~1) y en el mapa (el avance rápido tiene su propio lecho).",
       "groups": {"onboard": ["tcam", "visor", "nose", "tcamRear"], "chase": ["chase", "drone"], "tv": ["tv"], "heli": ["heli"], "map": ["map", "follow"]},
       "mix": {
-        "onboard": {"listener": "car", "back": 0, "side": 0, "up": 1, "focus": 0.8, "field": 0.55, "interior": 1, "crowd": 0.35, "wind": 1.0, "lowpassHz": 12000},
-        "chase": {"listener": "car", "back": 9, "side": 0, "up": 2.5, "focus": 0.9, "field": 0.7, "interior": 0, "crowd": 0.55, "wind": 0.45, "lowpassHz": 14000},
-        "tv": {"listener": "post", "useCamera": true, "ahead": 160, "side": 25, "up": 6, "passBehind": 120, "focus": 1.0, "field": 0.85, "interior": 0, "crowd": 1.0, "wind": 0.15, "lowpassHz": 16000},
-        "heli": {"listener": "above", "useCamera": true, "back": 0, "side": 30, "up": 140, "focus": 1.0, "field": 0.9, "interior": 0, "crowd": 0.7, "wind": 0.6, "lowpassHz": 5000},
-        "map": {"listener": "above", "back": 0, "side": 0, "up": 220, "focus": 1.0, "field": 0.8, "interior": 0, "crowd": 0.6, "wind": 0.2, "lowpassHz": 4000}
+        "onboard": {"listener": "car", "back": 0, "side": 0, "up": 1, "focus": 0.8, "field": 0.55, "interior": 1, "crowd": 0.35, "wind": 1.0, "bed": 0, "lowpassHz": 12000},
+        "chase": {"listener": "car", "back": 9, "side": 0, "up": 2.5, "focus": 0.9, "field": 0.7, "interior": 0, "crowd": 0.55, "wind": 0.45, "bed": 0.5, "lowpassHz": 14000},
+        "tv": {"listener": "post", "useCamera": true, "ahead": 160, "side": 25, "up": 6, "passBehind": 120, "focus": 1.0, "field": 0.85, "interior": 0, "crowd": 1.0, "wind": 0.15, "bed": 1.0, "lowpassHz": 16000},
+        "heli": {"listener": "above", "useCamera": true, "back": 0, "side": 30, "up": 140, "focus": 1.0, "field": 0.9, "interior": 0, "crowd": 0.7, "wind": 0.6, "bed": 0.8, "lowpassHz": 5000},
+        "map": {"listener": "above", "back": 0, "side": 0, "up": 220, "focus": 1.0, "field": 0.8, "interior": 0, "crowd": 0.6, "wind": 0.2, "bed": 0, "lowpassHz": 4000}
       }
     },
     "views": {
-      "$comment": "Mezcla por vista (mix-snapshots-per-view, F1M24-GAMEPLAY §2.1; RF-3D-04, RNF-07). Una 'snapshot' se pone encima de la mezcla de la cámara: sus focus/field/crowd/wind/interior/lowpassHz, si están, sustituyen a los de la cámara, y engineDb/bedDb recortan el bus de motores (con el lecho del pelotón) y el de ambiente. La vista la da la pantalla ('replay', 'menu'); sin ella, la pausa es 'paused' y el grupo de cámara de byGroup da la suya ('map'). Al cortar de cámara la mezcla se funde en crossfadeMs y al cambiar de vista en snapshotFadeMs. Con 'useCamera' en la mezcla de una cámara, el oyente es la cámara que se ve (cameraBus de Race3D, §1.7); sin ella, el poste virtual. Todos los valores NV, diseño propio: la referencia de vídeo solo fija relaciones de nivel entre vistas (onboard unos 12-15 dB sobre la TV lejana, el mapa 15 dB o más por debajo de la TV), que comprueba el test de mezcla offline (three/audio/levels.js); ninguna cifra del juego se copia.",
+      "$comment": "Mezcla por vista (mix-snapshots-per-view, F1M24-GAMEPLAY §2.1; RF-3D-04, RNF-07). Una 'snapshot' se pone encima de la mezcla de la cámara: sus focus/field/crowd/wind/interior/lowpassHz, si están, sustituyen a los de la cámara, y engineDb/bedDb recortan el bus de motores (con el lecho del pelotón) y el de ambiente. La vista la da la pantalla ('replay', 'menu'); sin ella, la pausa es 'paused' y el grupo de cámara de byGroup da la suya ('map'). Al cortar de cámara la mezcla se funde en crossfadeMs y al cambiar de vista en snapshotFadeMs. Con 'useCamera' en la mezcla de una cámara, el oyente es la cámara que se ve (cameraBus de Race3D, §1.7); sin ella, el poste virtual. Todos los valores NV, diseño propio: la referencia de vídeo solo fija relaciones de nivel entre vistas (a bordo 8-12 dB sobre la TV de día, F1M24-CHINA §2.7 AUD-C4, que sustituye a los 12-15 dB de la referencia nocturna de F1M24-GAMEPLAY §2.1; el mapa 15 dB o más por debajo de la TV), que comprueba el test de mezcla offline (three/audio/levels.js); ninguna cifra del juego se copia.",
       "crossfadeMs": 250,
       "snapshotFadeMs": 600,
       "trimTauMs": 30,
@@ -407,16 +417,24 @@
       "cameraListener": {"minUpM": 1, "sourceUpM": 0.6, "maxSpeed": 120},
       "snapshots": {
         "map": {"focus": 0.3, "field": 0.25, "crowd": 0.5, "wind": 0, "engineDb": -6, "bedDb": -10},
-        "paused": {"focus": 0, "field": 0, "crowd": 0.35, "wind": 0, "lowpassHz": 3000, "engineDb": -60, "bedDb": -16},
+        "paused": {"focus": 0, "field": 0, "crowd": 0.35, "wind": 0, "bed": 0.2, "lowpassHz": 3000, "engineDb": -60, "bedDb": -16},
         "replay": {"engineDb": -3, "bedDb": -3},
-        "menu": {"focus": 0, "field": 0, "crowd": 0.3, "wind": 0, "lowpassHz": 3000, "engineDb": -60, "bedDb": -14},
+        "menu": {"focus": 0, "field": 0, "crowd": 0.3, "wind": 0, "bed": 0.2, "lowpassHz": 3000, "engineDb": -60, "bedDb": -14},
         "fastForward": {"focus": 0, "field": 0, "crowd": 0.4, "wind": 0, "lowpassHz": 4000, "engineDb": -30, "bedDb": -8, "ffBed": 1}
       }
     }
   },
   "ambience": {
     "$comment": "NV, diseño propio: lecho de público, viento, lluvia, boxes, neumáticos e impactos.",
-    "crowd": {"base": 0.12, "lfoHz": 0.07, "lfoDepth": 0.25, "bandHz": 900, "q": 0.5, "swell": {"pass": 0.25, "lead": 0.55, "start": 0.8, "finish": 0.9, "contact": 0.35}, "attackSec": 0.4, "decaySec": 3.5, "nearbyMetres": 400},
+    "crowd": {"base": 0.12, "lfoHz": 0.07, "lfoDepth": 0.25, "bandHz": 900, "q": 0.5, "swell": {"pass": 0.25, "lead": 0.55, "start": 0.8, "finish": 0.9, "contact": 0.35}, "attackSec": 0.4, "decaySec": 3.5, "nearbyMetres": 400, "decorrelateSec": 0.37},
+    "trackBed": {
+      "$comment": "AUD-C4 (F1M24-CHINA §2.7; RF-3D-04, RNF-07, RNF-09): lecho de pista continuo y estéreo para que la TV nunca quede en silencio entre pasadas (captura propia: 3,4 % del tiempo de TV por debajo de −60 dBFS; objetivo < 0,5 %) y suene ancha (correlación L/R de la TV 0,88 en la captura; objetivo ≤ 0,8). El mismo búfer de ruido con semilla leído en dos desfases (decorrelateSec) hacia el canal izquierdo y el derecho, con un paso alto en highpassHz y un paso bajo de primer orden en lowpassHz (pendiente de −6 dB/octava por encima, la que muestra la referencia, conf. A; con un IIRFilterNode; sin él, un biquad). Nivel = gain × cuota 'bed' de la cámara (mixer.cameras.mix.*.bed), en el bus de ambiente (pausa y menús lo bajan con su propia cuota bed y con bedDb, para quedar por debajo del mapa). gain, frecuencias y desfase NV, diseño propio: gain se eligió para que el modelo offline (levels.js) deje a bordo − TV en 8-12 dB y la correlación de la TV ≤ 0,8.",
+      "status": "NV",
+      "gain": 0.2,
+      "highpassHz": 60,
+      "lowpassHz": 900,
+      "decorrelateSec": 0.61
+    },
     "wind": {"$comment": "highHz 8000: el viento y la rodadura a bordo ocupan 2-8 kHz (F1M24-GAMEPLAY §2.1, medido en la referencia de vídeo, conf. A; es el espectro, no un ajuste del juego). gain, fullKmh y lowHz NV.", "gain": 0.18, "fullKmh": 300, "lowHz": 250, "highHz": 8000},
     "fieldBed": {
       "$comment": "Lecho del pelotón (field-bed-start, RF-3D-04, RNF-02): los coches cercanos que no tienen voz propia (mixer.maxVoices) suenan como ruido filtrado más unos peines desafinados (DelayNode con realimentación) en la frecuencia de encendido media de esos coches. Nivel = gain × raíz de la suma de las potencias de su distancia al oyente (ley inversa del mezclador), solo los que están a menos de nearbyMetres, hasta maxLevel; va al bus de motores con la cuota 'field' de la cámara. En la salida, con todo el pelotón junto, es lo más fuerte de la mezcla de pista. Todo NV, diseño propio.",
@@ -502,16 +520,19 @@
       "events": {"sc": "high", "vsc": "high", "red": "high", "restart": "low", "investigation": "low", "penalty": "low", "driveThrough": "low"}
     },
     "radio": {
-      "$comment": "«Radio» sin voz por cada mensaje nuevo del ingeniero (frame.radio, claves nuevas; la primera vez solo se toma nota): tono de apertura, estática en banda y tono de cierre. Un mensaje marcado alert abre con dos tonos. band: paso alto y paso bajo de la estática (fuente itutBand).",
-      "band": {"lowHz": 300, "highHz": 3000},
-      "open": {"hz": 1320, "durationSec": 0.045},
-      "close": {"hz": 990, "durationSec": 0.06},
-      "alertGapSec": 0.07,
-      "staticSec": 0.42,
-      "staticGain": 0.05,
-      "toneGain": 0.1,
+      "$comment": "AUD-C3 (F1M24-CHINA §2.7, §1.5 «Radio en sesiones»; RF-CMD-03, RF-WKD-02, RNF-07, RNF-08): «radio» sin voz por cada mensaje nuevo del ingeniero (frame.radio de la carrera o de una sesión, engine/sessionSim SES-C1; claves nuevas, la primera vez solo se toma nota), en una secuencia de fases fija para que el oído aprenda «llega un mensaje»: sequence.whoosh (soplo de ruido que barre hacia arriba) → sequence.motif (motivo propio de tres notas que suben: Fa5-Do6-Fa6, no el del juego, que tiene cuatro) → sequence.gapSec (hueco) → sequence.static (estática en banda) → sequence.tail (tono de cierre al final de la estática). Un mensaje marcado alert repite la primera nota del motivo antes del motivo. band: paso alto y paso bajo de la estática, banda ancha propia (no la telefónica: la referencia de vídeo deja la voz entre ~100 Hz y ~6 kHz, conf. A, lo que corrige la banda de F1M24-GAMEPLAY; aquí 150-5.500 Hz, el ejemplo del §2.7). pan: todo el paquete hacia el lado del panel de su piloto (frame.panels [izquierda, derecha] con los carId de las fichas del jugador en pantalla, o message.panel 0/1 o message.side left/right), con R−L = db en un StereoPannerNode de potencia constante: pan = 4/π·atan(10^(db/20)) − 1. db 7,7 da pan 0,50 (la aceptación pide |pan| ≥ 0,5; el ejemplo del §2.7, 6 dB, daría 0,41); la referencia muestra 5-7 dB, así que es algo más ancho, decisión propia. Sin panel conocido (otro coche, vista sin fichas), centrado. Va por el bus ui: su nivel no depende de la cámara ni de la velocidad de simulación. Duraciones, notas, ganancias y banda NV, diseño propio; de la referencia solo el orden de las fases y las relaciones (whoosh 0,4 s, motivo 0,4 s, hueco 0,6 s, estática 0,3-0,9 s), ninguna cifra de ajuste copiada.",
+      "status": "NV",
+      "band": {"lowHz": 150, "highHz": 5500},
+      "sequence": {
+        "whoosh": {"durationSec": 0.3, "fromHz": 700, "toHz": 4200, "q": 1.1, "attackShare": 0.6, "gain": 0.1},
+        "motif": {"notes": [{"hz": 698}, {"hz": 1047}, {"hz": 1397}], "noteSec": 0.08, "spacingSec": 0.1, "gain": 0.09},
+        "gapSec": 0.45,
+        "static": {"durationSec": 0.55, "gain": 0.05},
+        "tail": {"hz": 932, "durationSec": 0.07}
+      },
+      "pan": {"byPanelSide": true, "db": 7.7},
       "attackSec": 0.004,
-      "cooldownSec": 1.2
+      "cooldownSec": 1.8
     }
   },
   "safetyCar": {

@@ -1,7 +1,8 @@
 /**
  * Interface and radio sounds (AUD-4, radio-ui-sounds, F1M24-GAMEPLAY §2.1; RF-CMD-03,
  * RNF-07, RNF-08; RF-SIM-15/RNF-05): the shots of each cue inside the ranges of the spec
- * (click 5-30 ms, whoosh 0.4-0.7 s, the radio in the telephone band and without a voice),
+ * (click 5-30 ms, whoosh 0.4-0.7 s, the radio without a voice; AUD-C3: its sequence, wide band
+ * and side of the driver's panel),
  * which frames call for which cue, the delegated click, the own bus silenced on its own, and
  * that none of it moves the seeded engines. Web Audio is mocked.
  */
@@ -9,7 +10,8 @@
 import fs from "fs";
 import path from "path";
 import audioData from "../../data/balance/audio.json";
-import { alertLevelOf, clickCueFor, createUiCueState, cueLength, cueShots, uiCuesStep } from "./uiSounds";
+import { alertLevelOf, clickCueFor, createUiCueState, cueLength, cueShots, panFromDb, panGains, playCue, radioPanOf, radioSideOf, radioTimeline, uiCuesStep } from "./uiSounds";
+import { radioLevels } from "./levels";
 import { busGains, loadSettings, saveSettings } from "./mixer";
 import { createRaceAudio, teamEnginesOf } from "./index";
 
@@ -39,21 +41,27 @@ describe("cue shots (radio-ui-sounds, RNF-07)", () => {
     expect(cueShots("voice")).toEqual([]);
   });
 
-  test("radio without a voice: open tone, static inside the 300-3000 Hz band, close tone", () => {
+  test("radio without a voice (AUD-C3): whoosh, motif, gap, static in a wide band, tail", () => {
     const shots = cueShots("radio");
     const noise = shots.filter((shot) => shot.type === "noise");
     const tones = shots.filter((shot) => shot.type === "tone");
-    expect(noise).toHaveLength(1);
-    expect(tones).toHaveLength(2);
-    const { hz, q } = noise[0].filter;
-    // A band-pass of centre f0 and Q has a bandwidth of f0 / Q: the band's width.
-    expect(hz).toBeGreaterThan(UI.radio.band.lowHz);
-    expect(hz).toBeLessThan(UI.radio.band.highHz);
-    expect(hz / q).toBeCloseTo(UI.radio.band.highHz - UI.radio.band.lowHz, 6);
+    const seq = UI.radio.sequence;
+    expect(noise.map((shot) => shot.phase)).toEqual(["whoosh", "static"]);
+    expect(tones).toHaveLength(seq.motif.notes.length + 1);
+    // The static: high-pass at the band's low edge, low-pass at its high edge.
+    const stat = noise[1];
+    expect(stat.filters.map((f) => [f.type, f.hz])).toEqual([["highpass", UI.radio.band.lowHz], ["lowpass", UI.radio.band.highHz]]);
     // No voice: nothing pitched under the band (a voice's f0 sits near 100-250 Hz).
     tones.forEach((tone) => expect(tone.hz).toBeGreaterThan(UI.radio.band.lowHz));
-    expect(tones[1].start).toBeGreaterThanOrEqual(noise[0].start + noise[0].durationSec - 1e-9);
-    expect(cueShots("radio", { alert: true }).filter((shot) => shot.type === "tone")).toHaveLength(3);
+    // The whoosh sweeps up; the tail closes after the static.
+    expect(noise[0].filter.endHz).toBeGreaterThan(noise[0].filter.hz);
+    const tail = tones[tones.length - 1];
+    expect(tail.phase).toBe("tail");
+    expect(tail.start).toBeGreaterThanOrEqual(stat.start + stat.durationSec - 1e-9);
+    // An alert repeats the motif's first note.
+    const alert = cueShots("radio", { alert: true }).filter((shot) => shot.phase === "motif");
+    expect(alert).toHaveLength(seq.motif.notes.length + 1);
+    expect(alert[0].hz).toBe(alert[1].hz);
   });
 
   test("every alert event names a level; the era's events come from the engine (SRS 6)", () => {
@@ -90,10 +98,10 @@ describe("which frames call for a cue", () => {
     const feed = [{ key: "r-3-fuel-0" }];
     expect(uiCuesStep(state, { events: [], radio: feed }, 0)).toEqual([]);
     expect(uiCuesStep(state, { events: [], radio: feed }, 5)).toEqual([]);
-    expect(uiCuesStep(state, { events: [], radio: [{ key: "r-4-hot-0", alert: true }, ...feed] }, 6)).toEqual([{ kind: "radio", opts: { alert: true } }]);
+    expect(uiCuesStep(state, { events: [], radio: [{ key: "r-4-hot-0", alert: true }, ...feed] }, 6)).toEqual([{ kind: "radio", opts: { alert: true, pan: 0 } }]);
     const engine = createUiCueState();
     uiCuesStep(engine, { events: [], radio: [{ lap: 3, carId: "c1", kind: "fuel" }] }, 0);
-    expect(uiCuesStep(engine, { events: [], radio: [{ lap: 3, carId: "c1", kind: "fuel" }, { lap: 5, carId: "c1", kind: "cliff" }] }, 4)).toEqual([{ kind: "radio", opts: { alert: false } }]);
+    expect(uiCuesStep(engine, { events: [], radio: [{ lap: 3, carId: "c1", kind: "fuel" }, { lap: 5, carId: "c1", kind: "cliff" }] }, 4)).toEqual([{ kind: "radio", opts: { alert: false, pan: 0 } }]);
     const none = createUiCueState();
     for (let f = 0; f < 5; f += 1) expect(uiCuesStep(none, { events: [] }, f)).toEqual([]);
   });
@@ -269,9 +277,11 @@ describe("controller with the interface cues (mocked Web Audio)", () => {
     const plain = race(false);
     const cued = race(true);
     expect(voicesOf(cued)).toBe(voicesOf(plain));
-    // Both runs alert on the SC; on top: radio (2 tones and static), click (tone and noise), two whooshes (noise).
-    expect(cued.extraOscs - plain.extraOscs).toBe(2 + 1);
-    expect(cued.extraSources - plain.extraSources).toBe(1 + 1 + 2);
+    // Both runs alert on the SC; on top: radio (AUD-C3: motif notes and tail; whoosh and static),
+    // click (tone and noise), two whooshes (noise).
+    const radioTones = UI.radio.sequence.motif.notes.length + 1;
+    expect(cued.extraOscs - plain.extraOscs).toBe(radioTones + 1);
+    expect(cued.extraSources - plain.extraSources).toBe(2 + 1 + 2);
   });
 
   test("without radio, view or cue calls the frame sounds exactly as before AUD-4 (only the log's alerts)", () => {
@@ -303,5 +313,147 @@ describe("controller with the interface cues (mocked Web Audio)", () => {
     expect(audio.cue("click")).toBe(false);
     expect(audio.cue("nonsense")).toBe(false);
     audio.dispose();
+  });
+});
+
+// ------------------------------------------------------------------ AUD-C3: the radio's sequence and side
+
+describe("AUD-C3 radio (RF-CMD-03, RF-WKD-02, RNF-07, RNF-08; F1M24-CHINA §2.7)", () => {
+  const MS5 = 0.005;
+  test("the sequence: each phase starts where the timeline says (±5 ms), in the order whoosh, motif, gap, static, tail", () => {
+    [false, true].forEach((alert) => {
+      const line = radioTimeline({ alert });
+      const shots = cueShots("radio", { alert });
+      const seq = UI.radio.sequence;
+      const first = (phase) => shots.find((shot) => shot.phase === phase);
+      expect(Math.abs(first("whoosh").start - line.whoosh.start)).toBeLessThanOrEqual(MS5);
+      expect(Math.abs(first("motif").start - line.motif.start)).toBeLessThanOrEqual(MS5);
+      expect(Math.abs(first("static").start - line.static.start)).toBeLessThanOrEqual(MS5);
+      expect(Math.abs(first("tail").start - line.tail.start)).toBeLessThanOrEqual(MS5);
+      // The phases follow one another; the gap is silent (no shot starts or sounds inside it).
+      expect(line.motif.start).toBeCloseTo(line.whoosh.end, 9);
+      expect(line.static.start - line.motif.end).toBeCloseTo(seq.gapSec, 9);
+      shots.forEach((shot) => {
+        const end = shot.start + shot.durationSec;
+        expect(end <= line.gap.start + MS5 || shot.start >= line.gap.end - MS5).toBe(true);
+      });
+      // Motif notes evenly spaced, the plain motif rising.
+      const notes = shots.filter((shot) => shot.phase === "motif");
+      notes.slice(1).forEach((note, i) => expect(note.start - notes[i].start).toBeCloseTo(seq.motif.spacingSec, 9));
+      if (!alert) notes.slice(1).forEach((note, i) => expect(note.hz).toBeGreaterThan(notes[i].hz));
+      expect(cueLength(shots)).toBeCloseTo(line.tail.end, 9);
+    });
+  });
+
+  test("a wide band of our own: at least 4 kHz wide, never the telephone band", () => {
+    const { lowHz, highHz } = UI.radio.band;
+    expect(highHz - lowHz).toBeGreaterThanOrEqual(4000);
+    expect(highHz).toBeGreaterThan(3400);
+    expect(UI.radio.status).toBe("NV");
+    // Our own motif: not the four notes of the reference.
+    expect(UI.radio.sequence.motif.notes.length).not.toBe(4);
+  });
+
+  test("the side of the panel: car 2 (right card) pan >= +0.5, car 1 (left card) <= -0.5; unknown centred", () => {
+    const panels = ["ham", "ver"];
+    expect(panFromDb(UI.radio.pan.db)).toBeGreaterThanOrEqual(0.5);
+    expect(radioPanOf({ carId: "ver" }, panels)).toBeGreaterThanOrEqual(0.5);
+    expect(radioPanOf({ carId: "ham" }, panels)).toBeLessThanOrEqual(-0.5);
+    expect(radioPanOf({ carId: "other" }, panels)).toBe(0);
+    expect(radioPanOf({ carId: "ver" }, null)).toBe(0);
+    expect(radioPanOf(null, panels)).toBe(0);
+    // The message's own panel or side wins over the list.
+    expect(radioSideOf({ carId: "ver", panel: 0 }, panels)).toBe("left");
+    expect(radioSideOf({ carId: "ham", side: "right" }, panels)).toBe("right");
+    // With the option off, centred.
+    expect(radioPanOf({ carId: "ver" }, panels, { ...UI, radio: { ...UI.radio, pan: { byPanelSide: false, db: 8 } } })).toBe(0);
+    // Equal power: R - L at the configured pan is the configured dB; the Playwright check asks >= 4 dB.
+    const { left, right } = panGains(panFromDb(UI.radio.pan.db));
+    expect(20 * Math.log10(right / left)).toBeCloseTo(UI.radio.pan.db, 6);
+    expect(left ** 2 + right ** 2).toBeCloseTo(1, 9);
+    const r = radioLevels({ message: { carId: "ver" }, panels });
+    expect(r.rightDb - r.leftDb).toBeGreaterThanOrEqual(4);
+  });
+
+  test("the radio's level does not depend on the view or the speed (1x and 8x within 1 dB)", () => {
+    const at1 = radioLevels({ message: { carId: "ver" }, panels: ["ham", "ver"] });
+    const at8 = radioLevels({ message: { carId: "ver" }, panels: ["ham", "ver"], speed: 8, view: "fastForward" });
+    expect(Math.abs(at1.db - at8.db)).toBeLessThanOrEqual(1);
+    expect(Number.isFinite(at1.db)).toBe(true);
+  });
+
+  test("one cue for the messages that arrive together, on the side of the alert one", () => {
+    const state = createUiCueState();
+    const panels = ["c0", "c1"];
+    uiCuesStep(state, { events: [], radio: [], panels }, 0);
+    const [cue] = uiCuesStep(state, { events: [], radio: [{ lap: 4, carId: "c0", kind: "gap" }, { lap: 4, carId: "c1", kind: "cliff", alert: true }], panels }, 3);
+    expect(cue.kind).toBe("radio");
+    expect(cue.opts.alert).toBe(true);
+    expect(cue.opts.pan).toBeGreaterThanOrEqual(0.5);
+  });
+
+  test("session radio (SES-C1 shape): a new segment's first message sounds even with the same lap, car and kind", () => {
+    const state = createUiCueState();
+    const q1 = [{ lap: 2, carId: "c0", kind: "session-lap", t: 312.5, segment: 0 }];
+    uiCuesStep(state, { events: [], radio: q1 }, 0);
+    expect(uiCuesStep(state, { events: [], radio: q1 }, 2)).toEqual([]);
+    const q2 = [{ lap: 2, carId: "c0", kind: "session-lap", t: 140.2, segment: 1 }];
+    expect(uiCuesStep(state, { events: [], radio: q2 }, 4)).toEqual([{ kind: "radio", opts: { alert: false, pan: 0 } }]);
+  });
+
+  test("playCue pans the whole cue through one StereoPannerNode, and is centred without one", () => {
+    const made = [];
+    const mk = (extra = {}) => ({ connect: jest.fn((target) => target), start: jest.fn(), stop: jest.fn(), ...extra });
+    const p = () => ({ value: 0, setValueAtTime: jest.fn(), linearRampToValueAtTime: jest.fn(), exponentialRampToValueAtTime: jest.fn() });
+    const ctx = {
+      currentTime: 0,
+      createGain: () => mk({ gain: p() }),
+      createOscillator: () => mk({ frequency: p() }),
+      createBufferSource: () => mk(),
+      createBiquadFilter: () => mk({ frequency: p(), Q: p() }),
+      createStereoPanner: () => {
+        const panner = mk({ pan: p() });
+        made.push(panner);
+        return panner;
+      },
+    };
+    const bus = mk();
+    expect(playCue(ctx, bus, {}, "radio", { pan: 0.5 }, 0)).toBe(cueShots("radio").length);
+    expect(made).toHaveLength(1);
+    expect(made[0].pan.setValueAtTime).toHaveBeenCalledWith(0.5, 0);
+    expect(made[0].connect).toHaveBeenCalledWith(bus);
+    playCue(ctx, bus, {}, "radio", { pan: 0 }, 0);
+    expect(made).toHaveLength(1);
+    const old = { ...ctx, createStereoPanner: undefined };
+    expect(playCue(old, bus, {}, "radio", { pan: -0.5 }, 0)).toBeGreaterThan(0);
+  });
+
+  test("controller: panels in the frame put the radio on its driver's side (mocked Web Audio)", () => {
+    window.localStorage.clear();
+    class PanContext extends UiContext {
+      createStereoPanner() {
+        const panner = node({ pan: param() });
+        (this.panners = this.panners || []).push(panner);
+        return panner;
+      }
+    }
+    window.AudioContext = PanContext;
+    const audio = createRaceAudio({ seed: "audc3", year: 2024 });
+    audio.start();
+    const ctx = UiContext.last;
+    const cars = [{ id: "c0", teamId: "t", pose: { x: 0, y: 0, heading: 0, v: 60 } }, { id: "c1", teamId: "t", pose: { x: -20, y: 0, heading: 0, v: 60 } }];
+    const radio = [];
+    [1, 8].forEach((speed, k) => {
+      for (let f = 0; f < 20; f += 1) {
+        const tau = k * 20 + f / 10;
+        ctx.currentTime = tau;
+        if (f === 10) radio.push({ lap: k + 1, carId: "c1", kind: "gap" });
+        audio.frame({ tau, mode: "tv", focusId: "c0", cars, radio: radio.slice(), panels: ["c0", "c1"], speed });
+      }
+    });
+    expect(ctx.panners).toHaveLength(2);
+    ctx.panners.forEach((panner) => expect(panner.pan.setValueAtTime.mock.calls[0][0]).toBeGreaterThanOrEqual(0.5));
+    audio.dispose();
+    delete window.AudioContext;
   });
 });

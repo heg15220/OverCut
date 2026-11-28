@@ -15,9 +15,9 @@ import {
   cycleFrequency, driveStep, engineSpecFor, eraFor, firingFrequency, gearSpeeds, harmonicWeights, hybridTones, loadFromAccel, nextGear, parseFormula, rpmByYear,
   shiftCutGain, shiftEnvelope, shiftProfileFor, pitLimiterFor, pitHoldKmh, limiterDepthOf, rpmInGear, createEngineVoice,
 } from "./engineSynth";
-import { assignVoices, blendMix, busGains, cameraListener, cameraMix, cameraUsable, createMixer, cutEnvelope, dbToGain, distanceGain, dopplerFactor, fastForwardOn, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, settingsCurrent, sliderToGain, transitionAt, viewMix, viewTransition } from "./mixer";
+import { assignVoices, blendMix, busGains, cameraListener, cameraMix, cameraUsable, createMixer, cutEnvelope, dbToGain, makeupDb, onboardLoudness, distanceGain, dopplerFactor, fastForwardOn, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, settingsCurrent, sliderToGain, transitionAt, viewMix, viewTransition } from "./mixer";
 import { createFastForwardBed, fastForwardBedLevel } from "./fastForwardBed";
-import { crowdLevel, rainOf, swellFor, windOf, airGunsOn, squeals, fieldBedOf, kerbRumble, startLightsStep, gridRevsOf, gridRevsFor } from "./ambience";
+import { crowdLevel, rainOf, swellFor, windOf, airGunsOn, squeals, fieldBedOf, kerbRumble, startLightsStep, gridRevsOf, gridRevsFor, trackBedOf, onePoleLowpass, createAmbience } from "./ambience";
 import { createRaceAudio, engineOff, teamEnginesOf } from "./index";
 import { heldGear, loadOf } from "./engineSynth";
 import { mixLevels } from "./levels";
@@ -737,12 +737,14 @@ describe("mix per view (mix-snapshots-per-view, RF-3D-04, RNF-02, RNF-07, RNF-09
   const farTv = { id: "t9", kind: "tower", mode: "tv", position: { x: 0, y: 8, z: 150 }, target: { x: 0, y: 0.5, z: 0 } };
   const level = (scene) => mixLevels({ focusId: "c0", cars: field(), kmh: 250, ...scene }).totalDb;
 
-  test("offline mix: onboard 12-15 dB over the far TV camera, the map at least 15 dB under TV", () => {
+  // AUD-C4 (F1M24-CHINA §2.7): the daytime reference puts onboard 8 dB over TV (14 at night in Bahrain,
+  // the 12-15 dB of F1M24-GAMEPLAY §2.1); with the track bed the target is now 8-12 dB.
+  test("offline mix: onboard 8-12 dB over the far TV camera (AUD-C4), the map at least 15 dB under TV", () => {
     const onboard = level({ mode: "tcam" });
     const tv = level({ mode: "tv", camera: farTv });
     const map = level({ mode: "map" });
-    expect(onboard - tv).toBeGreaterThanOrEqual(12);
-    expect(onboard - tv).toBeLessThanOrEqual(15);
+    expect(onboard - tv).toBeGreaterThanOrEqual(8);
+    expect(onboard - tv).toBeLessThanOrEqual(12);
     expect(tv - map).toBeGreaterThanOrEqual(15);
   });
 
@@ -1239,5 +1241,149 @@ describe("AUD-C2 camera cuts (RF-3D-04, RNF-07)", () => {
     }
     expect(dipped()).toBe(true);
     audio.dispose();
+  });
+});
+
+// ------------------------------------------------------------------ AUD-C4: loudness and beds
+
+describe("AUD-C4 loudness and track bed (RF-3D-04, RNF-07, RNF-09; F1M24-CHINA §2.7)", () => {
+  const LOUD = audioData.mixer.loudness;
+  const TRACK = audioData.ambience.trackBed;
+  const field = (n = 20, spacing = 45) => Array.from({ length: n }, (_, i) => ({ id: `c${i}`, x: -i * spacing, y: (i % 2) * 3, heading: 0, v: 70, firingHz: 1000 }));
+  const farTv = { id: "t9", kind: "tower", mode: "tv", position: { x: 0, y: 8, z: 150 }, target: { x: 0, y: 0.5, z: 0 } };
+  const levels = (scene) => mixLevels({ focusId: "c0", cars: field(), kmh: 250, ...scene });
+
+  test("the makeup lifts the last onboard measurement into the target's tolerance; pending until Playwright re-measures", () => {
+    expect(makeupDb()).toBeCloseTo(LOUD.onboardTargetDbfs - LOUD.measuredOnboardDbfs, 6);
+    const onboard = onboardLoudness();
+    expect(onboard.inside).toBe(true);
+    expect(Math.abs(onboard.dbfs - LOUD.onboardTargetDbfs)).toBeLessThanOrEqual(LOUD.tolerance);
+    expect(LOUD.status).toBe("pending");
+    expect(audioData.sources[LOUD.source]).toBeTruthy();
+    expect(makeupDb(null)).toBe(0);
+    expect(onboardLoudness(null).inside).toBe(false);
+  });
+
+  test("the makeup sits between master and the limiter (mocked Web Audio)", () => {
+    const ctx = new FakeContext();
+    const gains = [];
+    const make = ctx.createGain.bind(ctx);
+    ctx.createGain = () => {
+      const gain = make();
+      gains.push(gain);
+      return gain;
+    };
+    let comp = null;
+    const makeComp = ctx.createDynamicsCompressor.bind(ctx);
+    ctx.createDynamicsCompressor = () => {
+      comp = makeComp();
+      return comp;
+    };
+    createMixer(ctx);
+    const [master, makeup] = gains;
+    expect(master.connect).toHaveBeenCalledWith(makeup);
+    expect(makeup.gain.value).toBeCloseTo(dbToGain(makeupDb()), 9);
+    expect(makeup.connect).toHaveBeenCalledWith(comp);
+    expect(comp.connect).toHaveBeenCalledWith(ctx.destination);
+  });
+
+  test("the track bed: present in TV, helicopter and chase, absent on board and on the map", () => {
+    expect(trackBedOf(viewMix("tv"))).toBeCloseTo(TRACK.gain, 9);
+    expect(trackBedOf(viewMix("heli"))).toBeGreaterThan(0);
+    expect(trackBedOf(viewMix("chase"))).toBeGreaterThan(0);
+    expect(trackBedOf(viewMix("tcam"))).toBe(0);
+    expect(trackBedOf(viewMix("map"))).toBe(0);
+    expect(trackBedOf(null)).toBe(0);
+    expect(TRACK.status).toBe("NV");
+  });
+
+  test("offline mix: onboard - TV 8-12 dB; TV wide (correlation <= 0.8), onboard mono (>= 0.95)", () => {
+    const onboard = levels({ mode: "tcam" });
+    const tv = levels({ mode: "tv", camera: farTv });
+    expect(onboard.totalDb - tv.totalDb).toBeGreaterThanOrEqual(8);
+    expect(onboard.totalDb - tv.totalDb).toBeLessThanOrEqual(12);
+    expect(tv.correlation).toBeLessThanOrEqual(0.8);
+    expect(levels({ mode: "tv" }).correlation).toBeLessThanOrEqual(0.8);
+    expect(onboard.correlation).toBeGreaterThanOrEqual(0.95);
+  });
+
+  test("the TV is never silent between passes: with every car far away it stays within 15 dB of the onboard mix", () => {
+    const onboard = levels({ mode: "tcam" });
+    const empty = mixLevels({ focusId: "c0", cars: field(20, 2000).map((car, i) => ({ ...car, x: -5000 - i * 2000 })), kmh: 0, mode: "tv", camera: farTv });
+    expect(onboard.totalDb - empty.totalDb).toBeLessThanOrEqual(15);
+    // Pause and menus still trim it with the ambience (bedDb).
+    const paused = mixLevels({ focusId: "c0", cars: field(), mode: "tv", camera: farTv, playing: false });
+    expect(paused.ambienceDb).toBeLessThan(levels({ mode: "tv", camera: farTv }).ambienceDb);
+  });
+
+  test("one-pole low-pass: unity at DC and -3 dB at its corner (the -6 dB/octave slope)", () => {
+    const fs = 48000;
+    const { feedforward, feedback } = onePoleLowpass(TRACK.lowpassHz, fs);
+    const at = (hz) => {
+      const w = (2 * Math.PI * hz) / fs;
+      const re = 1 + feedback[1] * Math.cos(w);
+      const im = -feedback[1] * Math.sin(w);
+      return feedforward[0] / Math.hypot(re, im);
+    };
+    expect(at(0)).toBeCloseTo(1, 9);
+    expect(20 * Math.log10(at(TRACK.lowpassHz))).toBeCloseTo(-3, 0);
+    // An octave apart well above the corner: about 6 dB less.
+    expect(20 * Math.log10(at(8 * TRACK.lowpassHz) / at(4 * TRACK.lowpassHz))).toBeCloseTo(-6, 0);
+  });
+
+  test("graph: crowd and track bed read the seeded noise at two offsets into L and R (mocked Web Audio)", () => {
+    const ctx = new FakeContext();
+    const sources = [];
+    const makeSource = ctx.createBufferSource.bind(ctx);
+    ctx.createBufferSource = () => {
+      const src = makeSource();
+      sources.push(src);
+      return src;
+    };
+    const mergers = [];
+    ctx.createChannelMerger = () => {
+      const merger = node();
+      mergers.push(merger);
+      return merger;
+    };
+    const iir = [];
+    ctx.createIIRFilter = (ff, fb) => {
+      iir.push([ff, fb]);
+      return node();
+    };
+    const noise = { duration: 2 };
+    const bus = node();
+    const amb = createAmbience(ctx, bus, noise, node());
+    // Crowd and track bed: two reads each, the second one decorrelateSec later.
+    const offsets = sources.slice(0, 4).map((src) => src.start.mock.calls[0]);
+    expect(offsets).toEqual([[0, 0], [0, audioData.ambience.crowd.decorrelateSec], [0, 0], [0, TRACK.decorrelateSec]]);
+    expect(mergers).toHaveLength(2);
+    // One first-order low-pass per channel.
+    const pole = onePoleLowpass(TRACK.lowpassHz, ctx.sampleRate);
+    expect(iir).toEqual([[pole.feedforward, pole.feedback], [pole.feedforward, pole.feedback]]);
+    expect(() => amb.update({ time: 0, crowd: 0.2, crowdShare: 1, wind: { gain: 0, hz: 300 }, rain: 0, guns: 0, trackBed: 0.2 })).not.toThrow();
+    expect(() => amb.update({ time: 0, crowd: 0.2, crowdShare: 1, wind: { gain: 0, hz: 300 }, rain: 0, guns: 0 })).not.toThrow();
+    amb.stop();
+    // Without a merger or an IIR filter (an old browser), mono and a biquad: still builds.
+    const old = new FakeContext();
+    delete old.createChannelMerger;
+    old.createChannelMerger = undefined;
+    expect(() => createAmbience(old, node(), noise, node()).stop()).not.toThrow();
+  });
+
+  test("controller: the stereo beds draw nothing from the seeded stream (RF-SIM-15, RNF-05)", () => {
+    const run = () => {
+      window.AudioContext = FakeContext;
+      const audio = createRaceAudio({ seed: "audc4", year: 2013 });
+      audio.start();
+      const cars = field(6).map((car) => ({ id: car.id, teamId: "t", pose: { x: car.x, y: car.y, heading: 0, v: 70 } }));
+      for (let f = 0; f < 60; f += 1) audio.frame({ tau: f / 10, mode: f < 30 ? "tv" : "heli", focusId: "c0", cars });
+      audio.dispose();
+      delete window.AudioContext;
+      return true;
+    };
+    expect(run()).toBe(true);
+    const text = fs.readFileSync(path.join(__dirname, "ambience.js"), "utf8");
+    expect(text).not.toMatch(/Math\.random|Date\.now|performance\.now/);
   });
 });
