@@ -316,6 +316,12 @@ const endNeutral = (state, push) => {
   sim.neutral = null;
   if (sim.unlapSide) sim.unlapSide.fill(0);
   push(state, sim.leaderLap, { type: "sc-in", virtual: N.virtual, t: round(sim.clock) });
+  // SIM-C4 (GS-12, FIA 2024 art. 51.1): after a wet start behind the SC with a standing start, the field goes back to
+  // its grid slots at this line - lined up as stepRace.js lines up a red flag (formGrid), without its tyres or restart.
+  if (N.wetStart && state.wetStart && state.wetStart.release === "standing") {
+    sim.red = { reason: "wetStart", wetStart: true, lineUpLap: lap };
+    state.safetyCar = { laps: 0, virtual: false, red: true, wetGrid: true, since: lap };
+  }
 };
 
 const setPhase = (state, N, phase, push, extra = {}) => {
@@ -376,7 +382,8 @@ export const neutralStep = (state, push) => {
     if (crossed(frac(N.prevP), frac(N.P), entry) && N.P - N.offAt >= SC_BALANCE.sc.inThisLapMinShare) {
       N.gone = true;
       N.v = 0;
-      if (sim.rules.raceControl.sc && sim.rules.raceControl.sc.restartLine === "sc1") {
+      const wetGrid = N.wetStart && state.wetStart && state.wetStart.release === "standing";
+      if (!wetGrid && sim.rules.raceControl.sc && sim.rules.raceControl.sc.restartLine === "sc1") {
         setPhase(state, N, SC_PHASE.RESTART, push);
         endNeutral(state, push);
       } else setPhase(state, N, SC_PHASE.RESTART, push);
@@ -451,7 +458,9 @@ export const weaveOf = (state, i) => {
     sim.weavePhase = Float64Array.from({ length: sim.n }, () => stream.range(0, 2 * Math.PI));
   }
   const x = (2 * Math.PI * sim.clock) / W.periodSec + sim.weavePhase[i];
-  return { lat: W.amplitudeM * Math.sin(x), speed: 1 + W.speedShare * Math.cos(x) };
+  // Faded in over one period from the safety car's deployment, so no car jumps sideways when it starts.
+  const env = clamp((sim.clock - N.since) / W.periodSec, 0, 1);
+  return { lat: env * W.amplitudeM * Math.sin(x), speed: 1 + env * W.speedShare * Math.cos(x) };
 };
 
 /** May car `i` pass car `a` ahead of it under the safety car? Only a lapped car let through, past a car a lap ahead. */
@@ -522,8 +531,11 @@ export const neutralAfter = (state, push) => {
     if ((due && grouped) || forced || lastLap) {
       N.groupedOnce = true;
       const release = wetReleaseOf(state, sim.leaderLap);
-      if (state.wetStart) state.wetStart.release = release;
-      push(state, sim.leaderLap, wetReleaseEvent(release, sim.leaderLap));
+      if (state.wetStart && !state.wetStart.release) {
+        state.wetStart.release = release;
+        state.wetStart.greenLap = sim.leaderLap + 1;
+        push(state, sim.leaderLap, { ...wetReleaseEvent(release, sim.leaderLap), t: round(sim.clock) });
+      }
       lightsOff(state, N, push, { grouped, forced: forced && !grouped, wetStart: true, release });
     }
   } else if (N.phase === SC_PHASE.TRAIN) {

@@ -19,8 +19,10 @@ import {
   applyGridPenalties, compoundsFor, createRace, energyEra, energyStep, redFlag, refuellingEra, rulesOf, runToFinish, setErs, stationaryTime, stepLap, suggestPlan,
 } from "./race";
 import {
-  DRS_CONTROL, DRS_REASONS, commandsFor, defaultRegulationsFor, drsControlEvent, drsOpen, drsStatus, drsTimeline, gridPenaltyFor, penaltyFor, raceBalance, rulesFor,
+  DRS_CONTROL, DRS_REASONS, WET_CONTROL, commandsFor, defaultRegulationsFor, drsControlEvent, drsOpen, drsStatus, drsTimeline, gridPenaltyFor, penaltyFor, raceBalance, rulesFor,
+  wetDrsClosed,
 } from "./rules";
+import simBalance from "../data/balance/race-sim.json";
 import eraDefaults from "../data/seasons/curated/era-defaults.json";
 import { eraWithRegulations } from "./packs/packWorld";
 import { loadSeasonPack, seasonPackYears } from "./packs/seasonPacks";
@@ -502,6 +504,14 @@ const illegalEvents = (state) => {
     if (event.type === "restart" && event.procedure !== rules.raceControl.redFlag.restart && !(event.procedure === "standing" && !rules.raceControl.safetyCar)) flag(event, "restart");
     if (event.type === "grid-penalty" && !rules.unitPenalties) flag(event, "grid penalty");
     if (/fatal|death|killed/i.test(JSON.stringify(event))) flag(event, "RF-HIS-00");
+    // SIM-C4 (GS-12, §1.5): race control's DRS and wet-start messages only in their era.
+    if (event.type === "control" && (event.kind === "drsEnabled" || event.kind === "drsDisabled") && !rules.drs.enabled) flag(event, "DRS control");
+    if (event.type === "control" && ["startBehindSc", "standingStart", "rollingStart"].includes(event.kind) && !rules.raceControl.wetStart) flag(event, "wet start");
+    if (event.type === "control" && event.kind === "standingStart" && !(rules.raceControl.wetStart && rules.raceControl.wetStart.standingAfter)) flag(event, "standing start");
+    if (event.type === "penalty-carried") {
+      const row = simBalance.penalties.retiredToGrid.eras.find((era) => state.year >= era.from && state.year <= era.to);
+      if (!row || row.value !== true) flag(event, "penalty carried");
+    }
   });
   state.cars.forEach((car) => {
     if (rules.energy.system === "none" && car.battery !== null) flag({ carId: car.id }, "battery");
@@ -589,5 +599,67 @@ describe("SIM-7 errores-visibles · track limits only in their era (criterio 7.2
       expect({ year, warnedFirst }).toEqual({ year, warnedFirst: true });
       expect(commandsFor(era).tactics.battleAssist).toBe(rules.energy.modes.length > 0);
     });
+  });
+});
+
+/**
+ * SIM-C4 · GS-12 (F1M24-CHINA §1.5 «Mensajes de mojado», «DRS habilitado», §2.9; RF-SIM-10, RF-SIM-08, SRS §6.2,
+ * criterio 7.2): the wet start only where the era has a safety car and the procedure, its standing start only from
+ * 2017, DRS closed by a declared WET TRACK, and no rule outside its era over the 38 seasons.
+ */
+describe("SIM-C4 GS-12 · wet start, wet race control and DRS with WET TRACK (criterio 7.2)", () => {
+  it("has wetStart for every year: null without a safety car, sourced or pending with a note", () => {
+    for (let year = 1950; year <= 2026; year += 1) {
+      const regs = defaultRegulationsFor(year);
+      expect(regs).toHaveProperty("wetStart");
+      if (year < 1993) expect({ year, value: regs.wetStart }).toEqual({ year, value: null });
+    }
+    eraDefaults.fields.wetStart.forEach((row) => {
+      expect(["source", "pending"]).toContain(row.status);
+      if (row.status === "pending") expect(row.note).toEqual(expect.any(String));
+      if (row.status === "source" && row.value) expect(row.url).toMatch(/^https:\/\/www\.fia\.com\//);
+    });
+  });
+
+  it("walks the 38 seasons: wet start only with a safety car, standing start only from 2017, DRS only 2011-2025", () => {
+    const years = seasonPackYears();
+    expect(years).toHaveLength(38);
+    years.forEach((year) => {
+      const rules = rulesFor(eraWithRegulations(year, packs[year].regulations));
+      const wet = rules.raceControl.wetStart;
+      expect({ year, wet: Boolean(wet) }).toEqual({ year, wet: year >= 1993 });
+      expect({ year, standing: Boolean(wet && wet.standingAfter) }).toEqual({ year, standing: year >= 2017 });
+      if (wet) expect(Object.keys(wet).sort()).toEqual(["behindSc", "intersAllowed", "standingAfter", "wetTyresMandatory"]);
+      expect({ year, drs: rules.drs.enabled }).toEqual({ year, drs: year >= 2011 && year <= 2025 });
+      // A declared WET TRACK never opens DRS, and in an era without DRS nothing changes.
+      const status = drsStatus(rules, { lap: 30, zones: 2, wetTrack: true });
+      expect(status.enabled).toBe(false);
+      expect(status.reason).toBe(rules.drs.enabled ? "wet" : "era");
+    });
+  });
+
+  it("closes DRS for the lap race control's WET TRACK reaches (wetDrsClosed), not before", () => {
+    const state = { raceControlWet: { drsFromLap: 12 } };
+    expect(wetDrsClosed(state, 11)).toBe(false);
+    expect(wetDrsClosed(state, 12)).toBe(true);
+    expect(wetDrsClosed({ raceControlWet: { drsFromLap: null } }, 40)).toBe(false);
+    expect(wetDrsClosed({}, 40)).toBe(false);
+    const rules = rulesFor(2024);
+    expect(drsStatus(rules, { lap: 12, zones: 2, wetTrack: false }).enabled).toBe(true);
+    expect(drsStatus(rules, { lap: 12, zones: 2, wetTrack: true })).toEqual({ enabled: false, reason: "wet" });
+    expect(drsOpen(rules, { lap: 12, zones: 2, wetTrack: true, gapAhead: 0.5 })).toBe(false);
+    expect(Object.values(WET_CONTROL).sort()).toEqual(["climaticChange", "lowGrip", "rollingStart", "slippery", "standingStart", "startBehindSc", "wetTrack"]);
+  });
+
+  it("keeps the wet race-control thresholds and the retired-car rule in data (RNF-07), by era", () => {
+    const wet = simBalance.raceControl.wet;
+    expect(wet.status).toBe("derived");
+    ["wetTrackMm", "slipperyMm", "lowGripMm", "drsAfterWetTrackMin"].forEach((key) => expect(wet[key]).toBeGreaterThan(0));
+    const carried = simBalance.penalties.retiredToGrid;
+    carried.eras.forEach((row) => {
+      expect(["source", "pending"]).toContain(row.status);
+      if (row.value) expect(row.from).toBeGreaterThanOrEqual(2014);
+    });
+    expect(carried.pending).toContain("places");
   });
 });
