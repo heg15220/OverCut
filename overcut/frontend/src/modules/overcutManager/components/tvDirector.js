@@ -2,7 +2,7 @@
  * The TV in the live race, pure (no React): HUD-2 of docs/manager/F1M24-GAMEPLAY.md hooks
  * CAM-1's directorState into LiveRace (director-follow-focus; RF-3D-04, RNF-07, RNF-09).
  *
- *   tvShotOf({ focusId, rows, events, battle, cars, prev, now, tau?, seed?, start? }) →
+ *   tvShotOf({ focusId, rows, events, battle, cars, prev, now, tau?, seed?, start?, sc?, year?, userLock?, replay?, userIds? }) →
  *     { shot, subjectId, rivalId, target, label }
  *
  * The TV films the car the player picked - in the tower, on the map or with the car arrows -
@@ -16,11 +16,21 @@
 import { directorState } from "./director/directorState";
 import { t } from "./texts";
 
-export const tvShotOf = ({ focusId, rows = [], events = [], battle = null, cars = [], rig = [], prev = null, now = 0, tau, seed, start = null, config } = {}) => {
+export const tvShotOf = ({ focusId, rows = [], events = [], battle = null, cars = [], rig = [], prev = null, now = 0, tau, seed, start = null, config, sc, year, userLock, replay, userIds } = {}) => {
   const directorRows = Array.isArray(battle) ? rows.map((row) => ({ ...row, battle: battle[cars.indexOf(row.car)] })) : rows;
   // HUD-4 (start-finish-scripts, the hook): the race clock and seed for the pit sequences (CAM-3) and the
   // start (§1.7 snapshot.start) for CAM-4's start sequence; `events` already carries each car's `finished`.
-  const clock = { now, prev, ...(Number.isFinite(tau) ? { tau } : {}), ...(seed !== undefined && seed !== null ? { seed } : {}), ...(start ? { start } : {}) };
+  // HUD-C3 (the hook of CAM-5 and CAM-C3): the engine's safety car (snapshot.sc) and the season for the SC
+  // sequences, and the viewer's locked camera, the replay on air and the player's cars for the director's
+  // priorities. Each only when given: absent, the director does what it did.
+  const extra = {
+    ...(sc !== undefined ? { sc } : {}),
+    ...(Number.isFinite(year) ? { year } : {}),
+    ...(userLock ? { userLock } : {}),
+    ...(replay ? { replay } : {}),
+    ...(Array.isArray(userIds) ? { userIds } : {}),
+  };
+  const clock = { now, prev, ...(Number.isFinite(tau) ? { tau } : {}), ...(seed !== undefined && seed !== null ? { seed } : {}), ...(start ? { start } : {}), ...extra };
   const shot = config ? directorState(focusId, directorRows, events, rig, clock, config) : directorState(focusId, directorRows, events, rig, clock);
   const rowOf = Object.fromEntries(rows.map((row) => [row.car.id, row]));
   const [subjectId = null, rivalId = null] = shot.subjectIds;

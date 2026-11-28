@@ -463,7 +463,8 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
       playing: playing && !engine.over,
       mode: cameraMode,
       focusId,
-      cars: stageCars.map((item) => ({ id: item.car.id, teamId: item.car.teamId, pose: item.pose })),
+      // HUD-C3 (AUD-C5): each car's compound (the tyre of its run) for the colour of its spray's hiss.
+      cars: stageCars.map((item) => ({ id: item.car.id, teamId: item.car.teamId, compound: item.car.compound ?? null, pose: item.pose })),
       wetness: engine.wetness || 0,
       // AUD-C3 (HUD-C2, F1M24-CHINA §1.5 «Radio en sesiones»): the session's log and its engineer's radio with the race's
       // shape (SES-C1), the radio with the side of each of your cards for its pan.
@@ -580,7 +581,7 @@ export default function SessionLive({ kind, options, entrants, circuit, year, ba
       <div className="lv-stage">
         {in3D ? (
           <React.Suspense fallback={<div className="lv-loading">{t("Cargando el circuito en 3D…", "Loading the circuit in 3D…")}</div>}>
-            <Race3D circuit={circuit} year={year} cars={stageCars} focusId={focusId} mode={cameraMode} wet={engine.wetness > 0.2} lights={0} safetyCar={null} teams={teams} onPick={setFocusId} labels={{ near: sessionTitle }} clock={tau} sample={sample} />
+            <Race3D circuit={circuit} year={year} cars={stageCars} focusId={focusId} mode={cameraMode} wet={engine.wetness > 0.2} lights={0} safetyCar={null} teams={teams} onPick={setFocusId} labels={{ near: sessionTitle }} clock={tau} sample={sample} cameraBus={audio.cameraBus} />
           </React.Suspense>
         ) : (
           <RaceStage

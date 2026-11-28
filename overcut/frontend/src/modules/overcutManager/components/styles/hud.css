@@ -310,3 +310,38 @@
 .lv-damage__advice {
   font-weight: 600;
 }
+
+/* HUD-C3 (VIEW-10, F1M24-CHINA §2.5): the HUD fades in after lights out (hud.json start; components/hudStart.js).
+   The live view sets --hud-fade (0..1, on the race clock); the playback bar and the speed callout are controls
+   and stay. Hidden blocks take no clicks. */
+.lv--race > .lv-status,
+.lv--race > .lv-tower,
+.lv--race > .lv-cards,
+.lv--race > .lv-side,
+.lv--race .lv-overlay,
+.lv--race .lv-pittimer,
+.lv--race .lv-chip {
+  opacity: var(--hud-fade, 1);
+}
+.lv--race[data-hud-hidden] > .lv-status,
+.lv--race[data-hud-hidden] > .lv-tower,
+.lv--race[data-hud-hidden] > .lv-cards,
+.lv--race[data-hud-hidden] > .lv-side {
+  pointer-events: none;
+}
+
+/* HUD-C3 (GS-14, GS-12): the rubber band's tone beside its word (RNF-09: never colour alone) and race control's line. */
+.lv-status__rubber[data-tone="low"] { color: var(--mn-neg); }
+.lv-status__rubber[data-tone="high"] { color: var(--mn-pos); }
+.lv-status__mark {
+  margin-right: 0.25em;
+  font-size: 0.8em;
+}
+.lv-status__rc {
+  margin: 0;
+  color: var(--mn-warn);
+}
+.lv-status__rc b {
+  margin-right: 0.35em;
+  font-weight: 600;
+}

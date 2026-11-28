@@ -51,7 +51,8 @@ describe("HUD-C1 · data and the wave-1 contracts (RNF-07, §3.2)", () => {
     expect(HUD.layout.status).toBe("behaviour");
     expect(HUD.tags.policies).toContain(HUD.tags.policy);
     expect(HUD.tags.status).toBe("pending");
-    expect(HUD.start).toHaveProperty("fadeSec", null);
+    // HUD-C3 fixed the fade (hudC3.test.js); the contract's key stays.
+    expect(HUD.start).toHaveProperty("fadeSec");
     // HUD-C2 applied the countdown (hudC2.test.js); the contract's keys stay.
     expect(HUD.lapCountdown).toHaveProperty("enabled");
     expect(HUD.lapCountdown.laps).toContain("last");

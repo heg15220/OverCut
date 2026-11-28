@@ -15,11 +15,17 @@
  *                   for its duration in real seconds; stale ones (a skip ahead) never show
  *   bannerText      the words of a banner (ES and EN)
  *
+ * HUD-C3 (F1M24-CHINA §1.5, GS-12 the HUD part): race control's own messages (hudRaceControl.controlBanners,
+ * kind "raceControl", and the engine's DRS calls) ride the same queue; a kind with byKind.keep is never
+ * dropped by queueMax and byKind.staleSimSec gives it its own staleness, so the chain arrives whole and in
+ * the engine's order (the queue is sorted by race time, stably: equal times keep the order offered).
+ *
  * The view only reads (§1.4 rule 5): nothing here changes the race.
  */
 
 import HUD from "../data/balance/hud.json";
 import { drsOpen } from "../engine/rules";
+import { controlText, drsReasonText } from "./hudRaceControl";
 import { lapTime, t } from "./texts";
 
 const kindSpec = (kind, hud) => hud.banners.byKind?.[kind] || {};
@@ -31,6 +37,10 @@ export const bannerOn = (kind, hud = HUD) => (hud.banners.kinds || []).includes(
 export const bannerDuration = (kind, hud = HUD) => kindSpec(kind, hud).durationSec ?? hud.banners.durationSec ?? 0;
 
 const priorityOf = (kind, hud) => kindSpec(kind, hud).priority ?? 1;
+
+/** Race seconds after which a banner of `kind` is stale (byKind.staleSimSec, else banners.staleSimSec). */
+const staleOf = (kind, hud) => kindSpec(kind, hud).staleSimSec ?? hud.banners.staleSimSec ?? Infinity;
+const keptOf = (item, hud) => Boolean(kindSpec(item.kind, hud).keep);
 
 /** Does the event concern the cars the kind's scope covers: all, only yours, or yours and the top N? */
 const inScope = (kind, { carId, otherId }, positions, isUser, hud) => {
@@ -130,23 +140,29 @@ export const createBannerQueue = () => ({ shown: null, until: -Infinity, waiting
  * queueMax wait, the lowest priority (then the oldest) goes.
  */
 export const offerBanners = (queue, items, tau, hud = HUD) => {
-  const stale = hud.banners.staleSimSec ?? Infinity;
   items.forEach((item) => {
     if (queue.seen.has(item.key) || item.at > tau) return;
     queue.seen.add(item.key);
-    if (tau - item.at > stale) return;
+    if (tau - item.at > staleOf(item.kind, hud)) return;
     queue.waiting.push(item);
   });
   queue.waiting.sort((a, b) => a.at - b.at);
   const max = hud.banners.queueMax ?? Infinity;
   while (queue.waiting.length > max) {
-    let drop = 0;
+    let drop = -1;
     queue.waiting.forEach((item, index) => {
+      if (keptOf(item, hud)) return;
+      if (drop < 0) {
+        drop = index;
+        return;
+      }
       const worst = queue.waiting[drop];
       const pi = priorityOf(item.kind, hud) + (item.own ? 1 : 0);
       const pw = priorityOf(worst.kind, hud) + (worst.own ? 1 : 0);
       if (pi < pw) drop = index;
     });
+    // HUD-C3: only kept banners left (race control's chain) - they all stay.
+    if (drop < 0) break;
     queue.waiting.splice(drop, 1);
   }
   return queue;
@@ -155,11 +171,10 @@ export const offerBanners = (queue, items, tau, hud = HUD) => {
 /** The banner up at real time `realNow` (seconds), moving the queue on; null when none. */
 export const currentBanner = (queue, realNow, tau = Infinity, hud = HUD) => {
   if (queue.shown && realNow < queue.until) return queue.shown;
-  const stale = hud.banners.staleSimSec ?? Infinity;
   queue.shown = null;
   while (queue.waiting.length) {
     const next = queue.waiting.shift();
-    if (Number.isFinite(tau) && tau - next.at > stale) continue;
+    if (Number.isFinite(tau) && tau - next.at > staleOf(next.kind, hud)) continue;
     queue.shown = next;
     queue.until = realNow + bannerDuration(next.kind, hud);
     break;
@@ -191,8 +206,13 @@ export const bannerText = (banner, names = {}) => {
       return { title: t("Sanción", "Penalty"), line: a };
     case "fastest":
       return { title: t("Vuelta rápida", "Fastest lap"), line: Number.isFinite(d.time) ? `${a} · ${lapTime(d.time)}` : a };
-    case "drs":
-      return { title: "DRS", line: d.open ? t("DRS activado", "DRS enabled") : t("DRS desactivado", "DRS disabled") };
+    case "drs": {
+      // HUD-C3: the engine's reason when it gives one (engine/rules.js DRS_REASONS).
+      const why = d.open ? "" : drsReasonText(d.reason);
+      return { title: "DRS", line: d.open ? t("DRS activado", "DRS enabled") : why ? t(`DRS desactivado · ${why}`, `DRS disabled · ${why}`) : t("DRS desactivado", "DRS disabled") };
+    }
+    case "raceControl":
+      return controlText(d.control, d);
     case "lapsToGo":
       return { title: t(`Quedan ${banner.left} vueltas`, `${banner.left} laps to go`), line: "" };
     case "lastLap":
