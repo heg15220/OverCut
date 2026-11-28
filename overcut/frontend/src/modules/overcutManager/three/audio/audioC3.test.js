@@ -198,7 +198,8 @@ describe("AUD-C7 pit stop by stages (RF-SIM-12, RF-3D-04)", () => {
     // Seen first well into the stage (a seek): its start is stale, nothing plays.
     const late = createPitSoundState();
     const t = wheelsStage.start + AMB.pit.events.staleSec + 0.3;
-    if (t < wheelsStage.start + wheelsStage.duration) expect(pitSoundStep(late, "b", pose(t), T0 + t).filter((e) => e.kind === "gunOff")).toEqual([]);
+    const lateGuns = t < wheelsStage.start + wheelsStage.duration ? pitSoundStep(late, "b", pose(t), T0 + t).filter((e) => e.kind === "gunOff") : [];
+    expect(lateGuns).toEqual([]);
     expect(pitStageEvents(null, 5)).toEqual([]);
     expect(pitStageName({ name: "wheels", t: 0.3 })).toBe("wheels");
     expect(airGunsOn({ name: "wheels" })).toBe(true);

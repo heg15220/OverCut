@@ -695,7 +695,8 @@ describe("SIM-C3 the stop's stage in the pose and the pit-exit line (PIT-C2 hand
     for (let k = 1; k < stages.length; k += 1) {
       const a = stages[k - 1];
       const b = stages[k];
-      if (a.i === b.i && a.name === b.name && Math.abs(b.t - a.t - sim.dt) < 1e-6) expect(b.t).toBeGreaterThan(a.t);
+      const sameStage = a.i === b.i && a.name === b.name && Math.abs(b.t - a.t - sim.dt) < 1e-6;
+      expect(!sameStage || b.t > a.t).toBe(true);
     }
     expect(snapshot(state).every((car) => car.pitStage === null)).toBe(true);
   });
@@ -715,11 +716,11 @@ describe("SIM-C3 the stop's stage in the pose and the pit-exit line (PIT-C2 hand
     const whites = exits.filter((event) => event.line === "white").length;
     // One limiter-off per pass through the lane (stops, drive-throughs); the painted line when the circuit has one ahead.
     expect(limits).toBeGreaterThanOrEqual(stops.length);
-    if (lines.exit.pastLaneEnd > 0) expect(whites).toBe(limits);
+    expect(lines.exit.pastLaneEnd > 0 ? whites : limits).toBe(limits);
     byCar.forEach((events) => {
       for (let k = 1; k < events.length; k += 1) {
         expect(events[k].t).toBeGreaterThanOrEqual(events[k - 1].t);
-        if (events[k].line === "white") expect(events[k - 1].line).toBe("limit");
+        expect(events[k].line !== "white" || events[k - 1].line === "limit").toBe(true);
       }
     });
   });
