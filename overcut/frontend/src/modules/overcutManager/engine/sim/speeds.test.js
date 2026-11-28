@@ -191,6 +191,12 @@ const realSessions = [...telemetry.sessions, ...((telemetry.corners && telemetry
  * first chicane (T1/T2, 84/79 against 68) and Hungaroring T2 (121 against 109) are now too fast,
  * with the 2022-2025 block's mu.slow 1.9 on a minimum-curvature line that straightens the chicane
  * (2b, the line, is still open). Race top speeds stay inside their ±5 %.
+ *
+ * 28/11/2026 (after F1M24-CHINA wave 3): the bench lap is a clean-air lap - besides no duel, pit or SC, car 0 is not
+ * held up in traffic (lapFlags 8|16, the lap history's `held`): the real laps are the pole sitter's in clean air, and
+ * with SIM-C3's order watch the measured lap of Shanghai 2013 had car 0 held behind another at the hairpin (49 km/h
+ * against its own trace's 57). With the clean-air lap Bahrain T1 (57 -> in) and T13 come inside the tolerance and
+ * Bahrain T9 goes out the other way (147 against 132, too fast in clean air).
  */
 const KNOWN_OFF = {
   "monza:1": [84, 68, 2, 2],
@@ -199,12 +205,11 @@ const KNOWN_OFF = {
   "monza:8": [144, 179, 4, 4],
   "monza:10": [205, 240, 5, 6],
   "monza:11": [130, 198, 4, 5],
-  "bahrain:1": [57, 63, 1, 3],
   "bahrain:2": [123, 166, 3, 4],
   "bahrain:4": [100, 117, 3, 4],
   "bahrain:6": [151, 176, 4, 5],
+  "bahrain:9": [147, 132, 4, 3],
   "bahrain:11": [119, 149, 3, 4],
-  "bahrain:13": [117, 131, 4, 4],
   "bahrain:14": [95, 117, 3, 4],
   "hungaroring:2": [121, 109, 4, 3],
   "hungaroring:3": [179, 228, 5, 5],
@@ -266,7 +271,10 @@ const greenLapTrace = (state, lap) => {
     }
     if (now === target) {
       const sim = state._sim;
-      if (state.safetyCar || sim.inPit[0] !== 0 || sim.duelOther[0] >= 0 || sim.duelOther.some((other) => other === 0)) clean = false;
+      // A clean lap in clean air: not held up in traffic (lapFlags 8|16, the lap history's `held`), no driver mistake
+      // (lapFlags 2) and no time still being paid for a mistake or a contact (delay): the real laps it is compared
+      // with are the pole sitter's clean laps.
+      if (state.safetyCar || sim.inPit[0] !== 0 || sim.duelOther[0] >= 0 || sim.duelOther.some((other) => other === 0) || (sim.lapFlags[0] & 26) || sim.delay[0] > 0) clean = false;
       else trace.push(snapshot(state)[0]);
     }
   }

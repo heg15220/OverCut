@@ -100,6 +100,31 @@ const frac = (value) => value - Math.floor(value);
 const G_ACCEL = physicsData.constants.g;
 const FULL_TOP_SHARE = physicsData.trace.fullThrottleTopShare;
 
+/**
+ * Where the reference trace is on the power, per time-share bin (1): where it accelerates, and on the top-speed
+ * plateau of each straight - within trace.fullThrottleTopShare of the peak that straight's run reaches before the
+ * braking zone (the run of bins that does not slow). Holding the top speed down a straight is flat out, on every
+ * straight and not only on the lap's fastest one (Monza 2024: OpenF1 76 % of the lap at full throttle).
+ */
+const fullBinsOf = (vRef) => {
+  const M = vRef.length;
+  const peak = new Float64Array(M);
+  // Walking back from the start of a braking zone: the peak a non-slowing run reaches.
+  let start = 0;
+  for (let j = 0; j < M; j += 1) if (vRef[(j + 1) % M] < vRef[j]) { start = (j + 1) % M; break; }
+  let run = 0;
+  for (let k = 0; k < M; k += 1) {
+    const j = (start - 1 - k + 2 * M) % M;
+    const next = vRef[(j + 1) % M];
+    run = next < vRef[j] ? vRef[j] : Math.max(run, vRef[j]);
+    peak[j] = run;
+  }
+  return Uint8Array.from(vRef, (v, j) => {
+    const next = vRef[(j + 1) % M];
+    return next > v * 1.0005 || (next >= v && v >= peak[j] * FULL_TOP_SHARE) ? 1 : 0;
+  });
+};
+
 /** The quick mode's start stagger per grid slot (race-eras.json `start.gridSpacing`); here the slot is physical. */
 const START_SPACING = raceBalance.start.gridSpacing;
 
@@ -548,7 +573,7 @@ const driveSetup = (year, track, tables, n, rules) => {
     // Where the reference trace is on the power (1), per time-share bin: full throttle there, and on
     // the top-speed plateau (holding the top speed down a straight is flat out, race-physics.json
     // trace.fullThrottleTopShare).
-    fullBin: Uint8Array.from(tables.vRef, (v, j) => (tables.vRef[(j + 1) % tables.M] > v * 1.0005 || v >= top * FULL_TOP_SHARE ? 1 : 0)),
+    fullBin: fullBinsOf(tables.vRef),
     coast: rules.refuelling ? null : coastPlan(tables, pt, mixEffect("lean").time),
     straightSens: Number.isFinite(straightSens) ? straightSens : 1,
   };
