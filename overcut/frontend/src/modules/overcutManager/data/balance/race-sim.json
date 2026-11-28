@@ -105,7 +105,7 @@
       "maxClosingKmh": 25,
       "completeBeforeBrakeM": 100,
       "confirmLengths": 1,
-      "chanceScale": 0.75,
+      "chanceScale": 0.8,
       "status": "pending",
       "source": {
         "decideAfterM": "pending: diseño propio. El alerón se abre en la línea de activación (inicio de la zona DRS) y el coche tarda en salir de la estela; F1M24-CHINA §2.2 (race-a 16:57–17:05, A): sale de la estela ~1 ancho en 1–1,5 s tras abrirlo. Solo referencia del juego; sin medida real.",
@@ -115,7 +115,7 @@
         "maxAlongsideSec": "pending: diseño propio (que la fase a la par no se eternice en una recta larga).",
         "maxClosingKmh": "pending: orden de magnitud de la diferencia de punta de un pase con DRS (alerón más rebufo, decenas de km/h en las trampas de velocidad); sin cifra verificada.",
         "completeBeforeBrakeM": "pending: el cartel de 100 m del criterio de GS-04 (F1M24-CHINA §3.1: ≥ 50 % de los pases con DRS antes del cartel de 100 m de T14). El pelotón frena entre los carteles de 150 y 100 m (F1M24-CHINA §2.1, juego).",
-        "chanceScale": "pending: calibrado, no medido (SRS 4.2, como duel.stepScale): el intento hecho en la recta se decide antes del punto de ataque, con el hueco que tendrá allí, y así entran más intentos (+15–30 %) con más ventaja de ritmo; esta escala devuelve los pases por carrera a los de la fase sin STRAIGHT_PASS (Shanghái y Baréin 2024, 6 semillas cada uno: 0,96–0,98 del total; duelGeometry.test.js lo vigila frente al modo rápido).",
+        "chanceScale": "pending: calibrado, no medido (SRS 4.2, como duel.stepScale): el intento hecho en la recta se decide antes del punto de ataque, con el hueco que tendrá allí, y así entran más intentos (+15–30 %) con más ventaja de ritmo; esta escala devuelve los pases por carrera a los de la fase sin STRAIGHT_PASS (Shanghái y Baréin 2024, 6 semillas cada uno: 0,96–0,98 del total; duelGeometry.test.js lo vigila). Recalibrado a 0,8 el 2026-11-28 tras fusionar SIM-C5 (ola 2): con 0,75 Shanghái quedaba en 0,895 del paso sin STRAIGHT_PASS (8 semillas spc1–8), con 0,8 en 0,92 y con 0,85 en 1,00; Baréin (8 semillas) queda en 1,23–1,27 con cualquier escala: abierto para SIM-C3 (GS-05).",
         "confirmLengths": "pending: diseño propio; un largo delante es quedar «claramente por delante» para volver a la trazada (FIA International Sporting Code, apéndice L, cap. IV, art. 2 b-c, sin cifra)."
       }
     },
