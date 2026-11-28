@@ -18,7 +18,7 @@ import {
 import { assignVoices, blendMix, busGains, cameraListener, cameraMix, cameraUsable, createMixer, cutEnvelope, dbToGain, makeupDb, onboardLoudness, distanceGain, dopplerFactor, fastForwardOn, listenerFor, loadSettings, resolveView, saveSettings, selectVoices, settingsCurrent, sliderToGain, transitionAt, viewMix, viewTransition } from "./mixer";
 import { createFastForwardBed, fastForwardBedLevel } from "./fastForwardBed";
 import { crowdLevel, rainOf, swellFor, windOf, airGunsOn, squeals, fieldBedOf, kerbRumble, startLightsStep, gridRevsOf, gridRevsFor, trackBedOf, onePoleLowpass, createAmbience } from "./ambience";
-import { createRaceAudio, engineOff, teamEnginesOf } from "./index";
+import { createRaceAudio, engineOff, impactHeard, teamEnginesOf } from "./index";
 import { heldGear, loadOf } from "./engineSynth";
 import { mixLevels } from "./levels";
 import { KERB_FILES, kerbZonesFor, onKerb } from "./kerbs";
@@ -1390,5 +1390,16 @@ describe("AUD-C4 loudness and track bed (RF-3D-04, RNF-07, RNF-09; F1M24-CHINA Â
     expect(run()).toBe(true);
     const text = fs.readFileSync(path.join(__dirname, "ambience.js"), "utf8");
     expect(text).not.toMatch(/Math\.random|Date\.now|performance\.now/);
+  });
+});
+
+describe("AUD-C11 impacts only for confirmed contacts (RF-SIM-07, RF-SIM-09, RF-3D-04)", () => {
+  test("a pass without overlap has no impact; a confirmed contact has one", () => {
+    expect(impactHeard({ type: "contact", carId: "a", confirmed: false })).toBe(false);
+    expect(impactHeard({ type: "contact", carId: "a", confirmed: true })).toBe(true);
+    // The quick mode (engine/race.js) does not mark its contacts: they keep the impact.
+    expect(impactHeard({ type: "contact", carId: "a" })).toBe(true);
+    expect(impactHeard({ type: "pass", carId: "a" })).toBe(false);
+    expect(impactHeard(null)).toBe(false);
   });
 });

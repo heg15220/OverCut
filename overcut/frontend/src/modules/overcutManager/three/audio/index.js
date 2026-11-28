@@ -129,6 +129,14 @@ const audioContextClass = () => {
 };
 
 /** Can this browser play the race sound at all? */
+/**
+ * AUD-C11 (F1M24-CHINA §3.1; RF-SIM-07, RF-SIM-09, RF-3D-04): does this race-log event sound as an impact? Only a
+ * contact the engine did not mark unconfirmed (engine/sim/duel.js contactConfirmed: the boxes really touch). A touch
+ * rolled with the cars still apart (`confirmed: false`) is a racing incident, not a bang; the quick mode does not
+ * mark its contacts, so they keep their impact.
+ */
+export const impactHeard = (event) => Boolean(event && event.type === "contact" && event.confirmed !== false);
+
 export const audioSupported = () => Boolean(audioContextClass());
 
 /**
@@ -480,7 +488,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
         const metres = car ? Math.hypot(car.x - listener.x, car.y - listener.y) : 0;
         const amount = swellFor(event, metres);
         if (amount > 0) swells.push({ at: now, amount });
-        if (event.type === "contact" && car && metres < audioData.ambience.impact.audibleMetres) ambience.impact(now, distanceGain(metres));
+        if (impactHeard(event) && car && metres < audioData.ambience.impact.audibleMetres) ambience.impact(now, distanceGain(metres));
       });
       seen = Math.max(seen, events.length);
       // One thump and tone per light that came on (several in one frame at high speed are spaced).
