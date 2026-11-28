@@ -113,6 +113,71 @@
   font-weight: 700;
 }
 
+/* HUD-C2 (VIEW-16, GS-15): the stop's steps by the engine's phase and the dialog's estimate. */
+.lv-pittimer__estimate {
+  grid-column: 1 / -1;
+  font-size: var(--mn-fs-12, 12px);
+  opacity: 0.85;
+}
+
+.lv-pittimer__steps {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: var(--mn-s-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--mn-fs-12, 12px);
+}
+
+.lv-pittimer__steps li {
+  padding: 0 var(--mn-s-1);
+  border-bottom: 2px solid transparent;
+  opacity: 0.55;
+}
+
+.lv-pittimer__steps li.is-done {
+  opacity: 0.8;
+  border-bottom-color: var(--mn-hairline-strong);
+}
+
+.lv-pittimer__steps li.is-now {
+  opacity: 1;
+  font-weight: 700;
+  border-bottom-color: var(--mn-accent, #f2b705);
+}
+
+/* HUD-C2 (VIEW-16): the lap countdown in the tower header, always with its words. */
+.lv-tower__countdown {
+  margin-left: auto;
+  padding: 0 var(--mn-s-2);
+  border-radius: var(--mn-r-1, 4px);
+  background: rgba(242, 183, 5, 0.18);
+  font-weight: 700;
+  font-size: var(--mn-fs-12, 12px);
+  white-space: nowrap;
+}
+
+.lv-tower__countdown.is-last {
+  background: rgba(242, 242, 242, 0.22);
+}
+
+/* HUD-C2 (VIEW-16): DRS zones on the minimap, with the word (RNF-09). */
+.lv-minimap__drs path {
+  fill: none;
+  stroke: #27c46b;
+  stroke-linecap: round;
+}
+
+.lv-minimap__drs text {
+  fill: #b7f5cf;
+  font-weight: 700;
+}
+
+.lv-play__ffmap.is-on {
+  color: var(--mn-accent, #f2b705);
+}
+
 .lv-card__tabs {
   margin: var(--mn-s-1) 0 var(--mn-s-2);
 }

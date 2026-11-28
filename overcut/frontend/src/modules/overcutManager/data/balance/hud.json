@@ -38,6 +38,13 @@
       "status": "behaviour",
       "kinds": ["yellow", "sc", "vsc", "red", "chequered"],
       "sectorLabel": true
+    },
+    "liveSectors": {
+      "$comment": "HUD-C2 (VIEW-16, F1M24-CHINA §2.5; RF-WKD-07, RF-SIM-01, RNF-05, RNF-09): modo sectores de la torre en la carrera por pasos, cuyo historial de vueltas no trae tiempos por sector. La vista cronometra cada coche en las líneas de sector del circuito (circuit.sectors, cuotas de distancia) sobre el rastro del motor (las posiciones por paso del worker, nunca la pose corregida por la continuidad), como el cronómetro de boxes cronometra en las líneas del pit: el instante de cruce se busca por bisección entre dos fotogramas, bisectSteps pasos, así no depende de la frecuencia de imagen (con el fotograma más largo a ×16, 1,6 s, 14 pasos dan < 0,1 ms). Un salto (seek), un coche en el pit lane o un retroceso del rastro anulan la vuelta en curso (no se cronometra media vuelta). minSectorSec: un sector más corto que eso es un error de lectura y se descarta. Si el historial trae sectors (motor futuro), manda el historial. Decisiones de presentación de OverCut, sin fuente que medir.",
+      "status": "behaviour",
+      "enabled": true,
+      "bisectSteps": 14,
+      "minSectorSec": 1
     }
   },
   "banners": {
@@ -168,7 +175,17 @@
   "pitTimer": {
     "$comment": "HUD-3 (pit-widget-and-dialog): widget de parada sobre la imagen para tus coches: tiempo en el pit desde la línea de entrada, tiempo parado (pitPhase STATIONARY), saliendo, y el total congelado en la línea de salida durante holdRealSec segundos reales. Solo lee pose.inPit/pitPhase/pitStage del motor (§1.7). holdRealSec es decisión de diseño.",
     "status": "behaviour",
-    "holdRealSec": 4
+    "holdRealSec": 4,
+    "$steps": "HUD-C2 (VIEW-16 «panel de boxes por fase», F1M24-CHINA §2.5; RF-SIM-12, RNF-09): el widget enseña los pasos de la parada en orden, cada uno con su palabra (hecho, ahora, por venir; nunca solo color), según la fase del motor (pose.pitPhase, engine/sim/pitLane.js PHASE_NAMES). phases: las fases del motor que cuenta cada paso; queue solo aparece si el coche ha esperado de verdad (fase QUEUE, parada doble). El nombre de la etapa de la parada (pose.pitStage, string o {name, t} de PIT-C2) va junto a «parado». Sin fases (repetición del modo rápido) no hay pasos: solo el tiempo, como antes.",
+    "steps": [
+      { "id": "entry", "phases": ["ENTRY_ROAD", "LIMITER", "BOX_APPROACH"] },
+      { "id": "queue", "phases": ["QUEUE"], "onlyIfSeen": true },
+      { "id": "stationary", "phases": ["STATIONARY"] },
+      { "id": "release", "phases": ["RELEASE"] },
+      { "id": "exit", "phases": ["EXIT_ROAD"] }
+    ],
+    "$estimate": "HUD-C2 (GS-15 «el menú», F1M24-CHINA §1.5 «Estimación de la parada»): al pedir la parada la vista guarda el lineToLine de engine/sim/pitLane.js previewPit (lineToLineSc / lineToLineVsc si hay SC o VSC) y el widget lo enseña junto al cronómetro, con la diferencia al terminar. Es la misma definición de línea a línea que el cronómetro (PIT-C1), así la estimación y lo medido se pueden comparar. enabled false: el widget como antes.",
+    "estimate": { "enabled": true }
   },
   "start": {
     "$comment": "HUD-4 (start-lights-sound-and-timing, la vista; §1.5 «Semáforo de salida»): el motor decide los instantes del semáforo con su semilla (SIM-3: eventos formation/grid/light/lightsOut con t, era-defaults.json startProcedure, race-sim.json start.procedures); la vista solo los lee (components/startLights.js) y guarda aquí lo suyo. hudDelaySec: segundos de carrera tras el apagado antes de que vuelvan los banners, el chip de lucha y el widget de parada (el apagado y la primera curva se ven limpios); lightsOutBannerSec: segundos de carrera que dura el rótulo «Se apagan los semáforos» (antes, literal 3 en LiveRace.js). Decisiones de presentación de OverCut, sin fuente que medir; de F1 Manager 24 ningún valor. Sustituyen a INTRO_SECONDS = 4,6 y a la luz cada 0,8 s que tenía la vista.",
@@ -238,10 +255,18 @@
     "hideBelowWidthShare": 0.02
   },
   "lapCountdown": {
-    "$comment": "VIEW-16 (F1M24-CHINA §2.5; RF-WKD-07, RNF-08): cuenta atrás de vueltas en la cabecera de la torre, solo en estas vueltas para el final («last» = la última). HUD-C1 crea la clave (contrato de la ola 1); la aplica HUD-C2, que también decide si sustituye a banners.lapsToGoCallouts (hoy los avisos en banner, que siguen mandando). pending: enabled false hasta HUD-C2.",
-    "status": "pending",
-    "enabled": false,
-    "laps": [15, 10, 3, "last"]
+    "$comment": "VIEW-16 (F1M24-CHINA §2.5; RF-WKD-07, RNF-08, RNF-09): cuenta atrás de vueltas en la cabecera de la torre, solo en estas vueltas para el final. Un número n se enseña durante toda la vuelta en que al líder le quedan n vueltas por completar tras cruzar la línea (vueltas completadas = N − n, es decir en las vueltas N−15, N−10 y N−3 de la prueba de aceptación); «last» durante la última (la vuelta N). Siempre con palabras («Quedan 10 vueltas», «Última vuelta»), nunca solo el número. replacesBanners: con la cuenta atrás encendida los avisos de vueltas en banner (banners.lapsToGoCallouts, kinds lapsToGo y lastLap) no se ofrecen, para no decir lo mismo dos veces (§2.5 «poca frecuencia, mucho peso»). Sin cuenta atrás tras la bandera del líder. HUD-C1 creó la clave; la aplica HUD-C2. Decisión de presentación de OverCut; de F1 Manager 24 solo la idea de la cuenta escasa, ningún valor ni texto.",
+    "status": "behaviour",
+    "enabled": true,
+    "laps": [15, 10, 3, "last"],
+    "replacesBanners": true
+  },
+  "miniMap": {
+    "$comment": "HUD-C2 (VIEW-16, F1M24-CHINA §2.5; RF-WKD-07, RF-SIM-08, RNF-09, SRS §6): minimapa SVG sobre la imagen en 3D (y en la cámara cenital 2D): el trazado, cada coche como punto y las zonas DRS del circuito (circuit.drsZones) solo cuando la era tiene DRS según el reglamento (rules.drs.enabled: 2011-2025; ni en 2010 ni en 2026, que tiene aero activa, SRS §6.2), con la palabra DRS junto a la zona (RNF-09). El coche que sigues, más grande y con borde; los tuyos con borde. maxCanvasShare: el minimapa no ocupa más que esa parte del lienzo (aceptación de VIEW-16, ≤ 6 %): con el HUD por zonas mide hud.json layout.blocks.side widthPx × mapHeightPx; fuera de zonas, su ancho es min(30 % de la vista, maxWidthPx, el ancho cuya área es maxCanvasShare de la vista con la proporción del circuito) (components/Broadcast.js miniMapWidthOf). drsLabel: la palabra en la zona. Decisiones de presentación de OverCut.",
+    "status": "behaviour",
+    "maxCanvasShare": 0.06,
+    "maxWidthPx": 188,
+    "drs": { "enabled": true, "label": true }
   },
   "$transitionSec": "WKD-1 (session-options-transition, §2.12.2: hud.json transitionSec): segundos de la transición con el logotipo de OverCut entre pantallas del fin de semana; saltable y sin animación con prefers-reduced-motion. pending: null = la fija WKD-1; mientras, sin transición (hoy).",
   "transitionSec": null

@@ -3,7 +3,7 @@
   "$comment": "RNF-07: esquema de data/balance/hud.json (presentación del HUD de sesión y de carrera; RF-3D-04, RF-CMD-04, RF-WKD-07, RNF-09). Esquema completo desde HUD-1, también para las claves de HUD-2..HUD-7 y WKD-1 (F1M24-GAMEPLAY §3.2). Lo comprueba components/playback.test.js.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["$comment", "version", "speedCallout", "carStep", "tower", "banners", "driverPanel", "pitDialog", "pitTimer", "start", "finish", "sc", "layout", "tags", "lapCountdown", "transitionSec"],
+  "required": ["$comment", "version", "speedCallout", "carStep", "tower", "banners", "driverPanel", "pitDialog", "pitTimer", "start", "finish", "sc", "layout", "tags", "lapCountdown", "miniMap", "transitionSec"],
   "definitions": {
     "status": {
       "enum": ["behaviour", "pending", "measured", "NV"]
@@ -151,6 +151,18 @@
               "items": { "$ref": "#/definitions/flagKind" }
             },
             "sectorLabel": { "type": "boolean" }
+          }
+        },
+        "liveSectors": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "enabled", "bisectSteps", "minSectorSec"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "enabled": { "type": "boolean" },
+            "bisectSteps": { "type": "integer", "minimum": 4, "maximum": 40 },
+            "minSectorSec": { "type": "number", "minimum": 0, "maximum": 30 }
           }
         }
       }
@@ -401,6 +413,27 @@
           "type": "number",
           "minimum": 0,
           "maximum": 30
+        },
+        "$steps": { "type": "string" },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "phases"],
+            "properties": {
+              "id": { "enum": ["entry", "queue", "stationary", "release", "exit"] },
+              "phases": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["ENTRY_ROAD", "LIMITER", "BOX_APPROACH", "QUEUE", "STATIONARY", "RELEASE", "EXIT_ROAD"] } },
+              "onlyIfSeen": { "type": "boolean" }
+            }
+          }
+        },
+        "$estimate": { "type": "string" },
+        "estimate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled"],
+          "properties": { "enabled": { "type": "boolean" } }
         }
       }
     },
@@ -607,7 +640,25 @@
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
         "enabled": { "type": "boolean" },
-        "laps": { "type": "array", "uniqueItems": true, "items": { "anyOf": [{ "type": "integer", "minimum": 1, "maximum": 100 }, { "const": "last" }] } }
+        "laps": { "type": "array", "uniqueItems": true, "items": { "anyOf": [{ "type": "integer", "minimum": 1, "maximum": 100 }, { "const": "last" }] } },
+        "replacesBanners": { "type": "boolean" }
+      }
+    },
+    "miniMap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$comment", "status", "maxCanvasShare", "maxWidthPx", "drs"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "status": { "$ref": "#/definitions/status" },
+        "maxCanvasShare": { "type": "number", "exclusiveMinimum": 0, "maximum": 0.25 },
+        "maxWidthPx": { "type": "integer", "minimum": 60, "maximum": 600 },
+        "drs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "label"],
+          "properties": { "enabled": { "type": "boolean" }, "label": { "type": "boolean" } }
+        }
       }
     },
     "transitionSec": {

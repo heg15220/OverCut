@@ -91,8 +91,23 @@
     "defaultCamera": { "with3D": "chase", "without3D": "follow" },
     "camerasByEra": {
       "$comment": "HUD-C1 (contrato de la ola 1, F1M24-CHINA §3.2; VIEW-14, RF-3D-04, SRS §6): lista del selector por era, [{from, to, with3D, source, status}], que sustituye a cameras.with3D en esos años (components/playback.js camerasOf). Vacía y pending: el catálogo por era lo pone CAM-C1 en data/balance/cameras.json (onboard[].eras, hfovDeg, cockpitHigh) y HUD-C2 decide aquí el anillo por era (p. ej. sin halo antes de 2018) con fuente de retransmisiones FOM. Mientras, manda cameras.json si trae eras y, si no, cameras.with3D.",
-      "status": "pending",
+      "status": "behaviour",
+      "$status": "HUD-C2: queda vacía a propósito. El anillo por era sale de una sola fuente (§1.5): los años de cada cámara a bordo en data/balance/cameras.json onboard[].eras (CAM-C1: halo desde 2018, cabina alta hasta 2017, T-cam desde 1993) en el orden de broadcast.json cycleOrder (views.ring). Una fila aquí solo haría falta para quitar una cámara que cameras.json sí tiene en esos años.",
       "list": []
+    },
+    "ring": {
+      "$comment": "HUD-C2 (VIEW-14, F1M24-CHINA §2.4; RF-3D-04, RF-CMD-04, SRS §6): el anillo de cámaras de la vista cámara con 3D (components/playback.js cameraRingOf). order: broadcast.json cycleOrder.cameras (sin «tv», que es una vista). Cada cámara exterior (segments.exterior, de cameras.json follow) está siempre; cada cámara a bordo, solo en los años de cameras.json onboard[].eras y nunca una replayOnly. El ciclo es cerrado: tras la última vuelve la primera. segments: grupos que nombra el selector («Exterior», «A bordo»). keepTypeOnFocus: al cambiar el coche que sigues la cámara conserva su tipo (la T-cam de un coche pasa a la T-cam del otro). Decisión de presentación de OverCut.",
+      "status": "behaviour",
+      "order": "broadcast.json cycleOrder.cameras",
+      "segments": { "exterior": ["chase", "drone", "heli"], "onboard": "cameras.json onboard" },
+      "keepTypeOnFocus": true
+    },
+    "mirror": {
+      "$comment": "HUD-C2 (VIEW-14 «retrovisor»): mientras se mantiene pulsada la tecla key (KeyboardEvent.key, sin distinguir mayúsculas; nunca con el foco en un campo de texto) la vista enseña camera (la T-cam trasera, cameras.json) del coche que sigues; al soltar vuelve en el mismo fotograma a la vista y la cámara que había (aceptación ≤ 1 fotograma: el cambio es de estado de React, sin fundido). Solo si la era tiene esa cámara (cameras.json eras: T-cam desde 1993); antes, la tecla no hace nada. Decisión de presentación de OverCut.",
+      "status": "behaviour",
+      "enabled": true,
+      "camera": "tcamRear",
+      "key": "r"
     }
   },
   "start": {
@@ -128,6 +143,8 @@
     "status": "behaviour",
     "enabled": false,
     "mapAtSpeed": 8,
-    "restoreCamera": true
+    "restoreCamera": true,
+    "$userToggle": "HUD-C2 (VIEW-17): la opción la enciende el jugador con un botón de la barra de reproducción («Mapa en avance rápido»); enabled es su estado al abrir la sesión. Con la opción y la velocidad ≥ mapAtSpeed la vista pasa al mapa; al bajar de mapAtSpeed vuelve a la vista y la cámara de antes (components/playback.js fastForwardStep), salvo que el jugador haya elegido otra vista mientras tanto (entonces manda la suya). Sin 3D no cambia nada (ya es el mapa o la cenital).",
+    "userToggle": true
   }
 }

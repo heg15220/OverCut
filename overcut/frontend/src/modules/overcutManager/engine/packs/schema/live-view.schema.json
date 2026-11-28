@@ -150,7 +150,7 @@
     "views": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["$comment", "status", "list", "defaultView", "cameras", "defaultCamera", "camerasByEra"],
+      "required": ["$comment", "status", "list", "defaultView", "cameras", "defaultCamera", "camerasByEra", "ring", "mirror"],
       "properties": {
         "$comment": { "type": "string" },
         "status": { "$ref": "#/definitions/status" },
@@ -194,7 +194,40 @@
                   "status": { "$ref": "#/definitions/status" }
                 }
               }
-            }
+            },
+            "$status": { "type": "string" }
+          }
+        },
+        "ring": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "order", "segments", "keepTypeOnFocus"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "order": { "const": "broadcast.json cycleOrder.cameras" },
+            "segments": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["exterior", "onboard"],
+              "properties": {
+                "exterior": { "$ref": "#/definitions/cameraList" },
+                "onboard": { "const": "cameras.json onboard" }
+              }
+            },
+            "keepTypeOnFocus": { "type": "boolean" }
+          }
+        },
+        "mirror": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["$comment", "status", "enabled", "camera", "key"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "$ref": "#/definitions/status" },
+            "enabled": { "type": "boolean" },
+            "camera": { "type": "string", "minLength": 1 },
+            "key": { "type": "string", "minLength": 1, "maxLength": 12 }
           }
         }
       }
@@ -261,7 +294,9 @@
         "status": { "$ref": "#/definitions/status" },
         "enabled": { "type": "boolean" },
         "mapAtSpeed": { "$ref": "#/definitions/speed" },
-        "restoreCamera": { "type": "boolean" }
+        "restoreCamera": { "type": "boolean" },
+        "$userToggle": { "type": "string" },
+        "userToggle": { "type": "boolean" }
       }
     }
   }

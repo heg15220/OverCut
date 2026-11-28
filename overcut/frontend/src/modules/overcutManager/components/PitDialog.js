@@ -14,7 +14,11 @@
  *     losses, never a line-to-line lane time (F1M24-GAMEPLAY §1.6)
  *   - the estimated position at the exit, the distance to the pit entry, and a warning when the
  *     team-mate stops on the same lap
- * The call goes through `onConfirm(compound, options)` (race.js / stepRace requestPit).
+ * The call goes through `onConfirm(compound, options, preview)` (race.js / stepRace requestPit).
+ *
+ * GS-15 (HUD-C2, F1M24-CHINA, the menu): it also shows the line-to-line stopwatch previewPit expects (lineToLine,
+ * under the SC or VSC out now when the era has it: pitEstimateOf), the same definition as the pit widget's
+ * stopwatch (PIT-C1), and hands the preview to the caller so the widget can show the estimate next to what it reads.
  */
 
 import React, { useEffect, useMemo, useState } from "react";
@@ -35,6 +39,18 @@ export const safePreview = (state, carId, options) => {
 };
 
 /**
+ * GS-15 (HUD-C2, F1M24-CHINA §1.5 «Estimación de la parada»): the stopwatch the stop should read, from previewPit's
+ * line-to-line time - under the SC or VSC out now (`neutralised` "sc" | "vsc") when the preview has it, else green.
+ * The same definition as the pit widget's stopwatch (PIT-C1). Null without a number.
+ */
+export const pitEstimateOf = (preview, neutralised = null) => {
+  if (!preview) return null;
+  if (neutralised === "sc" && preview.scAllowed && Number.isFinite(preview.lineToLineSc)) return { sec: preview.lineToLineSc, kind: "sc" };
+  if (neutralised === "vsc" && preview.vscAllowed && Number.isFinite(preview.lineToLineVsc)) return { sec: preview.lineToLineVsc, kind: "vsc" };
+  return Number.isFinite(preview.lineToLine) ? { sec: preview.lineToLine, kind: "green" } : null;
+};
+
+/**
  * The two-compound rule (RF-SIM-03, race.js finish): how many dry compounds the car has used,
  * how many after this stop, and how many the era asks for (0 = no rule).
  */
@@ -46,7 +62,7 @@ export const compoundRuleOf = (rules, car, compound) => {
   return { mandatory, before, after: used.size };
 };
 
-export default function PitDialog({ open, onClose, car, state, rules, commands, circuit, share = null, position = null, tyreLife = null, pitThisLap = false, defaultFuel = 1, maxFuel = 1, onConfirm, onCancelCall }) {
+export default function PitDialog({ open, onClose, car, state, rules, commands, circuit, share = null, position = null, tyreLife = null, pitThisLap = false, defaultFuel = 1, maxFuel = 1, onConfirm, onCancelCall, neutralised = null }) {
   const compounds = commands.pit.tyres ? commands.pit.compounds : [];
   const planned = car ? car.plan?.compounds?.[Math.min((car.plan?.compounds?.length ?? 1) - 1, (car.stint ?? 0) + 1)] : null;
   const initial = car?.pitRequest?.compound || (compounds.includes(planned) ? planned : compounds[0]) || car?.compound;
@@ -69,6 +85,7 @@ export default function PitDialog({ open, onClose, car, state, rules, commands, 
   if (!car) return null;
 
   const rule = compoundRuleOf(rules, car, commands.pit.tyres ? compound : null);
+  const estimate = pitEstimateOf(preview, neutralised);
   const life = Number.isFinite(tyreLife) ? tyreLife : null;
   const exitDelta = preview?.exitPos && position ? preview.exitPos - position : null;
   const km = Number.isFinite(preview?.distanceToPitEntry) ? preview.distanceToPitEntry / 1000 : null;
@@ -148,6 +165,12 @@ export default function PitDialog({ open, onClose, car, state, rules, commands, 
             <dt>{t("Parado (típico)", "Stationary (typical)")}</dt>
             <dd data-testid="pit-stopMedian">{seconds(preview?.stopMedian)}</dd>
           </div>
+          {estimate && (
+            <div>
+              <dt>{estimate.kind === "sc" ? t("Cronómetro de línea a línea, con SC", "Line to line, under the SC") : estimate.kind === "vsc" ? t("Cronómetro de línea a línea, con VSC", "Line to line, under the VSC") : t("Cronómetro de línea a línea", "Line to line")}</dt>
+              <dd data-testid="pit-lineToLine">{seconds(estimate.sec)}</dd>
+            </div>
+          )}
           <div>
             <dt>{t("Posición a la salida", "Position at the exit")}</dt>
             <dd data-testid="pit-exitPos">
@@ -178,7 +201,7 @@ export default function PitDialog({ open, onClose, car, state, rules, commands, 
           <button type="button" className="mn-btn mn-btn--sm mn-btn--ghost" onClick={onClose}>
             {t("Cerrar", "Close")}
           </button>
-          <button type="button" className="mn-btn mn-btn--sm" onClick={() => onConfirm(compounds.length ? compound : car.compound, refuel ? { fuel, replace: true } : { replace: true })}>
+          <button type="button" className="mn-btn mn-btn--sm" onClick={() => onConfirm(compounds.length ? compound : car.compound, refuel ? { fuel, replace: true } : { replace: true }, preview)}>
             {t("Pedir la parada", "Call the stop")}
           </button>
         </div>
