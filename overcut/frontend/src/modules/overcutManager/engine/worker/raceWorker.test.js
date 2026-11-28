@@ -46,6 +46,19 @@ describe("SRS 4 race worker: the session handler", () => {
     expect(reply.view.snapshot).toHaveLength(args.entrants.length);
   });
 
+  it("keeps the snapshot fields that hang on the array (start, sc, vsc, debris, weather, spray) through the copy", () => {
+    // F1M24-GAMEPLAY §1.7 / F1M24-CHINA §1.5: JSON drops an array's own keys; the HUD fade (snapshot.start),
+    // the safety car and the water/spray of the view and the sound read them from here.
+    const { args } = sunday();
+    const session = createRaceSession();
+    const reply = session.handle({ id: 1, type: "create", args });
+    const shot = reply.view.snapshot;
+    ["start", "sc", "vsc", "debris", "weather", "spray"].forEach((key) => expect(Object.prototype.hasOwnProperty.call(shot, key)).toBe(true));
+    expect(shot.spray).toHaveLength(args.entrants.length);
+    expect(shot.weather).toEqual(expect.any(Object));
+    expect(() => serialize(reply)).not.toThrow();
+  });
+
   it("RF-SIM-15 / RNF-05: the same messages give the same race as the sim in-thread, byte for byte", () => {
     const { args, career } = sunday("determinism");
     const userId = args.entrants.find((entrant) => entrant.isUser).id;

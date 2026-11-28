@@ -51,6 +51,19 @@ const carPatch = (car) => {
 /** A deep copy of plain race data (no closures reach here: toRaceState strips them). */
 const plain = (value) => JSON.parse(JSON.stringify(value));
 
+/**
+ * The snapshot's fields that hang on the array itself (snapshot.start, sc, vsc, debris, weather, spray: F1M24-GAMEPLAY
+ * §1.7, F1M24-CHINA §1.5): JSON drops an array's own non-index keys, so they are copied back after `plain`. The
+ * structured clone of postMessage keeps them.
+ */
+const plainSnapshot = (cars) => {
+  const out = plain(cars);
+  Object.keys(cars).forEach((key) => {
+    if (!/^\d+$/.test(key) && cars[key] !== undefined) out[key] = plain(cars[key]);
+  });
+  return out;
+};
+
 export const createRaceSession = () => {
   let state = null;
   let sent = null; // what the view already has: counts of events, radio, history per car
@@ -98,7 +111,7 @@ export const createRaceSession = () => {
       // RF-SIM-04 / RF-SIM-05: the fuel on board and the energy store right now, for the pit wall.
       return { ...patch, fuelLive: now[index].fuel || null, energyLive: now[index].energy || null, newHistory: history };
     });
-    return plain({
+    const message = plain({
       type: "tick",
       clock: state.clock,
       lap: state.lap,
@@ -118,6 +131,8 @@ export const createRaceSession = () => {
       radio,
       duels,
     });
+    message.snapshot = plainSnapshot(now);
+    return message;
   };
 
   const finished = () => ({ type: "finished", state: plain(toRaceState(state)), commands: log.slice() });
