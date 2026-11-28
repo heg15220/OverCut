@@ -18,7 +18,9 @@ import physicsData from "../../data/balance/race-physics.json";
 import simData from "../../data/balance/race-sim.json";
 import { trackDataFor } from "../trackData";
 import { fromQuickRace, snapshot, stepFor } from "./index";
-import { LANE_NAMES, LATERAL, lateralSpecFor } from "./lateral";
+import { LANE_NAMES, LATERAL, alongsideStep, bandEdgeCap, bandOfKmh, lateralSpecFor } from "./lateral";
+import { ROLE } from "./duel";
+import { sumOf, watchPasses } from "./straightPassWatch";
 import { totalOf, watchRace } from "./lateralWatch";
 import { weekend } from "./simTestKit";
 import { minFollowSecOf } from "./stepRace";
@@ -136,4 +138,89 @@ describe("SIM-2 · 32 races of 2024: boxes never overlap, clearance side by side
     expect(total.rejoinsOnPitSide).toBe(total.rejoins);
     expect(total.rejoinsAsPitExit).toBe(total.rejoins);
   });
+});
+
+describe("SIM-C2 GS-06 side by side by corner band (race-physics.json lateral.alongsideByBand)", () => {
+  const cfg = LATERAL.alongsideByBand;
+  /** A race of Shanghai 2024 before the start, cars 0 (behind) and 1 (ahead) placed side by side at distance `d`. */
+  const pair = (d, { latBehind = -1.2, latAhead = 1.2, gapM = 2 } = {}) => {
+    const w = weekend({ seed: "band", circuit: "shanghai" });
+    const state = fromQuickRace(w.make(), { race: w.race });
+    const sim = state._sim;
+    sim.ahead.fill(-1);
+    sim.P[1] = d;
+    sim.P[0] = d - gapM / sim.tables.length;
+    sim.P0.set(sim.P);
+    sim.lat[1] = latAhead;
+    sim.lat[0] = latBehind;
+    sim.ahead[0] = 1;
+    sim.active[0] = 1;
+    sim.active[1] = 1;
+    sim.inPit[0] = 0;
+    sim.inPit[1] = 0;
+    return sim;
+  };
+  const firstBin = (sim, code) => sim.bandBin.findIndex((band) => band === code);
+
+  it("has a band rule with a status and a source for each band, and the bands of race-physics.json", () => {
+    expect(cfg.status).toBe("pending");
+    ["slow", "medium", "fast"].forEach((band) => expect(cfg.source[band]).toEqual(expect.any(String)));
+    expect(cfg.slow.yield).toBe(true);
+    expect(cfg.fast.minAlongsideSec).toBeGreaterThanOrEqual(1.5);
+    expect(bandOfKmh(physicsData.bands.slowMaxKmh - 1)).toBe("slow");
+    expect(bandOfKmh(physicsData.bands.slowMaxKmh)).toBe("medium");
+    expect(bandOfKmh(physicsData.bands.fastMinKmh + 1)).toBe("fast");
+  });
+
+  it("puts a pair in file at a slow corner's turn-in: the car behind lifts out of a duel, the one passed in a duel", () => {
+    const probe = pair(0);
+    const slow = firstBin(probe, 1);
+    expect(slow).toBeGreaterThan(0);
+    const d = (slow - 2) / probe.tables.M;
+    const sim = pair(d);
+    alongsideStep(sim, ROLE);
+    expect(sim.bandYield[0]).toBe(1);
+    expect(sim.bandYield[1]).toBe(-1);
+    // In a duel the duel decides: the car ahead being passed is the one that lifts.
+    const duel = pair(d);
+    duel.duelRole[0] = ROLE.PASSING;
+    duel.duelOther[0] = 1;
+    duel.duelRole[1] = ROLE.YIELDING;
+    alongsideStep(duel, ROLE);
+    expect(duel.bandYield[1]).toBe(0);
+    expect(duel.bandYield[0]).toBe(-1);
+    // Not alongside (a car's width across not taken): nothing.
+    const file = pair(d, { latBehind: 0, latAhead: 0 });
+    alongsideStep(file, ROLE);
+    expect(Array.from(file.bandYield).every((v) => v === -1)).toBe(true);
+  });
+
+  it("keeps a pair alongside in a fast corner, a pass there taking at least fast.minAlongsideSec", () => {
+    const probe = pair(0);
+    const fast = firstBin(probe, 3);
+    expect(fast).toBeGreaterThan(0);
+    const d = (fast + 1) / probe.tables.M;
+    const sim = pair(d);
+    alongsideStep(sim, ROLE);
+    expect(Array.from(sim.bandYield).every((v) => v === -1)).toBe(true);
+    sim.duelOther[0] = 1;
+    sim.v[0] = 70;
+    const L = sim.side.spec.carLength;
+    const cap = bandEdgeCap(sim, 0, sim.P[0], 0.2);
+    // Two car lengths of overlap crossed at the capped edge take minAlongsideSec.
+    expect((2 * L) / (cap * 70)).toBeCloseTo(cfg.fast.minAlongsideSec, 6);
+    expect(bandEdgeCap(sim, 0, sim.P[0], cap / 2)).toBe(cap / 2);
+    // Out of a fast corner the edge is untouched.
+    expect(bandEdgeCap(sim, 0, (firstBin(probe, 1) + 1) / probe.tables.M, 0.2)).toBe(0.2);
+  });
+
+  it("on 4 races of Shanghai 2024: slow corners in file at the apex, fast ones alongside with ≥ 0.3 m (RNF-05)", () => {
+    const total = sumOf(Array.from({ length: 4 }, (_, k) => watchPasses({ seed: `band${k + 1}`, circuit: "shanghai" })));
+    // eslint-disable-next-line no-console
+    console.log(`SIM-C2 GS-06 Shanghai 2024: ${total.slowTurnInPairs} pairs side by side at a slow turn-in, ${total.slowApexPairs} still at the apex; ${total.fastPairs} pair-steps alongside in fast corners, ${total.fastClear} with ≥ 0.3 m`);
+    expect(total.slowTurnInPairs).toBeGreaterThan(10);
+    expect(total.slowApexPairs / total.slowTurnInPairs).toBeLessThanOrEqual(0.1);
+    expect(total.fastPairs).toBeGreaterThan(10);
+    expect(total.fastClear).toBe(total.fastPairs);
+  }, 600000);
 });

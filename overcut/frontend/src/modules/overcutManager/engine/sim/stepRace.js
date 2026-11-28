@@ -73,8 +73,8 @@ import {
 import { byYear, raceBalance } from "../rules";
 import { calibrationFor, damageOf } from "../incidents";
 import { circuitFor } from "../venue";
-import { DUEL_GEOMETRY, LANE_NAMES, ROLE, battleOf, battleSetup, battleStep, drsAllowed, duelGeometrySetup, duelWatch, endDuel, fightOf, lineRadio, openDuel, resolveClaim, trySwitchback } from "./duel";
-import { exitBlocked, gateBoxes, lateralSetup, rejoin, roomAt, stepLateral } from "./lateral";
+import { DUEL_GEOMETRY, LANE_NAMES, ROLE, SP, battleOf, battleSetup, battleStep, drsAllowed, duelGeometrySetup, duelWatch, endDuel, fightOf, lineRadio, openDuel, resolveClaim, straightAtAttack, straightGapOf, straightMult, straightPassOf, straightPassSetup, straightPassStep, trySwitchback } from "./duel";
+import { alongsideSetup, alongsideStep, bandEdgeCap, exitBlocked, gateBoxes, lateralSetup, rejoin, roomAt, stepLateral } from "./lateral";
 import { positionAt } from "../trackData";
 import { cornerNoiseSigmaOf, profileFactorsOf } from "../drivers/skills";
 import { beginLeaderLap, finishRace, pitDecision, planLap, pushEvent, radioFor, retire, rivalCalls, rollFailure, wetnessAt } from "./lapModel";
@@ -351,6 +351,10 @@ export const fromQuickRace = (state, { race, circuit, balance = balanceData, pre
     ...battleSetup(n, [tables.tauAt(sectorStarts[1]), tables.tauAt(sectorStarts[2])].filter((tau) => tau > 0 && tau < 1).sort((a, b) => a - b)),
     // SIM-8 (SIM-FISICA §3.5): the fights per pair - tries, cool-downs, switchbacks, the claim's exit and the squeeze.
     ...duelGeometrySetup(n),
+    // SIM-C2 (F1M24-CHINA §2.2 GS-04): the pass with DRS on the straight (race-sim.json duel.straightPass).
+    ...straightPassSetup(n, tables, balance),
+    // SIM-C2 (GS-06): side by side by corner band (race-physics.json lateral.alongsideByBand).
+    ...alongsideSetup(track, tables, n),
     // SIM-8 trafico-sesion: "race" (everything) or "session" (setStepMode: no duels, no grid, no pit wall).
     mode: SIM_MODE.RACE,
     onLine: null,
@@ -738,6 +742,11 @@ const beginLap = (state, i, lap, t) => {
   lapOut.energyTime = 0;
   // SIM-6: the view's tyre heat back on the lap model's before this lap is planned (planLap moves it to the lap's end).
   heatAtLine(state, i);
+  // SIM-C2: the pace of the lap that ends here, for a straight pass decided before the line (duel.js openDuel).
+  if (sim.expPrev) {
+    sim.expPrev[i] = car.expected ?? 0;
+    sim.expLap[i] = lap;
+  }
   let budget = planLap(state, car, lap, stream, { gridIndex: i, scrumShare: sim.balance.lapOne.scrumShare }, lapOut);
   const en = sim.en;
   en.lapFuel[i] = 0;
@@ -1185,7 +1194,13 @@ const advance = (state, i) => {
     // move is made under braking and through the corner (race-sim.json duel.straight).
     const edge = sim.duelMult[i];
     const straight = balance.duel.straight;
-    mult += inCorner(tables, d0) ? edge : edge > 0 ? Math.min(edge, straight.attackerBoost) : Math.max(edge, -straight.defenderLoss);
+    // SIM-C2 (GS-06): side by side in a fast corner the pass takes at least lateral.alongsideByBand.fast.minAlongsideSec.
+    mult += inCorner(tables, d0) ? bandEdgeCap(sim, i, d0, edge) : edge > 0 ? Math.min(edge, straight.attackerBoost) : Math.max(edge, -straight.defenderLoss);
+    sim.lapFlags[i] |= 16;
+  }
+  // SIM-C2 (GS-06): side by side at the turn-in of a slow corner, the one losing it lifts until they are in file.
+  if (sim.bandYield && sim.bandYield[i] >= 0) {
+    mult *= sim.bandLift;
     sim.lapFlags[i] |= 16;
   }
   if (sim.delay[i] > 0) {
@@ -1246,6 +1261,8 @@ const advance = (state, i) => {
     if (away > 0) mult /= 1 + sim.offPen[i] * Math.min(1, away / (off.fullAtM - off.lineHalfWidthM));
   }
   mult = shapeDrive(state, i, cell, rate, Math.max(0, mult), sc);
+  // SIM-C2 (GS-04): a pass won on a DRS straight is driven there at the closing speed of its phase (duel.js).
+  if (!sc && (sim.spPhase[i] === SP.PULL_OUT || sim.spPhase[i] === SP.ALONGSIDE)) mult = straightMult(sim, i, sim.tau[i], rate, mult);
   const tau0 = sim.tau[i];
   let tau1 = tau0 + rate * mult * dt;
   const laps = sim.laps[i];
@@ -1527,8 +1544,27 @@ const checkpoints = (state, i, from, to) => {
   if (session) return;
   // Attack points before the braking zones.
   if (!state.safetyCar) {
+    // SIM-C2 (GS-04, RF-SIM-08): on a DRS straight, with the flap open for it, the attempt at its braking zone is made
+    // here - by the gap the car will have at the attack point (duel.js straightGapOf) - and driven on the straight.
+    for (let z = 0; z < tables.attacks.length; z += 1) {
+      const at = sim.spTau[z];
+      if (!(at >= 0 && at > from && at <= to) || sim.drsOpen[i] - 1 !== tables.attacks[z].drs || tables.attacks[z].drs < 0) continue;
+      const a = sim.ahead[i];
+      if (a >= 0 && sim.lapDiff[i] === 0 && mayAttack(state, i)) {
+        const b0 = sim.behind[i];
+        const b = b0 >= 0 && mayAttack(state, b0) ? b0 : -1;
+        const behindGap = b >= 0 && sim.lapDiff[b] === 0 ? sim.gapS[b] : Infinity;
+        if (openDuel(state, i, z, a, straightGapOf(sim, i, z), b, behindGap, { straight: true })) {
+          sim.spZone[i] = z + 1;
+          // The lap count the car will have at the attack point (the straight may cross the line).
+          sim.spLapAt[i] = sim.laps[i] + Math.floor(sim.tau[i]) + (tables.attacks[z].tau > frac(sim.tau[i]) ? 0 : 1);
+        }
+      }
+    }
     for (let z = 0; z < tables.attacks.length; z += 1) {
       if (!(tables.attacks[z].tau > from && tables.attacks[z].tau <= to)) continue;
+      // SIM-C2: the attempt of this braking zone was made on the straight; what it left for the corner is settled now.
+      if (straightAtAttack(state, i, z)) continue;
       const a = sim.ahead[i];
       if (a >= 0 && sim.lapDiff[i] === 0 && mayAttack(state, i)) {
         // SIM-8: the car behind joins the claim as a third only if it may attack too (no error, no clean-air hold).
@@ -2022,6 +2058,8 @@ const settleDuels = (state) => {
     if (sim.duelRole[i] === ROLE.NONE) continue;
     const other = sim.duelOther[i];
     if (sim.duelRole[i] === ROLE.PASSING && other >= 0) {
+      // SIM-C2: a pass made on a DRS straight is held until the corner's exit (duel.js straightPassStep ends it).
+      if (sim.spPhase[i] === SP.AHEAD) continue;
       const lead = sim.P[i] - sim.P[other];
       if (lead > minGap || !sim.active[other] || !sim.active[i]) {
         endDuel(sim, i);
@@ -2266,6 +2304,8 @@ export const stepOnce = (state) => {
     sim.tau0[i] = sim.tau[i];
   }
   recordPlaces(sim);
+  // SIM-C2 (GS-06): who gives way side by side at the turn-in of a slow corner, from where the cars are now.
+  alongsideStep(sim, ROLE);
   // Front to back around the loop, starting behind the biggest gap, so each car sees
   // the car ahead where it already is this step.
   for (let k = 0; k < sim.ringSize; k += 1) {
@@ -2279,6 +2319,8 @@ export const stepOnce = (state) => {
       advance(state, i);
     }
   }
+  // SIM-C2 (GS-04): the phases of the passes driven on a DRS straight, told when made (before they are settled).
+  straightPassStep(state);
   settleDuels(state);
   raceControl(state);
   // SIM-5: the safety car's phase changes once the field has moved (train grouped, lapped cars through, lights off).
@@ -2418,6 +2460,8 @@ export const advanceField = (state) => {
     sim.P0[i] = sim.P[i];
     sim.tau0[i] = sim.tau[i];
   }
+  // SIM-C2 (GS-06): the same rule of the corner bands for cars side by side in a session.
+  alongsideStep(sim, ROLE);
   for (let k = 0; k < sim.ringSize; k += 1) {
     const i = sim.ring[(first - k + sim.ringSize) % sim.ringSize];
     if (sim.active[i]) advance(state, i);
@@ -2519,6 +2563,9 @@ export const snapshot = (state) => {
     battle: battleOf(sim, i),
     // SIM-8 (SIM-FISICA §3.5): the car's fight - "CLAIM" | "SWITCHBACK" | "SQUEEZED", null out of one.
     fight: fightOf(sim, i),
+    // SIM-C2 (F1M24-CHINA §2.2 GS-04 / VIEW-09): the phase of a pass with DRS on the straight, for the attacker -
+    // "pullOut" | "alongside" | "ahead" (made, until the move is settled) - and null out of one.
+    straightPass: straightPassOf(sim, i),
     // WP4: the lateral state ("racing", "attack-inside", "attack-outside", "defend", "alongside", "yield", "wide"; SIM-2:
     // "pit" in the lane, "pit-exit" back on the pit side of the road after it - F1M24-GAMEPLAY §1.7 lane[i]).
     lane: sim.inPit[i] !== 0 ? "pit" : LANE_NAMES[sim.latState[i]],

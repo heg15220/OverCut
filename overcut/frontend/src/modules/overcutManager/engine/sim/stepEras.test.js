@@ -167,7 +167,8 @@ describe("RF-SIM-04 / RF-SIM-05 / RF-SIM-08 · era coherence in the step sim", (
     expect(pits05.length).toBeGreaterThan(0);
     pits05.forEach((event) => expect(event.refuel).toBeGreaterThan(0));
     const dry05 = s2005.weather.wetness.every((value) => value < 0.2);
-    expect(pits05.filter((event) => dry05 && event.tyres !== false)).toEqual([]);
+    // A repair stop may change a damaged car's tyres (race.js pitStopTime: 2005 allowed it for damage).
+    expect(pits05.filter((event) => dry05 && event.tyres !== false && !event.repair)).toEqual([]);
 
     const s2008 = runStepToFinish(startStep(2008, "step-2008"));
     const pits08 = s2008.events.filter((event) => event.type === "pit");

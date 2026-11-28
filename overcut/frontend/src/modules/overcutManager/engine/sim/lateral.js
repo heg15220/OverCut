@@ -372,6 +372,103 @@ const gateDrawn = (sim, i, P0, P1) => {
   return result;
 };
 
+// ------------------------------------------------------------ SIM-C2 (GS-06): side by side by corner band
+
+/** race-physics.json `bands`: a corner's band by the trace's speed at its apex (the same split as the budget's). */
+export const bandOfKmh = (kmh, bands = physicsData.bands) => (kmh < bands.slowMaxKmh ? "slow" : kmh > bands.fastMinKmh ? "fast" : "medium");
+
+const BAND_CODE = { slow: 1, medium: 2, fast: 3 };
+
+/**
+ * SIM-C2 (F1M24-CHINA §2.1 GS-06; RF-SIM-07, RF-3D-03): the band of each corner of `track` per distance bin of the
+ * step tables (0 on a straight), by the trace's speed at its apex (tables.vRef; the circuit's own kmh without a
+ * trace), and what lateral.alongsideByBand says for it. Per-car state: whom a car gives way to this step (-1 none).
+ */
+export const alongsideSetup = (track, tables, n, data = LATERAL) => {
+  const M = tables.M;
+  const bandBin = new Uint8Array(M);
+  const signBin = new Int8Array(M);
+  (track.corners || []).forEach((corner) => {
+    const apexTau = tables.apexTau.get(corner.number);
+    const cell = apexTau === undefined ? -1 : Math.min(M - 1, (frac(apexTau) * M) | 0);
+    const kmh = tables.traceLap && cell >= 0 && tables.vRef[cell] > 0 ? tables.vRef[cell] * 3.6 : corner.kmh;
+    if (!(kmh > 0)) return;
+    const code = BAND_CODE[bandOfKmh(kmh)];
+    const from = Math.floor(frac(corner.from) * M);
+    let to = Math.ceil(frac(corner.to) * M);
+    if (to < from) to += M;
+    for (let k = from; k <= to; k += 1) {
+      bandBin[k % M] = code;
+      signBin[k % M] = corner.sign || 1;
+    }
+  });
+  const cfg = data.alongsideByBand || null;
+  return { bandBin, signBin, bandYield: new Int32Array(n).fill(-1), bandLift: cfg ? cfg.slow.liftFactor : 1, bandCfg: cfg };
+};
+
+const bandAt = (sim, d) => sim.bandBin[Math.min(sim.tables.M - 1, (frac(d) * sim.tables.M) | 0)];
+
+/**
+ * SIM-C2 (GS-06), every step before the cars move: two cars side by side (less than a car's length apart along the
+ * road, a car's width across) at the turn-in of a corner whose band does not keep them there (slow:
+ * alongsideByBand.slow.yield, from `turnInMetres` before it to its apex) go through it in file - the one losing the
+ * corner lifts (`liftFactor`, stepRace advance) until it is a car's length behind: the defender being passed, the
+ * attacker whose move was held, otherwise the car behind (out of a duel it cannot take the place). Who wins the corner is never changed (the duel
+ * decided it); fast and medium corners keep the pair alongside. No draw (RNF-05).
+ */
+export const alongsideStep = (sim, ROLE) => {
+  if (!sim.bandYield) return;
+  sim.bandYield.fill(-1);
+  const cfg = sim.bandCfg;
+  if (!cfg || !cfg.slow.yield) return;
+  const len = sim.tables.length;
+  const L = sim.side.spec.carLength;
+  const W = sim.side.spec.carWidth;
+  const reach = cfg.slow.turnInMetres / len;
+  // Medium corners may be put in file too by their own flag (by default only the slow ones are).
+  const yields = (band) => band === BAND_CODE.slow || (band === BAND_CODE.medium && cfg.medium.yield);
+  for (let i = 0; i < sim.n; i += 1) {
+    const j = sim.ahead[i];
+    if (j < 0 || !sim.active[i] || !sim.active[j] || sim.inPit[i] !== 0 || sim.inPit[j] !== 0) continue;
+    const along = frac(sim.P[j] - sim.P[i]) * len;
+    if (along >= L || Math.abs(sim.lat[j] - sim.lat[i]) < W - 1e-6) continue;
+    // The corner ahead of the leading car's nose, or the one it is in (up to the apex the line is still to be decided).
+    let at = sim.P[j] + reach;
+    let band = bandAt(sim, at);
+    if (!yields(band)) {
+      at = sim.P[j];
+      band = bandAt(sim, at);
+    }
+    if (!yields(band)) continue;
+    const roleI = sim.duelRole[i];
+    const roleJ = sim.duelRole[j];
+    let loser;
+    if (roleI === ROLE.YIELDING || roleI === ROLE.LOST) loser = i;
+    else if (roleJ === ROLE.YIELDING || roleJ === ROLE.LOST || (roleI === ROLE.PASSING && sim.duelOther[i] === j)) loser = j;
+    // Out of a duel nobody can take the place (a pass is only ever a duel's): the car behind falls in behind,
+    // whichever side it is on - if it is on the outside this is the outside car giving way at the turn-in.
+    else loser = i;
+    sim.bandYield[loser] = loser === i ? j : i;
+  }
+};
+
+/**
+ * SIM-C2 (GS-06): in a fast corner a pass side by side keeps the two alongside for at least
+ * alongsideByBand.fast.minAlongsideSec - the attacker's duel edge (a share of its speed) is capped so it crosses the
+ * overlap of two car lengths no faster. Elsewhere, or with the pair apart, the edge as it is.
+ */
+export const bandEdgeCap = (sim, i, d, edge) => {
+  const cfg = sim.bandCfg;
+  if (!cfg || !(edge > 0) || !sim.bandBin || bandAt(sim, d) !== BAND_CODE.fast) return edge;
+  const o = sim.duelOther[i];
+  if (o < 0) return edge;
+  const L = sim.side.spec.carLength;
+  const along = Math.abs((sim.P0[i] - sim.P[o]) - Math.round(sim.P0[i] - sim.P[o])) * sim.tables.length;
+  if (along >= L) return edge;
+  const cap = (2 * L) / (cfg.fast.minAlongsideSec * Math.max(1, sim.v[i]));
+  return edge < cap ? edge : cap;
+};
+
 /** Where on the road the pit exit puts a car: the edge on the lane's side. */
 const exitLatAt = (G, d) => roomAt(G, d, G.pitSide);
 
