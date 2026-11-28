@@ -60,12 +60,12 @@ import { clamp, createStream } from "../../overcutTrayectoria/engine/rng";
 import { fieldMomentsOf, paceOf } from "../../overcutTrayectoria/engine/race";
 import { WEATHER } from "../../overcutTrayectoria/engine/weather";
 import {
-  WEATHER_BALANCE as WB, aquaplaningOf, depthOfWetness, gripRatio, sprayLossOf, sprayRiskOf, tyreForWetness as tyreForWater, trackTargetOf, updateLapWater, wetTyreAgeTime,
-  weatherTimeline as weatherOf,
+  INTER_CAPACITY_MM, WEATHER_BALANCE as WB, aquaplaningOf, depthOfWetness, gripRatio, sprayLevelOf, sprayLossOf, sprayRiskOf, tyreForWetness as tyreForWater, trackTargetOf,
+  updateLapWater, wetTyreAgeTime, weatherTimeline as weatherOf,
 } from "./weather";
 import { circuitFor } from "./venue";
-import { commandsFor, drsOpen, penaltyFor, pitLaneSpeedFor, raceBalance as BALANCE, rulesFor } from "./rules";
-import { circuitIdOf, pitLaneFor, previewPit } from "./sim/pitLane";
+import { WET_CONTROL, commandsFor, drsControlEvent, drsOpen, drsStatus, penaltyFor, pitLaneSpeedFor, raceBalance as BALANCE, rulesFor, wetDrsClosed } from "./rules";
+import { boxQueue, circuitIdOf, pitLaneFor, previewPit } from "./sim/pitLane";
 import { expectedStationary, planStop } from "./sim/pitStop";
 import { TACTICS_ENERGY, battleAssistModeOf, ersEndgameModeOf, fuelReserveKgOf, fuelSpecOf, fuelSpendMixOf } from "./energy";
 import strategyBalance from "../data/balance/race-strategy.json";
@@ -74,7 +74,7 @@ import {
   wetRiskOf,
 } from "./incidents";
 import simBalance from "../data/balance/race-sim.json";
-import { circuitScFactor, deployNeutralisation, pitClosedFor } from "./sim/safetyCar";
+import { circuitScFactor, deployNeutralisation, pitClosedFor, wetReleaseEvent, wetReleaseOf, wetStartOf } from "./sim/safetyCar";
 import {
   TYRE_THERMAL, airOf, coldForPass, freshSet, gridSet, gripC, heatCost, heatInputs, hotForRadio, hotForSave, lapHeat, legacyIndexOf, windowFor,
 } from "./tyres/thermal";
@@ -711,6 +711,9 @@ export const createRace = ({
   const startEvents = [];
   const order = applyGridPenalties(grid && grid.length ? grid : entrants.map((entrant) => entrant.id), gridPenalties, rules, startEvents);
   const startWet = timeline.wetness[0];
+  // SIM-C4 (GS-12, FIA 2024 arts. 49-52): a start behind the safety car where the era has it and the line is above
+  // the intermediate's capacity for the year (engine/weather capacityFor via the timeline), every car on rain tyres.
+  const wetGrid = wetStartOf({ rules, weather: timeline, laps, capacityMm: timeline.capacity?.interMm ?? INTER_CAPACITY_MM, tyreFor: () => tyreForWetness(startWet) });
   // SIM-6 (RF-SIM-03): every set on the grid, off the blankets (or at the air's temperature) after the formation lap.
   const gridHeat = gridSet({ year: rules.year ?? year, airC: airOf({ weather: timeline, trackTemp }, 0), trackC: trackTemp, baseLap: race.baseLap });
   // Top-ten start tyres (2010-2013 Q3, 2014-2021 Q2): the top ten start on the tyre they qualified on, the softest.
@@ -733,7 +736,7 @@ export const createRace = ({
         // The player's plan keeps its stops; a rival re-plans around the tyre it must start on.
         plan = entrant.isUser ? normalisePlan({ ...plan, compounds: [ownTyre, ...plan.compounds.slice(1)] }, laps, rules) : normalisePlan(suggested(), laps, rules);
       }
-      const wetStart = tyreForWetness(startWet);
+      const wetStart = wetGrid ? wetGrid.tyre : tyreForWetness(startWet);
       // KERS was optional for some teams (2009, and the new teams of 2011-12): those cars carry none.
       const hasEnergy = Boolean(energy) && !(rules.energy.optOut.includes(entrant.teamId) && entrant.kers !== true) && entrant.kers !== false;
       return {
@@ -824,7 +827,7 @@ export const createRace = ({
   // RF-SIM-09 / RF-SIM-10: the start and the first corner, on its own stream so both modes play the same one (SRS 4.2).
   const turnOne = turnOnePlan({ cars, circuit, year: rules.year ?? year, wetness: startWet, grid: simBalance.grid, stream: createStream(`${seed}::start`) });
 
-  return {
+  const state = {
     race: { name: race.name, round: race.round, country: race.country, laps, baseLap: race.baseLap, profile: race.profile, circuit: race.circuit || null, lengthKm: race.lengthKm || circuit.km || null },
     pitLane,
     turnOne,
@@ -867,6 +870,92 @@ export const createRace = ({
     ...(sprint ? { sprint: true } : {}),
     _stream: stream,
   };
+  // SIM-C4 (GS-12, §1.5): race control's wet messages already due on the grid, then the start behind the safety car
+  // (FIA 2024 art. 49.1): the SC leads wetGrid.laps laps (counted from the forecast water, no draw).
+  state.raceControlWet = { declared: {}, slippery: [false, false, false], drsFromLap: null };
+  wetControlStep(state, 0);
+  state.drsState = null;
+  if (wetGrid) {
+    state.wetStart = { laps: wetGrid.laps, standingAfter: wetGrid.standingAfter, tyre: wetGrid.tyre, mandatory: wetGrid.mandatory, capacityMm: wetGrid.capacityMm, release: null, greenLap: null };
+    state.safetyCar = { laps: wetGrid.laps, virtual: false, wetStart: true, deployedLap: 0, incident: null };
+    pushEvent(state, { type: "control", kind: WET_CONTROL.START_BEHIND_SC, laps: wetGrid.laps, tyre: wetGrid.tyre }, 0);
+    pushEvent(state, { type: "sc", wetStart: true }, 0);
+  }
+  return state;
+};
+
+/**
+ * SIM-C4 (F1M24-CHINA GS-12, §1.5 «Mensajes de mojado», §2.9; RF-SIM-10, RF-SIM-11): race control's wet chain at
+ * the start of lap `lap` (both modes: createRace for the grid, beginLapWorld for each lap) from the weather the
+ * engine already computes - "climaticChange" when the state turns to rain, "wetTrack" and "lowGrip" when the water
+ * on the line reaches their thresholds, "slippery" for each timing sector whose water reaches its own (race-sim.json
+ * raceControl.wet, derived from OpenF1 9668), always in that order within a lap. Each is told once per episode and
+ * forgotten when the water falls below its threshold × clearShare. A declared WET TRACK closes DRS
+ * drsAfterWetTrackMin minutes of racing later (state.raceControlWet.drsFromLap, read by rules.wetDrsClosed). No draw.
+ */
+export const wetControlStep = (state, lap) => {
+  const weather = state.weather;
+  const wet = state.raceControlWet;
+  if (!wet || !weather || !Array.isArray(weather.water)) return;
+  const cfg = simBalance.raceControl.wet;
+  const k = Math.min(Math.max(0, lap), weather.water.length - 1);
+  const h = weather.water[k] ?? 0;
+  const raining = Array.isArray(weather.states) && weather.states[k] >= WB.states.rainFrom;
+  const wasRaining = k > 0 && Array.isArray(weather.states) && weather.states[k - 1] >= WB.states.rainFrom;
+  const tell = (kind, extra = {}) => pushEvent(state, { type: "control", kind, ...extra }, lap);
+  if (raining && (!wasRaining || k === 0) && !wet.declared.climaticChange) {
+    wet.declared.climaticChange = true;
+    tell(WET_CONTROL.CLIMATIC);
+  } else if (!raining) wet.declared.climaticChange = false;
+  const flag = (key, threshold, kind) => {
+    if (!wet.declared[key] && h >= threshold) {
+      wet.declared[key] = true;
+      tell(kind);
+      return true;
+    }
+    if (wet.declared[key] && h < threshold * cfg.clearShare) wet.declared[key] = false;
+    return false;
+  };
+  if (flag("wetTrack", cfg.wetTrackMm, WET_CONTROL.WET_TRACK)) {
+    const lapMinutes = (state.race.baseLap || 90) / 60;
+    wet.drsFromLap = lap + Math.max(1, Math.ceil(cfg.drsAfterWetTrackMin / lapMinutes));
+  }
+  if (!wet.declared.wetTrack) wet.drsFromLap = null;
+  const sectors = Array.isArray(weather.sectors) && weather.sectors[k] ? weather.sectors[k] : [];
+  sectors.forEach((hs, s) => {
+    if (!wet.slippery[s] && hs >= cfg.slipperyMm) {
+      wet.slippery[s] = true;
+      tell(WET_CONTROL.SLIPPERY, { sector: s + 1 });
+    } else if (wet.slippery[s] && hs < cfg.slipperyMm * cfg.clearShare) wet.slippery[s] = false;
+  });
+  flag("lowGrip", cfg.lowGripMm, WET_CONTROL.LOW_GRIP);
+};
+
+/**
+ * SIM-C0 / SIM-C4 (§1.5 «DRS habilitado», RF-SIM-08): the DRS control event of lap `lap` (both modes, at the start
+ * of the leader's lap) - `drsEnabled` when DRS becomes usable, `drsDisabled {reason}` when it stops being so (the
+ * opening laps, a neutralisation, the wait after a restart, water or a declared WET TRACK). Never in an era without
+ * DRS. The HUD only paints them.
+ */
+export const drsControlStep = (state, lap) => {
+  const rules = stateRules(state);
+  if (!rules.drs.enabled) return;
+  const sc = state.safetyCar;
+  const neutralised = sc ? (sc.red ? "redFlag" : sc.virtual ? "vsc" : "safetyCar") : null;
+  const status = drsStatus(rules, { lap, wetness: wetnessOn(state, lap), zones: state.track?.drs ?? 0, restartLap: state.restartLap || 0, sprint: Boolean(state.sprint), neutralised, wetTrack: wetDrsClosed(state, lap) });
+  const event = drsControlEvent(state.drsState, status, lap);
+  if (event) pushEvent(state, event, lap);
+  state.drsState = status;
+};
+
+/**
+ * SIM-C4 (GS-12): the lap of the race's launch - lap 1, or after a wet start behind the safety car the first green
+ * lap of a standing start (FIA 2024 art. 51), or none after a rolling one (art. 52: no launch, no first-corner scrum).
+ */
+export const launchLapOf = (state) => {
+  const wet = state.wetStart;
+  if (!wet) return 1;
+  return wet.release === "standing" ? wet.greenLap : null;
 };
 
 const normalisePlan = (plan, laps, eraOrRules) => {

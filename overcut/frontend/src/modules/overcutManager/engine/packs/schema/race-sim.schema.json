@@ -91,7 +91,8 @@
     "cooldown",
     "radio",
     "vsc",
-    "neutralisation"
+    "neutralisation",
+    "penalties"
   ],
   "properties": {
     "$comment": {
@@ -965,6 +966,38 @@
               "$ref": "#/definitions/measuredSpread"
             }
           }
+        },
+        "weave": {
+          "$comment": "SIM-C4 (AUD-C9): zigzag detrás del SC (safetyCar.js weaveOf).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["amplitudeM", "periodSec", "speedShare", "measured", "pending"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "amplitudeM": { "$ref": "#/definitions/nonNegative" },
+            "periodSec": { "$ref": "#/definitions/positive" },
+            "speedShare": { "type": "number", "minimum": 0, "maximum": 0.2 },
+            "measured": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["source", "lateralP90AbsM", "periodSec"],
+              "properties": {
+                "source": { "type": "string", "minLength": 1 },
+                "lateralP90AbsM": { "$ref": "#/definitions/measuredSpread" },
+                "lateralRmsM": { "$ref": "#/definitions/nonNegative" },
+                "periodSec": { "$ref": "#/definitions/measuredSpread" },
+                "rpmRangeShare": { "$ref": "#/definitions/measuredSpread" },
+                "gearChangesPer30s": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["p10", "median", "p90"],
+                  "properties": { "p10": { "$ref": "#/definitions/nonNegative" }, "median": { "$ref": "#/definitions/nonNegative" }, "p90": { "$ref": "#/definitions/nonNegative" } }
+                },
+                "speedResidualRms": { "$ref": "#/definitions/nonNegative" }
+              }
+            },
+            "pending": { "type": "array", "items": { "type": "string" } }
+          }
         }
       }
     },
@@ -1290,6 +1323,48 @@
             "pending": { "type": "array", "items": { "type": "string" } },
             "pendingNote": { "type": "string" }
           }
+        },
+        "wet": {
+          "$comment": "SIM-C4 (GS-12): la cadena de Dirección de Carrera en mojado y la salida detrás del SC (race.js wetControlStep, wetStartOf).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "wetTrackMm", "slipperyMm", "lowGripMm", "clearShare", "drsAfterWetTrackMin", "startBehindSc", "measured", "pending"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "status": { "enum": ["source", "measured", "derived", "pending", "NV"] },
+            "wetTrackMm": { "$ref": "#/definitions/positive" },
+            "slipperyMm": { "$ref": "#/definitions/positive" },
+            "lowGripMm": { "$ref": "#/definitions/positive" },
+            "clearShare": { "$ref": "#/definitions/share" },
+            "drsAfterWetTrackMin": { "$ref": "#/definitions/nonNegative" },
+            "startBehindSc": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "interCapacityShare", "endShare", "minLaps", "maxLaps", "rollingAboveShare"],
+              "properties": {
+                "$comment": { "type": "string" },
+                "status": { "enum": ["source", "measured", "derived", "pending", "NV"] },
+                "interCapacityShare": { "$ref": "#/definitions/positive" },
+                "endShare": { "$ref": "#/definitions/positive" },
+                "minLaps": { "type": "integer", "minimum": 1 },
+                "maxLaps": { "type": "integer", "minimum": 1 },
+                "rollingAboveShare": { "$ref": "#/definitions/positive" }
+              }
+            },
+            "measured": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["source", "minutesFromFirstRain"],
+              "properties": {
+                "source": { "type": "string", "minLength": 1 },
+                "minutesFromFirstRain": {
+                  "type": "object",
+                  "additionalProperties": { "$ref": "#/definitions/nonNegative" }
+                }
+              }
+            },
+            "pending": { "type": "array", "items": { "type": "string" } }
+          }
         }
       }
     },
@@ -1407,6 +1482,66 @@
             "defended": { "$ref": "#/definitions/nonNegative" },
             "lost": { "$ref": "#/definitions/nonNegative" }
           }
+        },
+        "spray": {
+          "$comment": "SIM-C4 (GS-11): aviso de spray al piloto del jugador (race.js radioFor).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["minLossSecPerLap", "cooldownLaps", "status"],
+          "properties": {
+            "$comment": { "type": "string" },
+            "minLossSecPerLap": { "$ref": "#/definitions/positive" },
+            "cooldownLaps": { "type": "integer", "minimum": 0 },
+            "status": { "enum": ["source", "measured", "derived", "pending", "NV"] },
+            "pending": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+    "penalties": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["retiredToGrid"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "retiredToGrid": {
+          "$comment": "SIM-C4: sanción de un retirado pasada a la parrilla de la carrera siguiente (race.js carryPenalty).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["eras", "places", "status", "pending"],
+          "properties": {
+            "eras": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["from", "to", "value", "status"],
+                "properties": {
+                  "from": { "type": "integer", "minimum": 1900 },
+                  "to": { "type": "integer", "minimum": 1900 },
+                  "value": { "type": ["boolean", "null"] },
+                  "status": { "enum": ["source", "pending"] },
+                  "url": { "type": "string" },
+                  "quote": { "type": "string" },
+                  "note": { "type": "string" }
+                }
+              }
+            },
+            "places": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["time5", "time10", "driveThrough", "stopGo"],
+              "properties": {
+                "time5": { "type": "integer", "minimum": 0 },
+                "time10": { "type": "integer", "minimum": 0 },
+                "driveThrough": { "type": "integer", "minimum": 0 },
+                "stopGo": { "type": "integer", "minimum": 0 }
+              }
+            },
+            "status": { "enum": ["source", "measured", "derived", "pending", "NV"] },
+            "pending": { "type": "array", "items": { "type": "string" } }
+          }
         }
       }
     },
@@ -1438,7 +1573,21 @@
           "type": "object",
           "additionalProperties": false,
           "required": ["targetGapSec", "maxDropSecPerLap"],
-          "properties": { "targetGapSec": { "$ref": "#/definitions/nonNegative" }, "maxDropSecPerLap": { "$ref": "#/definitions/nonNegative" } }
+          "properties": {
+            "targetGapSec": { "$ref": "#/definitions/nonNegative" },
+            "maxDropSecPerLap": { "$ref": "#/definitions/nonNegative" },
+            "spray": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["extraGapSec", "dropGain"],
+              "properties": {
+                "$comment": { "type": "string" },
+                "extraGapSec": { "$ref": "#/definitions/nonNegative" },
+                "dropGain": { "$ref": "#/definitions/nonNegative" },
+                "status": { "type": "string" }
+              }
+            }
+          }
         },
         "battleAssist": {
           "type": "object",
