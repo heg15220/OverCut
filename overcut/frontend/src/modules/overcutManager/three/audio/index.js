@@ -65,6 +65,13 @@
  * on the line), each with its camera's share (mixer.cameras.mix.*.rain). All optional: a frame
  * without them sounds as before, but with the drops in 1-8 kHz under the engines.
  *
+ * Timbre and polish (AUD-C6, AUD-C12, F1M24-CHINA §2.6, §2.7): each engine carries its maker's
+ * timbre in its years (voicing.byManufacturer); an upshift has a small rebound after its cut;
+ * going from live to a pause or a menu sounds a low thump; the replay's sting sounds its three
+ * layers on the length of broadcast.json replay.stingSec, on the frame's optional `replayPhase`
+ * (stingIn / stingOut) or, without it, on entering and leaving the replay; and the menus carry
+ * our own generative music (music.js) on the `music` bus, silent in every live view.
+ *
  * Recorded engines (AUD-C10): off by default (mixer.defaults.recorded false); every bank is
  * riskRipped or without a licence, so it only sounds when the viewer turns it on in a local
  * build, never in a public one (engineSamples.bankAllowed).
@@ -83,12 +90,14 @@ import { clickCueFor, createUiCueState, gateCue, isUiCue, playCue, uiCuesStep } 
 import { SAFETY_CAR_ID, createScCueState, scCarOf, scCuesStep } from "./safetyCarSound";
 import { createSampledVoice, loadEngineBank, recordedAvailable, sampleBankFor } from "./engineSamples";
 import { createFastForwardBed } from "./fastForwardBed";
+import { createMenuMusic } from "./music";
 
 export { engineSpecFor, eraFor, firingFrequency, nextGear, parseFormula } from "./engineSynth";
 export { gridRevsOf, startLightsStep } from "./ambience";
 export { blendMix, cameraMix, cutEnvelope, distanceGain, dopplerFactor, fastForwardOn, loadSettings, resolveView, saveSettings, sliderToGain, transitionAt, viewMix, viewTransition } from "./mixer";
 export { mixLevels } from "./levels";
-export { clickCueFor, cueShots, panFromDb, panGains, radioPanOf, radioSideOf, radioTimeline, uiCuesStep } from "./uiSounds";
+export { clickCueFor, cueShots, panFromDb, panGains, radioPanOf, radioSideOf, radioTimeline, stingSecOf, uiCuesStep } from "./uiSounds";
+export { musicBar } from "./music";
 export { SAFETY_CAR_ID, scCarOf, scCuesStep, scPoseOf } from "./safetyCarSound";
 export { safetyCarSpecFor } from "./engineSynth";
 export { binWeights, layerWeights, recordedAvailable, sampleBankFor, sampleTargets } from "./engineSamples";
@@ -131,6 +140,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
   let mixer = null;
   let ambience = null;
   let ffBed = null;
+  let music = null;
   let noiseBuffer = null;
   const uiState = createUiCueState();
   const scState = createScCueState();
@@ -249,6 +259,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       noiseBuffer = noise;
       ambience = createAmbience(ctx, mixer.ambience, noise, mixer.engine);
       ffBed = createFastForwardBed(ctx, mixer.fastForward, noise);
+      if (audioData.music) music = createMenuMusic(ctx, mixer.music);
       const size = audioData.mixer.maxVoices;
       voices = Array.from({ length: size }, () => createEngineVoice(ctx, noise, random));
       sampled = Array.from({ length: size }, () => createSampledVoice(ctx, sampleRandom));
@@ -297,8 +308,10 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
      * its driver's side; absent, the radio is centred). AUD-C5: weather (snapshot.weather
      * { state, rainRate, waterMm: { line, off, sectors } }) and spray (snapshot.spray[], by the
      * index of `cars`, or { carId: level }); a car may carry its own `spray` and `compound`.
+     * AUD-C12: replayPhase (the replay overlay's phase, stingIn / stingOut / ...; absent, the
+     * sting follows the replay view).
      */
-    frame({ tau = 0, playing = true, mode = "tv", focusId = null, cars = [], wetness = 0, events = [], started: startedFlag = false, view = null, camera, circuit: frameCircuit, start: frameStart = null, radio, panels = null, sc = null, vsc = null, scPose = null, speed = 1, weather = null, spray = null }) {
+    frame({ tau = 0, playing = true, mode = "tv", focusId = null, cars = [], wetness = 0, events = [], started: startedFlag = false, view = null, camera, circuit: frameCircuit, start: frameStart = null, radio, panels = null, sc = null, vsc = null, scPose = null, speed = 1, weather = null, spray = null, replayPhase }) {
       if (!ctx || ctx.state === "closed") return;
       const now = ctx.currentTime;
       const dt = lastTime === null ? 0 : Math.max(0, now - lastTime);
@@ -329,7 +342,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       // Interface cues (AUD-4): new alert events and radio messages, the replay, a skip.
       // AUD-5: deploying and withdrawing the SC/VSC; the log's own sc/vsc alert shares the cooldown.
       const scCues = scCuesStep(scState, { sc, vsc, year }).filter((cue) => gateCue(uiState, cue.kind, now));
-      const uiCues = [...uiCuesStep(uiState, { events, radio, panels, view: viewName, skipped: skippedAhead }, now), ...scCues].slice(0, audioData.ui.maxPerFrame);
+      const uiCues = [...uiCuesStep(uiState, { events, radio, panels, view: viewName, skipped: skippedAhead, replayPhase }, now), ...scCues].slice(0, audioData.ui.maxPerFrame);
       const uiGains = busGains(settings);
       if (uiGains.master > 0 && uiGains.ui > 0) uiCues.forEach((cue, k) => playCue(ctx, mixer.ui, noiseBuffer, cue.kind, cue.opts, now + k * audioData.ui.cueSpacingSec));
       const target = viewMix(mode, viewName);
@@ -349,6 +362,8 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       // AUD-C5: this camera's rain shares (drops, spray, the halo's low-pass on board).
       const rainShare = rainShareOf(mix);
       mixer.applyView(mix, now, { extraDb: step.db, tauSec: fade.transition ? fade.transition.tauSec : undefined });
+      // AUD-C12: menu music only while the view's music share is up (0 in every live view).
+      if (music) music.update(now, Math.max(Number(mix.music) || 0, Number(target.music) || 0));
 
       // AUD-C7: the end of the limited zone of each car leaving the lane (the engine's pitExitLine events).
       if (lineSeen > events.length) lineSeen = 0;
@@ -528,6 +543,7 @@ export const createRaceAudio = ({ seed = "race", year = 2012, engines = {}, circ
       sprays.forEach((voice) => voice.stop());
       if (ambience) ambience.stop();
       if (ffBed) ffBed.stop();
+      if (music) music.stop();
       if (mixer) mixer.disconnect();
       ctx.close().catch(() => {});
       ctx = null;

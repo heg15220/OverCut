@@ -27,7 +27,14 @@
           "properties": {
             "kind": {"enum": ["pop", "cut"]},
             "db": {"type": "number", "minimum": -40, "maximum": 12},
-            "ms": {"type": "number", "exclusiveMinimum": 0, "maximum": 500}
+            "ms": {"type": "number", "exclusiveMinimum": 0, "maximum": 500},
+            "rebound": {
+              "$comment": "AUD-C12: tras la muesca, la ganancia pasa db por encima de 1 y vuelve en ms (solo subidas; las reducciones llevan su golpe de gas).",
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["db", "ms"],
+              "properties": {"db": {"type": "number", "exclusiveMinimum": 0, "maximum": 6}, "ms": {"type": "number", "exclusiveMinimum": 0, "maximum": 200}}
+            }
           }
         },
         "source": {"type": "string", "minLength": 1}
@@ -184,7 +191,53 @@
         "lowpassHz": {"$ref": "#/definitions/positive"},
         "ffBed": {"$ref": "#/definitions/share"},
         "engineDb": {"type": "number", "minimum": -60, "maximum": 6},
-        "bedDb": {"type": "number", "minimum": -60, "maximum": 6}
+        "bedDb": {"type": "number", "minimum": -60, "maximum": 6},
+        "music": {"$ref": "#/definitions/share"}
+      }
+    },
+    "dbTrim": {"type": "number", "minimum": -12, "maximum": 12},
+    "manufacturerVoicing": {
+      "$comment": "AUD-C6: timbre por fabricante (dB sobre el perfil de cilindros). Sin claves de turbo ni de energía: la era decide eso (SRS §6.2).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "from", "to", "match", "overtoneTrim", "halfOrderTrim", "status", "source"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "id": {"type": "string", "minLength": 1},
+        "from": {"type": "integer", "minimum": 1950, "maximum": 2100},
+        "to": {"type": "integer", "minimum": 1950, "maximum": 2100},
+        "match": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "engineId": {"type": "string", "minLength": 1},
+            "manufacturer": {"type": "string", "minLength": 1},
+            "cylinders": {"type": "integer", "minimum": 1, "maximum": 16},
+            "layout": {"enum": ["V", "F", "W", "L"]}
+          }
+        },
+        "overtoneTrim": {"type": "array", "minItems": 1, "maxItems": 8, "items": {"$ref": "#/definitions/dbTrim"}},
+        "halfOrderTrim": {"$ref": "#/definitions/dbTrim"},
+        "status": {"enum": ["NV", "pending", "sourced", "measured"]},
+        "source": {"$ref": "#/definitions/text"}
+      }
+    },
+    "stingLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["startShare", "lengthShare", "gain"],
+      "properties": {
+        "startShare": {"type": "number", "minimum": 0, "maximum": 1},
+        "lengthShare": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "attackShare": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "attackSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.5},
+        "spacingShare": {"type": "number", "minimum": 0, "maximum": 0.5},
+        "fromHz": {"$ref": "#/definitions/positive"},
+        "toHz": {"$ref": "#/definitions/positive"},
+        "q": {"$ref": "#/definitions/positive"},
+        "notes": {"type": "array", "minItems": 1, "maxItems": 6, "items": {"type": "object", "additionalProperties": false, "required": ["hz"], "properties": {"hz": {"$ref": "#/definitions/positive"}}}},
+        "gain": {"$ref": "#/definitions/share"}
       }
     }
   },
@@ -202,6 +255,7 @@
         "$comment": {"type": "string"},
         "maxHarmonics": {"type": "integer", "minimum": 8, "maximum": 256},
         "byCylinders": {"type": "object", "propertyNames": {"pattern": "^[0-9]+$"}, "additionalProperties": {"$ref": "#/definitions/voice"}},
+        "byManufacturer": {"type": "array", "items": {"$ref": "#/definitions/manufacturerVoicing"}},
         "layoutHalfOrder": {
           "type": "object",
           "additionalProperties": false,
@@ -385,7 +439,84 @@
             "attackSec": {"$ref": "#/definitions/positive"},
             "cooldownSec": {"$ref": "#/definitions/nonNegative"}
           }
+        },
+        "pause": {
+          "$comment": "AUD-C12: golpe grave al entrar en pausa o en un menú desde el directo (0,1-0,4 s, por debajo de 200 Hz).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "views", "durationSec", "attackSec", "thump", "body", "cooldownSec"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "status": {"enum": ["NV", "pending", "sourced", "measured"]},
+            "views": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/definitions/text"}},
+            "durationSec": {"type": "number", "minimum": 0.1, "maximum": 0.4},
+            "attackSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.05},
+            "thump": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["fromHz", "toHz", "gain"],
+              "properties": {"fromHz": {"type": "number", "exclusiveMinimum": 0, "maximum": 200}, "toHz": {"type": "number", "exclusiveMinimum": 0, "maximum": 200}, "gain": {"$ref": "#/definitions/share"}}
+            },
+            "body": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["lowpassHz", "q", "gain", "durationShare"],
+              "properties": {"lowpassHz": {"type": "number", "exclusiveMinimum": 0, "maximum": 1000}, "q": {"$ref": "#/definitions/positive"}, "gain": {"$ref": "#/definitions/share"}, "durationShare": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}}
+            },
+            "cooldownSec": {"$ref": "#/definitions/nonNegative"}
+          }
+        },
+        "sting": {
+          "$comment": "AUD-C12: tres capas sobre la duración de broadcast.json replay.stingSec (única fuente).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "fallbackSec", "cooldownSec", "on", "sweep", "hit", "shimmer"],
+          "properties": {
+            "$comment": {"type": "string"},
+            "status": {"enum": ["NV", "pending", "sourced", "measured"]},
+            "fallbackSec": {"type": "number", "minimum": 0.5, "maximum": 4},
+            "cooldownSec": {"$ref": "#/definitions/nonNegative"},
+            "on": {"type": "object", "additionalProperties": false, "required": ["replay"], "properties": {"replay": {"type": "boolean"}}},
+            "sweep": {"$ref": "#/definitions/stingLayer"},
+            "hit": {"$ref": "#/definitions/stingLayer"},
+            "shimmer": {"$ref": "#/definitions/stingLayer"}
+          }
         }
+      }
+    },
+    "music": {
+      "$comment": "AUD-C12: música generativa propia de los menús (three/audio/music.js), con semilla fija por compás.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "seed", "bpm", "beatsPerBar", "rootHz", "scale", "progression", "pad", "bass", "arp", "lookaheadSec"],
+      "properties": {
+        "$comment": {"type": "string"},
+        "status": {"enum": ["NV", "pending", "sourced", "measured"]},
+        "seed": {"type": "string", "minLength": 1},
+        "bpm": {"type": "number", "minimum": 40, "maximum": 180},
+        "beatsPerBar": {"type": "integer", "minimum": 2, "maximum": 8},
+        "rootHz": {"type": "number", "minimum": 40, "maximum": 440},
+        "scale": {"type": "array", "minItems": 5, "maxItems": 12, "uniqueItems": true, "items": {"type": "integer", "minimum": 0, "maximum": 11}},
+        "progression": {"type": "array", "minItems": 1, "maxItems": 16, "items": {"type": "array", "minItems": 2, "maxItems": 5, "items": {"type": "integer", "minimum": 0, "maximum": 11}}},
+        "pad": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["octave", "gain", "attackSec", "releaseSec", "lowpassHz"],
+          "properties": {"octave": {"type": "integer", "minimum": -1, "maximum": 4}, "gain": {"$ref": "#/definitions/share"}, "attackSec": {"$ref": "#/definitions/positive"}, "releaseSec": {"$ref": "#/definitions/positive"}, "lowpassHz": {"$ref": "#/definitions/positive"}}
+        },
+        "bass": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["octave", "gain", "noteBeats"],
+          "properties": {"octave": {"type": "integer", "minimum": -1, "maximum": 4}, "gain": {"$ref": "#/definitions/share"}, "noteBeats": {"type": "integer", "minimum": 1, "maximum": 8}}
+        },
+        "arp": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["octave", "gain", "stepsPerBar", "noteSec", "density"],
+          "properties": {"octave": {"type": "integer", "minimum": -1, "maximum": 4}, "gain": {"$ref": "#/definitions/share"}, "stepsPerBar": {"type": "integer", "minimum": 1, "maximum": 32}, "noteSec": {"$ref": "#/definitions/positive"}, "density": {"$ref": "#/definitions/share"}}
+        },
+        "lookaheadSec": {"type": "number", "exclusiveMinimum": 0, "maximum": 4}
       }
     },
     "samples": {
@@ -435,7 +566,7 @@
           "type": "object",
           "additionalProperties": false,
           "required": ["master", "engine", "ambience", "muted", "ui", "uiMuted"],
-          "properties": {"master": {"$ref": "#/definitions/share"}, "engine": {"$ref": "#/definitions/share"}, "ambience": {"$ref": "#/definitions/share"}, "muted": {"type": "boolean"}, "ui": {"$ref": "#/definitions/share"}, "uiMuted": {"type": "boolean"}, "recorded": {"type": "boolean"}}
+          "properties": {"master": {"$ref": "#/definitions/share"}, "engine": {"$ref": "#/definitions/share"}, "ambience": {"$ref": "#/definitions/share"}, "muted": {"type": "boolean"}, "ui": {"$ref": "#/definitions/share"}, "uiMuted": {"type": "boolean"}, "recorded": {"type": "boolean"}, "music": {"$ref": "#/definitions/share"}}
         },
         "volumeCurve": {
           "type": "object",

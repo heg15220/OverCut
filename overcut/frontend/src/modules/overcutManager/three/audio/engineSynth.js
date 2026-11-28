@@ -15,8 +15,12 @@
  *   cycle frequency   rpm / 120, the base of the wave: harmonic `cylinders` is the firing note
  *   gear and rpm      from speed through the era's gearbox when the snapshot has no
  *                     rpm/gear yet (`pose.rpm` / `pose.gear` win when present)
+ *   maker's timbre    voicing.byManufacturer[] (AUD-C6): dB trims on the cylinder profile's
+ *                     overtones and half order for the pack's f1db manufacturer in its years;
+ *                     only the harmonic balance, never a turbo or an MGU-H (eras[] decide those)
  *   shift shape       per era and maker (audio.json shiftProfiles[]): the pitch glides to the
- *                     new gear over `glideMs` with a cut or a pop on the gain stage; every
+ *                     new gear over `glideMs` with a cut or a pop on the gain stage, and with
+ *                     `transient.rebound` (AUD-C12) a small overshoot after the cut; every
  *                     downshift adds a throttle blip (voicing.downshift), spaced no closer than
  *                     real downshifts (OpenF1 car_data)
  *   pit limiter       a flat tone: the fixed pit gear (pose.gear, or race-powertrain.json
@@ -102,7 +106,30 @@ export const rpmByYear = (anchors, year) => {
 export const shiftProfileFor = (year, facts = {}, eraShiftCutMs = 0, profiles = audioData.shiftProfiles) => {
   const hit = profiles.find((row) => year >= row.from && year <= row.to && matches(row, facts));
   if (!hit) return null;
-  return { id: hit.id, glideMs: hit.glideMs, transient: { kind: hit.transient.kind, db: hit.transient.db, ms: hit.transient.ms ?? eraShiftCutMs } };
+  const transient = { kind: hit.transient.kind, db: hit.transient.db, ms: hit.transient.ms ?? eraShiftCutMs };
+  // AUD-C12: the overshoot after the cut, only where the row has one.
+  if (hit.transient.rebound) transient.rebound = { db: hit.transient.rebound.db, ms: hit.transient.rebound.ms };
+  return { id: hit.id, glideMs: hit.glideMs, transient };
+};
+
+/**
+ * The maker's timbre for a season and engine (AUD-C6, audio.json voicing.byManufacturer[]): the
+ * first row whose years hold `year` and whose `match` fits the engine (the pack's f1db
+ * manufacturer, engine id, cylinders, layout). Null without one: the cylinder profile as it is.
+ */
+export const manufacturerVoicingFor = (year, facts = {}, rows = VOICING.byManufacturer || []) => rows.find((row) => year >= row.from && year <= row.to && matches(row, facts)) || null;
+
+const trimGain = (db) => 10 ** ((Number.isFinite(db) ? db : 0) / 20);
+
+/**
+ * The cylinder profile with a maker's trims on it: each overtone times its `overtoneTrim` (dB;
+ * missing entries 0 dB) and the half order times `halfOrderTrim`. Without a row, the profile.
+ * Returns { voice, halfOrder } (halfOrder already with the layout's factor).
+ */
+export const voiceWithTrims = (voice, halfOrder, row = null) => {
+  if (!row) return { voice, halfOrder };
+  const trims = row.overtoneTrim || [];
+  return { voice: { ...voice, overtones: voice.overtones.map((amp, k) => amp * trimGain(trims[k])) }, halfOrder: halfOrder * trimGain(row.halfOrderTrim) };
 };
 
 /**
@@ -134,7 +161,9 @@ export const engineSpecFor = (year, engine = null, where = {}) => {
   const rule = era.engines.find((candidate) => matches(candidate, facts)) || era.engines[era.engines.length - 1];
   const revLimit = rule.revLimitByYear ? rpmByYear(rule.revLimitByYear, year) : rule.revLimit;
   const shiftRpm = rule.revLimitByYear ? Math.round(revLimit * rule.shiftShare) : rule.shiftRpm;
-  const voice = VOICING.byCylinders[String(facts.cylinders)] || VOICING.byCylinders["10"];
+  const base = VOICING.byCylinders[String(facts.cylinders)] || VOICING.byCylinders["10"];
+  const maker = manufacturerVoicingFor(year, facts);
+  const { voice, halfOrder } = voiceWithTrims(base, base.halfOrder * (VOICING.layoutHalfOrder[facts.layout] ?? 1), maker);
   const charged = facts.aspiration !== "na";
   return {
     year,
@@ -156,7 +185,9 @@ export const engineSpecFor = (year, engine = null, where = {}) => {
     electric: era.electric,
     crackle: era.crackle,
     voice,
-    halfOrder: voice.halfOrder * (VOICING.layoutHalfOrder[facts.layout] ?? 1),
+    halfOrder,
+    // AUD-C6: the maker's row (its id keys the shared wave), null on the cylinder profile.
+    voicing: maker ? maker.id : null,
     source: rule.source,
   };
 };
@@ -211,6 +242,7 @@ export const safetyCarSpecFor = (year, cars = audioData.safetyCar.cars) => {
     crackle: row.crackle,
     voice,
     halfOrder: voice.halfOrder * (VOICING.layoutHalfOrder[parsed.layout] ?? 1),
+    voicing: null,
     source: row.source,
     safetyCar: true,
   };
@@ -406,15 +438,28 @@ const dbToGain = (db) => 10 ** (db / 20);
 // Without a profile (none holds the year: the data test forbids it) the change has no transient.
 const transientOf = (spec) => spec.shift?.transient || { kind: "cut", db: 0, ms: 0 };
 
+/** The rebound after the cut (AUD-C12, transient.rebound) in seconds and as a peak gain, or null. */
+const reboundOf = (spec) => {
+  const rebound = transientOf(spec).rebound;
+  if (!rebound || !(rebound.ms > 0) || !Number.isFinite(rebound.db)) return null;
+  return { length: rebound.ms / 1000, peak: dbToGain(rebound.db) };
+};
+
 /**
  * Gain of the shift transient, `since` seconds after the shift: a "cut" dips to its dB and
- * recovers, a "pop" jumps to its dB and settles, `ms` long (shiftProfiles[].transient).
+ * recovers, a "pop" jumps to its dB and settles, `ms` long (shiftProfiles[].transient). With a
+ * `rebound` (AUD-C12) the gain then rises to its dB over 1 and back, over its own ms (a half sine).
  */
 export const shiftCutGain = (spec, since) => {
   if (since < 0) return 1;
   const transient = transientOf(spec);
   const length = transient.ms / 1000;
-  if (length <= 0 || since >= length) return 1;
+  if (length <= 0) return 1;
+  if (since >= length) {
+    const rebound = reboundOf(spec);
+    if (!rebound || since >= length + rebound.length) return 1;
+    return 1 + (rebound.peak - 1) * Math.sin((Math.PI * (since - length)) / rebound.length);
+  }
   const start = dbToGain(transient.db);
   const share = since / length;
   if (transient.kind === "pop") return start + (1 - start) * share;
@@ -445,6 +490,12 @@ export const shiftEnvelope = (spec, { fromHz, toHz, blip = false }, at) => {
   } else {
     frequency.push([at + glide, toHz]);
     gain.push([at + cutLength, 1]);
+    // AUD-C12: an upshift's overshoot after the cut (a downshift has its blip instead).
+    const rebound = reboundOf(spec);
+    if (rebound) {
+      gain.push([at + cutLength + rebound.length / 2, rebound.peak], [at + cutLength + rebound.length, 1]);
+      until = Math.max(until, at + cutLength + rebound.length);
+    }
   }
   return { frequency, gain, until };
 };
@@ -463,7 +514,7 @@ const waveCache = new WeakMap();
 const waveFor = (ctx, spec, random) => {
   if (!waveCache.has(ctx)) waveCache.set(ctx, new Map());
   const cache = waveCache.get(ctx);
-  const key = `${spec.engine.cylinders}:${spec.engine.layout}`;
+  const key = `${spec.engine.cylinders}:${spec.engine.layout}:${spec.voicing || ""}`;
   if (!cache.has(key)) {
     const weights = harmonicWeights(spec.engine.cylinders, spec.voice, spec.halfOrder, VOICING.maxHarmonics, random);
     const imag = new Float32Array(weights.length);
@@ -547,7 +598,7 @@ export const createEngineVoice = (ctx, noiseBuffer, random) => {
     assign(next) {
       // Another car on this voice: its first change does not glide from the last car's pitch.
       if (spec !== next) lastBase = null;
-      if (spec &&spec.engine.cylinders === next.engine.cylinders && spec.engine.layout === next.engine.layout) {
+      if (spec && spec.engine.cylinders === next.engine.cylinders && spec.engine.layout === next.engine.layout && (spec.voicing || null) === (next.voicing || null)) {
         spec = next;
         return;
       }

@@ -13,6 +13,14 @@
  * simulation speed. The same cue serves the race and the playable sessions (engine/sessionSim
  * radio[], SES-C1).
  *
+ * Pause and sting (AUD-C12, F1M24-CHINA §2.7, §1.5 «Cortinilla»): a low thump of our own when
+ * the view goes from live to a pause or a menu (ui.pause; nothing on the way back), and the
+ * replay's sting in three layers - a noise sweep, a low hit and a two-tone shimmer - laid on the
+ * length of broadcast.json replay.stingSec, the one source of that length (ui.sting only shapes
+ * the layers). It sounds on the replay's own sting phases when the view hands them
+ * (`replayPhase` stingIn / stingOut) and otherwise on entering and leaving the replay view, in
+ * place of the whoosh there.
+ *
  * Two pure layers, tested in audio.test.js: `cueShots` turns a cue into a list of shots
  * (tones and filtered noise with their times and gains), and `uiCuesStep` decides from a view
  * frame which cues are due (new alert events, new radio messages, a change of view, a skip),
@@ -23,9 +31,10 @@
  */
 
 import audioData from "../../data/balance/audio.json";
+import broadcastData from "../../data/balance/broadcast.json";
 
 const UI = audioData.ui;
-const KINDS = ["click", "whoosh", "alert", "radio"];
+const KINDS = ["click", "whoosh", "alert", "radio", "pause", "sting"];
 const clamp = (value, lo, hi) => Math.min(hi, Math.max(lo, value));
 
 // ------------------------------------------------------------------ the radio's side (pure)
@@ -89,6 +98,18 @@ export const radioTimeline = ({ alert = false } = {}, cfg = UI) => {
   return { whoosh, motif, gap, static: noise, tail };
 };
 
+// ------------------------------------------------------------------ sting length (pure)
+
+/**
+ * How long the replay's sting lasts (s): broadcast.json replay.stingSec (CAM-C3, VIEW-13), the
+ * one source; ui.sting.fallbackSec only when that is missing; 0 without a sting block.
+ */
+export const stingSecOf = (cfg = UI, broadcast = broadcastData) => {
+  if (!cfg.sting) return 0;
+  const sec = Number(broadcast?.replay?.stingSec);
+  return Number.isFinite(sec) && sec > 0 ? sec : cfg.sting.fallbackSec;
+};
+
 // ------------------------------------------------------------------ shots (pure)
 
 /**
@@ -126,6 +147,42 @@ export const cueShots = (kind, opts = {}, cfg = UI) => {
     if (!level) return [];
     return a.steps.slice(0, level.steps).map((step, i) => ({ type: "tone", hz: step.hz, endHz: step.hz, start: i * a.stepSec, attackSec: a.attackSec, durationSec: a.toneSec, gain: a.gain }));
   }
+  if (kind === "pause") {
+    // AUD-C12: a falling low tone and a low-passed body of noise under it.
+    const p = cfg.pause;
+    if (!p) return [];
+    return [
+      { type: "tone", layer: "thump", hz: p.thump.fromHz, endHz: p.thump.toHz, start: 0, attackSec: p.attackSec, durationSec: p.durationSec, gain: p.thump.gain },
+      { type: "noise", layer: "body", start: 0, attackSec: p.attackSec, durationSec: p.durationSec * p.body.durationShare, gain: p.body.gain, filter: { type: "lowpass", hz: p.body.lowpassHz, endHz: p.body.lowpassHz, q: p.body.q } },
+    ];
+  }
+  if (kind === "sting") {
+    // AUD-C12: three layers on the sting's length (opts.stingSec, else broadcast.json's).
+    const s = cfg.sting;
+    if (!s) return [];
+    const length = Number.isFinite(opts.stingSec) && opts.stingSec > 0 ? opts.stingSec : stingSecOf(cfg);
+    const out = opts.direction === "out";
+    const { sweep, hit, shimmer } = s;
+    const shots = [
+      {
+        type: "noise",
+        layer: "sweep",
+        start: sweep.startShare * length,
+        attackSec: sweep.lengthShare * length * sweep.attackShare,
+        durationSec: sweep.lengthShare * length,
+        gain: sweep.gain,
+        filter: { type: "bandpass", hz: out ? sweep.toHz : sweep.fromHz, endHz: out ? sweep.fromHz : sweep.toHz, q: sweep.q },
+      },
+      { type: "tone", layer: "hit", hz: hit.fromHz, endHz: hit.toHz, start: hit.startShare * length, attackSec: hit.attackSec, durationSec: hit.lengthShare * length, gain: hit.gain },
+    ];
+    // The shimmer's notes come in one after another and all end with the sting.
+    const end = (shimmer.startShare + shimmer.lengthShare) * length;
+    shimmer.notes.forEach((note, i) => {
+      const start = (shimmer.startShare + i * shimmer.spacingShare) * length;
+      shots.push({ type: "tone", layer: "shimmer", hz: note.hz, endHz: note.hz, start, attackSec: shimmer.attackSec, durationSec: Math.max(0.01, end - start), gain: shimmer.gain });
+    });
+    return shots;
+  }
   if (kind === "radio") {
     const r = cfg.radio;
     const seq = r.sequence;
@@ -150,7 +207,7 @@ export const cueLength = (shots) => shots.reduce((end, shot) => Math.max(end, sh
 // ------------------------------------------------------------------ which cues are due (pure)
 
 /** A fresh state for `uiCuesStep` and the controller's own cues. */
-export const createUiCueState = () => ({ seenEvents: -1, radioKeys: null, view: undefined, last: {} });
+export const createUiCueState = () => ({ seenEvents: -1, radioKeys: null, view: undefined, replayPhase: undefined, phaseDriven: false, last: {} });
 
 /** Is a cue of this kind allowed at `now` (its cooldown since the last one)? Marks it played when it is. */
 export const gateCue = (state, kind, now, cfg = UI) => {
@@ -179,9 +236,10 @@ const radioKeyOf = (message, index) => {
  * The cues a view frame calls for. `frame`: { events (the engine's log, appended), radio
  * (optional: the engineer's messages, { key, alert } or engine { lap, carId, kind, t?, segment? }),
  * panels (optional: the player's cards' carIds in screen order, for the radio's side), view
- * (the resolved view name), skipped (a jump forward) }. The first frame only takes note of
- * what is already there (no burst when the view opens). At most `maxPerFrame` cues, the
- * most important first (alert, radio, whoosh), each behind its cooldown.
+ * (the resolved view name), skipped (a jump forward), replayPhase (optional: the replay
+ * overlay's phase, stingIn / stingOut / ...) }. The first frame only takes note of what is
+ * already there (no burst when the view opens). At most `maxPerFrame` cues, the most important
+ * first (alert, radio, sting or whoosh, pause), each behind its cooldown.
  * Returns [{ kind, opts }] and updates `state`.
  */
 export const uiCuesStep = (state, frame, now, cfg = UI) => {
@@ -210,9 +268,25 @@ export const uiCuesStep = (state, frame, now, cfg = UI) => {
   }
 
   const view = frame.view ?? null;
-  if (state.view !== undefined && cfg.whoosh.on.replay && (state.view === "replay") !== (view === "replay")) cues.push({ kind: "whoosh", opts: { direction: view === "replay" ? "in" : "out" } });
-  else if (state.view !== undefined && frame.skipped && cfg.whoosh.on.skip) cues.push({ kind: "whoosh", opts: { direction: "in" } });
+  const known = state.view !== undefined;
+  const replayToggled = known && (state.view === "replay") !== (view === "replay");
+  // AUD-C12: the sting takes the replay's place of the whoosh; on the overlay's own phases when
+  // the view hands them, else on entering and leaving the replay view.
+  const sting = Boolean(cfg.sting && cfg.sting.on && cfg.sting.on.replay);
+  const phase = typeof frame.replayPhase === "string" ? frame.replayPhase : null;
+  if (sting && phase !== null) {
+    if (known && phase !== state.replayPhase && (phase === "stingIn" || phase === "stingOut")) cues.push({ kind: "sting", opts: { direction: phase === "stingIn" ? "in" : "out" } });
+  } else if (sting && replayToggled && !state.phaseDriven) cues.push({ kind: "sting", opts: { direction: view === "replay" ? "in" : "out" } });
+  else if (!sting && replayToggled && cfg.whoosh.on.replay) cues.push({ kind: "whoosh", opts: { direction: view === "replay" ? "in" : "out" } });
+  if (!cues.some((cue) => cue.kind === "sting" || cue.kind === "whoosh") && known && frame.skipped && cfg.whoosh.on.skip) cues.push({ kind: "whoosh", opts: { direction: "in" } });
+  // AUD-C12: into a pause or a menu from a live view, the thump; leaving it, nothing.
+  const pauseViews = cfg.pause ? cfg.pause.views : [];
+  if (known && pauseViews.includes(view) && !pauseViews.includes(state.view)) cues.push({ kind: "pause", opts: {} });
   state.view = view;
+  state.replayPhase = phase;
+  // A replay whose overlay handed its phases already stung on them: leaving it adds nothing.
+  if (view !== "replay") state.phaseDriven = false;
+  else if (phase !== null) state.phaseDriven = true;
 
   return cues.filter((cue) => gateCue(state, cue.kind, now, cfg)).slice(0, cfg.maxPerFrame);
 };
